@@ -201,10 +201,135 @@ function updateStageUI() {
   }
 }
 
+function computeLetterLayout(context, char, width, height, fontScale = 0.50) {
+  const fontSize = Math.floor(height * fontScale);
+  context.font = '700 ' + fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
+  const m = context.measureText(char);
+
+  const ascent = m.actualBoundingBoxAscent || Math.round(fontSize * 0.68);
+  const descent = m.actualBoundingBoxDescent || 0;
+  const letterHeight = ascent + descent;
+  const matraZone = Math.max(14, Math.round(letterHeight * 0.35));
+
+  // Center the 5 lines vertically inside the available height
+  const cy = height * 0.50;
+  const baseY = cy + Math.round((ascent - descent) / 2);
+
+  // Line 2 (Shirorekha / Top Bold Line): EXACTLY at top of letter
+  const line2 = baseY - ascent;
+  // Line 4 (Base / Bottom Bold Line): EXACTLY at bottom of letter
+  const line4 = baseY + descent;
+  // Line 3 (Midline Dashed): Exactly in middle of body
+  const line3 = Math.round((line2 + line4) / 2);
+  // Line 1 (Upper Matra): Line 2 minus upper matra zone
+  const line1 = line2 - matraZone;
+  // Line 5 (Lower Matra): Line 4 plus lower matra zone
+  const line5 = line4 + matraZone;
+
+  // Horizontal framing tailored to the exact letter width
+  const cx = width / 2;
+  const glyphLeft = m.actualBoundingBoxLeft || Math.round(m.width / 2);
+  const glyphRight = m.actualBoundingBoxRight || Math.round(m.width / 2);
+  const letterWidth = glyphLeft + glyphRight;
+
+  const padX = Math.max(26, Math.round(letterWidth * 0.30));
+  const cellLeft = Math.max(8, Math.round(cx - glyphLeft - padX));
+  const cellRight = Math.min(width - 8, Math.round(cx + glyphRight + padX));
+
+  const brushWidth = Math.max(16, Math.round(fontSize * 0.11));
+
+  return {
+    fontSize,
+    ascent,
+    descent,
+    letterHeight,
+    matraZone,
+    baseY,
+    cx,
+    line1,
+    line2,
+    line3,
+    line4,
+    line5,
+    cellLeft,
+    cellRight,
+    brushWidth
+  };
+}
+
+function draw5Lines(context, layout, isGuide = false) {
+  const { line1, line2, line3, line4, line5, cellLeft, cellRight } = layout;
+
+  context.save();
+  // Clean soft notebook card behind writing cell
+  context.fillStyle = '#fffef7';
+  context.strokeStyle = '#c4deec';
+  context.lineWidth = 1.5;
+  const cardH = (line5 - line1) + 16;
+  const cardY = line1 - 8;
+  const radius = Math.min(16, Math.round((cellRight - cellLeft) * 0.08));
+
+  if (context.roundRect) {
+    context.beginPath();
+    context.roundRect(cellLeft, cardY, cellRight - cellLeft, cardH, radius);
+    context.fill();
+    context.stroke();
+  } else {
+    context.fillRect(cellLeft, cardY, cellRight - cellLeft, cardH);
+    context.strokeRect(cellLeft, cardY, cellRight - cellLeft, cardH);
+  }
+
+  // Line 1: Upper Matra Guide (Light Blue Dashed)
+  context.strokeStyle = '#8ecdf7';
+  context.lineWidth = 1.5;
+  context.setLineDash([6, 5]);
+  context.beginPath();
+  context.moveTo(cellLeft, line1);
+  context.lineTo(cellRight, line1);
+  context.stroke();
+
+  // Line 2: TOP BOLD SHIROREKHA LINE (Bold Solid Dark Blue)
+  context.setLineDash([]);
+  context.strokeStyle = '#124170';
+  context.lineWidth = isGuide ? 2.5 : 3.5;
+  context.beginPath();
+  context.moveTo(cellLeft, line2);
+  context.lineTo(cellRight, line2);
+  context.stroke();
+
+  // Line 3: Midline (Light Cyan Dashed)
+  context.strokeStyle = '#a4d4f2';
+  context.lineWidth = 1.5;
+  context.setLineDash([5, 5]);
+  context.beginPath();
+  context.moveTo(cellLeft, line3);
+  context.lineTo(cellRight, line3);
+  context.stroke();
+
+  // Line 4: BOTTOM BOLD BASE LINE (Bold Solid Dark Blue)
+  context.setLineDash([]);
+  context.strokeStyle = '#124170';
+  context.lineWidth = isGuide ? 2.5 : 3.5;
+  context.beginPath();
+  context.moveTo(cellLeft, line4);
+  context.lineTo(cellRight, line4);
+  context.stroke();
+
+  // Line 5: Lower Matra Guide (Light Pink Dashed)
+  context.strokeStyle = '#f8a5b8';
+  context.lineWidth = 1.5;
+  context.setLineDash([6, 5]);
+  context.beginPath();
+  context.moveTo(cellLeft, line5);
+  context.lineTo(cellRight, line5);
+  context.stroke();
+
+  context.restore();
+}
+
 function getBrushWidth() {
-  const h = w.clientHeight;
-  const fontSize = Math.floor(h * 0.63);
-  return Math.max(16, Math.round(fontSize * 0.11));
+  const layout = computeLetterLayout(ctx, lessons[idx].c, w.clientWidth, w.clientHeight, 0.50);
+  return layout.brushWidth;
 }
 
 function drawPad() {
@@ -212,31 +337,13 @@ function drawPad() {
   let ww = w.clientWidth, h = w.clientHeight;
   ctx.clearRect(0, 0, ww, h);
 
-  // 3-tier school guidelines
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = '#7cbdf8';
-  ctx.beginPath();
-  ctx.moveTo(0, h * 0.18);
-  ctx.lineTo(ww, h * 0.18);
-  ctx.stroke();
+  const char = lessons[idx].c;
+  const layout = computeLetterLayout(ctx, char, ww, h, 0.50);
 
-  ctx.setLineDash([9, 9]);
-  ctx.strokeStyle = '#b9dfff';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(0, h * 0.5);
-  ctx.lineTo(ww, h * 0.5);
-  ctx.stroke();
+  // 1. Draw 5 lines tailored to exact letter width
+  draw5Lines(ctx, layout, false);
 
-  ctx.setLineDash([]);
-  ctx.strokeStyle = '#ff8ca5';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(0, h * 0.82);
-  ctx.lineTo(ww, h * 0.82);
-  ctx.stroke();
-
-  // Watermark alpha determination
+  // 2. Watermark alpha determination
   let alpha = 0;
   if (hintActive) {
     alpha = 0.28;
@@ -251,19 +358,20 @@ function drawPad() {
     else alpha = 0;
   }
 
+  // 3. Draw Watermark Sitting EXACTLY between Line 2 and Line 4
   if (alpha > 0) {
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.fillStyle = '#1c5e4c';
-    ctx.font = '700 ' + Math.floor(h * 0.63) + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
+    ctx.font = '700 ' + layout.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(lessons[idx].c, ww / 2, h * 0.5);
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(char, layout.cx, layout.baseY);
     ctx.restore();
   }
 
-  // Redraw user strokes with width matching the watermark
-  const bw = getBrushWidth();
+  // 4. Redraw user strokes with width matching the watermark
+  const bw = layout.brushWidth;
   ctx.save();
   ctx.strokeStyle = '#173e33';
   ctx.fillStyle = '#173e33';
@@ -292,46 +400,46 @@ function drawGuide() {
   fit(g, gx);
   let ww = g.clientWidth, h = g.clientHeight;
   gx.clearRect(0, 0, ww, h);
-  gx.fillStyle = '#fff8e4';
-  gx.fillRect(0, 0, ww, h);
 
-  let a = h * 0.22, b = h * 0.5, c = h * 0.8;
-  [[a, '#93d8f3', false], [b, '#b8dff0', true], [c, '#ff9aaa', false]].forEach(v => {
-    gx.beginPath();
-    gx.setLineDash(v[2] ? [6, 5] : []);
-    gx.strokeStyle = v[1];
-    gx.lineWidth = 2;
-    gx.moveTo(8, v[0]);
-    gx.lineTo(ww - 8, v[0]);
-    gx.stroke();
-  });
-  gx.setLineDash([]);
+  const char = lessons[idx].c;
+  const layout = computeLetterLayout(gx, char, ww, h, 0.50);
 
-  let band = c - a;
+  // 1. Draw identical 5 lines tailored to exact letter width
+  draw5Lines(gx, layout, true);
+
+  // 2. Draw model letter Sitting EXACTLY between Line 2 and Line 4
+  gx.save();
   gx.fillStyle = '#102f25';
-  gx.font = '700 ' + Math.floor(band * 0.87) + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
+  gx.font = '700 ' + layout.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
   gx.textAlign = 'center';
-  gx.textBaseline = 'middle';
-  gx.fillText(lessons[idx].c, ww * 0.5, (a + c) / 2);
+  gx.textBaseline = 'alphabetic';
+  gx.fillText(char, layout.cx, layout.baseY);
 
-  // Stroke order arrow hint
+  // 3. Stroke order numbered indicator on Line 2 (Shirorekha)
+  const badgeX = layout.cellLeft + 14;
+  const badgeY = layout.line2;
   gx.fillStyle = '#168ed4';
   gx.beginPath();
-  gx.arc(20, a + 4, 10, 0, Math.PI * 2);
+  gx.arc(badgeX, badgeY, 9, 0, Math.PI * 2);
   gx.fill();
   gx.fillStyle = 'white';
-  gx.font = 'bold 11px sans-serif';
-  gx.fillText('1', 20, a + 4);
+  gx.font = 'bold 10px sans-serif';
+  gx.textAlign = 'center';
+  gx.textBaseline = 'middle';
+  gx.fillText('1', badgeX, badgeY);
 
+  // Stroke order directional arrow
   gx.strokeStyle = '#168ed4';
-  gx.lineWidth = 3;
+  gx.lineWidth = 2.5;
   gx.beginPath();
-  gx.moveTo(33, a + 4);
-  gx.lineTo(Math.min(ww - 15, 70), a + 4);
-  gx.lineTo(Math.min(ww - 21, 64), a - 2);
-  gx.moveTo(Math.min(ww - 15, 70), a + 4);
-  gx.lineTo(Math.min(ww - 21, 64), a + 10);
+  gx.moveTo(badgeX + 11, badgeY);
+  gx.lineTo(Math.min(layout.cellRight - 10, badgeX + 42), badgeY);
+  gx.lineTo(Math.min(layout.cellRight - 15, badgeX + 37), badgeY - 4);
+  gx.moveTo(Math.min(layout.cellRight - 10, badgeX + 42), badgeY);
+  gx.lineTo(Math.min(layout.cellRight - 15, badgeX + 37), badgeY + 4);
   gx.stroke();
+
+  gx.restore();
 }
 
 function render() {
@@ -431,9 +539,10 @@ function evaluateHandwriting(targetChar) {
   const tx = tc.getContext('2d');
   tx.fillStyle = '#000'; tx.fillRect(0, 0, S, S);
   tx.fillStyle = '#fff';
-  tx.font = '700 ' + Math.floor(S * 0.63) + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
-  tx.textAlign = 'center'; tx.textBaseline = 'middle';
-  tx.fillText(targetChar, S / 2, S * 0.5);
+  const tLayout = computeLetterLayout(tx, targetChar, S, S, 0.50);
+  tx.font = '700 ' + tLayout.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
+  tx.textAlign = 'center'; tx.textBaseline = 'alphabetic';
+  tx.fillText(targetChar, tLayout.cx, tLayout.baseY);
   const tData = tx.getImageData(0, 0, S, S).data;
   let tPixels = 0;
   for (let i = 0; i < tData.length; i += 4) {
@@ -448,7 +557,7 @@ function evaluateHandwriting(targetChar) {
   ux.fillStyle = '#000'; ux.fillRect(0, 0, S, S);
   ux.strokeStyle = '#fff';
   ux.fillStyle = '#fff';
-  const offscreenBw = Math.max(6, Math.round(S * 0.63 * 0.11));
+  const offscreenBw = tLayout.brushWidth;
   ux.lineWidth = offscreenBw;
   ux.lineCap = 'round'; ux.lineJoin = 'round';
 
