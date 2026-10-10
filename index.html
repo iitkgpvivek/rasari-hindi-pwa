@@ -1079,19 +1079,361 @@ const ILLUSTRATIONS = {
   "सेब": "<svg viewBox=\"0 0 100 100\" width=\"100\" height=\"100\">\n    <path d=\"M50 24 Q52 14 58 10\" stroke=\"#5d4037\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>\n    <path d=\"M54 14 C62 10 70 16 66 22 C58 22 54 18 54 14 Z\" fill=\"#43a047\"/>\n    <path d=\"M50 32 C40 20 18 24 20 54 C22 78 40 88 50 86 C60 88 78 78 80 54 C82 24 60 20 50 32 Z\" fill=\"#e53935\"/>\n    <ellipse cx=\"36\" cy=\"42\" rx=\"6\" ry=\"3\" transform=\"rotate(-30 36 42)\" fill=\"#ffffff\" opacity=\"0.35\"/>\n  </svg>"
 };
 
+// Grade 1 Hindi Barakhadi Matras (13 combinations: क, का, कि, की, कु, कू, कृ, के, कै, को, कौ, कं, कः)
+const BARAKHADI_MATRAS = [
+  { sym: '', name: 'अ (बिना मात्रा)', label: 'अ' },
+  { sym: 'ा', name: 'आ की मात्रा (ा)', label: 'ा' },
+  { sym: 'ि', name: 'इ की मात्रा (ि)', label: 'ि' },
+  { sym: 'ी', name: 'ई की मात्रा (ी)', label: 'ी' },
+  { sym: 'ु', name: 'उ की मात्रा (ु)', label: 'ु' },
+  { sym: 'ू', name: 'ऊ की मात्रा (ू)', label: 'ू' },
+  { sym: 'ृ', name: 'ऋ की मात्रा (ृ)', label: 'ृ' },
+  { sym: 'े', name: 'ए की मात्रा (े)', label: 'े' },
+  { sym: 'ै', name: 'ऐ की मात्रा (ै)', label: 'ै' },
+  { sym: 'ो', name: 'ओ की मात्रा (ो)', label: 'ो' },
+  { sym: 'ौ', name: 'औ की मात्रा (ौ)', label: 'ौ' },
+  { sym: 'ं', name: 'अनुस्वार (ं)', label: 'ं' },
+  { sym: 'ः', name: 'विसर्ग (ः)', label: 'ः' }
+];
+
+function getMatraCombo(char, matraSym) {
+  if (!matraSym) return char;
+  return char + matraSym;
+}
+
+// Extensible Grade 1 Hindi Word Banks for All 49 Letters (10+ vocabulary words per letter)
+const WORD_BANKS = {
+  "अ": [
+    { word: "अनार", emoji: "🍎" }, { word: "अमरूद", emoji: "🍈" }, { word: "अदरक", emoji: "🫚" },
+    { word: "अचकन", emoji: "🧥" }, { word: "अजगर", emoji: "🐍" }, { word: "अखबार", emoji: "📰" },
+    { word: "अनाज", emoji: "🌾" }, { word: "अपना", emoji: "🤝" }, { word: "अंबर", emoji: "☁️" },
+    { word: "अटकल", emoji: "🤔" }
+  ],
+  "आ": [
+    { word: "आम", emoji: "🥭" }, { word: "आग", emoji: "🔥" }, { word: "आटा", emoji: "🌾" },
+    { word: "आज", emoji: "📅" }, { word: "आलू", emoji: "🥔" }, { word: "आकाश", emoji: "🌌" },
+    { word: "आईना", emoji: "🪞" }, { word: "आसन", emoji: "🧘" }, { word: "आराम", emoji: "🛋️" },
+    { word: "आठ", emoji: "🎱" }
+  ],
+  "इ": [
+    { word: "इमली", emoji: "🍃" }, { word: "इत्र", emoji: "🧴" }, { word: "इनाम", emoji: "🏆" },
+    { word: "इमारत", emoji: "🏢" }, { word: "इधर", emoji: "👉" }, { word: "इशारा", emoji: "👆" },
+    { word: "इलायची", emoji: "🌿" }, { word: "इलाज", emoji: "🩺" }, { word: "इक्कीस", emoji: "2️⃣" },
+    { word: "इंद्रधनुष", emoji: "🌈" }
+  ],
+  "ई": [
+    { word: "ईख", emoji: "🎋" }, { word: "ईंट", emoji: "🧱" }, { word: "ईद", emoji: "🌙" },
+    { word: "ईमान", emoji: "⭐" }, { word: "ईशा", emoji: "👧" }, { word: "ईश्वर", emoji: "🙏" },
+    { word: "ईसा", emoji: "✝️" }, { word: "ईधन", emoji: "🪵" }, { word: "ईसप", emoji: "📖" },
+    { word: "ईर्ष्या", emoji: "😠" }
+  ],
+  "उ": [
+    { word: "उल्लू", emoji: "🦉" }, { word: "उपवन", emoji: "🏡" }, { word: "उपहार", emoji: "🎁" },
+    { word: "उड़ान", emoji: "✈️" }, { word: "उजाला", emoji: "💡" }, { word: "उंगली", emoji: "☝️" },
+    { word: "उछल", emoji: "🦘" }, { word: "उतर", emoji: "⬇️" }, { word: "उबाल", emoji: "🍲" },
+    { word: "उठना", emoji: "⏰" }
+  ],
+  "ऊ": [
+    { word: "ऊन", emoji: "🧶" }, { word: "ऊंट", emoji: "🐪" }, { word: "ऊपर", emoji: "⬆️" },
+    { word: "ऊंचाई", emoji: "🏔️" }, { word: "ऊर्जा", emoji: "⚡" }, { word: "ऊसर", emoji: "🏜️" },
+    { word: "ऊधम", emoji: "🏃" }, { word: "ऊनम", emoji: "🌼" }, { word: "ऊख", emoji: "🎋" },
+    { word: "ऊबा", emoji: "🥱" }
+  ],
+  "ऋ": [
+    { word: "ऋषि", emoji: "🧘" }, { word: "ऋतु", emoji: "🌦️" }, { word: "ऋण", emoji: "🪙" },
+    { word: "ऋचा", emoji: "📜" }, { word: "ऋषभ", emoji: "🐂" }, { word: "ऋग्वेद", emoji: "📖" },
+    { word: "ऋजु", emoji: "📏" }, { word: "ऋषिकेश", emoji: "🏞️" }, { word: "ऋणदाता", emoji: "🏦" },
+    { word: "ऋतुराज", emoji: "🌸" }
+  ],
+  "ए": [
+    { word: "एड़ी", emoji: "🦶" }, { word: "एक", emoji: "1️⃣" }, { word: "एकता", emoji: "🤝" },
+    { word: "एशिया", emoji: "🌏" }, { word: "एकल", emoji: "👤" }, { word: "एकाग्र", emoji: "🎯" },
+    { word: "एकत्र", emoji: "👥" }, { word: "एहसास", emoji: "💖" }, { word: "एवरेस्ट", emoji: "🏔️" },
+    { word: "एतबार", emoji: "🛡️" }
+  ],
+  "ऐ": [
+    { word: "ऐनक", emoji: "👓" }, { word: "ऐरावत", emoji: "🐘" }, { word: "ऐब", emoji: "❌" },
+    { word: "ऐतिहासिक", emoji: "🏛️" }, { word: "ऐश्वर्य", emoji: "👑" }, { word: "ऐंठ", emoji: "🌀" },
+    { word: "ऐलान", emoji: "📢" }, { word: "ऐसी", emoji: "✨" }, { word: "ऐयाश", emoji: "🎉" },
+    { word: "ऐच्छिक", emoji: "☑️" }
+  ],
+  "ओ": [
+    { word: "ओखली", emoji: "🥣" }, { word: "ओस", emoji: "💧" }, { word: "ओला", emoji: "🧊" },
+    { word: "ओढ़नी", emoji: "🧣" }, { word: "ओठ", emoji: "👄" }, { word: "ओनम", emoji: "🌺" },
+    { word: "ओर", emoji: "🧭" }, { word: "ओझल", emoji: "🌫️" }, { word: "ओज", emoji: "🌟" },
+    { word: "ओट", emoji: "🧱" }
+  ],
+  "औ": [
+    { word: "औरत", emoji: "👩" }, { word: "औजार", emoji: "🔧" }, { word: "औषधि", emoji: "💊" },
+    { word: "औलाद", emoji: "👶" }, { word: "औसत", emoji: "📊" }, { word: "और", emoji: "➕" },
+    { word: "औचक", emoji: "⚡" }, { word: "औंधा", emoji: "🙃" }, { word: "औकात", emoji: "💪" },
+    { word: "औचित्य", emoji: "⚖️" }
+  ],
+  "अं": [
+    { word: "अंगूर", emoji: "🍇" }, { word: "अंडा", emoji: "🥚" }, { word: "अंगूठी", emoji: "💍" },
+    { word: "अंक", emoji: "🔢" }, { word: "अंतिम", emoji: "🏁" }, { word: "अंग", emoji: "🖐️" },
+    { word: "अंजन", emoji: "👁️" }, { word: "अंचल", emoji: "🏞️" }, { word: "अंबर", emoji: "🌌" },
+    { word: "अंगद", emoji: "🛡️" }
+  ],
+  "अः": [
+    { word: "प्रातः", emoji: "🌅" }, { word: "पुनः", emoji: "🔄" }, { word: "अतः", emoji: "➡️" },
+    { word: "फलतः", emoji: "🎯" }, { word: "मूलतः", emoji: "🌱" }, { word: "क्रमशः", emoji: "🔢" },
+    { word: "अंततः", emoji: "🏁" }, { word: "विशेषतः", emoji: "⭐" }, { word: "संभवतः", emoji: "❓" },
+    { word: "स्वतः", emoji: "🤖" }
+  ],
+  "क": [
+    { word: "कमल", emoji: "🪷" }, { word: "कबूतर", emoji: "🕊️" }, { word: "कलम", emoji: "✒️" },
+    { word: "कार", emoji: "🚗" }, { word: "काम", emoji: "💼" }, { word: "किताब", emoji: "📖" },
+    { word: "कील", emoji: "📌" }, { word: "कुत्ता", emoji: "🐕" }, { word: "केला", emoji: "🍌" },
+    { word: "कौआ", emoji: "🦅" }, { word: "कैंची", emoji: "✂️" }, { word: "कोट", emoji: "🧥" }
+  ],
+  "ख": [
+    { word: "खत", emoji: "✉️" }, { word: "खरगोश", emoji: "🐇" }, { word: "खिड़की", emoji: "🪟" },
+    { word: "खीर", emoji: "🥣" }, { word: "खीरा", emoji: "🥒" }, { word: "खुशी", emoji: "😊" },
+    { word: "खजूर", emoji: "🌴" }, { word: "खेल", emoji: "⚽" }, { word: "खटिया", emoji: "🛏️" },
+    { word: "खाना", emoji: "🍲" }
+  ],
+  "ग": [
+    { word: "गमला", emoji: "🪴" }, { word: "गाय", emoji: "🐄" }, { word: "गाजर", emoji: "🥕" },
+    { word: "गुलाब", emoji: "🌹" }, { word: "गुड़िया", emoji: "🪆" }, { word: "गेंदा", emoji: "🌼" },
+    { word: "गोभी", emoji: "🥦" }, { word: "गेंद", emoji: "⚽" }, { word: "गधा", emoji: "🫏" },
+    { word: "गरम", emoji: "☕" }
+  ],
+  "घ": [
+    { word: "घर", emoji: "🏠" }, { word: "घड़ी", emoji: "⌚" }, { word: "घड़ा", emoji: "🏺" },
+    { word: "घोड़ा", emoji: "🐎" }, { word: "घास", emoji: "🌱" }, { word: "घंटी", emoji: "🔔" },
+    { word: "घोंसला", emoji: "🪺" }, { word: "घी", emoji: "🧈" }, { word: "घुटना", emoji: "🦵" },
+    { word: "घमंड", emoji: "🦚" }
+  ],
+  "ङ": [
+    { word: "खाली", emoji: "🔔" }, { word: "वाङ्मय", emoji: "📚" }, { word: "अङ्ग", emoji: "🖐️" },
+    { word: "गङ्गा", emoji: "🌊" }, { word: "रङ्ग", emoji: "🎨" }, { word: "सङ्ग", emoji: "🤝" },
+    { word: "पङ्क", emoji: "🪷" }, { word: "शङ्ख", emoji: "🐚" }, { word: "अङ्क", emoji: "🔢" },
+    { word: "दिङ्नाग", emoji: "🐘" }
+  ],
+  "च": [
+    { word: "चम्मच", emoji: "🥄" }, { word: "चावल", emoji: "🍚" }, { word: "चाय", emoji: "☕" },
+    { word: "चाबी", emoji: "🔑" }, { word: "चीता", emoji: "🐆" }, { word: "चिड़िया", emoji: "🐦" },
+    { word: "चूहा", emoji: "🐀" }, { word: "चेहरा", emoji: "😊" }, { word: "चांद", emoji: "🌙" },
+    { word: "चरखा", emoji: "🧶" }
+  ],
+  "छ": [
+    { word: "छतरी", emoji: "☂️" }, { word: "छाता", emoji: "⛱️" }, { word: "छत", emoji: "🏠" },
+    { word: "छड़ी", emoji: "🦯" }, { word: "छोटा", emoji: "👶" }, { word: "छुट्टी", emoji: "🏖️" },
+    { word: "छिपकली", emoji: "🦎" }, { word: "छलनी", emoji: "🥣" }, { word: "छिलका", emoji: "🍌" },
+    { word: "छक्का", emoji: "🏏" }
+  ],
+  "ज": [
+    { word: "जल", emoji: "💧" }, { word: "जग", emoji: "🫖" }, { word: "जहाज", emoji: "🚢" },
+    { word: "जामुन", emoji: "🫐" }, { word: "जीभ", emoji: "👅" }, { word: "जूता", emoji: "👞" },
+    { word: "जेब", emoji: "👖" }, { word: "जलेबी", emoji: "🥨" }, { word: "जंगल", emoji: "🌳" },
+    { word: "जाल", emoji: "🕸️" }
+  ],
+  "झ": [
+    { word: "झंडा", emoji: "🚩" }, { word: "झूला", emoji: "🪑" }, { word: "झरना", emoji: "🏞️" },
+    { word: "झोपड़ी", emoji: "🛖" }, { word: "झुमका", emoji: "💍" }, { word: "झाड़ू", emoji: "🧹" },
+    { word: "झील", emoji: "🌊" }, { word: "झोला", emoji: "👜" }, { word: "झपटना", emoji: "🦅" },
+    { word: "झरोखा", emoji: "🪟" }
+  ],
+  "ञ": [
+    { word: "खाली", emoji: "🔔" }, { word: "मञ्च", emoji: "🎭" }, { word: "चञ्चल", emoji: "✨" },
+    { word: "पञ्च", emoji: "🖐️" }, { word: "सञ्जय", emoji: "🛡️" }, { word: "कुञ्ज", emoji: "🌿" },
+    { word: "पिञ्जरा", emoji: "🦜" }, { word: "व्यञ्जन", emoji: "🍲" }, { word: "अञ्जन", emoji: "👁️" },
+    { word: "गञ्ज", emoji: "🏙️" }
+  ],
+  "ट": [
+    { word: "टब", emoji: "🛁" }, { word: "टमाटर", emoji: "🍅" }, { word: "टोपी", emoji: "🧢" },
+    { word: "टोकरी", emoji: "🧺" }, { word: "टीका", emoji: "💉" }, { word: "टहनी", emoji: "🌿" },
+    { word: "टमटम", emoji: "🐎" }, { word: "टिकट", emoji: "🎫" }, { word: "टपक", emoji: "💧" },
+    { word: "टूथपेस्ट", emoji: "🪥" }
+  ],
+  "ठ": [
+    { word: "ठप्पा", emoji: "📮" }, { word: "ठेला", emoji: "🛒" }, { word: "ठंडा", emoji: "🍦" },
+    { word: "ठठेरा", emoji: "🔨" }, { word: "ठोड़ी", emoji: "🧔" }, { word: "ठुमका", emoji: "💃" },
+    { word: "ठोस", emoji: "🧱" }, { word: "ठग", emoji: "🥷" }, { word: "ठहराव", emoji: "🛑" },
+    { word: "ठिठक", emoji: "⏸️" }
+  ],
+  "ड": [
+    { word: "डमरू", emoji: "🪘" }, { word: "डाल", emoji: "🌿" }, { word: "डाकिया", emoji: "📬" },
+    { word: "डिबिया", emoji: "📦" }, { word: "डंडा", emoji: "🦯" }, { word: "डर", emoji: "😨" },
+    { word: "डोर", emoji: "🧵" }, { word: "डॉक्टर", emoji: "🩺" }, { word: "डगमग", emoji: "⛵" },
+    { word: "डोल", emoji: "🪣" }
+  ],
+  "ढ": [
+    { word: "ढक्कन", emoji: "🫕" }, { word: "ढोल", emoji: "🥁" }, { word: "ढलान", emoji: "⛷️" },
+    { word: "ढाल", emoji: "🛡️" }, { word: "ढोलक", emoji: "🪘" }, { word: "ढेर", emoji: "⛰️" },
+    { word: "ढूंढ", emoji: "🔍" }, { word: "ढाई", emoji: "2️⃣" }, { word: "ढीला", emoji: "👖" },
+    { word: "ढकोसला", emoji: "🎭" }
+  ],
+  "ण": [
+    { word: "बाण", emoji: "🏹" }, { word: "हिरण", emoji: "🦌" }, { word: "चरण", emoji: "🦶" },
+    { word: "रावण", emoji: "👑" }, { word: "वीणा", emoji: "🪕" }, { word: "गणेश", emoji: "🐘" },
+    { word: "गुण", emoji: "⭐" }, { word: "कण", emoji: "✨" }, { word: "किरण", emoji: "☀️" },
+    { word: "दर्पण", emoji: "🪞" }
+  ],
+  "त": [
+    { word: "तितली", emoji: "🦋" }, { word: "तराजू", emoji: "⚖️" }, { word: "ताला", emoji: "🔒" },
+    { word: "तोता", emoji: "🦜" }, { word: "तरबूज", emoji: "🍉" }, { word: "तारा", emoji: "⭐" },
+    { word: "तीर", emoji: "🏹" }, { word: "तकिया", emoji: "🛌" }, { word: "तबला", emoji: "🪘" },
+    { word: "तालाब", emoji: "🏞️" }
+  ],
+  "थ": [
+    { word: "थर्मस", emoji: "🍶" }, { word: "थाली", emoji: "🍽️" }, { word: "थैला", emoji: "🛍️" },
+    { word: "थकना", emoji: "😫" }, { word: "थाना", emoji: "👮" }, { word: "थप्पड़", emoji: "✋" },
+    { word: "थल", emoji: "🌍" }, { word: "थोड़ा", emoji: "🤏" }, { word: "थान", emoji: "🧵" },
+    { word: "थाप", emoji: "🥁" }
+  ],
+  "द": [
+    { word: "दवात", emoji: "🖋️" }, { word: "दरवाजा", emoji: "🚪" }, { word: "दूध", emoji: "🥛" },
+    { word: "दही", emoji: "🥣" }, { word: "दुकान", emoji: "🏪" }, { word: "दांत", emoji: "🦷" },
+    { word: "दीपक", emoji: "🪔" }, { word: "दिल", emoji: "❤️" }, { word: "दर्जी", emoji: "🪡" },
+    { word: "दस", emoji: "🔟" }
+  ],
+  "ध": [
+    { word: "धनुष", emoji: "🏹" }, { word: "धोबी", emoji: "🧺" }, { word: "धागा", emoji: "🧵" },
+    { word: "धूप", emoji: "☀️" }, { word: "धन", emoji: "💰" }, { word: "धरती", emoji: "🌍" },
+    { word: "धनिया", emoji: "🌿" }, { word: "धुआं", emoji: "💨" }, { word: "धड़कन", emoji: "💓" },
+    { word: "धब्बा", emoji: "🫧" }
+  ],
+  "न": [
+    { word: "नल", emoji: "🚰" }, { word: "नाव", emoji: "⛵" }, { word: "नाक", emoji: "👃" },
+    { word: "नींबू", emoji: "🍋" }, { word: "नदी", emoji: "🏞️" }, { word: "नमक", emoji: "🧂" },
+    { word: "नारियल", emoji: "🥥" }, { word: "नाखून", emoji: "💅" }, { word: "नक्शा", emoji: "🗺️" },
+    { word: "नटखट", emoji: "🐒" }
+  ],
+  "प": [
+    { word: "पतंग", emoji: "🪁" }, { word: "पपीता", emoji: "🍈" }, { word: "पानी", emoji: "💧" },
+    { word: "पेड़", emoji: "🌳" }, { word: "पेंसिल", emoji: "✏️" }, { word: "पंखा", emoji: "🪭" },
+    { word: "पैर", emoji: "🦶" }, { word: "पहाड़", emoji: "⛰️" }, { word: "पालक", emoji: "🥬" },
+    { word: "पपीहा", emoji: "🐦" }
+  ],
+  "फ": [
+    { word: "फल", emoji: "🍎" }, { word: "फूल", emoji: "🌸" }, { word: "फव्वारा", emoji: "⛲" },
+    { word: "फसल", emoji: "🌾" }, { word: "फाटक", emoji: "🚪" }, { word: "फीता", emoji: "📏" },
+    { word: "फर्श", emoji: "🪵" }, { word: "फौजी", emoji: "🪖" }, { word: "फंदा", emoji: "🪢" },
+    { word: "फुहार", emoji: "🌧️" }
+  ],
+  "ब": [
+    { word: "बस", emoji: "🚌" }, { word: "बकरी", emoji: "🐐" }, { word: "बंदर", emoji: "🐒" },
+    { word: "बत्तख", emoji: "🦆" }, { word: "बादल", emoji: "☁️" }, { word: "बगीचा", emoji: "🏡" },
+    { word: "बिल्ली", emoji: "🐱" }, { word: "बाल", emoji: "💇" }, { word: "बोतल", emoji: "🍾" },
+    { word: "बर्तन", emoji: "🍽️" }
+  ],
+  "भ": [
+    { word: "भालू", emoji: "🐻" }, { word: "भारत", emoji: "🇮🇳" }, { word: "भवन", emoji: "🏛️" },
+    { word: "भेड़", emoji: "🐑" }, { word: "भिंडी", emoji: "🥒" }, { word: "भोजन", emoji: "🍛" },
+    { word: "भंवरा", emoji: "🐝" }, { word: "भट्टी", emoji: "🔥" }, { word: "भुट्टा", emoji: "🌽" },
+    { word: "भाई", emoji: "👦" }
+  ],
+  "म": [
+    { word: "मछली", emoji: "🐟" }, { word: "मोर", emoji: "🦚" }, { word: "मटर", emoji: "🫛" },
+    { word: "माला", emoji: "📿" }, { word: "मिठाई", emoji: "🍬" }, { word: "मकान", emoji: "🏠" },
+    { word: "मकड़ी", emoji: "🕷️" }, { word: "मां", emoji: "👩" }, { word: "मुकुट", emoji: "👑" },
+    { word: "मेला", emoji: "🎡" }
+  ],
+  "य": [
+    { word: "यज्ञ", emoji: "🪔" }, { word: "याक", emoji: "🐂" }, { word: "यात्रा", emoji: "🚂" },
+    { word: "याद", emoji: "💭" }, { word: "युवक", emoji: "🧑" }, { word: "योग", emoji: "🧘" },
+    { word: "योद्धा", emoji: "⚔️" }, { word: "यान", emoji: "🚀" }, { word: "यमुना", emoji: "🌊" },
+    { word: "यकीन", emoji: "🤝" }
+  ],
+  "र": [
+    { word: "रथ", emoji: "🛞" }, { word: "रोटी", emoji: "🫓" }, { word: "रेल", emoji: "🚆" },
+    { word: "रस्सी", emoji: "🪢" }, { word: "राजा", emoji: "🤴" }, { word: "रात", emoji: "🌙" },
+    { word: "रंग", emoji: "🎨" }, { word: "राखी", emoji: "🎀" }, { word: "रबड़", emoji: "🧽" },
+    { word: "रसोई", emoji: "🍳" }
+  ],
+  "ल": [
+    { word: "लट्टू", emoji: "🪀" }, { word: "लाल", emoji: "🔴" }, { word: "लड़का", emoji: "👦" },
+    { word: "लड़की", emoji: "👧" }, { word: "लोमड़ी", emoji: "🦊" }, { word: "लड्डू", emoji: "🟡" },
+    { word: "लहसुन", emoji: "🧄" }, { word: "लोहा", emoji: "🔩" }, { word: "लकड़ी", emoji: "🪵" },
+    { word: "लौकी", emoji: "🥒" }
+  ],
+  "व": [
+    { word: "वक", emoji: "🦩" }, { word: "वीणा", emoji: "🪕" }, { word: "वृक्ष", emoji: "🌳" },
+    { word: "वर्षा", emoji: "🌧️" }, { word: "वानर", emoji: "🐒" }, { word: "वायु", emoji: "💨" },
+    { word: "वकील", emoji: "🧑‍⚖️" }, { word: "वरदान", emoji: "✨" }, { word: "वजन", emoji: "⚖️" },
+    { word: "वस्त्र", emoji: "👗" }
+  ],
+  "श": [
+    { word: "शलजम", emoji: "🧅" }, { word: "शेर", emoji: "🦁" }, { word: "शहद", emoji: "🍯" },
+    { word: "शीशा", emoji: "🪞" }, { word: "शंख", emoji: "🐚" }, { word: "शिकार", emoji: "🏹" },
+    { word: "शहर", emoji: "🏙️" }, { word: "शरीर", emoji: "🧍" }, { word: "शाखा", emoji: "🌿" },
+    { word: "शरबत", emoji: "🍹" }
+  ],
+  "ष": [
+    { word: "षट्कोण", emoji: "⬡" }, { word: "भाषा", emoji: "🗣️" }, { word: "धनुष", emoji: "🏹" },
+    { word: "ऋषि", emoji: "🧘" }, { word: "दोष", emoji: "⚠️" }, { word: "विष", emoji: "🧪" },
+    { word: "हर्ष", emoji: "😃" }, { word: "मेष", emoji: "🐑" }, { word: "वर्षा", emoji: "🌧️" },
+    { word: "उषा", emoji: "🌅" }
+  ],
+  "स": [
+    { word: "सच", emoji: "⚖️" }, { word: "सेब", emoji: "🍎" }, { word: "सूरज", emoji: "☀️" },
+    { word: "सड़क", emoji: "🛣️" }, { word: "साबुन", emoji: "🧼" }, { word: "साइकिल", emoji: "🚲" },
+    { word: "सांप", emoji: "🐍" }, { word: "समोसा", emoji: "🥟" }, { word: "सब्जी", emoji: "🥕" },
+    { word: "सैनिक", emoji: "🪖" }
+  ],
+  "ह": [
+    { word: "हल", emoji: "🌾" }, { word: "हाथ", emoji: "✋" }, { word: "हाथी", emoji: "🐘" },
+    { word: "हिरण", emoji: "🦌" }, { word: "हवा", emoji: "💨" }, { word: "हथौड़ा", emoji: "🔨" },
+    { word: "हंस", emoji: "🦢" }, { word: "हवाईजहाज", emoji: "✈️" }, { word: "हल्दी", emoji: "🟡" },
+    { word: "हंसना", emoji: "😄" }
+  ],
+  "क्ष": [
+    { word: "क्षत्रिय", emoji: "⚔️" }, { word: "कक्षा", emoji: "🏫" }, { word: "पक्षी", emoji: "🐦" },
+    { word: "वृक्ष", emoji: "🌳" }, { word: "क्षमा", emoji: "🙏" }, { word: "क्षेत्र", emoji: "🌾" },
+    { word: "क्षण", emoji: "⏱️" }, { word: "अक्षर", emoji: "🔤" }, { word: "शिक्षक", emoji: "👨‍🏫" },
+    { word: "सुरक्षा", emoji: "🛡️" }
+  ],
+  "त्र": [
+    { word: "त्रिशूल", emoji: "🔱" }, { word: "यात्रा", emoji: "🚂" }, { word: "मित्र", emoji: "🤝" },
+    { word: "चित्र", emoji: "🖼️" }, { word: "पत्र", emoji: "✉️" }, { word: "नेत्र", emoji: "👁️" },
+    { word: "छात्र", emoji: "🎒" }, { word: "पुत्र", emoji: "👦" }, { word: "सत्र", emoji: "📅" },
+    { word: "मंत्र", emoji: "📿" }
+  ],
+  "ज्ञ": [
+    { word: "ज्ञानी", emoji: "📖" }, { word: "ज्ञान", emoji: "💡" }, { word: "विज्ञान", emoji: "🔬" },
+    { word: "यज्ञ", emoji: "🪔" }, { word: "अज्ञात", emoji: "❓" }, { word: "संज्ञा", emoji: "🏷️" },
+    { word: "प्रतिज्ञा", emoji: "✋" }, { word: "जिज्ञासा", emoji: "🧐" }, { word: "आज्ञा", emoji: "📜" },
+    { word: "सर्वज्ञ", emoji: "🌟" }
+  ]
+};
+
+function getWordForLetter(char, wordIdx) {
+  const bank = WORD_BANKS[char] || [];
+  if (!bank.length) return { word: char, emoji: '✍️' };
+  if (wordIdx < bank.length) return bank[wordIdx];
+  const cycleIdx = wordIdx % bank.length;
+  return bank[cycleIdx];
+}
+
 function renderClue(item, step) {
   const clueEl = $('clueEmoji');
   if (!clueEl) return;
 
+  const char = item.c;
+  const m = getLetterMastery(char);
   let key = '';
   let fallback = item.emoji;
 
-  if (step === 2 && !item.isSwar) {
-    key = item.matra?.exWord || '';
-    fallback = item.matra?.exEmoji || '🌿';
-  } else {
+  if (step === 1) {
     key = item.word || '';
     fallback = item.emoji;
+  } else if (step === 2 && !item.isSwar) {
+    const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+    const combo = getMatraCombo(char, matraObj.sym);
+    const wordObj = (WORD_BANKS[char] || []).find(w => w.word.startsWith(combo));
+    if (wordObj) {
+      key = wordObj.word;
+      fallback = wordObj.emoji || item.emoji;
+    } else {
+      key = item.matra?.exWord || item.word || '';
+      fallback = item.matra?.exEmoji || item.emoji;
+    }
+  } else if (step === 3) {
+    const wordObj = getWordForLetter(char, m.wordIndex || 0);
+    key = wordObj.word;
+    fallback = wordObj.emoji || item.emoji;
   }
 
   if (ILLUSTRATIONS[key]) {
@@ -1123,21 +1465,52 @@ $('bananaCount').textContent = bananas;
 
 function getLetterMastery(c) {
   if (!masteryData[c]) {
-    masteryData[c] = { recall: false, matra: false, word: false, attempts: 0, passes: 0, star: 0 };
+    masteryData[c] = {
+      letterTier: 0,
+      letterMastered: false,
+      matraIndex: 0,
+      matraTier: 0,
+      matrasCompleted: [],
+      matraMastered: false,
+      wordIndex: 0,
+      wordTier: 0,
+      wordsMastered: [],
+      attempts: 0,
+      passes: 0,
+      star: 0
+    };
   }
-  return masteryData[c];
+  const m = masteryData[c];
+  if (m.letterTier === undefined) m.letterTier = m.recall ? 2 : 0;
+  if (m.letterMastered === undefined) m.letterMastered = !!m.recall;
+  if (m.matraIndex === undefined) m.matraIndex = 0;
+  if (m.matraTier === undefined) m.matraTier = 0;
+  if (!m.matrasCompleted) m.matrasCompleted = m.matra ? ['का'] : [];
+  if (m.matraMastered === undefined) m.matraMastered = false;
+  if (m.wordIndex === undefined) m.wordIndex = 0;
+  if (m.wordTier === undefined) m.wordTier = 0;
+  if (!m.wordsMastered) m.wordsMastered = m.word ? [lessons[idx]?.word || 'कमल'] : [];
+  if (m.star === undefined) m.star = 0;
+  return m;
 }
 
 function updateLetterStar(c) {
   const m = getLetterMastery(c);
   const item = lessons.find(l => l.c === c) || lessons[idx];
-  let count = (m.recall ? 1 : 0) + (m.word ? 1 : 0);
-  if (!item.isSwar) {
-    count += (m.matra ? 1 : 0);
-    m.star = count === 3 ? 3 : (count === 2 ? 2 : (count >= 1 ? 1 : 0));
-  } else {
-    m.star = count === 2 ? 3 : (count === 1 ? 2 : 0);
+
+  let stars = 0;
+  if (m.letterMastered) {
+    stars = 1;
+    if (!item.isSwar) {
+      if (m.matraMastered) stars = 2;
+    } else {
+      if (m.wordsMastered && m.wordsMastered.length >= 3) stars = 2;
+    }
+    if (m.wordsMastered && m.wordsMastered.length >= 10) {
+      stars = 3;
+    }
   }
+  m.star = stars;
   localStorage.setItem('rasari_mastery_v2', JSON.stringify(masteryData));
   return m.star;
 }
@@ -1145,11 +1518,18 @@ function updateLetterStar(c) {
 function getTargetText() {
   const item = lessons[idx];
   if (!item) return '';
+  const m = getLetterMastery(item.c);
+
+  if (currentStep === 1) {
+    return item.c;
+  }
   if (currentStep === 2 && !item.isSwar) {
-    return (item.matra && item.matra.combo) || item.c;
+    const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+    return getMatraCombo(item.c, matraObj.sym);
   }
   if (currentStep === 3) {
-    return item.word || item.c;
+    const wordObj = getWordForLetter(item.c, m.wordIndex || 0);
+    return wordObj.word || item.c;
   }
   return item.c;
 }
@@ -1283,15 +1663,18 @@ function drawPad() {
   } else if (guideMode === 'off') {
     alpha = 0;
   } else {
-    const stepPassed = (currentStep === 1 && m.recall) ||
-                       (currentStep === 2 && m.matra) ||
-                       (currentStep === 3 && m.word);
-    if (!stepPassed && m.attempts === 0) {
-      alpha = 0.20; // Trace
-    } else if (!stepPassed) {
-      alpha = 0.05; // Ghost
+    // guideMode === 'auto': 3-stage scaffold (Trace -> Ghost -> Freehand)
+    let tier = 0;
+    if (currentStep === 1) tier = m.letterTier || 0;
+    else if (currentStep === 2) tier = m.matraTier || 0;
+    else if (currentStep === 3) tier = m.wordTier || 0;
+
+    if (tier === 0) {
+      alpha = 0.28; // Tier 0: Trace guide
+    } else if (tier === 1) {
+      alpha = 0.10; // Tier 1: Ghost faint watermark
     } else {
-      alpha = 0;    // Freehand
+      alpha = 0;    // Tier 2: Freehand recall
     }
   }
 
@@ -1444,6 +1827,20 @@ function speakClue() {
   if (clueEmoji) {
     clueEmoji.style.transform = 'scale(1.25)';
     setTimeout(() => clueEmoji.style.transform = 'scale(1)', 400);
+  }
+
+  if (currentStep === 3) {
+    const m = getLetterMastery(item.c);
+    const wordObj = getWordForLetter(item.c, m.wordIndex || 0);
+    if ('speechSynthesis' in window && window.SpeechSynthesisUtterance) {
+      try {
+        const u = new SpeechSynthesisUtterance(wordObj.word);
+        u.lang = 'hi-IN';
+        u.rate = 0.85;
+        window.speechSynthesis.speak(u);
+        return;
+      } catch(e) {}
+    }
   }
 
   playSnd(item.audio);
@@ -1650,7 +2047,7 @@ function evaluateHandwriting(targetString) {
   };
 }
 
-// Done Handler: Evaluates, Celebrates, and Advances according to current stage
+// Done Handler: Evaluates, Celebrates, and Advances scaffold/matra/word on focus letter
 $('done').onclick = () => {
   if (!userStrokes.length) {
     w.classList.add('shake');
@@ -1673,57 +2070,134 @@ $('done').onclick = () => {
   clearPad();
   triggerConfetti();
 
-  const isFreehand = (guideMode === 'auto') ? (getLetterMastery(lessons[idx].c).star >= 2) : (guideMode === 'off');
+  const char = lessons[idx].c;
+  const item = lessons[idx];
+  const m = getLetterMastery(char);
+  m.attempts++;
+  m.passes++;
+
+  let currentTier = (currentStep === 1) ? m.letterTier : ((currentStep === 2) ? m.matraTier : m.wordTier);
+  const isFreehand = (guideMode === 'auto') ? (currentTier === 2) : (guideMode === 'off');
   let treatsEarned = isFreehand ? 3 : 1;
   bananas += treatsEarned;
   localStorage.setItem('rasari_bananas', bananas);
   $('bananaCount').textContent = bananas;
 
-  const char = lessons[idx].c;
-  const m = getLetterMastery(char);
-  m.attempts++;
-  m.passes++;
-
-  if (currentStep === 1) m.recall = true;
-  else if (currentStep === 2) m.matra = true;
-  else if (currentStep === 3) m.word = true;
-
-  const starCount = updateLetterStar(char);
-
   $('scoreBadge').textContent = 'Match: ' + result.score + '% ' + (result.score >= 75 ? '⭐⭐⭐' : '⭐⭐');
 
   if (currentStep === 1) {
-    const nextIdx = (idx + 1) % lessons.length;
-    $('mt').textContent = '🌟 Letter Written!';
-    $('mp').textContent = 'Awesome! You wrote ' + char + '! (+' + treatsEarned + ' bananas 🍌)';
-    $('next').textContent = 'Next Letter (' + lessons[nextIdx].c + ') →';
-    $('next').onclick = () => {
-      $('modal').classList.remove('show');
-      setLetter(nextIdx);
-    };
-  } else if (currentStep === 2) {
-    let nextIdx = (idx + 1) % lessons.length;
-    while (lessons[nextIdx].isSwar) {
-      nextIdx = (nextIdx + 1) % lessons.length;
+    if (m.letterTier < 2) {
+      m.letterTier++;
+      $('mt').textContent = '🌟 Great Tracing!';
+      $('mp').textContent = m.letterTier === 1
+        ? 'Now try writing ' + char + ' with a faint watermark! (+' + treatsEarned + ' 🍌)'
+        : 'Now write ' + char + ' freehand without any guide! (+' + treatsEarned + ' 🍌)';
+      $('next').textContent = m.letterTier === 1 ? 'Try Faint Guide ✍️' : 'Write Freehand ✍️';
+      $('next').onclick = () => {
+        $('modal').classList.remove('show');
+        render();
+      };
+    } else {
+      m.letterMastered = true;
+      updateLetterStar(char);
+      $('mt').textContent = '⭐ Letter Mastered!';
+      $('mp').textContent = 'Awesome! You mastered letter ' + char + '! (+' + treatsEarned + ' bananas 🍌)';
+      $('next').textContent = item.isSwar ? 'Practice Words 📝' : 'Practice Matras (क, का...) 🌿';
+      $('next').onclick = () => {
+        $('modal').classList.remove('show');
+        if (item.isSwar) setStep(3);
+        else setStep(2);
+      };
     }
-    $('mt').textContent = '🌿 Matra Written!';
-    $('mp').textContent = 'Great! You wrote ' + (lessons[idx].matra?.combo || char) + '! (+' + treatsEarned + ' bananas 🍌)';
-    $('next').textContent = 'Next Matra (' + lessons[nextIdx].matra?.combo + ') →';
-    $('next').onclick = () => {
-      $('modal').classList.remove('show');
-      setLetter(nextIdx);
-    };
+  } else if (currentStep === 2) {
+    const curMatra = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+    const curCombo = getMatraCombo(char, curMatra.sym);
+
+    if (m.matraTier < 2) {
+      m.matraTier++;
+      $('mt').textContent = '🌿 Good Matra Practice!';
+      $('mp').textContent = m.matraTier === 1
+        ? 'Now try ' + curCombo + ' with a faint guide! (+' + treatsEarned + ' 🍌)'
+        : 'Now write ' + curCombo + ' freehand! (+' + treatsEarned + ' 🍌)';
+      $('next').textContent = m.matraTier === 1 ? 'Try Faint Guide ✍️' : 'Write Freehand ✍️';
+      $('next').onclick = () => {
+        $('modal').classList.remove('show');
+        render();
+      };
+    } else {
+      if (!m.matrasCompleted.includes(curCombo)) {
+        m.matrasCompleted.push(curCombo);
+      }
+      if (m.matraIndex < BARAKHADI_MATRAS.length - 1) {
+        m.matraIndex++;
+        m.matraTier = 0;
+        const nextMatra = BARAKHADI_MATRAS[m.matraIndex];
+        const nextCombo = getMatraCombo(char, nextMatra.sym);
+        $('mt').textContent = '🌿 Matra Mastered!';
+        $('mp').textContent = 'Superb! You wrote ' + curCombo + '! Next matra: ' + nextCombo + ' (' + (m.matraIndex + 1) + '/' + BARAKHADI_MATRAS.length + ')';
+        $('next').textContent = 'Practice ' + nextCombo + ' →';
+        $('next').onclick = () => {
+          $('modal').classList.remove('show');
+          render();
+        };
+      } else {
+        m.matraMastered = true;
+        updateLetterStar(char);
+        $('mt').textContent = '⭐⭐ Barakhadi Mastered!';
+        $('mp').textContent = 'Incredible! You completed all 13 matras for ' + char + '! (+' + treatsEarned + ' 🍌)';
+        $('next').textContent = 'Practice Words (कमल, कार...) 📝';
+        $('next').onclick = () => {
+          $('modal').classList.remove('show');
+          setStep(3);
+        };
+      }
+    }
   } else if (currentStep === 3) {
-    const nextIdx = (idx + 1) % lessons.length;
-    $('mt').textContent = '🎉 Word Mastered!';
-    $('mp').textContent = 'Brilliant! You wrote ' + lessons[idx].word + '! (+' + treatsEarned + ' bananas 🍌)';
-    $('next').textContent = 'Next Word (' + lessons[nextIdx].word + ') →';
-    $('next').onclick = () => {
-      $('modal').classList.remove('show');
-      setLetter(nextIdx);
-    };
+    const curWord = getWordForLetter(char, m.wordIndex || 0);
+
+    if (m.wordTier < 2) {
+      m.wordTier++;
+      $('mt').textContent = '📝 Great Word Practice!';
+      $('mp').textContent = m.wordTier === 1
+        ? 'Now try ' + curWord.word + ' with a faint guide! (+' + treatsEarned + ' 🍌)'
+        : 'Now write ' + curWord.word + ' freehand! (+' + treatsEarned + ' 🍌)';
+      $('next').textContent = m.wordTier === 1 ? 'Try Faint Guide ✍️' : 'Write Freehand ✍️';
+      $('next').onclick = () => {
+        $('modal').classList.remove('show');
+        render();
+      };
+    } else {
+      if (!m.wordsMastered.includes(curWord.word)) {
+        m.wordsMastered.push(curWord.word);
+      }
+      updateLetterStar(char);
+      m.wordIndex++;
+      m.wordTier = 0;
+      const nextWord = getWordForLetter(char, m.wordIndex);
+      const totalMastered = m.wordsMastered.length;
+
+      if (totalMastered === 10) {
+        $('mt').textContent = '⭐⭐⭐ 3 Stars! Word Mastery!';
+        $('mp').textContent = 'Brilliant! You mastered 10 words for ' + char + '! Keep practicing for infinite words!';
+      } else {
+        $('mt').textContent = '🎉 Word Mastered!';
+        $('mp').textContent = 'Brilliant! You wrote ' + curWord.word + '! (' + totalMastered + '/10 words for ' + char + ')';
+      }
+      $('next').textContent = 'Next Word (' + nextWord.word + ') →';
+      $('next').onclick = () => {
+        $('modal').classList.remove('show');
+        render();
+      };
+    }
   }
 
+  updateLetterStar(char);
+  $('modal').onclick = (e) => {
+    if (e.target === $('modal')) {
+      $('modal').classList.remove('show');
+      render();
+    }
+  };
   $('modal').classList.add('show');
 };
 
@@ -1870,28 +2344,25 @@ function render() {
   // Dynamic Stage Setup (Right Clue: Pure Visual Clue, no text!)
   if (currentStep === 1) {
     // Stage 1: Letter Recall
+    const tierName = m.letterTier === 0 ? 'Trace' : (m.letterTier === 1 ? 'Ghost' : 'Freehand');
     $('promptText').textContent = "Write letter " + item.c;
+    $('stageBadge').textContent = m.letterMastered ? 'Letter Mastered ⭐' : ('Letter (' + tierName + ')');
     renderClue(item, 1);
   } else if (currentStep === 2 && !item.isSwar) {
     // Stage 2: Matra Recall
-    $('promptText').textContent = "Add matra to " + item.c;
+    const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+    const combo = getMatraCombo(item.c, matraObj.sym);
+    const tierName = m.matraTier === 0 ? 'Trace' : (m.matraTier === 1 ? 'Ghost' : 'Freehand');
+    $('promptText').textContent = "Write " + combo + " (" + matraObj.name + ")";
+    $('stageBadge').textContent = m.matraMastered ? 'Matras Mastered ⭐⭐' : ('Matra ' + ((m.matraIndex || 0) + 1) + '/13 (' + tierName + ')');
     renderClue(item, 2);
   } else if (currentStep === 3) {
     // Stage 3: Word Recall
-    $('promptText').textContent = "Write word with " + item.c;
+    const tierName = m.wordTier === 0 ? 'Trace' : (m.wordTier === 1 ? 'Ghost' : 'Freehand');
+    $('promptText').textContent = "Write the word ✍️";
+    const count = (m.wordsMastered && m.wordsMastered.length) || 0;
+    $('stageBadge').textContent = count >= 10 ? ('Words Mastered ⭐⭐⭐ (' + count + ')') : ('Word ' + ((m.wordIndex || 0) + 1) + ' (' + count + '/10 ⭐⭐⭐, ' + tierName + ')');
     renderClue(item, 3);
-  }
-
-  // Update Stage Badge
-  const stepPassed = (currentStep === 1 && m.recall) ||
-                     (currentStep === 2 && m.matra) ||
-                     (currentStep === 3 && m.word);
-  if (m.star === 3) {
-    $('stageBadge').textContent = 'Mastered ⭐⭐⭐';
-  } else if (stepPassed) {
-    $('stageBadge').textContent = 'Practiced ⭐';
-  } else {
-    $('stageBadge').textContent = 'New Letter ✍️';
   }
 
   drawPad();
@@ -1919,6 +2390,11 @@ function openProgressStickers() {
     card.className = 'sticker-card' + (m.star === 3 ? ' gold-card' : '');
 
     const starIcons = m.star === 3 ? '⭐⭐⭐' : (m.star === 2 ? '⭐⭐' : (m.star === 1 ? '⭐' : '⚪'));
+    const badgeText = m.wordsMastered && m.wordsMastered.length
+      ? (m.wordsMastered.length + ' words')
+      : (m.matrasCompleted && m.matrasCompleted.length
+          ? (m.matrasCompleted.length + ' matras')
+          : (m.letterMastered ? 'Letter ✓' : 'New'));
 
     const thumbVisual = ILLUSTRATIONS[l.word]
       ? '<div class="sticker-thumb svg-thumb">' + ILLUSTRATIONS[l.word] + '</div>'
@@ -1926,7 +2402,8 @@ function openProgressStickers() {
 
     card.innerHTML = '<div class="sticker-char">' + l.c + '</div>' +
       thumbVisual +
-      '<div class="sticker-stars">' + starIcons + '</div>';
+      '<div class="sticker-stars">' + starIcons + '</div>' +
+      '<div style="font-size:9px;color:#103d70;font-weight:700;margin-top:2px">' + badgeText + '</div>';
 
     card.onclick = () => {
       modal.classList.remove('show');

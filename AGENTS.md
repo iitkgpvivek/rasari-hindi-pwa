@@ -52,11 +52,26 @@ Children often scribble in frustration or playfulness. The handwriting evaluator
 
 ---
 
-## 5. Active Recall (Retrieval Practice) & Swar-Matra Rules
-1. **NO Spoiler Stroke Diagrams:** The right card MUST NOT draw the solved stroke diagram or spell out the word. It must show ONLY the visual/audio clue (e.g. 🥭 Picture + sound button). The child must construct the word in their own head.
-2. **Hint On Demand:** Only when child explicitly taps `💡 Hint` does a faint guide watermark temporarily appear on the writing slate for 3 seconds.
-3. **Swar vs Vyanjan Invariant:** Swars (`अ` to `अः`) DO NOT take matras. When a Swar is in focus, the Matra tab (`#st2`) MUST be disabled. Vyanjans cycle across diverse Grade 1 matras (`ा, ि, ी, ु, ू, े, ो`).
-4. **Direct Bottom Navigation:** Bottom pills provide `⇦ Prev Letter` and `Next Letter ⇨` direct navigation, alongside the central `✓ I'm done!` button.
+## 5. Pedagogical Progression, Barakhadi & Infinite Word Practice Engine
+1. **Focus Letter Invariant:** The focus letter (`idx`) stays locked during all practice. Clicking "✓ I'm done!" NEVER advances the letter. Only explicit tapping of `<< Prev Letter` or `Next Letter >>` changes the focus letter.
+2. **3-Tier Scaffold Watermark:**
+   - **Tier 0 (Trace):** High watermark opacity (`0.28`).
+   - **Tier 1 (Ghost):** Faint watermark opacity (`0.10`).
+   - **Tier 2 (Freehand):** Zero watermark (`0.0`).
+3. **Step 2 (Barakhadi Matra Progression):**
+   - Swars (`अ` to `अः`) DO NOT take matras: `#st2` disabled.
+   - For consonants (`क` to `ज्ञ`), "I'm done" advances through all 13 Barakhadi forms:
+     `क`, `का`, `कि`, `की`, `कु`, `कू`, `कृ`, `के`, `कै`, `को`, `कौ`, `कं`, `कः`.
+   - Each matra combo follows the 3-tier scaffold (Trace $\to$ Ghost $\to$ Freehand).
+4. **Step 3 (Infinite Word Practice Engine):**
+   - Grade-appropriate curated word banks (`WORD_BANKS`) provide 10+ words per letter (e.g., `कमल`, `कबूतर`, `कलम`, `कार`, `काम`, `किताब`, `कील`, `कुत्ता`, `केला`, `कौआ`, `कैंची`, `कोट`).
+   - The engine supports infinite practice rotation on the focus letter until the child explicitly taps `>>`.
+5. **Mastery Star Criteria:**
+   - ⭐ **1 Star (Letter Mastery):** Freehand completion of the letter (Tier 2 passed).
+   - ⭐⭐ **2 Stars (Matra Mastery):** Completion of all 13 Barakhadi matras for consonants (or $\ge 3$ words for Swars).
+   - ⭐⭐⭐ **3 Stars (Word Mastery):** Mastery of at least 10 words for that letter.
+6. **NO Spoiler Stroke Diagrams:** The right clue card MUST NOT show the target text or stroke diagram. Only pure visual clues (SVG illustrations or emojis) and a single sound button are permitted. Faint guide is only shown via explicit `💡 Hint` button (3s timeout).
+7. **Direct Bottom Navigation:** Bottom pills provide `<< Prev Letter` and `Next Letter >>` direct navigation.
 
 ---
 

@@ -235,6 +235,51 @@ test('Accurate visual illustrations provided (Anaar is not an Apple, Yagya is no
   });
 });
 
+// ---------------------------------------------------------
+// SUITE 8: Pedagogical Progression & Infinite Practice Engine
+// ---------------------------------------------------------
+test('Focus Letter Invariant: "I\'m done" stays locked on current letter (never advances idx)', () => {
+  const doneMatch = html.match(/\$\('done'\)\.onclick[\s\S]*?\}\;/);
+  assert(doneMatch, 'Done click handler must exist');
+  const doneCode = doneMatch[0];
+
+  assert(!doneCode.includes('setLetter(nextIdx)'), '"I\'m done" MUST NOT change the focus letter');
+  assert(!doneCode.includes('setLetter('), '"I\'m done" MUST NOT call setLetter()');
+  assert(html.includes("$('prevBtn').onclick"), 'Prev button must exist for explicit letter navigation');
+  assert(html.includes("$('nextBtn').onclick"), 'Next button must exist for explicit letter navigation');
+});
+
+test('Barakhadi 13-Matra Sequence is defined for consonants', () => {
+  assert(html.includes('const BARAKHADI_MATRAS = ['), 'BARAKHADI_MATRAS array must exist');
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const matrasMatch = scriptContent.match(/const BARAKHADI_MATRAS = (\[[\s\S]*?\]);/);
+  assert(matrasMatch, 'BARAKHADI_MATRAS must be parseable');
+  const matras = new Function(`return ${matrasMatch[1]}`)();
+  assert.strictEqual(matras.length, 13, 'Must contain all 13 Barakhadi matras (क, का, कि, की, कु, कू, कृ, के, कै, को, कौ, कं, कः)');
+});
+
+test('WORD_BANKS contains 10+ Grade-1 words for each of the 49 letters', () => {
+  assert(html.includes('const WORD_BANKS = {'), 'WORD_BANKS must exist');
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const lessonsMatch = scriptContent.match(/const lessons = (\[[\s\S]*?\]);/);
+  const lessons = JSON.parse(lessonsMatch[1]);
+
+  lessons.forEach(l => {
+    assert(html.includes(`"${l.c}": [`), `WORD_BANKS must contain an entry for letter ${l.c}`);
+  });
+});
+
+test('Mastery Star Criteria: 1 star = letter, 2 stars = matra, 3 stars = 10 words', () => {
+  assert(html.includes('function updateLetterStar(c)'), 'updateLetterStar function must exist');
+  const updateStarMatch = html.match(/function updateLetterStar\(c\)[\s\S]*?\n\}/);
+  assert(updateStarMatch, 'updateLetterStar body must exist');
+  const code = updateStarMatch[0];
+
+  assert(code.includes('m.letterMastered'), 'Must require letter mastery for 1 star');
+  assert(code.includes('m.matraMastered'), 'Must require matra mastery for 2 stars (consonants)');
+  assert(code.includes('m.wordsMastered.length >= 10'), 'Must require at least 10 mastered words for 3 stars');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');
