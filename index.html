@@ -489,122 +489,110 @@ function clearPad() {
   drawPad();
 }
 
-/**
- * Bulletproof Audio Player (Speech Synthesis + Web Audio Chime Fallback)
- */
-let audioCtx = null;
-function playMarimbaChime() {
-  try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
-    if (!audioCtx) audioCtx = new AudioContext();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-
-    const now = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(523.25, now); // C5
-    osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.12); // E5
-
-    gain.gain.setValueAtTime(0.3, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start(now);
-    osc.stop(now + 0.35);
-  } catch (e) {
-    // Audio context not available, ignore
-  }
-}
-
-let activeUtterance = null;
+let ttsAudio = null;
 function speak() {
-  // Always play friendly chime for instant tactile feedback
-  playMarimbaChime();
+  const item = lessons[idx];
+  const text = item.phonic || (item.c + ' से ' + item.word);
 
-  if (!('speechSynthesis' in window)) return;
-
-  try {
-    // If speaking or paused, safely resume
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
-    }
-
-    const item = lessons[idx];
-    const text = item.phonic || (item.c + ' से ' + item.word);
-
-    const u = new SpeechSynthesisUtterance(text);
-    activeUtterance = u; // Keep reference to prevent GC bug on Android/iOS
-    u.lang = 'hi-IN';
-    u.rate = 0.72;
-
-    const voices = window.speechSynthesis.getVoices() || [];
-    const hiVoice = voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi') || (v.name && v.name.toLowerCase().includes('hindi')));
-    if (hiVoice) {
-      u.voice = hiVoice;
-    }
-
-    u.onend = () => { activeUtterance = null; };
-    u.onerror = () => { activeUtterance = null; };
-
-    window.speechSynthesis.speak(u);
-  } catch (err) {
-    console.warn('Speech error:', err);
+  // Visual pulse on the letter/word
+  const wordEl = $('anchorWord');
+  if (wordEl) {
+    wordEl.style.transform = 'scale(1.2)';
+    wordEl.style.color = '#e67e22';
+    setTimeout(() => {
+      wordEl.style.transform = 'scale(1)';
+      wordEl.style.color = '#0f7a66';
+    }, 500);
   }
+
+  // Stop previous audio
+  if (ttsAudio) {
+    try { ttsAudio.pause(); } catch(e){}
+    ttsAudio = null;
+  }
+
+  // Primary: Native Hindi TTS Audio stream (real crystal-clear Hindi pronunciation)
+  const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=hi&q=${encodeURIComponent(text)}`;
+  const audio = new Audio(ttsUrl);
+  ttsAudio = audio;
+
+  audio.play().catch(() => {
+    // Fallback: Web Speech API if offline
+    if ('speechSynthesis' in window) {
+      try {
+        if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+        const u = new SpeechSynthesisUtterance(text);
+        window._activeUtterance = u;
+        u.lang = 'hi-IN';
+        u.rate = 0.72;
+        const voices = window.speechSynthesis.getVoices() || [];
+        const hi = voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi') || (v.name && v.name.toLowerCase().includes('hindi')));
+        if (hi) u.voice = hi;
+        window.speechSynthesis.speak(u);
+      } catch (err) {
+        console.warn('SpeechSynthesis fallback error:', err);
+      }
+    }
+  });
 }
 
-// Pre-load voices so they are ready when clicked
-if ('speechSynthesis' in window) {
-  window.speechSynthesis.onvoiceschanged = () => {
-    window.speechSynthesis.getVoices();
-  };
-}
-
-// Offline Handwriting Auto-Evaluator
+// Discriminative Handwriting Auto-Evaluator (3x3 Zone Correlation + True IoU)
 function evaluateHandwriting(targetChar) {
-  const S = 100;
+  const S = 120;
   const ww = w.clientWidth, h = w.clientHeight;
   const totalPoints = userStrokes.reduce((acc, s) => acc + s.length, 0);
-  if (!userStrokes.length || totalPoints < 6) {
+
+  if (!userStrokes.length || totalPoints < 8) {
     return { score: 0, pass: false, reason: 'empty' };
   }
 
-  // Target font mask
+  // 1. Offscreen Target Font Mask
   const tc = document.createElement('canvas');
   tc.width = S; tc.height = S;
   const tx = tc.getContext('2d');
   tx.fillStyle = '#000'; tx.fillRect(0, 0, S, S);
   tx.fillStyle = '#fff';
   const tRuling = computeRuling(S);
-  tx.font = '700 ' + tRuling.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
+  tx.font = '700 ' + tRuling.fontSize + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif';
   tx.textAlign = 'center';
   tx.textBaseline = 'alphabetic';
   tx.fillText(targetChar, S / 2, tRuling.line4);
-  const tData = tx.getImageData(0, 0, S, S).data;
+  let tData = tx.getImageData(0, 0, S, S).data;
 
   let tPixels = 0;
   for (let i = 0; i < tData.length; i += 4) {
-    if (tData[i] > 100) tPixels++;
+    if (tData[i] > 80) tPixels++;
   }
-  if (tPixels === 0) return { score: 100, pass: true };
 
-  // User drawing
+  // Safety fallback if font failed to rasterize
+  if (tPixels < 30) {
+    tx.font = 'bold ' + Math.round(S * 0.52) + 'px sans-serif';
+    tx.fillText(targetChar, S / 2, Math.round(S * 0.72));
+    tData = tx.getImageData(0, 0, S, S).data;
+    tPixels = 0;
+    for (let i = 0; i < tData.length; i += 4) {
+      if (tData[i] > 80) tPixels++;
+    }
+  }
+
+  if (tPixels === 0) {
+    return { score: 0, pass: false, reason: 'error' };
+  }
+
+  // 2. Offscreen User Drawing
   const uc = document.createElement('canvas');
   uc.width = S; uc.height = S;
   const ux = uc.getContext('2d');
   ux.fillStyle = '#000'; ux.fillRect(0, 0, S, S);
   ux.strokeStyle = '#fff';
   ux.fillStyle = '#fff';
-  const offscreenBw = tRuling.brushWidth;
+  const offscreenBw = Math.max(7, Math.round(tRuling.brushWidth * (S / h)));
   ux.lineWidth = offscreenBw;
   ux.lineCap = 'round'; ux.lineJoin = 'round';
 
   const scaleX = S / ww, scaleY = S / h;
   userStrokes.forEach(str => {
-    if (!str.length) return;
+    if (!str || !str.length) return;
     if (str.length === 1) {
       ux.beginPath();
       ux.arc(str[0].x * scaleX, str[0].y * scaleY, offscreenBw / 2, 0, Math.PI * 2);
@@ -620,31 +608,95 @@ function evaluateHandwriting(targetChar) {
   });
   const uData = ux.getImageData(0, 0, S, S).data;
 
-  let matched = 0, uPixels = 0, spill = 0;
-  for (let i = 0; i < uData.length; i += 4) {
-    const u = uData[i] > 100;
-    const t = tData[i] > 100;
-    if (u) uPixels++;
-    if (u && t) matched++;
-    if (u && !t) spill++;
+  // 3. Pixel Intersection & 3x3 Grid Distribution
+  let matched = 0;
+  let uPixels = 0;
+  let spill = 0;
+
+  const tZones = new Array(9).fill(0);
+  const uZones = new Array(9).fill(0);
+  const zoneW = S / 3;
+  const zoneH = S / 3;
+
+  for (let y = 0; y < S; y++) {
+    const zy = Math.min(2, Math.floor(y / zoneH));
+    for (let x = 0; x < S; x++) {
+      const zx = Math.min(2, Math.floor(x / zoneW));
+      const zIdx = zy * 3 + zx;
+      const idx = (y * S + x) * 4;
+
+      const u = uData[idx] > 80;
+      const t = tData[idx] > 80;
+
+      if (u) {
+        uPixels++;
+        uZones[zIdx]++;
+      }
+      if (t) {
+        tZones[zIdx]++;
+      }
+      if (u && t) {
+        matched++;
+      } else if (u && !t) {
+        spill++;
+      }
+    }
   }
 
+  // Metric 1: Coverage
   const coverage = matched / tPixels;
-  const precision = uPixels > 0 ? (matched / uPixels) : 0;
-  const spillRatio = uPixels > 0 ? (spill / uPixels) : 0;
 
-  let rawScore = (coverage * 0.65 + precision * 0.35) * 100;
-  if (coverage > 0.30 && spillRatio < 0.70) {
-    rawScore = Math.min(100, rawScore * 1.35);
+  // Metric 2: True Jaccard IoU (Intersection over Union)
+  const union = (tPixels + uPixels - matched);
+  const iou = union > 0 ? (matched / union) : 0;
+
+  // Metric 3: 3x3 Zone Similarity (structural shape correlation)
+  let zoneOverlap = 0;
+  for (let z = 0; z < 9; z++) {
+    const tWeight = tZones[z] / tPixels;
+    const uWeight = uPixels > 0 ? (uZones[z] / uPixels) : 0;
+    zoneOverlap += Math.min(tWeight, uWeight);
   }
-  if (uPixels > (S * S * 0.42)) {
-    rawScore = Math.max(10, rawScore * 0.35);
+
+  // Devanagari Anatomical Check: Top bar (Shirorekha)
+  const targetHasTopBar = (tZones[0] + tZones[1] + tZones[2]) / tPixels > 0.18;
+  const userHasTopBar = uPixels > 0 ? ((uZones[0] + uZones[1] + uZones[2]) / uPixels > 0.14) : false;
+  let structurePenalty = 0;
+  if (targetHasTopBar && !userHasTopBar) {
+    structurePenalty = 22; // Penalize shapes like 'A' when target is 'क' or 'अ'
   }
 
-  const score = Math.round(Math.min(100, Math.max(0, rawScore)));
-  const pass = score >= 45 && coverage >= 0.28;
+  // Scribble Penalty: user covered > 40% of the entire canvas
+  let scribblePenalty = 0;
+  if (uPixels > (S * S * 0.40)) {
+    scribblePenalty = 30;
+  }
 
-  return { score, pass, coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
+  // Calibrate final score
+  const scaledIoU = Math.min(100, (iou / 0.42) * 80);
+  const scaledZone = Math.min(100, zoneOverlap * 100);
+  const scaledCoverage = Math.min(100, coverage * 100);
+
+  let score = Math.round(
+    scaledIoU * 0.40 +
+    scaledZone * 0.35 +
+    scaledCoverage * 0.25 -
+    structurePenalty -
+    scribblePenalty
+  );
+
+  score = Math.max(0, Math.min(100, score));
+
+  // Strict pass condition:
+  // Must have score >= 50, coverage >= 32%, and IoU >= 0.18 (rejects A vs ka)
+  const pass = score >= 50 && coverage >= 0.32 && iou >= 0.18;
+
+  return {
+    score,
+    pass,
+    iou: Math.round(iou * 100),
+    coverage: Math.round(coverage * 100)
+  };
 }
 
 // Done Handler
