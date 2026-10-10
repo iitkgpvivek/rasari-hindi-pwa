@@ -1,4 +1,4 @@
-const APP_VERSION = '1.4.1';
+const APP_VERSION = '1.5.0';
 const CACHE = `rasari-hindi-v${APP_VERSION}`;
 const ASSETS = [
   './',
@@ -55,7 +55,19 @@ const ASSETS = [
   './audio/vy_ha.mp3',
   './audio/vy_ksha.mp3',
   './audio/vy_tra.mp3',
-  './audio/vy_gya.mp3'
+  './audio/vy_gya.mp3',
+  './audio/snd_correct.mp3',
+  './audio/snd_tryagain.mp3',
+  './audio/matra_aa.mp3',
+  './audio/matra_i.mp3',
+  './audio/matra_ee.mp3',
+  './audio/matra_u.mp3',
+  './audio/matra_oo.mp3',
+  './audio/matra_e.mp3',
+  './audio/matra_ai.mp3',
+  './audio/matra_o.mp3',
+  './audio/matra_au.mp3',
+  './audio/matra_ang.mp3'
 ];
 
 // Install: Cache all core assets

@@ -68,6 +68,47 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .update-toast.show{transform:translateX(-50%) translateY(0);pointer-events:auto;opacity:1}
 .update-toast button{background:#39b84a;color:white;border:none;border-radius:999px;padding:6px 14px;font-size:clamp(12px,1.3vw,14px);font-weight:800;cursor:pointer;box-shadow:0 2px 0 #1e6e28}
 
+/* Station Cards for Steps 2, 3, 4 */
+.station-card{position:absolute;left:27.5%;top:19.5%;width:45.8%;height:56.5%;background:#fffef9;border:3px solid #144b78;border-radius:18px;box-shadow:inset 0 2px 8px rgba(0,0,0,0.06),0 6px 16px rgba(0,0,0,0.12);display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:12px;z-index:6;box-sizing:border-box}
+.station-title{font-size:clamp(12px,1.4vw,17px);font-weight:800;color:#0f7a66;background:#e5f7f2;border:1.5px solid #0f7a66;padding:3px 12px;border-radius:999px;display:flex;align-items:center;gap:6px}
+.station-formula{display:flex;align-items:center;justify-content:center;gap:10px;margin:4px 0;width:100%}
+.formula-box{width:clamp(44px,5.6vw,68px);height:clamp(44px,5.6vw,68px);border-radius:14px;background:#f7f9fd;border:3px solid #144b78;display:grid;place-items:center;font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(26px,3.4vw,44px);font-weight:800;color:#103d70;box-shadow:0 3px 0 #bdd0e6}
+.formula-box.slot-target{border-style:dashed;border-color:#e67e22;background:#fff8ee;color:#e67e22}
+.formula-box.filled{border-style:solid;border-color:#27ae60;background:#ebfbee;color:#27ae60;animation:popIn .3s cubic-bezier(.175,.885,.32,1.275)}
+.formula-sign{font-size:clamp(20px,2.6vw,30px);font-weight:800;color:#889bb2}
+.station-prompt{font-size:clamp(12px,1.3vw,16px);font-weight:700;color:#553c12;text-align:center;margin:2px 0}
+.options-grid{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:4px}
+.opt-tile{min-width:clamp(44px,5.4vw,64px);height:clamp(44px,5.4vw,64px);padding:0 8px;border-radius:14px;background:#fff8df;border:3px solid #d4933b;box-shadow:0 3px 0 #b37322;font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(22px,3vw,36px);font-weight:800;color:#78450d;display:grid;place-items:center;cursor:pointer;transition:transform .12s,background .15s}
+.opt-tile:active{transform:translateY(2px);box-shadow:0 1px 0 #b37322}
+.opt-tile.wrong{background:#ffd5d5;border-color:#d93838;box-shadow:0 3px 0 #a82020;animation:shake .4s}
+.opt-tile.correct{background:#d5ffd9;border-color:#27ae60;box-shadow:0 3px 0 #1b7a42}
+
+/* Progress / Mastery Screen */
+.progress-card{position:absolute;left:27.5%;top:19.5%;width:69%;height:56.5%;background:#fffef7;border:3px solid #144b78;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,0.18);display:flex;flex-direction:column;padding:12px;z-index:25;box-sizing:border-box}
+.prog-head{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #ebdfce;padding-bottom:6px}
+.prog-title{font-size:clamp(14px,1.6vw,19px);font-weight:800;color:#144b78;display:flex;align-items:center;gap:6px}
+.prog-close{border-radius:50%;width:28px;height:28px;background:#eef2f7;color:#144b78;font-size:15px;font-weight:800;cursor:pointer}
+.prog-stats{display:flex;align-items:gap;gap:6px;margin:5px 0;font-size:clamp(10px,1.1vw,13px);font-weight:800;flex-wrap:wrap}
+.stat-pill{padding:2px 8px;border-radius:999px;background:#f0f4f9;color:#1b4d7c;border:1px solid #d4dfec}
+.stat-pill.gold{background:#fff8db;color:#8f610a;border-color:#f3d26b}
+.stat-pill.red{background:#ffebee;color:#b71c1c;border-color:#ffcdd2}
+.prog-tabs{display:flex;gap:5px;margin:3px 0}
+.prog-tab{padding:3px 10px;border-radius:999px;background:#edf2f7;color:#4a627a;font-size:clamp(9px,1vw,12px);font-weight:800;cursor:pointer}
+.prog-tab.active{background:#0f7a66;color:white}
+.matrix-grid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(58px,7vw,78px),1fr));gap:6px;padding:6px 2px}
+.matrix-card{background:white;border:2px solid #ccdbe8;border-radius:10px;padding:5px 3px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .12s,box-shadow .12s;box-shadow:0 2px 4px rgba(0,0,0,0.04)}
+.matrix-card:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.1)}
+.matrix-char{font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(20px,2.6vw,28px);font-weight:800;color:#103d70;line-height:1}
+.matrix-thumb{font-size:14px;margin:1px 0}
+.matrix-stars{font-size:11px}
+.matrix-skills{display:flex;gap:3px;margin-top:2px}
+.skill-dot{width:5px;height:5px;border-radius:50%;background:#d8e2ec}
+.skill-dot.done{background:#27ae60}
+.matrix-card.gold-card{border-color:#f1c40f;background:#fffdf0}
+.matrix-card.weak-card{border-color:#e74c3c;background:#fff5f5}
+@keyframes popIn{0%{transform:scale(0.5);opacity:0}80%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
 @media(max-width:680px){.nav{left:22%;right:4%;top:6%}.step{font-size:9px}.circ{width:31px;height:31px;font-size:17px;border-width:3px}.prompt{font-size:11px}.letter{font-size:42px}.toolbar-top{left:28%;gap:4px}.stage-badge,.ctrl-pill{font-size:9px;padding:2px 6px}.guideheading{font-size:10px}.sidebtn{font-size:10px}.praise{font-size:10px}.bottombtn{font-size:14px}}
 @media(max-aspect-ratio:1/1){.bg{object-fit:cover;object-position:center}}
 </style>
@@ -93,7 +134,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 </div>
 <button class="soundleft" id="sound" aria-label="Hear letter"></button>
 
-<div class="toolbar-top">
+<div class="toolbar-top" id="toolbarTop">
   <span class="stage-badge" id="stageBadge">Stage 1/3: Trace ✍️</span>
   <button class="ctrl-pill" id="hintBtn" title="Flash guide for 3s">💡 Hint</button>
   <button class="ctrl-pill" id="guideModeBtn" title="Guide mode">👁️ Auto</button>
@@ -101,7 +142,40 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 <canvas id="write" aria-label="Writing canvas"></canvas>
 
-<div class="guideheading">See how to write <button id="replay" aria-label="Replay guide">↻</button></div>
+<!-- Station 2: Matra Combining Lab -->
+<div id="matraStage" class="station-card" style="display:none">
+  <div class="station-title">🌿 मात्रा जोड़ो (Combine Matra)</div>
+  <div class="station-formula" id="matraFormula"></div>
+  <div class="station-prompt" id="matraPrompt"></div>
+  <div class="options-grid" id="matraOptions"></div>
+</div>
+
+<!-- Station 3: Word Builder -->
+<div id="wordStage" class="station-card" style="display:none">
+  <div class="station-title">🧩 शब्द बनाओ (Build Word)</div>
+  <div style="font-size:clamp(34px,4.5vw,52px);line-height:1" id="wordEmoji">🪷</div>
+  <div class="station-formula" id="wordFormula"></div>
+  <div class="station-prompt" id="wordPrompt"></div>
+  <div class="options-grid" id="wordOptions"></div>
+</div>
+
+<!-- Station 4: Mastery Dashboard Matrix -->
+<div id="progressStage" class="progress-card" style="display:none">
+  <div class="prog-head">
+    <div class="prog-title">🏆 अक्षर मास्टरी (Letter Mastery)</div>
+    <button class="prog-close" id="progClose" aria-label="Close">✕</button>
+  </div>
+  <div class="prog-stats" id="progStats"></div>
+  <div class="prog-tabs">
+    <button class="prog-tab active" data-filter="all">सभी (All)</button>
+    <button class="prog-tab" data-filter="swar">स्वर (13)</button>
+    <button class="prog-tab" data-filter="vyanjan">व्यंजन (36)</button>
+    <button class="prog-tab" data-filter="weak">⚠️ Needs Practice</button>
+  </div>
+  <div class="matrix-grid" id="matrixGrid"></div>
+</div>
+
+<div class="guideheading" id="guideHeading">See how to write <button id="replay" aria-label="Replay guide">↻</button></div>
 <canvas id="guide" aria-label="Letter guide"></canvas>
 
 <button class="sidebtn erase" id="erase"><span class="ico">🧽</span>Erase</button>
@@ -128,62 +202,1753 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 </main>
 
 <script>
-// Curriculum
+// Curriculum: 13 Swar + 36 Vyanjan with Matra & Word Puzzle bank
 const lessons = [
-  // Swar (स्वर)
-  {c:'अ', sound:'a', word:'अनार', phonic:'अ से अनार', audio:'audio/sw_a.mp3'},
-  {c:'आ', sound:'aa', word:'आम', phonic:'आ से आम', audio:'audio/sw_aa.mp3'},
-  {c:'इ', sound:'i', word:'इमली', phonic:'इ से इमली', audio:'audio/sw_i.mp3'},
-  {c:'ई', sound:'ee', word:'ईख', phonic:'ई से ईख', audio:'audio/sw_ee.mp3'},
-  {c:'उ', sound:'u', word:'उल्लू', phonic:'उ से उल्लू', audio:'audio/sw_u.mp3'},
-  {c:'ऊ', sound:'oo', word:'ऊन', phonic:'ऊ से ऊन', audio:'audio/sw_oo.mp3'},
-  {c:'ऋ', sound:'ri', word:'ऋषि', phonic:'ऋ से ऋषि', audio:'audio/sw_ri.mp3'},
-  {c:'ए', sound:'e', word:'एड़ी', phonic:'ए से एड़ी', audio:'audio/sw_e.mp3'},
-  {c:'ऐ', sound:'ai', word:'ऐनक', phonic:'ऐ से ऐनक', audio:'audio/sw_ai.mp3'},
-  {c:'ओ', sound:'o', word:'ओखली', phonic:'ओ से ओखली', audio:'audio/sw_o.mp3'},
-  {c:'औ', sound:'au', word:'औरत', phonic:'औ से औरत', audio:'audio/sw_au.mp3'},
-  {c:'अं', sound:'ang', word:'अंगूर', phonic:'अं से अंगूर', audio:'audio/sw_ang.mp3'},
-  {c:'अः', sound:'aha', word:'प्रातः', phonic:'अः खाली', audio:'audio/sw_aha.mp3'},
-  // Vyanjan (व्यंजन)
-  {c:'क', sound:'ka', word:'कमल', phonic:'क से कमल', audio:'audio/vy_ka.mp3'},
-  {c:'ख', sound:'kha', word:'खरगोश', phonic:'ख से खरगोश', audio:'audio/vy_kha.mp3'},
-  {c:'ग', sound:'ga', word:'गमला', phonic:'ग से गमला', audio:'audio/vy_ga.mp3'},
-  {c:'घ', sound:'gha', word:'घर', phonic:'घ से घर', audio:'audio/vy_gha.mp3'},
-  {c:'ङ', sound:'nga', word:'खाली', phonic:'ङ खाली', audio:'audio/vy_nga.mp3'},
-  {c:'च', sound:'cha', word:'चम्मच', phonic:'च से चम्मच', audio:'audio/vy_cha.mp3'},
-  {c:'छ', sound:'chha', word:'छतरी', phonic:'छ से छतरी', audio:'audio/vy_chha.mp3'},
-  {c:'ज', sound:'ja', word:'जहाज', phonic:'ज से जहाज', audio:'audio/vy_ja.mp3'},
-  {c:'झ', sound:'jha', word:'झंडा', phonic:'झ से झंडा', audio:'audio/vy_jha.mp3'},
-  {c:'ञ', sound:'nya', word:'खाली', phonic:'ञ खाली', audio:'audio/vy_nya.mp3'},
-  {c:'ट', sound:'ta', word:'टमाटर', phonic:'ट से टमाटर', audio:'audio/vy_ta1.mp3'},
-  {c:'ठ', sound:'tha', word:'ठठेरा', phonic:'ठ से ठठेरा', audio:'audio/vy_tha1.mp3'},
-  {c:'ड', sound:'da', word:'डमरू', phonic:'ड से डमरू', audio:'audio/vy_da1.mp3'},
-  {c:'ढ', sound:'dha', word:'ढक्कन', phonic:'ढ से ढक्कन', audio:'audio/vy_dha1.mp3'},
-  {c:'ण', sound:'na', word:'खाली', phonic:'ण खाली', audio:'audio/vy_na1.mp3'},
-  {c:'त', sound:'ta', word:'तितली', phonic:'त से तितली', audio:'audio/vy_ta2.mp3'},
-  {c:'थ', sound:'tha', word:'थर्मस', phonic:'थ से थर्मस', audio:'audio/vy_tha2.mp3'},
-  {c:'द', sound:'da', word:'दवात', phonic:'द से दवात', audio:'audio/vy_da2.mp3'},
-  {c:'ध', sound:'dha', word:'धनुष', phonic:'ध से धनुष', audio:'audio/vy_dha2.mp3'},
-  {c:'न', sound:'na', word:'नल', phonic:'न से नल', audio:'audio/vy_na2.mp3'},
-  {c:'प', sound:'pa', word:'पतंग', phonic:'प से पतंग', audio:'audio/vy_pa.mp3'},
-  {c:'फ', sound:'pha', word:'फल', phonic:'फ से फल', audio:'audio/vy_pha.mp3'},
-  {c:'ब', sound:'ba', word:'बत्तख', phonic:'ब से बत्तख', audio:'audio/vy_ba.mp3'},
-  {c:'भ', sound:'bha', word:'भालू', phonic:'भ से भालू', audio:'audio/vy_bha.mp3'},
-  {c:'म', sound:'ma', word:'मछली', phonic:'म से मछली', audio:'audio/vy_ma.mp3'},
-  {c:'य', sound:'ya', word:'यज्ञ', phonic:'य से यज्ञ', audio:'audio/vy_ya.mp3'},
-  {c:'र', sound:'ra', word:'रथ', phonic:'र से रथ', audio:'audio/vy_ra.mp3'},
-  {c:'ल', sound:'la', word:'लट्टू', phonic:'ल से लट्टू', audio:'audio/vy_la.mp3'},
-  {c:'व', sound:'va', word:'वक', phonic:'व से वक', audio:'audio/vy_va.mp3'},
-  {c:'श', sound:'sha', word:'शलजम', phonic:'श से शलजम', audio:'audio/vy_sha1.mp3'},
-  {c:'ष', sound:'sha', word:'षट्कोण', phonic:'ष से षट्कोण', audio:'audio/vy_sha2.mp3'},
-  {c:'स', sound:'sa', word:'सेब', phonic:'स से सेब', audio:'audio/vy_sa.mp3'},
-  {c:'ह', sound:'ha', word:'हाथी', phonic:'ह से हाथी', audio:'audio/vy_ha.mp3'},
-  {c:'क्ष', sound:'ksha', word:'क्षत्रिय', phonic:'क्ष से क्षत्रिय', audio:'audio/vy_ksha.mp3'},
-  {c:'त्र', sound:'tra', word:'त्रिशूल', phonic:'त्र से त्रिशूल', audio:'audio/vy_tra.mp3'},
-  {c:'ज्ञ', sound:'gya', word:'ज्ञानी', phonic:'ज्ञ से ज्ञानी', audio:'audio/vy_gya.mp3'}
+  {
+    "c": "अ",
+    "sound": "a",
+    "word": "अनार",
+    "emoji": "🍎",
+    "phonic": "अ से अनार",
+    "audio": "audio/sw_a.mp3",
+    "matra": {
+      "sym": "अ",
+      "name": "मुक्ता (अ स्वर)",
+      "combo": "अ",
+      "exWord": "अमरूद",
+      "exEmoji": "🍈",
+      "opts": [
+        "अ",
+        "आ",
+        "इ",
+        "ई"
+      ]
+    },
+    "puzzle": {
+      "word": "अनार",
+      "emoji": "🍎",
+      "slots": [
+        "अ",
+        "ना",
+        "र"
+      ],
+      "missing": 0,
+      "opts": [
+        "अ",
+        "आ",
+        "उ"
+      ]
+    }
+  },
+  {
+    "c": "आ",
+    "sound": "aa",
+    "word": "आम",
+    "emoji": "🥭",
+    "phonic": "आ से आम",
+    "audio": "audio/sw_aa.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "का",
+      "exWord": "कार",
+      "exEmoji": "🚗",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "आम",
+      "emoji": "🥭",
+      "slots": [
+        "आ",
+        "म"
+      ],
+      "missing": 0,
+      "opts": [
+        "आ",
+        "अ",
+        "ओ"
+      ]
+    }
+  },
+  {
+    "c": "इ",
+    "sound": "i",
+    "word": "इमली",
+    "emoji": "🍃",
+    "phonic": "इ से इमली",
+    "audio": "audio/sw_i.mp3",
+    "matra": {
+      "sym": "ि",
+      "name": "छोटी इ की मात्रा (ि)",
+      "combo": "कि",
+      "exWord": "किताब",
+      "exEmoji": "📖",
+      "opts": [
+        "ि",
+        "ी",
+        "ा",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "इमली",
+      "emoji": "🍃",
+      "slots": [
+        "इ",
+        "म",
+        "ली"
+      ],
+      "missing": 0,
+      "opts": [
+        "इ",
+        "ई",
+        "उ"
+      ]
+    }
+  },
+  {
+    "c": "ई",
+    "sound": "ee",
+    "word": "ईख",
+    "emoji": "🎋",
+    "phonic": "ई से ईख",
+    "audio": "audio/sw_ee.mp3",
+    "matra": {
+      "sym": "ी",
+      "name": "बड़ी ई की मात्रा (ी)",
+      "combo": "की",
+      "exWord": "कील",
+      "exEmoji": "🔩",
+      "opts": [
+        "ी",
+        "ि",
+        "े",
+        "ै"
+      ]
+    },
+    "puzzle": {
+      "word": "ईख",
+      "emoji": "🎋",
+      "slots": [
+        "ई",
+        "ख"
+      ],
+      "missing": 0,
+      "opts": [
+        "ई",
+        "इ",
+        "ए"
+      ]
+    }
+  },
+  {
+    "c": "उ",
+    "sound": "u",
+    "word": "उल्लू",
+    "emoji": "🦉",
+    "phonic": "उ से उल्लू",
+    "audio": "audio/sw_u.mp3",
+    "matra": {
+      "sym": "ु",
+      "name": "छोटे उ की मात्रा (ु)",
+      "combo": "कु",
+      "exWord": "कुत्ता",
+      "exEmoji": "🐶",
+      "opts": [
+        "ु",
+        "ू",
+        "ो",
+        "ौ"
+      ]
+    },
+    "puzzle": {
+      "word": "उल्लू",
+      "emoji": "🦉",
+      "slots": [
+        "उ",
+        "ल्लू"
+      ],
+      "missing": 0,
+      "opts": [
+        "उ",
+        "ऊ",
+        "ओ"
+      ]
+    }
+  },
+  {
+    "c": "ऊ",
+    "sound": "oo",
+    "word": "ऊन",
+    "emoji": "🧶",
+    "phonic": "ऊ से ऊन",
+    "audio": "audio/sw_oo.mp3",
+    "matra": {
+      "sym": "ू",
+      "name": "बड़े ऊ की मात्रा (ू)",
+      "combo": "कू",
+      "exWord": "कूद",
+      "exEmoji": "🦘",
+      "opts": [
+        "ू",
+        "ु",
+        "ा",
+        "ो"
+      ]
+    },
+    "puzzle": {
+      "word": "ऊन",
+      "emoji": "🧶",
+      "slots": [
+        "ऊ",
+        "न"
+      ],
+      "missing": 0,
+      "opts": [
+        "ऊ",
+        "उ",
+        "ओ"
+      ]
+    }
+  },
+  {
+    "c": "ऋ",
+    "sound": "ri",
+    "word": "ऋषि",
+    "emoji": "🧘",
+    "phonic": "ऋ से ऋषि",
+    "audio": "audio/sw_ri.mp3",
+    "matra": {
+      "sym": "ृ",
+      "name": "ऋ की मात्रा (ृ)",
+      "combo": "कृ",
+      "exWord": "कृपाण",
+      "exEmoji": "🗡️",
+      "opts": [
+        "ृ",
+        "ु",
+        "ू",
+        "ि"
+      ]
+    },
+    "puzzle": {
+      "word": "ऋषि",
+      "emoji": "🧘",
+      "slots": [
+        "ऋ",
+        "षि"
+      ],
+      "missing": 0,
+      "opts": [
+        "ऋ",
+        "र",
+        "ऋि"
+      ]
+    }
+  },
+  {
+    "c": "ए",
+    "sound": "e",
+    "word": "एड़ी",
+    "emoji": "🦶",
+    "phonic": "ए से एड़ी",
+    "audio": "audio/sw_e.mp3",
+    "matra": {
+      "sym": "े",
+      "name": "ए की मात्रा (े)",
+      "combo": "के",
+      "exWord": "केला",
+      "exEmoji": "🍌",
+      "opts": [
+        "े",
+        "ै",
+        "ि",
+        "ी"
+      ]
+    },
+    "puzzle": {
+      "word": "एड़ी",
+      "emoji": "🦶",
+      "slots": [
+        "ए",
+        "ड़ी"
+      ],
+      "missing": 0,
+      "opts": [
+        "ए",
+        "ऐ",
+        "इ"
+      ]
+    }
+  },
+  {
+    "c": "ऐ",
+    "sound": "ai",
+    "word": "ऐनक",
+    "emoji": "👓",
+    "phonic": "ऐ से ऐनक",
+    "audio": "audio/sw_ai.mp3",
+    "matra": {
+      "sym": "ै",
+      "name": "ऐ की मात्रा (ै)",
+      "combo": "कै",
+      "exWord": "कैमरा",
+      "exEmoji": "📷",
+      "opts": [
+        "ै",
+        "े",
+        "ा",
+        "ो"
+      ]
+    },
+    "puzzle": {
+      "word": "ऐनक",
+      "emoji": "👓",
+      "slots": [
+        "ऐ",
+        "न",
+        "क"
+      ],
+      "missing": 0,
+      "opts": [
+        "ऐ",
+        "ए",
+        "ओ"
+      ]
+    }
+  },
+  {
+    "c": "ओ",
+    "sound": "o",
+    "word": "ओखली",
+    "emoji": "🥣",
+    "phonic": "ओ से ओखली",
+    "audio": "audio/sw_o.mp3",
+    "matra": {
+      "sym": "ो",
+      "name": "ओ की मात्रा (ो)",
+      "combo": "को",
+      "exWord": "कोट",
+      "exEmoji": "🧥",
+      "opts": [
+        "ो",
+        "ौ",
+        "ा",
+        "े"
+      ]
+    },
+    "puzzle": {
+      "word": "ओखली",
+      "emoji": "🥣",
+      "slots": [
+        "ओ",
+        "ख",
+        "ली"
+      ],
+      "missing": 0,
+      "opts": [
+        "ओ",
+        "औ",
+        "अ"
+      ]
+    }
+  },
+  {
+    "c": "औ",
+    "sound": "au",
+    "word": "औरत",
+    "emoji": "👩",
+    "phonic": "औ से औरत",
+    "audio": "audio/sw_au.mp3",
+    "matra": {
+      "sym": "ौ",
+      "name": "औ की मात्रा (ौ)",
+      "combo": "कौ",
+      "exWord": "कौआ",
+      "exEmoji": "🦅",
+      "opts": [
+        "ौ",
+        "ो",
+        "ा",
+        "ै"
+      ]
+    },
+    "puzzle": {
+      "word": "औरत",
+      "emoji": "👩",
+      "slots": [
+        "औ",
+        "र",
+        "त"
+      ],
+      "missing": 0,
+      "opts": [
+        "औ",
+        "ओ",
+        "अ"
+      ]
+    }
+  },
+  {
+    "c": "अं",
+    "sound": "ang",
+    "word": "अंगूर",
+    "emoji": "🍇",
+    "phonic": "अं से अंगूर",
+    "audio": "audio/sw_ang.mp3",
+    "matra": {
+      "sym": "ं",
+      "name": "अनुस्वार बिंदी (ं)",
+      "combo": "कं",
+      "exWord": "कंधा",
+      "exEmoji": "💪",
+      "opts": [
+        "ं",
+        "ँ",
+        "ः",
+        "ा"
+      ]
+    },
+    "puzzle": {
+      "word": "अंगूर",
+      "emoji": "🍇",
+      "slots": [
+        "अं",
+        "गू",
+        "र"
+      ],
+      "missing": 0,
+      "opts": [
+        "अं",
+        "अ",
+        "आ"
+      ]
+    }
+  },
+  {
+    "c": "अः",
+    "sound": "aha",
+    "word": "प्रातः",
+    "emoji": "🌅",
+    "phonic": "अः खाली",
+    "audio": "audio/sw_aha.mp3",
+    "matra": {
+      "sym": "ः",
+      "name": "विसर्ग (ः)",
+      "combo": "कः",
+      "exWord": "अतः",
+      "exEmoji": "✍️",
+      "opts": [
+        "ः",
+        "ं",
+        "ँ",
+        "ा"
+      ]
+    },
+    "puzzle": {
+      "word": "प्रातः",
+      "emoji": "🌅",
+      "slots": [
+        "प्रा",
+        "तः"
+      ],
+      "missing": 1,
+      "opts": [
+        "तः",
+        "त",
+        "ता"
+      ]
+    }
+  },
+  {
+    "c": "क",
+    "sound": "ka",
+    "word": "कमल",
+    "emoji": "🪷",
+    "phonic": "क से कमल",
+    "audio": "audio/vy_ka.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "का",
+      "exWord": "कार",
+      "exEmoji": "🚗",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "कमल",
+      "emoji": "🪷",
+      "slots": [
+        "क",
+        "म",
+        "ल"
+      ],
+      "missing": 0,
+      "opts": [
+        "क",
+        "फ",
+        "ख"
+      ]
+    }
+  },
+  {
+    "c": "ख",
+    "sound": "kha",
+    "word": "खरगोश",
+    "emoji": "🐰",
+    "phonic": "ख से खरगोश",
+    "audio": "audio/vy_kha.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "खा",
+      "exWord": "खाना",
+      "exEmoji": "🍽️",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "े"
+      ]
+    },
+    "puzzle": {
+      "word": "खत",
+      "emoji": "✉️",
+      "slots": [
+        "ख",
+        "त"
+      ],
+      "missing": 0,
+      "opts": [
+        "ख",
+        "र",
+        "घ"
+      ]
+    }
+  },
+  {
+    "c": "ग",
+    "sound": "ga",
+    "word": "गमला",
+    "emoji": "🪴",
+    "phonic": "ग से गमला",
+    "audio": "audio/vy_ga.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "गा",
+      "exWord": "गाजर",
+      "exEmoji": "🥕",
+      "opts": [
+        "ा",
+        "े",
+        "ै",
+        "ो"
+      ]
+    },
+    "puzzle": {
+      "word": "गमला",
+      "emoji": "🪴",
+      "slots": [
+        "ग",
+        "म",
+        "ला"
+      ],
+      "missing": 0,
+      "opts": [
+        "ग",
+        "न",
+        "म"
+      ]
+    }
+  },
+  {
+    "c": "घ",
+    "sound": "gha",
+    "word": "घर",
+    "emoji": "🏠",
+    "phonic": "घ से घर",
+    "audio": "audio/vy_gha.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "घा",
+      "exWord": "घास",
+      "exEmoji": "🌾",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "घर",
+      "emoji": "🏠",
+      "slots": [
+        "घ",
+        "र"
+      ],
+      "missing": 0,
+      "opts": [
+        "घ",
+        "ध",
+        "छ"
+      ]
+    }
+  },
+  {
+    "c": "ङ",
+    "sound": "nga",
+    "word": "खाली",
+    "emoji": "🔔",
+    "phonic": "ङ खाली",
+    "audio": "audio/vy_nga.mp3",
+    "matra": {
+      "sym": "ं",
+      "name": "अनुस्वार (ं)",
+      "combo": "पं",
+      "exWord": "पंख",
+      "exEmoji": "🪶",
+      "opts": [
+        "ं",
+        "ा",
+        "ि",
+        "ी"
+      ]
+    },
+    "puzzle": {
+      "word": "पंख",
+      "emoji": "🪶",
+      "slots": [
+        "पं",
+        "ख"
+      ],
+      "missing": 0,
+      "opts": [
+        "पं",
+        "प",
+        "पॉ"
+      ]
+    }
+  },
+  {
+    "c": "च",
+    "sound": "cha",
+    "word": "चम्मच",
+    "emoji": "🥄",
+    "phonic": "च से चम्मच",
+    "audio": "audio/vy_cha.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "चा",
+      "exWord": "चावल",
+      "exEmoji": "🍚",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "े"
+      ]
+    },
+    "puzzle": {
+      "word": "चम्मच",
+      "emoji": "🥄",
+      "slots": [
+        "च",
+        "म्म",
+        "च"
+      ],
+      "missing": 0,
+      "opts": [
+        "च",
+        "ज",
+        "व"
+      ]
+    }
+  },
+  {
+    "c": "छ",
+    "sound": "chha",
+    "word": "छतरी",
+    "emoji": "☂️",
+    "phonic": "छ से छतरी",
+    "audio": "audio/vy_chha.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "छा",
+      "exWord": "छाता",
+      "exEmoji": "⛱️",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "छतरी",
+      "emoji": "☂️",
+      "slots": [
+        "छ",
+        "त",
+        "री"
+      ],
+      "missing": 0,
+      "opts": [
+        "छ",
+        "घ",
+        "ध"
+      ]
+    }
+  },
+  {
+    "c": "ज",
+    "sound": "ja",
+    "word": "जहाज",
+    "emoji": "🚢",
+    "phonic": "ज से जहाज",
+    "audio": "audio/vy_ja.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "जा",
+      "exWord": "जामुन",
+      "exEmoji": "🫐",
+      "opts": [
+        "ा",
+        "े",
+        "ै",
+        "ो"
+      ]
+    },
+    "puzzle": {
+      "word": "जल",
+      "emoji": "💧",
+      "slots": [
+        "ज",
+        "ल"
+      ],
+      "missing": 0,
+      "opts": [
+        "ज",
+        "च",
+        "त"
+      ]
+    }
+  },
+  {
+    "c": "झ",
+    "sound": "jha",
+    "word": "झंडा",
+    "emoji": "🚩",
+    "phonic": "झ से झंडा",
+    "audio": "audio/vy_jha.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "झा",
+      "exWord": "झाड़ू",
+      "exEmoji": "🧹",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "झंडा",
+      "emoji": "🚩",
+      "slots": [
+        "झं",
+        "डा"
+      ],
+      "missing": 0,
+      "opts": [
+        "झं",
+        "जं",
+        "घं"
+      ]
+    }
+  },
+  {
+    "c": "ञ",
+    "sound": "nya",
+    "word": "खाली",
+    "emoji": "🔔",
+    "phonic": "ञ खाली",
+    "audio": "audio/vy_nya.mp3",
+    "matra": {
+      "sym": "ं",
+      "name": "अनुस्वार (ं)",
+      "combo": "मं",
+      "exWord": "मंच",
+      "exEmoji": "🎭",
+      "opts": [
+        "ं",
+        "ा",
+        "े",
+        "ै"
+      ]
+    },
+    "puzzle": {
+      "word": "मंच",
+      "emoji": "🎭",
+      "slots": [
+        "मं",
+        "च"
+      ],
+      "missing": 1,
+      "opts": [
+        "च",
+        "ज",
+        "ञ"
+      ]
+    }
+  },
+  {
+    "c": "ट",
+    "sound": "ta",
+    "word": "टमाटर",
+    "emoji": "🍅",
+    "phonic": "ट से टमाटर",
+    "audio": "audio/vy_ta1.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "टा",
+      "exWord": "टापू",
+      "exEmoji": "🏝️",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "े"
+      ]
+    },
+    "puzzle": {
+      "word": "टब",
+      "emoji": "🛁",
+      "slots": [
+        "ट",
+        "ब"
+      ],
+      "missing": 0,
+      "opts": [
+        "ट",
+        "ठ",
+        "ढ"
+      ]
+    }
+  },
+  {
+    "c": "ठ",
+    "sound": "tha",
+    "word": "ठठेरा",
+    "emoji": "🔨",
+    "phonic": "ठ से ठठेरा",
+    "audio": "audio/vy_tha1.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "ठा",
+      "exWord": "ठाठ",
+      "exEmoji": "👑",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "ठप्पा",
+      "emoji": "📮",
+      "slots": [
+        "ठ",
+        "प्पा"
+      ],
+      "missing": 0,
+      "opts": [
+        "ठ",
+        "ट",
+        "ढ"
+      ]
+    }
+  },
+  {
+    "c": "ड",
+    "sound": "da",
+    "word": "डमरू",
+    "emoji": "🥁",
+    "phonic": "ड से डमरू",
+    "audio": "audio/vy_da1.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "डा",
+      "exWord": "डाक",
+      "exEmoji": "✉️",
+      "opts": [
+        "ा",
+        "े",
+        "ै",
+        "ो"
+      ]
+    },
+    "puzzle": {
+      "word": "डमरू",
+      "emoji": "🥁",
+      "slots": [
+        "ड",
+        "म",
+        "रू"
+      ],
+      "missing": 0,
+      "opts": [
+        "ड",
+        "ढ",
+        "ङ"
+      ]
+    }
+  },
+  {
+    "c": "ढ",
+    "sound": "dha",
+    "word": "ढक्कन",
+    "emoji": "🍲",
+    "phonic": "ढ से ढक्कन",
+    "audio": "audio/vy_dha1.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "ढा",
+      "exWord": "ढाल",
+      "exEmoji": "🛡️",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "ढक्कन",
+      "emoji": "🍲",
+      "slots": [
+        "ढ",
+        "क्क",
+        "न"
+      ],
+      "missing": 0,
+      "opts": [
+        "ढ",
+        "ड",
+        "ठ"
+      ]
+    }
+  },
+  {
+    "c": "ण",
+    "sound": "na",
+    "word": "बाण",
+    "emoji": "🏹",
+    "phonic": "ण खाली",
+    "audio": "audio/vy_na1.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "णा",
+      "exWord": "बाण",
+      "exEmoji": "🏹",
+      "opts": [
+        "ा",
+        "े",
+        "ै",
+        "ो"
+      ]
+    },
+    "puzzle": {
+      "word": "बाण",
+      "emoji": "🏹",
+      "slots": [
+        "बा",
+        "ण"
+      ],
+      "missing": 1,
+      "opts": [
+        "ण",
+        "न",
+        "म"
+      ]
+    }
+  },
+  {
+    "c": "त",
+    "sound": "ta",
+    "word": "तितली",
+    "emoji": "🦋",
+    "phonic": "त से तितली",
+    "audio": "audio/vy_ta2.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "ता",
+      "exWord": "ताला",
+      "exEmoji": "🔒",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "े"
+      ]
+    },
+    "puzzle": {
+      "word": "तितली",
+      "emoji": "🦋",
+      "slots": [
+        "ति",
+        "त",
+        "ली"
+      ],
+      "missing": 1,
+      "opts": [
+        "त",
+        "न",
+        "ल"
+      ]
+    }
+  },
+  {
+    "c": "थ",
+    "sound": "tha",
+    "word": "थर्मस",
+    "emoji": "🫖",
+    "phonic": "थ से थर्मस",
+    "audio": "audio/vy_tha2.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "था",
+      "exWord": "थाली",
+      "exEmoji": "🍽️",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "थर्मस",
+      "emoji": "🫖",
+      "slots": [
+        "थ",
+        "र",
+        "म",
+        "स"
+      ],
+      "missing": 0,
+      "opts": [
+        "थ",
+        "य",
+        "ध"
+      ]
+    }
+  },
+  {
+    "c": "द",
+    "sound": "da",
+    "word": "दवात",
+    "emoji": "🖋️",
+    "phonic": "द से दवात",
+    "audio": "audio/vy_da2.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "दा",
+      "exWord": "दाल",
+      "exEmoji": "🍲",
+      "opts": [
+        "ा",
+        "े",
+        "ै",
+        "ो"
+      ]
+    },
+    "puzzle": {
+      "word": "दवात",
+      "emoji": "🖋️",
+      "slots": [
+        "द",
+        "वा",
+        "त"
+      ],
+      "missing": 0,
+      "opts": [
+        "द",
+        "ध",
+        "ढ"
+      ]
+    }
+  },
+  {
+    "c": "ध",
+    "sound": "dha",
+    "word": "धनुष",
+    "emoji": "🏹",
+    "phonic": "ध से धनुष",
+    "audio": "audio/vy_dha2.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "धा",
+      "exWord": "धागा",
+      "exEmoji": "🧵",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "े"
+      ]
+    },
+    "puzzle": {
+      "word": "धनुष",
+      "emoji": "🏹",
+      "slots": [
+        "ध",
+        "नु",
+        "ष"
+      ],
+      "missing": 0,
+      "opts": [
+        "ध",
+        "घ",
+        "थ"
+      ]
+    }
+  },
+  {
+    "c": "न",
+    "sound": "na",
+    "word": "नल",
+    "emoji": "🚰",
+    "phonic": "न से नल",
+    "audio": "audio/vy_na2.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "ना",
+      "exWord": "नाव",
+      "exEmoji": "⛵",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "नल",
+      "emoji": "🚰",
+      "slots": [
+        "न",
+        "ल"
+      ],
+      "missing": 0,
+      "opts": [
+        "न",
+        "म",
+        "त"
+      ]
+    }
+  },
+  {
+    "c": "प",
+    "sound": "pa",
+    "word": "पतंग",
+    "emoji": "🪁",
+    "phonic": "प से पतंग",
+    "audio": "audio/vy_pa.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "पा",
+      "exWord": "पानी",
+      "exEmoji": "💧",
+      "opts": [
+        "ा",
+        "े",
+        "ै",
+        "ो"
+      ]
+    },
+    "puzzle": {
+      "word": "पतंग",
+      "emoji": "🪁",
+      "slots": [
+        "प",
+        "तं",
+        "ग"
+      ],
+      "missing": 0,
+      "opts": [
+        "प",
+        "ष",
+        "फ"
+      ]
+    }
+  },
+  {
+    "c": "फ",
+    "sound": "pha",
+    "word": "फल",
+    "emoji": "🍎",
+    "phonic": "फ से फल",
+    "audio": "audio/vy_pha.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "फा",
+      "exWord": "फाटक",
+      "exEmoji": "🚪",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "े"
+      ]
+    },
+    "puzzle": {
+      "word": "फल",
+      "emoji": "🍎",
+      "slots": [
+        "फ",
+        "ल"
+      ],
+      "missing": 0,
+      "opts": [
+        "फ",
+        "क",
+        "प"
+      ]
+    }
+  },
+  {
+    "c": "ब",
+    "sound": "ba",
+    "word": "बत्तख",
+    "emoji": "🦆",
+    "phonic": "ब से बत्तख",
+    "audio": "audio/vy_ba.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "बा",
+      "exWord": "बादल",
+      "exEmoji": "☁️",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "बस",
+      "emoji": "🚌",
+      "slots": [
+        "ब",
+        "स"
+      ],
+      "missing": 0,
+      "opts": [
+        "ब",
+        "व",
+        "क"
+      ]
+    }
+  },
+  {
+    "c": "भ",
+    "sound": "bha",
+    "word": "भालू",
+    "emoji": "🐻",
+    "phonic": "भ से भालू",
+    "audio": "audio/vy_bha.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "भा",
+      "exWord": "भारत",
+      "exEmoji": "🇮🇳",
+      "opts": [
+        "ा",
+        "े",
+        "ै",
+        "ो"
+      ]
+    },
+    "puzzle": {
+      "word": "भालू",
+      "emoji": "🐻",
+      "slots": [
+        "भा",
+        "लू"
+      ],
+      "missing": 0,
+      "opts": [
+        "भा",
+        "मा",
+        "घा"
+      ]
+    }
+  },
+  {
+    "c": "म",
+    "sound": "ma",
+    "word": "मछली",
+    "emoji": "🐟",
+    "phonic": "म से मछली",
+    "audio": "audio/vy_ma.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "मा",
+      "exWord": "माला",
+      "exEmoji": "📿",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "े"
+      ]
+    },
+    "puzzle": {
+      "word": "मछली",
+      "emoji": "🐟",
+      "slots": [
+        "म",
+        "छ",
+        "ली"
+      ],
+      "missing": 0,
+      "opts": [
+        "म",
+        "भ",
+        "न"
+      ]
+    }
+  },
+  {
+    "c": "य",
+    "sound": "ya",
+    "word": "यज्ञ",
+    "emoji": "🪔",
+    "phonic": "य से यज्ञ",
+    "audio": "audio/vy_ya.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "या",
+      "exWord": "याक",
+      "exEmoji": "🐂",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "यज्ञ",
+      "emoji": "🪔",
+      "slots": [
+        "य",
+        "ज्ञ"
+      ],
+      "missing": 0,
+      "opts": [
+        "य",
+        "थ",
+        "प"
+      ]
+    }
+  },
+  {
+    "c": "र",
+    "sound": "ra",
+    "word": "रथ",
+    "emoji": "🛞",
+    "phonic": "र से रथ",
+    "audio": "audio/vy_ra.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "रा",
+      "exWord": "राजा",
+      "exEmoji": "👑",
+      "opts": [
+        "ा",
+        "े",
+        "ै",
+        "ो"
+      ]
+    },
+    "puzzle": {
+      "word": "रथ",
+      "emoji": "🛞",
+      "slots": [
+        "र",
+        "थ"
+      ],
+      "missing": 0,
+      "opts": [
+        "र",
+        "स",
+        "च"
+      ]
+    }
+  },
+  {
+    "c": "ल",
+    "sound": "la",
+    "word": "लट्टू",
+    "emoji": "🪀",
+    "phonic": "ल से लट्टू",
+    "audio": "audio/vy_la.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "ला",
+      "exWord": "लाल",
+      "exEmoji": "🔴",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "े"
+      ]
+    },
+    "puzzle": {
+      "word": "लट्टू",
+      "emoji": "🪀",
+      "slots": [
+        "ल",
+        "ट्टू"
+      ],
+      "missing": 0,
+      "opts": [
+        "ल",
+        "त",
+        "न"
+      ]
+    }
+  },
+  {
+    "c": "व",
+    "sound": "va",
+    "word": "वक",
+    "emoji": "🦩",
+    "phonic": "व से वक",
+    "audio": "audio/vy_va.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "वा",
+      "exWord": "वानर",
+      "exEmoji": "🐒",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "वक",
+      "emoji": "🦩",
+      "slots": [
+        "व",
+        "क"
+      ],
+      "missing": 0,
+      "opts": [
+        "व",
+        "ब",
+        "क"
+      ]
+    }
+  },
+  {
+    "c": "श",
+    "sound": "sha",
+    "word": "शलजम",
+    "emoji": "🧅",
+    "phonic": "श से शलजम",
+    "audio": "audio/vy_sha1.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "शा",
+      "exWord": "शाखा",
+      "exEmoji": "🌿",
+      "opts": [
+        "ा",
+        "े",
+        "ै",
+        "ो"
+      ]
+    },
+    "puzzle": {
+      "word": "शलजम",
+      "emoji": "🧅",
+      "slots": [
+        "श",
+        "ल",
+        "ज",
+        "म"
+      ],
+      "missing": 0,
+      "opts": [
+        "श",
+        "ष",
+        "स"
+      ]
+    }
+  },
+  {
+    "c": "ष",
+    "sound": "sha",
+    "word": "षट्कोण",
+    "emoji": "⬡",
+    "phonic": "ष से षट्कोण",
+    "audio": "audio/vy_sha2.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "षा",
+      "exWord": "भाषा",
+      "exEmoji": "🗣️",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "े"
+      ]
+    },
+    "puzzle": {
+      "word": "षट्कोण",
+      "emoji": "⬡",
+      "slots": [
+        "ष",
+        "ट्को",
+        "ण"
+      ],
+      "missing": 0,
+      "opts": [
+        "ष",
+        "श",
+        "प"
+      ]
+    }
+  },
+  {
+    "c": "स",
+    "sound": "sa",
+    "word": "सेब",
+    "emoji": "🍏",
+    "phonic": "स से सेब",
+    "audio": "audio/vy_sa.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "सा",
+      "exWord": "साबुन",
+      "exEmoji": "🧼",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "सच",
+      "emoji": "⚖️",
+      "slots": [
+        "स",
+        "च"
+      ],
+      "missing": 0,
+      "opts": [
+        "स",
+        "र",
+        "म"
+      ]
+    }
+  },
+  {
+    "c": "ह",
+    "sound": "ha",
+    "word": "हाथी",
+    "emoji": "🐘",
+    "phonic": "ह से हाथी",
+    "audio": "audio/vy_ha.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "हा",
+      "exWord": "हाथ",
+      "exEmoji": "✋",
+      "opts": [
+        "ा",
+        "े",
+        "ै",
+        "ो"
+      ]
+    },
+    "puzzle": {
+      "word": "हल",
+      "emoji": "🌾",
+      "slots": [
+        "ह",
+        "ल"
+      ],
+      "missing": 0,
+      "opts": [
+        "ह",
+        "ड",
+        "त"
+      ]
+    }
+  },
+  {
+    "c": "क्ष",
+    "sound": "ksha",
+    "word": "क्षत्रिय",
+    "emoji": "⚔️",
+    "phonic": "क्ष से क्षत्रिय",
+    "audio": "audio/vy_ksha.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "क्षा",
+      "exWord": "कक्षा",
+      "exEmoji": "🏫",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "े"
+      ]
+    },
+    "puzzle": {
+      "word": "क्षत्रिय",
+      "emoji": "⚔️",
+      "slots": [
+        "क्ष",
+        "त्रि",
+        "य"
+      ],
+      "missing": 0,
+      "opts": [
+        "क्ष",
+        "क",
+        "त्र"
+      ]
+    }
+  },
+  {
+    "c": "त्र",
+    "sound": "tra",
+    "word": "त्रिशूल",
+    "emoji": "🔱",
+    "phonic": "त्र से त्रिशूल",
+    "audio": "audio/vy_tra.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "त्रा",
+      "exWord": "यात्रा",
+      "exEmoji": "🚂",
+      "opts": [
+        "ा",
+        "ि",
+        "ी",
+        "ु"
+      ]
+    },
+    "puzzle": {
+      "word": "त्रिशूल",
+      "emoji": "🔱",
+      "slots": [
+        "त्रि",
+        "शू",
+        "ल"
+      ],
+      "missing": 0,
+      "opts": [
+        "त्रि",
+        "ति",
+        "क्ष"
+      ]
+    }
+  },
+  {
+    "c": "ज्ञ",
+    "sound": "gya",
+    "word": "ज्ञानी",
+    "emoji": "📖",
+    "phonic": "ज्ञ से ज्ञानी",
+    "audio": "audio/vy_gya.mp3",
+    "matra": {
+      "sym": "ा",
+      "name": "आ की मात्रा (ा)",
+      "combo": "ज्ञा",
+      "exWord": "ज्ञान",
+      "exEmoji": "💡",
+      "opts": [
+        "ा",
+        "े",
+        "ै",
+        "ो"
+      ]
+    },
+    "puzzle": {
+      "word": "ज्ञानी",
+      "emoji": "📖",
+      "slots": [
+        "ज्ञा",
+        "नी"
+      ],
+      "missing": 0,
+      "opts": [
+        "ज्ञा",
+        "जा",
+        "गा"
+      ]
+    }
+  }
 ];
 
+
+// App State
 let idx = 0;
+let currentStep = 1; // 1 = Letter Recall, 2 = Matra Combining, 3 = Word Puzzle, 4 = Progress
 let userStrokes = [];
 let currentStroke = null;
 let drawing = false;
@@ -193,15 +1958,31 @@ let stageIndex = 0; // 0 = Trace, 1 = Ghost, 2 = Freehand
 let guideMode = 'auto'; // 'auto', 'on', 'off'
 let hintActive = false;
 let hintTimer = null;
+let currentMatrixFilter = 'all';
 
 let bananas = parseInt(localStorage.getItem('rasari_bananas') || '0', 10);
-let struggleMap = JSON.parse(localStorage.getItem('rasari_struggle') || '{}');
+let masteryData = JSON.parse(localStorage.getItem('rasari_mastery_v2') || '{}');
 
 const $ = id => document.getElementById(id);
 const w = $('write'), ctx = w.getContext('2d');
 const g = $('guide'), gx = g.getContext('2d');
 
 $('bananaCount').textContent = bananas;
+
+function getLetterMastery(c) {
+  if (!masteryData[c]) {
+    masteryData[c] = { recall: false, matra: false, word: false, attempts: 0, passes: 0, star: 0 };
+  }
+  return masteryData[c];
+}
+
+function updateLetterStar(c) {
+  const m = getLetterMastery(c);
+  let count = (m.recall ? 1 : 0) + (m.matra ? 1 : 0) + (m.word ? 1 : 0);
+  m.star = count === 3 ? 3 : (count === 2 ? 2 : (count >= 1 ? 1 : 0));
+  localStorage.setItem('rasari_mastery_v2', JSON.stringify(masteryData));
+  return m.star;
+}
 
 function fit(c, x) {
   let r = c.getBoundingClientRect(), d = devicePixelRatio || 1;
@@ -216,14 +1997,6 @@ function updateStageUI() {
   $('guideModeBtn').textContent = guideMode === 'auto' ? '👁️ Auto' : (guideMode === 'on' ? '👁️ ON' : '🕶️ OFF');
 }
 
-/**
- * Notebook 5-Line Ruling System:
- * Line 1: Upper Matra Guide (Light Blue Dashed)
- * Line 2: BOLD Shirorekha Headline (Dark Blue Solid) -> EXACT top of letter body
- * Line 3: Midline Guide (Light Cyan Dashed)
- * Line 4: BOLD Base Line (Dark Blue Solid) -> EXACT bottom of letter body
- * Line 5: Lower Matra Guide (Light Pink Dashed)
- */
 function computeRuling(height) {
   const line1 = Math.round(height * 0.22);
   const line2 = Math.round(height * 0.38);
@@ -231,8 +2004,7 @@ function computeRuling(height) {
   const line4 = Math.round(height * 0.72);
   const line5 = Math.round(height * 0.88);
 
-  const bodyHeight = line4 - line2; // The exact letter body zone
-  // In Noto Sans Devanagari, font ascent from baseline to Shirorekha is ~0.68 of fontSize
+  const bodyHeight = line4 - line2;
   const fontSize = Math.round(bodyHeight / 0.68);
   const brushWidth = Math.max(16, Math.round(fontSize * 0.11));
 
@@ -258,14 +2030,14 @@ function drawNotebookLines(context, width, ruling, isGuide = false) {
   // Line 2: BOLD SHIROREKHA LINE
   context.setLineDash([]);
   context.strokeStyle = '#124170';
-  context.lineWidth = isGuide ? 3 : 4;
+  context.lineWidth = 3.6;
   context.beginPath();
   context.moveTo(startX, line2);
   context.lineTo(endX, line2);
   context.stroke();
 
   // Line 3: Midline Guide
-  context.strokeStyle = '#a4d4f2';
+  context.strokeStyle = '#5cc4bb';
   context.lineWidth = 1.5;
   context.setLineDash([6, 5]);
   context.beginPath();
@@ -273,17 +2045,17 @@ function drawNotebookLines(context, width, ruling, isGuide = false) {
   context.lineTo(endX, line3);
   context.stroke();
 
-  // Line 4: BOLD BASE LINE
+  // Line 4: BOLD BASELINE
   context.setLineDash([]);
   context.strokeStyle = '#124170';
-  context.lineWidth = isGuide ? 3 : 4;
+  context.lineWidth = 3.6;
   context.beginPath();
   context.moveTo(startX, line4);
   context.lineTo(endX, line4);
   context.stroke();
 
   // Line 5: Lower Matra Guide
-  context.strokeStyle = '#f8a5b8';
+  context.strokeStyle = '#fca5b9';
   context.lineWidth = 1.8;
   context.setLineDash([7, 6]);
   context.beginPath();
@@ -291,11 +2063,10 @@ function drawNotebookLines(context, width, ruling, isGuide = false) {
   context.lineTo(endX, line5);
   context.stroke();
 
-  // Subtle zone labels on the writing canvas
-  if (!isGuide && width > 300) {
+  if (isGuide) {
     context.setLineDash([]);
-    context.fillStyle = '#689cb8';
-    context.font = '700 11px sans-serif';
+    context.fillStyle = '#679dc2';
+    context.font = 'bold 9px sans-serif';
     context.textAlign = 'left';
     context.textBaseline = 'middle';
     context.fillText('मात्रा ↑', startX + 4, (line1 + line2) / 2);
@@ -321,7 +2092,6 @@ function drawPad() {
 
   const char = lessons[idx].c;
 
-  // Watermark alpha
   let alpha = 0;
   if (hintActive) {
     alpha = 0.28;
@@ -335,7 +2105,6 @@ function drawPad() {
     else alpha = 0;
   }
 
-  // Draw Watermark: Baseline sits on Line 4, Shirorekha touches Line 2
   if (alpha > 0) {
     ctx.save();
     ctx.globalAlpha = alpha;
@@ -347,7 +2116,6 @@ function drawPad() {
     ctx.restore();
   }
 
-  // Redraw user strokes with bold brush matching the watermark
   const bw = ruling.brushWidth;
   ctx.save();
   ctx.strokeStyle = '#173e33';
@@ -383,7 +2151,6 @@ function drawGuide() {
 
   const char = lessons[idx].c;
 
-  // Draw model letter sitting exactly between Line 2 and Line 4
   gx.save();
   gx.fillStyle = '#102f25';
   gx.font = '700 ' + ruling.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
@@ -391,7 +2158,6 @@ function drawGuide() {
   gx.textBaseline = 'alphabetic';
   gx.fillText(char, ww / 2, ruling.line4);
 
-  // Stroke order numbered indicator on Line 2 (Shirorekha)
   const badgeX = Math.round(ww * 0.18);
   const badgeY = ruling.line2;
   gx.fillStyle = '#168ed4';
@@ -404,7 +2170,6 @@ function drawGuide() {
   gx.textBaseline = 'middle';
   gx.fillText('1', badgeX, badgeY);
 
-  // Directional arrow on Shirorekha
   gx.strokeStyle = '#168ed4';
   gx.lineWidth = 2.5;
   gx.beginPath();
@@ -416,21 +2181,6 @@ function drawGuide() {
   gx.stroke();
 
   gx.restore();
-}
-
-function render() {
-  const item = lessons[idx];
-  $('charGlyph').textContent = item.c;
-  $('anchorWord').textContent = '🔊 ' + (item.word || '');
-  $('navLetter').textContent = item.c;
-  $('praise').textContent = '⭐ Great effort!';
-  updateStageUI();
-  drawPad();
-  drawGuide();
-
-  ['st1', 'st2', 'st3', 'st4'].forEach((id, i) => {
-    $(id).classList.toggle('active', i === (idx < 13 ? 0 : idx < 30 ? 1 : 2));
-  });
 }
 
 function pos(e) {
@@ -451,15 +2201,13 @@ w.addEventListener('pointerdown', e => {
   ctx.strokeStyle = '#173e33';
   ctx.fillStyle = '#173e33';
   ctx.lineWidth = bw;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
   ctx.beginPath();
   ctx.arc(p.x, p.y, bw / 2, 0, Math.PI * 2);
   ctx.fill();
 });
 
 w.addEventListener('pointermove', e => {
-  if (!drawing || !currentStroke) return;
+  if (!drawing || !last) return;
   e.preventDefault();
   const p = pos(e);
   currentStroke.push(p);
@@ -489,6 +2237,7 @@ function clearPad() {
   drawPad();
 }
 
+// Audio System
 const audioMap = {};
 function preloadAudio() {
   lessons.forEach(item => {
@@ -499,15 +2248,33 @@ function preloadAudio() {
       audioMap[item.audio] = a;
     }
   });
+  ['audio/snd_correct.mp3', 'audio/snd_tryagain.mp3'].forEach(src => {
+    const a = new Audio();
+    a.src = src;
+    audioMap[src] = a;
+  });
 }
 preloadAudio();
 
 let activeAudio = null;
+function playSnd(src) {
+  if (!src) return;
+  try {
+    if (activeAudio) {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
+    }
+    const a = audioMap[src] || new Audio(src);
+    a.currentTime = 0;
+    activeAudio = a;
+    a.play().catch(() => {});
+  } catch(e){}
+}
+
 function speak() {
   const item = lessons[idx];
   if (!item) return;
 
-  // Visual pulse on the letter/word
   const wordEl = $('anchorWord');
   if (wordEl) {
     wordEl.style.transform = 'scale(1.2)';
@@ -518,42 +2285,10 @@ function speak() {
     }, 500);
   }
 
-  // Stop previous audio
-  if (activeAudio) {
-    try {
-      activeAudio.pause();
-      activeAudio.currentTime = 0;
-    } catch(e){}
-    activeAudio = null;
-  }
-
-  if (item.audio) {
-    const audio = audioMap[item.audio] || new Audio(item.audio);
-    audio.currentTime = 0;
-    activeAudio = audio;
-    const p = audio.play();
-    if (p !== undefined) {
-      p.catch(err => {
-        console.warn('Native audio play error, retrying with fresh instance:', err);
-        const fresh = new Audio(item.audio);
-        activeAudio = fresh;
-        fresh.play().catch(e => {
-          console.warn('Fresh Audio retry error:', e);
-          if ('speechSynthesis' in window) {
-            try {
-              if (window.speechSynthesis.paused) window.speechSynthesis.resume();
-              const u = new SpeechSynthesisUtterance(item.phonic || item.c);
-              u.lang = 'hi-IN';
-              window.speechSynthesis.speak(u);
-            } catch(e){}
-          }
-        });
-      });
-    }
-  }
+  playSnd(item.audio);
 }
 
-// Discriminative Handwriting Auto-Evaluator (3x3 Zone Correlation + True IoU)
+// Discriminative Handwriting Auto-Evaluator with Anti-Scribble Barrier
 function evaluateHandwriting(targetChar) {
   const S = 120;
   const ww = w.clientWidth, h = w.clientHeight;
@@ -581,7 +2316,6 @@ function evaluateHandwriting(targetChar) {
     if (tData[i] > 80) tPixels++;
   }
 
-  // Safety fallback if font failed to rasterize
   if (tPixels < 30) {
     tx.font = 'bold ' + Math.round(S * 0.52) + 'px sans-serif';
     tx.fillText(targetChar, S / 2, Math.round(S * 0.72));
@@ -592,9 +2326,7 @@ function evaluateHandwriting(targetChar) {
     }
   }
 
-  if (tPixels === 0) {
-    return { score: 0, pass: false, reason: 'error' };
-  }
+  if (tPixels === 0) return { score: 0, pass: false, reason: 'error' };
 
   // 2. Offscreen User Drawing
   const uc = document.createElement('canvas');
@@ -625,15 +2357,11 @@ function evaluateHandwriting(targetChar) {
   });
   const uData = ux.getImageData(0, 0, S, S).data;
 
-  // 3. Pixel Intersection & 3x3 Grid Distribution
-  let matched = 0;
-  let uPixels = 0;
-  let spill = 0;
-
+  // 3. Pixel Intersection & Grid Distribution
+  let matched = 0, uPixels = 0, spill = 0;
   const tZones = new Array(9).fill(0);
   const uZones = new Array(9).fill(0);
-  const zoneW = S / 3;
-  const zoneH = S / 3;
+  const zoneW = S / 3, zoneH = S / 3;
 
   for (let y = 0; y < S; y++) {
     const zy = Math.min(2, Math.floor(y / zoneH));
@@ -641,83 +2369,74 @@ function evaluateHandwriting(targetChar) {
       const zx = Math.min(2, Math.floor(x / zoneW));
       const zIdx = zy * 3 + zx;
       const idx = (y * S + x) * 4;
-
       const u = uData[idx] > 80;
       const t = tData[idx] > 80;
-
-      if (u) {
-        uPixels++;
-        uZones[zIdx]++;
-      }
-      if (t) {
-        tZones[zIdx]++;
-      }
-      if (u && t) {
-        matched++;
-      } else if (u && !t) {
-        spill++;
-      }
+      if (u) { uPixels++; uZones[zIdx]++; }
+      if (t) { tZones[zIdx]++; }
+      if (u && t) { matched++; }
+      else if (u && !t) { spill++; }
     }
   }
 
-  // Metric 1: Coverage
   const coverage = matched / tPixels;
-
-  // Metric 2: True Jaccard IoU (Intersection over Union)
+  const precision = uPixels > 0 ? (matched / uPixels) : 0;
   const union = (tPixels + uPixels - matched);
   const iou = union > 0 ? (matched / union) : 0;
 
-  // Metric 3: 3x3 Zone Similarity (structural shape correlation)
-  let zoneOverlap = 0;
-  for (let z = 0; z < 9; z++) {
-    const tWeight = tZones[z] / tPixels;
-    const uWeight = uPixels > 0 ? (uZones[z] / uPixels) : 0;
-    zoneOverlap += Math.min(tWeight, uWeight);
+  // ANTI-SCRIBBLE BARRIER:
+  // Reject if drawn ink is > 2.0x target letter size
+  if (uPixels > tPixels * 2.0) {
+    return { score: 10, pass: false, reason: 'scribble', coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
   }
 
-  // Devanagari Anatomical Check: Top bar (Shirorekha)
+  // Reject if precision < 32% (drawn all over empty space)
+  if (precision < 0.32) {
+    return { score: Math.round(precision * 45), pass: false, reason: 'scribble', coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
+  }
+
+  // Devanagari Top Bar (Shirorekha) check
   const targetHasTopBar = (tZones[0] + tZones[1] + tZones[2]) / tPixels > 0.18;
   const userHasTopBar = uPixels > 0 ? ((uZones[0] + uZones[1] + uZones[2]) / uPixels > 0.14) : false;
   let structurePenalty = 0;
   if (targetHasTopBar && !userHasTopBar) {
-    structurePenalty = 22; // Penalize shapes like 'A' when target is 'क' or 'अ'
+    structurePenalty = 25;
   }
 
-  // Scribble Penalty: user covered > 40% of the entire canvas
-  let scribblePenalty = 0;
-  if (uPixels > (S * S * 0.40)) {
-    scribblePenalty = 30;
+  // Spill penalty for stray strokes
+  const spillRatio = spill / tPixels;
+  let spillPenalty = 0;
+  if (spillRatio > 0.80) {
+    spillPenalty = Math.min(30, Math.round((spillRatio - 0.80) * 45));
   }
-
-  // Calibrate final score
-  const scaledIoU = Math.min(100, (iou / 0.42) * 80);
-  const scaledZone = Math.min(100, zoneOverlap * 100);
-  const scaledCoverage = Math.min(100, coverage * 100);
 
   let score = Math.round(
-    scaledIoU * 0.40 +
-    scaledZone * 0.35 +
-    scaledCoverage * 0.25 -
+    (iou / 0.40) * 45 +
+    (precision / 0.65) * 35 +
+    (coverage / 0.75) * 20 -
     structurePenalty -
-    scribblePenalty
+    spillPenalty
   );
-
   score = Math.max(0, Math.min(100, score));
 
-  // Strict pass condition:
-  // Must have score >= 50, coverage >= 32%, and IoU >= 0.18 (rejects A vs ka)
-  const pass = score >= 50 && coverage >= 0.32 && iou >= 0.18;
+  const pass = score >= 52 && coverage >= 0.40 && precision >= 0.34 && iou >= 0.24 && (uPixels <= tPixels * 2.0);
 
   return {
     score,
     pass,
+    reason: pass ? 'ok' : (precision < 0.35 || uPixels > tPixels * 1.9 ? 'scribble' : 'mismatch'),
     iou: Math.round(iou * 100),
-    coverage: Math.round(coverage * 100)
+    coverage: Math.round(coverage * 100),
+    precision: Math.round(precision * 100)
   };
 }
 
-// Done Handler
+// Done Handler for Step 1
 $('done').onclick = () => {
+  if (currentStep !== 1) {
+    setStep(currentStep + 1);
+    return;
+  }
+
   if (!userStrokes.length) {
     $('praise').textContent = 'Write the letter first ✍️';
     return;
@@ -726,12 +2445,19 @@ $('done').onclick = () => {
   const result = evaluateHandwriting(lessons[idx].c);
 
   if (!result.pass) {
-    $('praise').textContent = result.score > 25
-      ? 'Almost there! Follow the lines 💡'
-      : 'Follow the guide arrows ↶';
+    if (result.reason === 'scribble') {
+      $('praise').textContent = "Don't scribble! Trace the letter lines ✍️";
+      playSnd('audio/snd_tryagain.mp3');
+    } else {
+      $('praise').textContent = result.score > 25
+        ? 'Almost there! Follow the lines 💡'
+        : 'Follow the guide arrows ↶';
+      playSnd('audio/snd_tryagain.mp3');
+    }
     return;
   }
 
+  playSnd('audio/snd_correct.mp3');
   const isFreehand = (guideMode === 'auto' && stageIndex === 2) || (guideMode === 'off');
   let treatsEarned = isFreehand ? 3 : (stageIndex === 1 ? 2 : 1);
   bananas += treatsEarned;
@@ -739,20 +2465,20 @@ $('done').onclick = () => {
   $('bananaCount').textContent = bananas;
 
   const char = lessons[idx].c;
-  if (!struggleMap[char]) struggleMap[char] = { attempts: 0, passes: 0, freehand: false };
-  struggleMap[char].attempts++;
-  struggleMap[char].passes++;
-  if (isFreehand) struggleMap[char].freehand = true;
-  localStorage.setItem('rasari_struggle', JSON.stringify(struggleMap));
+  const m = getLetterMastery(char);
+  m.attempts++;
+  m.passes++;
+  m.recall = true;
+  updateLetterStar(char);
 
-  $('scoreBadge').textContent = `Match: ${result.score}% ` + (result.score >= 75 ? '⭐⭐⭐' : '⭐⭐');
+  $('scoreBadge').textContent = 'Match: ' + result.score + '% ' + (result.score >= 75 ? '⭐⭐⭐' : '⭐⭐');
 
   if (isFreehand) {
-    $('mt').textContent = '🌟 Letter Mastered Freehand!';
-    $('mp').textContent = `You wrote ${lessons[idx].c} from memory! +${treatsEarned} bananas 🍌`;
+    $('mt').textContent = '🌟 Letter Recalled Freehand!';
+    $('mp').textContent = 'You wrote ' + char + ' from memory! (+' + treatsEarned + ' bananas 🍌)';
   } else {
     $('mt').textContent = 'Great writing!';
-    $('mp').textContent = `You wrote ${lessons[idx].c} (+${treatsEarned} bananas 🍌)`;
+    $('mp').textContent = 'You wrote ' + char + ' (+' + treatsEarned + ' bananas 🍌)';
   }
 
   if (guideMode === 'auto') {
@@ -760,16 +2486,19 @@ $('done').onclick = () => {
     updateStageUI();
   }
 
-  $('next').textContent = (stageIndex === 0) ? 'Next letter →' : 'Next level →';
+  $('next').textContent = 'Next: Add Matra →';
+  $('next').onclick = () => {
+    $('modal').classList.remove('show');
+    setStep(2);
+  };
   $('modal').classList.add('show');
 };
 
 function advance() {
   $('modal').classList.remove('show');
-  if (stageIndex === 0) {
-    idx = (idx + 1) % lessons.length;
-  }
+  idx = (idx + 1) % lessons.length;
   clearPad();
+  setStep(1);
   render();
 }
 
@@ -812,6 +2541,7 @@ function goHome() {
   stageIndex = 0;
   $('modal').classList.remove('show');
   clearPad();
+  setStep(1);
   render();
 }
 
@@ -822,6 +2552,324 @@ window.addEventListener('resize', () => {
   drawPad();
   drawGuide();
 });
+
+// Step Navigation Handlers
+$('st1').onclick = () => setStep(1);
+$('st2').onclick = () => setStep(2);
+$('st3').onclick = () => setStep(3);
+$('st4').onclick = () => setStep(4);
+
+function setStep(stepNum) {
+  currentStep = stepNum;
+  ['st1', 'st2', 'st3', 'st4'].forEach((id, i) => {
+    $(id).classList.toggle('active', i === stepNum - 1);
+  });
+
+  const item = lessons[idx];
+
+  $('matraStage').style.display = 'none';
+  $('wordStage').style.display = 'none';
+  $('progressStage').style.display = 'none';
+
+  if (stepNum === 1) {
+    // Step 1: Letter Recall Gym
+    $('write').style.display = 'block';
+    $('toolbarTop').style.display = 'flex';
+    $('guideHeading').style.display = 'flex';
+    $('guide').style.display = 'block';
+    $('erase').style.display = 'flex';
+    $('retry').style.display = 'flex';
+    $('praise').style.display = 'flex';
+    $('done').style.display = 'flex';
+    $('hear').style.display = 'flex';
+    $('done').textContent = "✓ I'm done!";
+
+    $('promptText').textContent = "Write this letter";
+    $('charGlyph').textContent = item.c;
+    $('anchorWord').textContent = item.emoji + ' ' + item.word;
+
+    drawPad();
+    drawGuide();
+  } else if (stepNum === 2) {
+    // Step 2: Matra Combining Lab
+    $('write').style.display = 'none';
+    $('toolbarTop').style.display = 'none';
+    $('guideHeading').style.display = 'none';
+    $('guide').style.display = 'none';
+    $('erase').style.display = 'none';
+    $('retry').style.display = 'none';
+    $('praise').style.display = 'flex';
+    $('done').style.display = 'none';
+    $('hear').style.display = 'flex';
+
+    $('promptText').textContent = "Combine the Matra";
+    $('charGlyph').textContent = item.matra.combo || item.c;
+    $('anchorWord').textContent = item.matra.exEmoji + ' ' + item.matra.exWord;
+
+    renderMatraStage(item);
+  } else if (stepNum === 3) {
+    // Step 3: Word Builder
+    $('write').style.display = 'none';
+    $('toolbarTop').style.display = 'none';
+    $('guideHeading').style.display = 'none';
+    $('guide').style.display = 'none';
+    $('erase').style.display = 'none';
+    $('retry').style.display = 'none';
+    $('praise').style.display = 'flex';
+    $('done').style.display = 'none';
+    $('hear').style.display = 'flex';
+
+    $('promptText').textContent = "Make the word";
+    $('charGlyph').textContent = item.c;
+    $('anchorWord').textContent = item.puzzle.emoji + ' ' + item.puzzle.word;
+
+    renderWordStage(item);
+  } else if (stepNum === 4) {
+    // Step 4: Progress Mastery Matrix
+    renderProgressStage();
+  }
+}
+
+function renderMatraStage(item) {
+  const stage = $('matraStage');
+  stage.style.display = 'flex';
+
+  const isSwar = idx < 13;
+  const m = item.matra;
+  const formulaEl = $('matraFormula');
+  const promptEl = $('matraPrompt');
+  const optsEl = $('matraOptions');
+
+  $('praise').textContent = 'Tap the matching matra 💡';
+
+  if (isSwar) {
+    formulaEl.innerHTML = '<div class="formula-box">' + item.c + '</div>' +
+      '<div class="formula-sign">➔</div>' +
+      '<div class="formula-box slot-target" id="matraTargetSlot">?</div>' +
+      '<div class="formula-sign">=</div>' +
+      '<div class="formula-box" style="font-size:32px">' + m.exEmoji + '</div>';
+    promptEl.textContent = 'स्वर ' + item.c + ' की सही मात्रा चुनो (' + m.exWord + ' ' + m.exEmoji + ')';
+  } else {
+    formulaEl.innerHTML = '<div class="formula-box">' + item.c + '</div>' +
+      '<div class="formula-sign">+</div>' +
+      '<div class="formula-box slot-target" id="matraTargetSlot">?</div>' +
+      '<div class="formula-sign">=</div>' +
+      '<div class="formula-box" style="font-size:clamp(22px,3vw,34px)">' + m.combo + ' ' + m.exEmoji + '</div>';
+    promptEl.textContent = item.c + ' में सही मात्रा जोड़कर \'' + m.exWord + '\' बनाओ!';
+  }
+
+  const shuffled = [...m.opts].sort(() => Math.random() - 0.5);
+  optsEl.innerHTML = '';
+  shuffled.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-tile';
+    btn.textContent = opt;
+    btn.onclick = () => {
+      if (opt === m.sym) {
+        btn.classList.add('correct');
+        const targetSlot = $('matraTargetSlot');
+        if (targetSlot) {
+          targetSlot.textContent = opt;
+          targetSlot.classList.remove('slot-target');
+          targetSlot.classList.add('filled');
+        }
+        playSnd('audio/snd_correct.mp3');
+        bananas += 2;
+        localStorage.setItem('rasari_bananas', bananas);
+        $('bananaCount').textContent = bananas;
+
+        const char = item.c;
+        const letterM = getLetterMastery(char);
+        letterM.matra = true;
+        updateLetterStar(char);
+
+        $('praise').textContent = '🌟 बहुत बढ़िया! Matra Mastered!';
+
+        setTimeout(() => {
+          $('mt').textContent = '🌿 Matra Combined!';
+          $('scoreBadge').textContent = item.c + ' + ' + m.sym + ' = ' + m.combo + ' (' + m.exWord + ' ' + m.exEmoji + ')';
+          $('mp').textContent = 'Super! You earned +2 bananas 🍌';
+          $('next').textContent = 'Next: Build Word →';
+          $('next').onclick = () => {
+            $('modal').classList.remove('show');
+            setStep(3);
+          };
+          $('modal').classList.add('show');
+        }, 600);
+      } else {
+        btn.classList.add('wrong');
+        playSnd('audio/snd_tryagain.mp3');
+        $('praise').textContent = 'Try again! Look at the sound ↶';
+        setTimeout(() => btn.classList.remove('wrong'), 500);
+      }
+    };
+    optsEl.appendChild(btn);
+  });
+}
+
+function renderWordStage(item) {
+  const stage = $('wordStage');
+  stage.style.display = 'flex';
+
+  const p = item.puzzle;
+  $('wordEmoji').textContent = p.emoji;
+  $('praise').textContent = 'Find the missing letter 🧩';
+
+  const formulaEl = $('wordFormula');
+  const promptEl = $('wordPrompt');
+  const optsEl = $('wordOptions');
+
+  promptEl.textContent = 'चित्र देखकर शब्द पूरा करो (' + p.word + ' ' + p.emoji + ')';
+
+  formulaEl.innerHTML = '';
+  p.slots.forEach((s, i) => {
+    const box = document.createElement('div');
+    if (i === p.missing) {
+      box.className = 'formula-box slot-target';
+      box.id = 'wordTargetSlot';
+      box.textContent = '?';
+    } else {
+      box.className = 'formula-box';
+      box.textContent = s;
+    }
+    formulaEl.appendChild(box);
+  });
+
+  const correctLetter = p.slots[p.missing];
+  const shuffled = [...p.opts].sort(() => Math.random() - 0.5);
+
+  optsEl.innerHTML = '';
+  shuffled.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-tile';
+    btn.textContent = opt;
+    btn.onclick = () => {
+      if (opt === correctLetter) {
+        btn.classList.add('correct');
+        const targetSlot = $('wordTargetSlot');
+        if (targetSlot) {
+          targetSlot.textContent = opt;
+          targetSlot.classList.remove('slot-target');
+          targetSlot.classList.add('filled');
+        }
+        playSnd('audio/snd_correct.mp3');
+
+        bananas += 3;
+        localStorage.setItem('rasari_bananas', bananas);
+        $('bananaCount').textContent = bananas;
+
+        const char = item.c;
+        const letterM = getLetterMastery(char);
+        letterM.word = true;
+        const stars = updateLetterStar(char);
+
+        $('praise').textContent = '🌟 शानदार! Word Complete!';
+
+        setTimeout(() => {
+          if (stars === 3) {
+            $('mt').textContent = '👑 Letter Mastered 100%!';
+            $('scoreBadge').textContent = '⭐⭐⭐ GOLD STAR ⭐⭐⭐';
+            $('mp').textContent = 'Awesome! You mastered ' + item.c + ' in Writing, Matras, and Words! (+5 bananas 🍌)';
+          } else {
+            $('mt').textContent = '🎉 Word Completed!';
+            $('scoreBadge').textContent = 'Word: ' + p.word + ' ' + p.emoji;
+            $('mp').textContent = 'Great effort! Keep going for 3 stars!';
+          }
+          $('next').textContent = 'Next Letter →';
+          $('next').onclick = () => {
+            $('modal').classList.remove('show');
+            idx = (idx + 1) % lessons.length;
+            setStep(1);
+            render();
+          };
+          $('modal').classList.add('show');
+        }, 700);
+      } else {
+        btn.classList.add('wrong');
+        playSnd('audio/snd_tryagain.mp3');
+        $('praise').textContent = 'Not quite! Look at the picture ↶';
+        setTimeout(() => btn.classList.remove('wrong'), 500);
+      }
+    };
+    optsEl.appendChild(btn);
+  });
+}
+
+function renderProgressStage() {
+  const stage = $('progressStage');
+  stage.style.display = 'flex';
+
+  let masteredCount = 0, inProgressCount = 0, weakCount = 0;
+  lessons.forEach(l => {
+    const m = getLetterMastery(l.c);
+    if (m.star === 3) masteredCount++;
+    else if (m.star >= 1) inProgressCount++;
+    else weakCount++;
+  });
+
+  const statsEl = $('progStats');
+  statsEl.innerHTML = '<span class="stat-pill gold">🌟 Mastered: ' + masteredCount + '/49</span>' +
+    '<span class="stat-pill">⏳ Learning: ' + inProgressCount + '/49</span>' +
+    '<span class="stat-pill red">⚠️ Needs Practice: ' + weakCount + '/49</span>' +
+    '<span class="stat-pill">🍌 ' + bananas + ' treats</span>';
+
+  const tabs = document.querySelectorAll('.prog-tab');
+  tabs.forEach(tab => {
+    tab.classList.toggle('active', tab.getAttribute('data-filter') === currentMatrixFilter);
+    tab.onclick = () => {
+      currentMatrixFilter = tab.getAttribute('data-filter');
+      renderProgressStage();
+    };
+  });
+
+  const gridEl = $('matrixGrid');
+  gridEl.innerHTML = '';
+
+  lessons.forEach((l, i) => {
+    const m = getLetterMastery(l.c);
+    const isSwar = i < 13;
+
+    if (currentMatrixFilter === 'swar' && !isSwar) return;
+    if (currentMatrixFilter === 'vyanjan' && isSwar) return;
+    if (currentMatrixFilter === 'weak' && m.star >= 2) return;
+
+    const card = document.createElement('div');
+    card.className = 'matrix-card' + (m.star === 3 ? ' gold-card' : (m.star === 0 ? ' weak-card' : ''));
+
+    const starIcons = m.star === 3 ? '⭐⭐⭐' : (m.star === 2 ? '⭐⭐' : (m.star === 1 ? '⭐' : '⚪'));
+
+    card.innerHTML = '<div class="matrix-char">' + l.c + '</div>' +
+      '<div class="matrix-thumb">' + l.emoji + '</div>' +
+      '<div class="matrix-stars">' + starIcons + '</div>' +
+      '<div class="matrix-skills">' +
+        '<span class="skill-dot ' + (m.recall ? 'done' : '') + '" title="Writing"></span>' +
+        '<span class="skill-dot ' + (m.matra ? 'done' : '') + '" title="Matra"></span>' +
+        '<span class="skill-dot ' + (m.word ? 'done' : '') + '" title="Word"></span>' +
+      '</div>';
+
+    card.onclick = () => {
+      idx = i;
+      setStep(1);
+      render();
+    };
+
+    gridEl.appendChild(card);
+  });
+
+  $('progClose').onclick = () => {
+    setStep(1);
+  };
+}
+
+function render() {
+  const item = lessons[idx];
+  $('charGlyph').textContent = item.c;
+  $('anchorWord').textContent = item.emoji + ' ' + (item.word || '');
+  $('navLetter').textContent = item.c;
+  $('praise').textContent = '⭐ Great effort!';
+  updateStageUI();
+  setStep(currentStep);
+}
 
 // PWA Auto-Update Detection
 function setupPWAUpdate() {
@@ -869,6 +2917,7 @@ function setupPWAUpdate() {
 
 setupPWAUpdate();
 render();
+
 </script>
 </body>
 </html>
