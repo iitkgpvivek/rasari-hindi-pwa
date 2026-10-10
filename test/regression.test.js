@@ -179,6 +179,50 @@ test('Service worker is configured with valid semver cache version', () => {
   assert(/^\d+\.\d+\.\d+$/.test(version), `APP_VERSION must be valid semver: ${version}`);
 });
 
+// ---------------------------------------------------------
+// SUITE 7: Clean Slate Transitions & Visual Clue Accuracy
+// ---------------------------------------------------------
+test('Erases earlier writing on "I\'m done" (both success and failure) and letter changes', () => {
+  const doneMatch = html.match(/\$\('done'\)\.onclick[\s\S]*?\}\;/);
+  assert(doneMatch, 'Done click handler must exist');
+  const doneCode = doneMatch[0];
+
+  assert(doneCode.includes('clearPad()'), 'Must call clearPad() on Done button press');
+  
+  // Failure branch check
+  const failBranch = doneCode.match(/if\s*\(!result\.pass\)[\s\S]*?return;/);
+  assert(failBranch, 'Failure branch must exist');
+  assert(failBranch[0].includes('clearPad()'), 'Failure branch must erase strokes with clearPad()');
+
+  // Success branch check
+  const successBranch = doneCode.replace(failBranch[0], '');
+  assert(successBranch.includes('clearPad()'), 'Success branch must erase strokes with clearPad()');
+
+  // setLetter check
+  const setLetterMatch = html.match(/function setLetter\(newIdx\)[\s\S]*?\n\}/);
+  assert(setLetterMatch, 'setLetter function must exist');
+  assert(setLetterMatch[0].includes('clearPad()'), 'setLetter must call clearPad() to guarantee clean slate');
+});
+
+test('Bottom pills use << and >> symbols with centered larger typography', () => {
+  assert(html.includes('&lt;&lt; Prev'), 'Initial Prev button must use << symbol');
+  assert(html.includes('Next &gt;&gt;'), 'Initial Next button must use >> symbol');
+  assert(html.includes("'<< ' + lessons"), 'setLetter/render must prefix Prev with <<');
+  assert(html.includes("lessons[nextIdx].c + ' >>'"), 'setLetter/render must suffix Next with >>');
+
+  const prevBtnStyle = html.match(/\.prev-btn\{([^}]+)\}/);
+  assert(prevBtnStyle, '.prev-btn style must exist');
+  assert(prevBtnStyle[1].includes('text-align:center'), '.prev-btn must have text-align:center');
+  assert(prevBtnStyle[1].includes('justify-content:center'), '.prev-btn must center content');
+  assert(!prevBtnStyle[1].includes('clamp(14px,1.8vw,23px)'), '.prev-btn font size must be increased');
+});
+
+test('Accurate visual illustrations provided (Anaar is not an Apple)', () => {
+  assert(html.includes('const ILLUSTRATIONS = {'), 'Must have custom illustrations dictionary');
+  assert(html.includes('"अनार":'), 'Must have accurate illustration for अनार');
+  assert(html.includes('renderClue(item,'), 'render function must call renderClue');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');

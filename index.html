@@ -69,16 +69,17 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 /* Right Clue & Recall Card: Only the image in the clipboard */
 .clue-board{position:absolute;left:76.5%;top:25.5%;width:19.8%;height:35%;display:grid;place-items:center;z-index:5;pointer-events:auto;text-align:center;box-sizing:border-box}
-.clue-emoji{font-size:clamp(68px,8.5vw,110px);line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.15));transition:transform .2s cubic-bezier(.175,.885,.32,1.275);cursor:pointer}
+.clue-emoji{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:clamp(68px,8.5vw,110px);line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.15));transition:transform .2s cubic-bezier(.175,.885,.32,1.275);cursor:pointer;user-select:none}
+.clue-emoji svg{width:clamp(75px,9.5vw,120px);height:clamp(75px,9.5vw,120px);max-width:90%;max-height:90%;display:block}
 .clue-emoji:active{transform:scale(1.15)}
 
 /* Disabled state for steps (e.g. Swars with no matra) */
 .step.disabled{opacity:0.35;pointer-events:none;filter:grayscale(1)}
 
 /* Bottom Capsule Buttons (Prev | I'm Done | Next) */
-.prev-btn{position:absolute;left:4%;top:79.5%;width:27%;height:13.5%;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:clamp(14px,1.8vw,23px);font-weight:800;color:#78450d;background:transparent;cursor:pointer;transition:transform .1s}
+.prev-btn{position:absolute;left:4%;top:79.5%;width:27%;height:13.5%;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:clamp(18px,2.4vw,30px);font-family:'Baloo 2',system-ui,-apple-system,sans-serif;font-weight:800;color:#78450d;background:transparent;cursor:pointer;transition:transform .1s;text-align:center;line-height:1}
 .prev-btn:active{transform:scale(0.97)}
-.next-btn{position:absolute;left:66.5%;top:79.5%;width:28%;height:13.5%;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:clamp(14px,1.8vw,23px);font-weight:800;color:white;background:transparent;cursor:pointer;transition:transform .1s;text-shadow:0 2px 4px rgba(0,0,0,0.25)}
+.next-btn{position:absolute;left:66.5%;top:79.5%;width:28%;height:13.5%;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:clamp(18px,2.4vw,30px);font-family:'Baloo 2',system-ui,-apple-system,sans-serif;font-weight:800;color:white;background:transparent;cursor:pointer;transition:transform .1s;text-shadow:0 2px 4px rgba(0,0,0,0.25);text-align:center;line-height:1}
 .next-btn:active{transform:scale(0.97)}
 
 .update-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(160%);background:#0d2847;color:#ffffff;padding:8px 16px;border-radius:999px;box-shadow:0 10px 28px rgba(0,0,0,0.35);display:flex;align-items:center;gap:12px;font-size:clamp(12px,1.4vw,15px);font-weight:700;z-index:10000;transition:transform .35s cubic-bezier(.175,.885,.32,1.275);border:2px solid #ffca4f;pointer-events:none;opacity:0}
@@ -185,6 +186,17 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .sticker-thumb {
   font-size: 14px;
   margin: 1px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+}
+.sticker-thumb svg {
+  width: 18px;
+  height: 18px;
+  max-width: 18px;
+  max-height: 18px;
+  display: block;
 }
 .sticker-stars {
   font-size: 11px;
@@ -230,16 +242,16 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 <div class="guideheading" id="guideHeading"><span id="guideTitle">Visual Clue</span></div>
 <div class="clue-board" id="clueBoard">
-  <div class="clue-emoji" id="clueEmoji">🍎</div>
+  <div class="clue-emoji" id="clueEmoji"></div>
 </div>
 <canvas id="guide" aria-label="Letter guide" style="display:none"></canvas>
 
 <button class="sidebtn erase" id="erase"><span class="ico">🧽</span>Erase</button>
 <button class="sidebtn retry" id="clueSoundBtn"><span class="ico">🔊</span>Hear</button>
 
-<button class="prev-btn" id="prevBtn">⇦ Prev</button>
+<button class="prev-btn" id="prevBtn">&lt;&lt; Prev</button>
 <button class="bottombtn done" id="done">✓ I'm done!</button>
-<button class="next-btn" id="nextBtn">Next ⇨</button>
+<button class="next-btn" id="nextBtn">Next &gt;&gt;</button>
 
 <div class="modal" id="modal">
   <div class="dialog">
@@ -1006,6 +1018,260 @@ const lessons = [
   }
 ];
 
+// Child-friendly, high-contrast vector illustrations for Hindi phonics
+const ILLUSTRATIONS = {
+  "अनार": `<svg viewBox="0 0 100 100" width="100" height="100">
+    <defs>
+      <radialGradient id="pomG" cx="38%" cy="38%" r="60%">
+        <stop offset="0%" stop-color="#ff3b56"/>
+        <stop offset="55%" stop-color="#d61435"/>
+        <stop offset="100%" stop-color="#80061b"/>
+      </radialGradient>
+      <linearGradient id="calyxG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#80061b"/>
+        <stop offset="100%" stop-color="#4d020e"/>
+      </linearGradient>
+      <linearGradient id="leafG" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#66bb6a"/>
+        <stop offset="100%" stop-color="#2e7d32"/>
+      </linearGradient>
+    </defs>
+    <path d="M48 18 Q46 10 40 8 Q44 14 47 19" stroke="#5d4037" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M41 9 C32 6 22 13 25 21 C33 22 39 16 41 9 Z" fill="url(#leafG)"/>
+    <polygon points="43,20 40,11 46,15 50,9 54,15 60,11 57,20" fill="url(#calyxG)"/>
+    <circle cx="50" cy="56" r="36" fill="url(#pomG)"/>
+    <path d="M50 56 L72 38 A36 36 0 0 1 83 67 Z" fill="#ffebee"/>
+    <g fill="#b71c1c">
+      <circle cx="62" cy="48" r="3.2"/>
+      <circle cx="68" cy="45" r="3"/>
+      <circle cx="74" cy="49" r="3.2"/>
+      <circle cx="59" cy="55" r="3.2"/>
+      <circle cx="66" cy="54" r="3.5"/>
+      <circle cx="73" cy="57" r="3.2"/>
+      <circle cx="78" cy="55" r="3"/>
+      <circle cx="65" cy="63" r="3.2"/>
+      <circle cx="72" cy="65" r="3.5"/>
+      <circle cx="77" cy="63" r="3"/>
+    </g>
+    <g fill="#ffffff" opacity="0.8">
+      <circle cx="61" cy="47" r="1"/>
+      <circle cx="67" cy="44" r="1"/>
+      <circle cx="65" cy="53" r="1.1"/>
+      <circle cx="72" cy="56" r="1"/>
+      <circle cx="71" cy="64" r="1.1"/>
+    </g>
+    <ellipse cx="36" cy="40" rx="9" ry="5" transform="rotate(-30 36 40)" fill="#ffffff" opacity="0.32"/>
+  </svg>`,
+
+  "इमली": `<svg viewBox="0 0 100 100" width="100" height="100">
+    <defs>
+      <linearGradient id="podG" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#b07d4b"/>
+        <stop offset="60%" stop-color="#804a1f"/>
+        <stop offset="100%" stop-color="#542e0e"/>
+      </linearGradient>
+    </defs>
+    <path d="M22 24 C30 18 42 16 52 20" stroke="#5d4037" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <ellipse cx="28" cy="18" rx="6" ry="3" fill="#4caf50" transform="rotate(-20 28 18)"/>
+    <ellipse cx="38" cy="16" rx="6" ry="3" fill="#4caf50" transform="rotate(-10 38 16)"/>
+    <ellipse cx="46" cy="17" rx="6" ry="3" fill="#4caf50" transform="rotate(10 46 17)"/>
+    <path d="M30 25 C30 25 22 42 26 58 C28 66 36 74 48 80 C58 85 70 82 78 72 C84 64 82 54 74 46 C68 40 60 42 54 46 C48 50 44 48 42 42 C40 34 34 26 30 25 Z" fill="url(#podG)"/>
+    <ellipse cx="30" cy="50" rx="10" ry="12" fill="none" stroke="#542e0e" stroke-width="1.5" opacity="0.4"/>
+    <ellipse cx="45" cy="68" rx="11" ry="11" fill="none" stroke="#542e0e" stroke-width="1.5" opacity="0.4"/>
+    <ellipse cx="66" cy="68" rx="10" ry="10" fill="none" stroke="#542e0e" stroke-width="1.5" opacity="0.4"/>
+    <path d="M27 48 C26 56 31 66 42 73" stroke="#d7a16e" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>`,
+
+  "ईख": `<svg viewBox="0 0 100 100" width="100" height="100">
+    <defs>
+      <linearGradient id="caneG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#81c784"/>
+        <stop offset="50%" stop-color="#aed581"/>
+        <stop offset="100%" stop-color="#558b2f"/>
+      </linearGradient>
+      <linearGradient id="caneP" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#ba68c8"/>
+        <stop offset="50%" stop-color="#ce93d8"/>
+        <stop offset="100%" stop-color="#7b1fa2"/>
+      </linearGradient>
+    </defs>
+    <path d="M42 28 C35 15 22 10 12 12 C24 16 34 22 40 32 Z" fill="#43a047"/>
+    <path d="M50 25 C52 10 62 4 78 6 C66 12 58 18 52 30 Z" fill="#2e7d32"/>
+    <path d="M60 30 C72 18 84 16 92 20 C82 24 74 30 62 36 Z" fill="#66bb6a"/>
+    <rect x="34" y="28" width="14" height="66" rx="6" fill="url(#caneG)"/>
+    <line x1="33" y1="44" x2="49" y2="44" stroke="#33691e" stroke-width="2.5"/>
+    <line x1="33" y1="60" x2="49" y2="60" stroke="#33691e" stroke-width="2.5"/>
+    <line x1="33" y1="76" x2="49" y2="76" stroke="#33691e" stroke-width="2.5"/>
+    <rect x="52" y="22" width="14" height="72" rx="6" fill="url(#caneP)"/>
+    <line x1="51" y1="38" x2="67" y2="38" stroke="#4a148c" stroke-width="2.5"/>
+    <line x1="51" y1="56" x2="67" y2="56" stroke="#4a148c" stroke-width="2.5"/>
+    <line x1="51" y1="74" x2="67" y2="74" stroke="#4a148c" stroke-width="2.5"/>
+  </svg>`,
+
+  "ऋषि": `<svg viewBox="0 0 100 100" width="100" height="100">
+    <circle cx="50" cy="46" r="36" fill="#fff9c4" opacity="0.65"/>
+    <path d="M26 84 C28 66 38 60 50 60 C62 60 72 66 74 84 Z" fill="#ff7043"/>
+    <path d="M35 84 L50 62 L65 84 Z" fill="#f4511e"/>
+    <ellipse cx="50" cy="42" rx="14" ry="16" fill="#ffcc80"/>
+    <ellipse cx="35" cy="42" rx="3" ry="5" fill="#ffa726"/>
+    <ellipse cx="65" cy="42" rx="3" ry="5" fill="#ffa726"/>
+    <path d="M47 32 H53 V38 Q50 42 47 38 Z" fill="#d32f2f"/>
+    <path d="M41 42 Q45 45 47 42" stroke="#424242" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M53 42 Q55 45 59 42" stroke="#424242" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="50" cy="22" rx="10" ry="8" fill="#5d4037"/>
+    <circle cx="50" cy="14" r="5" fill="#5d4037"/>
+    <ellipse cx="50" cy="22" rx="11" ry="3" fill="#ff9800"/>
+    <path d="M38 48 C36 64 44 76 50 78 C56 76 64 64 62 48 C56 54 44 54 38 48 Z" fill="#eeeeee"/>
+  </svg>`,
+
+  "ओखली": `<svg viewBox="0 0 100 100" width="100" height="100">
+    <defs>
+      <linearGradient id="okhliG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#8d6e63"/>
+        <stop offset="50%" stop-color="#bcaaa4"/>
+        <stop offset="100%" stop-color="#5d4037"/>
+      </linearGradient>
+      <linearGradient id="pestleG" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#d7ccc8"/>
+        <stop offset="100%" stop-color="#6d4c41"/>
+      </linearGradient>
+    </defs>
+    <rect x="44" y="8" width="12" height="56" rx="5" transform="rotate(22 50 35)" fill="url(#pestleG)"/>
+    <circle cx="67" cy="18" r="7" fill="#8d6e63"/>
+    <path d="M22 46 C22 46 28 84 50 84 C72 84 78 46 78 46 Z" fill="url(#okhliG)"/>
+    <ellipse cx="50" cy="46" rx="28" ry="9" fill="#6d4c41"/>
+    <ellipse cx="50" cy="46" rx="23" ry="6" fill="#3e2723"/>
+    <path d="M36 84 C36 88 64 88 64 84 Z" fill="#4e342e"/>
+    <path d="M27 60 Q50 67 73 60" stroke="#fbc02d" stroke-width="3" fill="none"/>
+  </svg>`,
+
+  "ढक्कन": `<svg viewBox="0 0 100 100" width="100" height="100">
+    <path d="M38 25 Q34 16 42 12 Q48 18 44 26" stroke="#90a4ae" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+    <path d="M54 22 Q58 12 66 10 Q68 18 62 25" stroke="#90a4ae" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+    <path d="M20 54 L24 82 C24 88 76 88 76 82 L80 54 Z" fill="#e53935"/>
+    <rect x="14" y="58" width="8" height="4" rx="2" fill="#b71c1c"/>
+    <rect x="78" y="58" width="8" height="4" rx="2" fill="#b71c1c"/>
+    <ellipse cx="50" cy="54" rx="30" ry="7" fill="#b71c1c"/>
+    <g transform="rotate(-15 50 40)">
+      <circle cx="50" cy="30" r="5" fill="#fbc02d"/>
+      <path d="M20 42 C20 34 80 34 80 42 Z" fill="#ffa000"/>
+      <ellipse cx="50" cy="42" rx="30" ry="5" fill="#ffb300"/>
+    </g>
+  </svg>`,
+
+  "थर्मस": `<svg viewBox="0 0 100 100" width="100" height="100">
+    <defs>
+      <linearGradient id="thermG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#26c6da"/>
+        <stop offset="60%" stop-color="#80deea"/>
+        <stop offset="100%" stop-color="#00838f"/>
+      </linearGradient>
+    </defs>
+    <rect x="40" y="10" width="20" height="10" rx="3" fill="#006064"/>
+    <rect x="36" y="20" width="28" height="14" rx="4" fill="#ffb74d"/>
+    <rect x="32" y="34" width="36" height="54" rx="8" fill="url(#thermG)"/>
+    <rect x="32" y="78" width="36" height="12" rx="6" fill="#006064"/>
+    <path d="M32 44 C20 44 20 72 32 72" stroke="#ffb74d" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <line x1="32" y1="48" x2="68" y2="48" stroke="#ffffff" stroke-width="2" opacity="0.6"/>
+    <line x1="32" y1="64" x2="68" y2="64" stroke="#ffffff" stroke-width="2" opacity="0.6"/>
+  </svg>`,
+
+  "दवात": `<svg viewBox="0 0 100 100" width="100" height="100">
+    <path d="M68 8 C68 8 78 22 62 46 L58 44 C66 28 62 16 68 8 Z" fill="#eceff1" stroke="#90a4ae" stroke-width="1"/>
+    <polygon points="56,47 52,56 61,50" fill="#fbc02d"/>
+    <rect x="42" y="44" width="16" height="8" rx="2" fill="#cfd8dc"/>
+    <polygon points="26,84 22,58 78,58 74,84" fill="#90caf9" stroke="#1565c0" stroke-width="2"/>
+    <polygon points="27,82 25,65 75,65 73,82" fill="#1565c0"/>
+    <ellipse cx="50" cy="65" rx="25" ry="4" fill="#0d47a1"/>
+  </svg>`,
+
+  "फल": `<svg viewBox="0 0 100 100" width="100" height="100">
+    <path d="M18 58 L26 86 C28 88 72 88 74 86 L82 58 Z" fill="#8d6e63"/>
+    <ellipse cx="50" cy="58" rx="34" ry="7" fill="#6d4c41"/>
+    <circle cx="34" cy="48" r="8" fill="#ab47bc"/>
+    <circle cx="28" cy="54" r="7" fill="#8e24aa"/>
+    <circle cx="38" cy="56" r="7" fill="#7b1fa2"/>
+    <circle cx="52" cy="46" r="13" fill="#e53935"/>
+    <path d="M52 33 Q55 28 60 30" stroke="#5d4037" stroke-width="2" fill="none"/>
+    <ellipse cx="56" cy="30" rx="4" ry="2" fill="#4caf50" transform="rotate(-20 56 30)"/>
+    <circle cx="68" cy="50" r="11" fill="#ff9800"/>
+    <path d="M38 38 C54 36 68 44 76 56 C68 54 52 46 38 38 Z" fill="#fdd835"/>
+  </svg>`,
+
+  "लट्टू": `<svg viewBox="0 0 100 100" width="100" height="100">
+    <rect x="47" y="10" width="6" height="12" rx="2" fill="#8d6e63"/>
+    <path d="M20 44 C20 28 80 28 80 44 Z" fill="#e53935"/>
+    <rect x="22" y="44" width="56" height="10" fill="#fdd835"/>
+    <polygon points="24,54 76,54 50,84" fill="#1e88e5"/>
+    <polygon points="48,84 52,84 50,94" fill="#9e9e9e"/>
+    <path d="M34 50 Q50 56 66 50" stroke="#ffffff" stroke-width="2" fill="none"/>
+    <path d="M38 64 Q50 70 62 64" stroke="#ffffff" stroke-width="2" fill="none"/>
+  </svg>`,
+
+  "वक": `<svg viewBox="0 0 100 100" width="100" height="100">
+    <line x1="82" y1="90" x2="84" y2="40" stroke="#81c784" stroke-width="2"/>
+    <line x1="86" y1="90" x2="90" y2="45" stroke="#4caf50" stroke-width="2"/>
+    <ellipse cx="50" cy="90" rx="36" ry="6" fill="#80deea" opacity="0.6"/>
+    <line x1="50" y1="70" x2="50" y2="90" stroke="#ff9800" stroke-width="2.5"/>
+    <line x1="56" y1="70" x2="62" y2="78" stroke="#ff9800" stroke-width="2"/>
+    <line x1="62" y1="78" x2="58" y2="86" stroke="#ff9800" stroke-width="2"/>
+    <ellipse cx="48" cy="58" rx="18" ry="12" fill="#ffffff" stroke="#cfd8dc" stroke-width="1.5" transform="rotate(-15 48 58)"/>
+    <path d="M58 52 C64 42 56 30 62 20" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <circle cx="63" cy="20" r="5" fill="#ffffff"/>
+    <circle cx="64" cy="19" r="1.5" fill="#212121"/>
+    <polygon points="66,19 86,22 66,23" fill="#ffb300"/>
+  </svg>`,
+
+  "शलजम": `<svg viewBox="0 0 100 100" width="100" height="100">
+    <defs>
+      <linearGradient id="turnipG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#8e24aa"/>
+        <stop offset="45%" stop-color="#ba68c8"/>
+        <stop offset="70%" stop-color="#f5f5f5"/>
+        <stop offset="100%" stop-color="#e0e0e0"/>
+      </linearGradient>
+    </defs>
+    <path d="M50 36 C42 20 30 14 26 12 C34 18 42 26 48 36 Z" fill="#4caf50"/>
+    <path d="M52 36 C56 18 64 10 74 8 C68 18 62 26 54 36 Z" fill="#388e3c"/>
+    <path d="M49 36 L50 16" stroke="#2e7d32" stroke-width="2"/>
+    <ellipse cx="50" cy="58" rx="28" ry="24" fill="url(#turnipG)"/>
+    <path d="M50 82 Q51 92 56 96" stroke="#bdbdbd" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  </svg>`,
+
+  "षट्कोण": `<svg viewBox="0 0 100 100" width="100" height="100">
+    <polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="#4fc3f7" stroke="#0288d1" stroke-width="3"/>
+    <polygon points="50,50 50,10 85,30" fill="#e91e63" opacity="0.85"/>
+    <polygon points="50,50 85,30 85,70" fill="#ff9800" opacity="0.85"/>
+    <polygon points="50,50 85,70 50,90" fill="#4caf50" opacity="0.85"/>
+    <polygon points="50,50 50,90 15,70" fill="#00bcd4" opacity="0.85"/>
+    <polygon points="50,50 15,70 15,30" fill="#3f51b5" opacity="0.85"/>
+    <polygon points="50,50 15,30 50,10" fill="#9c27b0" opacity="0.85"/>
+    <circle cx="50" cy="50" r="5" fill="#ffffff"/>
+  </svg>`
+};
+
+function renderClue(item, step) {
+  const clueEl = $('clueEmoji');
+  if (!clueEl) return;
+
+  let key = '';
+  let fallback = item.emoji;
+
+  if (step === 2 && !item.isSwar) {
+    key = item.matra?.exWord || '';
+    fallback = item.matra?.exEmoji || '🌿';
+  } else {
+    key = item.word || '';
+    fallback = item.emoji;
+  }
+
+  if (ILLUSTRATIONS[key]) {
+    clueEl.innerHTML = ILLUSTRATIONS[key];
+  } else {
+    clueEl.textContent = fallback;
+  }
+}
+
 // App State
 let idx = 0;
 let currentStep = 1; // 1 = Letter Recall, 2 = Matra Writing, 3 = Word Writing
@@ -1569,16 +1835,13 @@ $('done').onclick = () => {
   if (!result.pass) {
     w.classList.add('shake');
     setTimeout(() => w.classList.remove('shake'), 450);
-
-    if (result.reason === 'scribble') {
-      playSnd('audio/snd_tryagain.mp3');
-    } else {
-      playSnd('audio/snd_tryagain.mp3');
-    }
+    playSnd('audio/snd_tryagain.mp3');
+    clearPad();
     return;
   }
 
   // Passing writing celebration!
+  clearPad();
   triggerConfetti();
 
   const isFreehand = (guideMode === 'auto') ? (getLetterMastery(lessons[idx].c).star >= 2) : (guideMode === 'off');
@@ -1704,6 +1967,7 @@ $('st3').onclick = () => setStep(3);
 $('st4').onclick = () => openProgressStickers();
 
 function setLetter(newIdx) {
+  clearPad();
   idx = newIdx;
   const item = lessons[idx];
 
@@ -1713,8 +1977,16 @@ function setLetter(newIdx) {
 
   let prevIdx = (idx - 1 + lessons.length) % lessons.length;
   let nextIdx = (idx + 1) % lessons.length;
-  $('prevBtn').textContent = '⇦ ' + lessons[prevIdx].c;
-  $('nextBtn').textContent = lessons[nextIdx].c + ' ⇨';
+  if (currentStep === 2) {
+    while (lessons[prevIdx].isSwar) {
+      prevIdx = (prevIdx - 1 + lessons.length) % lessons.length;
+    }
+    while (lessons[nextIdx].isSwar) {
+      nextIdx = (nextIdx + 1) % lessons.length;
+    }
+  }
+  $('prevBtn').textContent = '<< ' + lessons[prevIdx].c;
+  $('nextBtn').textContent = lessons[nextIdx].c + ' >>';
 
   const matraStepEl = $('st2');
   if (item.isSwar) {
@@ -1755,22 +2027,30 @@ function render() {
   // Bottom Nav Labels
   let prevIdx = (idx - 1 + lessons.length) % lessons.length;
   let nextIdx = (idx + 1) % lessons.length;
-  $('prevBtn').textContent = '⇦ ' + lessons[prevIdx].c;
-  $('nextBtn').textContent = lessons[nextIdx].c + ' ⇨';
+  if (currentStep === 2) {
+    while (lessons[prevIdx].isSwar) {
+      prevIdx = (prevIdx - 1 + lessons.length) % lessons.length;
+    }
+    while (lessons[nextIdx].isSwar) {
+      nextIdx = (nextIdx + 1) % lessons.length;
+    }
+  }
+  $('prevBtn').textContent = '<< ' + lessons[prevIdx].c;
+  $('nextBtn').textContent = lessons[nextIdx].c + ' >>';
 
   // Dynamic Stage Setup (Right Clue: Pure Visual Clue, no text!)
   if (currentStep === 1) {
     // Stage 1: Letter Recall
     $('promptText').textContent = "Write letter " + item.c;
-    $('clueEmoji').textContent = item.emoji;
+    renderClue(item, 1);
   } else if (currentStep === 2 && !item.isSwar) {
     // Stage 2: Matra Recall
     $('promptText').textContent = "Add matra to " + item.c;
-    $('clueEmoji').textContent = item.matra?.exEmoji || '🌿';
+    renderClue(item, 2);
   } else if (currentStep === 3) {
     // Stage 3: Word Recall
     $('promptText').textContent = "Write word with " + item.c;
-    $('clueEmoji').textContent = item.emoji;
+    renderClue(item, 3);
   }
 
   // Update Stage Badge
@@ -1811,8 +2091,12 @@ function openProgressStickers() {
 
     const starIcons = m.star === 3 ? '⭐⭐⭐' : (m.star === 2 ? '⭐⭐' : (m.star === 1 ? '⭐' : '⚪'));
 
+    const thumbVisual = ILLUSTRATIONS[l.word]
+      ? '<div class="sticker-thumb svg-thumb">' + ILLUSTRATIONS[l.word] + '</div>'
+      : '<div class="sticker-thumb">' + l.emoji + '</div>';
+
     card.innerHTML = '<div class="sticker-char">' + l.c + '</div>' +
-      '<div class="sticker-thumb">' + l.emoji + '</div>' +
+      thumbVisual +
       '<div class="sticker-stars">' + starIcons + '</div>';
 
     card.onclick = () => {
