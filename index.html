@@ -2056,30 +2056,62 @@ function updateStageUI() {
   $('guideModeBtn').textContent = guideMode === 'auto' ? '👁️ Auto' : (guideMode === 'on' ? '👁️ ON' : '🕶️ OFF');
 }
 
-function computeRuling(height, text = '') {
-  const line1 = Math.round(height * 0.22);
-  const line2 = Math.round(height * 0.38);
-  const line3 = Math.round(height * 0.55);
-  const line4 = Math.round(height * 0.72);
-  const line5 = Math.round(height * 0.88);
+// Fixed 5-line Notebook Ruling Proportions:
+// Lines are strictly fixed so every letter, matra combo, and word (up to 4 letters)
+// stays at the EXACT same height and locks flush to Line 2 and Line 4.
+function computeRuling(height) {
+  const bodyHeight = Math.round(height * 0.29);
+  const line2 = Math.round(height * 0.37);               // Bold Shirorekha
+  const line4 = line2 + bodyHeight;                     // Bold Baseline
+  const line3 = Math.round(line2 + bodyHeight * 0.5);   // Midline guide
+  const line1 = Math.round(line2 - bodyHeight * 0.44);  // Upper matra guide (Line 1)
+  const line5 = Math.round(line4 + bodyHeight * 0.44);  // Lower matra guide (Line 5)
 
-  const bodyHeight = line4 - line2;
-  const baseFontSize = Math.round(bodyHeight / 0.68);
+  const brushWidth = Math.max(16, Math.round(bodyHeight * 0.12));
 
-  let scale = 1.0;
-  if (text.length >= 3) scale = 0.72;
-  else if (text.length === 2) scale = 0.88;
+  return { line1, line2, line3, line4, line5, bodyHeight, brushWidth };
+}
 
-  const fontSize = Math.round(baseFontSize * scale);
-  const brushWidth = Math.max(15, Math.round(fontSize * 0.11));
+// Exact Font Metrics & Vertical Alignment:
+// Dynamically measures Devanagari glyph metrics on the device so that:
+// 1. Shirorekha (top bar) sits flush on Line 2 (0px gap).
+// 2. Consonant bottom foot sits flush on Line 4 (0px gap).
+// 3. Letters NEVER shrink when moving from single letters to words!
+function getTextLayout(context, text, ruling) {
+  const targetH = ruling.bodyHeight;
 
-  return { line1, line2, line3, line4, line5, bodyHeight, fontSize, brushWidth };
+  // Measure reference Devanagari consonant at base size 100px
+  const testSize = 100;
+  context.font = '700 ' + testSize + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif';
+  context.textBaseline = 'alphabetic';
+
+  const mRef = context.measureText('क');
+  const refAscent = mRef.actualBoundingBoxAscent || (testSize * 0.62);
+  const refDescent = mRef.actualBoundingBoxDescent || 0;
+  const refTotal = (refAscent + refDescent) > 20 ? (refAscent + refDescent) : (testSize * 0.62);
+
+  // Exact font size so consonant body matches ruling.bodyHeight to the single pixel
+  const exactFontSize = Math.round(testSize * (targetH / refTotal));
+
+  // Measure at exact size for baseline offset
+  context.font = '700 ' + exactFontSize + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif';
+  const mExact = context.measureText('क');
+  const exactAscent = mExact.actualBoundingBoxAscent || Math.round(exactFontSize * 0.62);
+
+  // Position alphabetic baseline so that Shirorekha sits flush on Line 2, and foot sits flush on Line 4
+  const textBaselineY = ruling.line2 + exactAscent;
+
+  return {
+    fontSize: exactFontSize,
+    baselineY: textBaselineY,
+    fontStr: '700 ' + exactFontSize + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif'
+  };
 }
 
 function drawNotebookLines(context, width, ruling, isGuide = false) {
   const { line1, line2, line3, line4, line5 } = ruling;
-  const startX = Math.round(width * 0.06);
-  const endX = Math.round(width * 0.94);
+  const startX = Math.round(width * 0.05);
+  const endX = Math.round(width * 0.95);
 
   context.save();
 
@@ -2143,8 +2175,7 @@ function drawNotebookLines(context, width, ruling, isGuide = false) {
 }
 
 function getBrushWidth() {
-  const targetText = getTargetText();
-  const r = computeRuling(w.clientHeight, targetText);
+  const r = computeRuling(w.clientHeight);
   return r.brushWidth;
 }
 
@@ -2154,7 +2185,7 @@ function drawPad() {
   ctx.clearRect(0, 0, ww, h);
 
   const targetText = getTargetText();
-  const ruling = computeRuling(h, targetText);
+  const ruling = computeRuling(h);
   drawNotebookLines(ctx, ww, ruling, false);
 
   let alpha = 0;
@@ -2170,15 +2201,16 @@ function drawPad() {
     else alpha = 0;
   }
 
-  // Draw Watermark
+  // Draw Watermark strictly pinned to Line 2 and Line 4
   if (alpha > 0 && targetText) {
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.fillStyle = '#1c5e4c';
-    ctx.font = '700 ' + ruling.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
+    const layout = getTextLayout(ctx, targetText, ruling);
+    ctx.font = layout.fontStr;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    ctx.fillText(targetText, ww / 2, ruling.line4);
+    ctx.fillText(targetText, ww / 2, layout.baselineY);
     ctx.restore();
   }
 
@@ -2214,16 +2246,17 @@ function drawGuide() {
   gx.clearRect(0, 0, ww, h);
 
   const targetText = getTargetText();
-  const ruling = computeRuling(h, targetText);
+  const ruling = computeRuling(h);
   drawNotebookLines(gx, ww, ruling, true);
 
-  // Model text
+  // Model text strictly pinned to Line 2 and Line 4
   gx.save();
   gx.fillStyle = '#102f25';
-  gx.font = '700 ' + ruling.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
+  const layout = getTextLayout(gx, targetText, ruling);
+  gx.font = layout.fontStr;
   gx.textAlign = 'center';
   gx.textBaseline = 'alphabetic';
-  gx.fillText(targetText, ww / 2, ruling.line4);
+  gx.fillText(targetText, ww / 2, layout.baselineY);
 
   // Stroke number indicator
   const badgeX = Math.round(ww * 0.16);
@@ -2426,17 +2459,18 @@ function evaluateHandwriting(targetString) {
     return { score: 0, pass: false, reason: 'empty' };
   }
 
-  // 1. Offscreen Target Font Mask
+  // 1. Offscreen Target Font Mask (strictly aligned to ruling lines)
   const tc = document.createElement('canvas');
   tc.width = S; tc.height = S;
   const tx = tc.getContext('2d');
   tx.fillStyle = '#000'; tx.fillRect(0, 0, S, S);
   tx.fillStyle = '#fff';
-  const tRuling = computeRuling(S, targetString);
-  tx.font = '700 ' + tRuling.fontSize + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif';
+  const tRuling = computeRuling(S);
+  const tLayout = getTextLayout(tx, targetString, tRuling);
+  tx.font = tLayout.fontStr;
   tx.textAlign = 'center';
   tx.textBaseline = 'alphabetic';
-  tx.fillText(targetString, S / 2, tRuling.line4);
+  tx.fillText(targetString, S / 2, tLayout.baselineY);
   let tData = tx.getImageData(0, 0, S, S).data;
 
   let tPixels = 0;
@@ -2445,8 +2479,8 @@ function evaluateHandwriting(targetString) {
   }
 
   if (tPixels < 30) {
-    tx.font = 'bold ' + Math.round(S * 0.48) + 'px sans-serif';
-    tx.fillText(targetString, S / 2, Math.round(S * 0.72));
+    tx.font = 'bold ' + Math.round(S * 0.44) + 'px sans-serif';
+    tx.fillText(targetString, S / 2, Math.round(S * 0.66));
     tData = tx.getImageData(0, 0, S, S).data;
     tPixels = 0;
     for (let i = 0; i < tData.length; i += 4) {
