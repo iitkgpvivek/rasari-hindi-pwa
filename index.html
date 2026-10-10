@@ -1089,8 +1089,107 @@ const ILLUSTRATIONS = {
 
 // 3D Pixar-style Image Assets matching the monkey and garden vibe
 const IMAGES = {
+  // Core Swars (Vowels)
+  "अनार": "images/anaar.svg",
+  "आम": "images/aam.svg",
+  "इमली": "images/imli.svg",
+  "ईख": "images/eekh.svg",
+  "उल्लू": "images/ullu.svg",
+  "ऊन": "images/oon.svg",
+  "ऋषि": "images/rishi.svg",
+  "एड़ी": "images/aedi.svg",
+  "ऐनक": "images/ainak.svg",
+  "ओखली": "images/okhli.svg",
+  "औरत": "images/aurat.svg",
+  "अंगूर": "images/angoor.svg",
+  "प्रातः": "images/pratah.svg",
+
+  // Core Vyanjans (Consonants)
   "कमल": "images/kamal.jpg",
-  "खरगोश": "images/khargosh.jpg"
+  "खरगोश": "images/khargosh.jpg",
+  "खत": "images/khat.svg",
+  "गमला": "images/gamla.svg",
+  "घर": "images/ghar.svg",
+  "खाली": "images/khali.svg",
+  "चम्मच": "images/chammach.svg",
+  "छतरी": "images/chhatri.svg",
+  "छाता": "images/chhatri.svg",
+  "जहाज": "images/jahaz.svg",
+  "झंडा": "images/jhanda.svg",
+  "टमाटर": "images/tamatar.svg",
+  "ठठेरा": "images/thathera.svg",
+  "ठप्पा": "images/thathera.svg",
+  "डमरू": "images/damru.svg",
+  "ढक्कन": "images/dhakkan.svg",
+  "बाण": "images/baan.svg",
+  "तितली": "images/titli.svg",
+  "थर्मस": "images/thermas.svg",
+  "दवात": "images/dawaat.svg",
+  "धनुष": "images/dhanush.svg",
+  "नल": "images/nal.svg",
+  "पतंग": "images/patang.svg",
+  "फल": "images/phal.svg",
+  "बस": "images/bus.svg",
+  "बत्तख": "images/battakh.svg",
+  "भालू": "images/bhalu.svg",
+  "मछली": "images/machhli.svg",
+  "यज्ञ": "images/yagya.svg",
+  "रथ": "images/rath.svg",
+  "लट्टू": "images/lattu.svg",
+  "वक": "images/vak.svg",
+  "शलजम": "images/shaljam.svg",
+  "षट्कोण": "images/shatkon.svg",
+  "सेब": "images/seb.svg",
+  "हाथी": "images/haathi.svg",
+  "हल": "images/hal.svg",
+  "क्षत्रिय": "images/kshatriya.svg",
+  "त्रिशूल": "images/trishul.svg",
+  "ज्ञानी": "images/gyani.svg",
+
+  // High Frequency Grade 1 Words & Animals
+  "कबूतर": "images/kabutar.svg",
+  "केला": "images/kela.svg",
+  "कार": "images/car.svg",
+  "किताब": "images/kitab.svg",
+  "कुत्ता": "images/kutta.svg",
+  "तोता": "images/tota.svg",
+  "शेर": "images/sher.svg",
+  "मोर": "images/mor.svg",
+  "बंदर": "images/bandar.svg",
+  "सूरज": "images/sooraj.svg",
+  "चूहा": "images/chuha.svg",
+  "चांद": "images/chand.svg",
+  "ताला": "images/taala.svg",
+  "चाबी": "images/chabi.svg",
+  "पेड़": "images/ped.svg",
+  "वृक्ष": "images/ped.svg",
+  "फूल": "images/phool.svg",
+  "बादल": "images/baadal.svg",
+  "नाव": "images/naav.svg",
+  "साइकिल": "images/cycle.svg",
+  "समोसा": "images/samosa.svg",
+  "दूध": "images/doodh.svg",
+  "रोटी": "images/roti.svg",
+  "दीपक": "images/deepak.svg",
+  "गेंद": "images/gend.svg",
+  "तारा": "images/tara.svg",
+  "गाय": "images/cow.svg",
+  "घोड़ा": "images/ghoda.svg",
+  "बिल्ली": "images/billi.svg",
+  "पेंसिल": "images/pencil.svg",
+  "ऊंट": "images/oont.svg",
+  "पानी": "images/paani.svg",
+  "जल": "images/paani.svg",
+  "गुलाब": "images/gulab.svg",
+  "तरबूज": "images/tarbooj.svg",
+  "आग": "images/aag.svg",
+  "आलू": "images/aalu.svg",
+  "टोपी": "images/topi.svg",
+  "जूता": "images/joota.svg",
+  "घड़ी": "images/ghadi.svg",
+  "दांत": "images/daant.svg",
+  "हाथ": "images/haath.svg",
+  "पैर": "images/pair.svg"
 };
 
 // Grade 1 Hindi Barakhadi Matras (13 combinations: क, का, कि, की, कु, कू, कृ, के, कै, को, कौ, कं, कः)
@@ -1421,6 +1520,53 @@ function getWordForLetter(char, wordIdx) {
   return bank[cycleIdx];
 }
 
+function getStorybookCardSvg(key, fallbackEmoji) {
+  const emoji = fallbackEmoji || '⭐';
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 260" width="100%" height="100%" class="clue-img">
+    <defs>
+      <linearGradient id="bgSkyDyn" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#bae6fd"/>
+        <stop offset="50%" stop-color="#fef08a"/>
+        <stop offset="100%" stop-color="#bbf7d0"/>
+      </linearGradient>
+      <radialGradient id="sunGlowDyn" cx="25%" cy="20%" r="65%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
+        <stop offset="45%" stop-color="#fef08a" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#bae6fd" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="gHillDyn" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#86efac"/>
+        <stop offset="50%" stop-color="#22c55e"/>
+        <stop offset="100%" stop-color="#15803d"/>
+      </linearGradient>
+      <radialGradient id="medalGlow" cx="40%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#ffffff"/>
+        <stop offset="45%" stop-color="#fef08a"/>
+        <stop offset="85%" stop-color="#facc15"/>
+        <stop offset="100%" stop-color="#eab308"/>
+      </radialGradient>
+      <filter id="cardShadowDyn" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="7" stdDeviation="5.5" flood-color="#0f172a" flood-opacity="0.22"/>
+      </filter>
+    </defs>
+    <rect width="220" height="260" fill="url(#bgSkyDyn)"/>
+    <rect width="220" height="260" fill="url(#sunGlowDyn)"/>
+    <path d="M-20 185 Q40 162 110 174 Q180 188 240 170 L240 260 L-20 260 Z" fill="#86efac" opacity="0.6"/>
+    <path d="M-20 196 Q60 178 140 186 Q190 192 240 182 L240 260 L-20 260 Z" fill="url(#gHillDyn)"/>
+    <circle cx="28" cy="226" r="3.5" fill="#ffffff"/><circle cx="28" cy="226" r="1.5" fill="#facc15"/>
+    <circle cx="192" cy="216" r="4" fill="#ffffff"/><circle cx="192" cy="216" r="1.8" fill="#facc15"/>
+    <circle cx="176" cy="236" r="3" fill="#ffffff"/><circle cx="176" cy="236" r="1.4" fill="#facc15"/>
+    <g filter="url(#cardShadowDyn)">
+      <ellipse cx="110" cy="212" rx="55" ry="12" fill="#064e3b" opacity="0.3"/>
+      <circle cx="110" cy="130" r="54" fill="url(#medalGlow)" stroke="#ca8a04" stroke-width="4.5"/>
+      <circle cx="110" cy="130" r="46" fill="#ffffff" opacity="0.95"/>
+      <text x="110" y="148" font-size="56" text-anchor="middle" dominant-baseline="central">${emoji}</text>
+    </g>
+    <polygon points="160,85 162,90 167,92 162,94 160,99 158,94 153,92 158,90" fill="#facc15"/>
+    <polygon points="62,105 64,110 69,112 64,114 62,119 60,114 55,112 60,110" fill="#facc15"/>
+  </svg>`;
+}
+
 function renderClue(item, step) {
   const clueEl = $('clueEmoji');
   if (!clueEl) return;
@@ -1453,10 +1599,8 @@ function renderClue(item, step) {
   const soundBadge = '<span class="clue-sound-pill">🔊 सुनो</span>';
   if (IMAGES[key]) {
     clueEl.innerHTML = '<img src="' + IMAGES[key] + '" class="clue-img" alt="' + key + '">' + soundBadge;
-  } else if (ILLUSTRATIONS[key]) {
-    clueEl.innerHTML = ILLUSTRATIONS[key] + soundBadge;
   } else {
-    clueEl.innerHTML = '<span style="font-size:clamp(68px,8.5vw,110px);line-height:1">' + fallback + '</span>' + soundBadge;
+    clueEl.innerHTML = getStorybookCardSvg(key, fallback) + soundBadge;
   }
 }
 

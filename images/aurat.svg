@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 260" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fce7f3"/><stop offset="50%" stop-color="#fbcfe8"/><stop offset="100%" stop-color="#fed7aa"/></linearGradient>
+    <linearGradient id="gHill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f472b6"/>
+      <stop offset="50%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#be185d"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="25%" cy="20%" r="65%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="45%" stop-color="#fef08a" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#bae6fd" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="7" stdDeviation="5.5" flood-color="#0f172a" flood-opacity="0.22"/>
+    </filter>
+    <filter id="ambOcc" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <linearGradient id="sariG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f472b6"/><stop offset="50%" stop-color="#e11d48"/><stop offset="100%" stop-color="#9f1239"/></linearGradient>
+  </defs>
+
+  <!-- Full-bleed Sky Scenery -->
+  <rect width="220" height="260" fill="url(#bgSky)"/>
+  <rect width="220" height="260" fill="url(#sunGlow)"/>
+
+  <!-- Distant Hill -->
+  <path d="M-20 185 Q40 162 110 174 Q180 188 240 170 L240 260 L-20 260 Z" fill="#f472b6" opacity="0.6"/>
+
+  <!-- Foreground Hill Plate -->
+  <path d="M-20 196 Q60 178 140 186 Q190 192 240 182 L240 260 L-20 260 Z" fill="url(#gHill)"/>
+
+  <!-- Nature Daisies -->
+  <circle cx="28" cy="226" r="3.5" fill="#ffffff"/>
+  <circle cx="28" cy="226" r="1.5" fill="#facc15"/>
+  <circle cx="192" cy="216" r="4" fill="#ffffff"/>
+  <circle cx="192" cy="216" r="1.8" fill="#facc15"/>
+  <circle cx="176" cy="236" r="3" fill="#ffffff"/>
+  <circle cx="176" cy="236" r="1.4" fill="#facc15"/>
+
+  <!-- Main 3D Subject -->
+  <g filter="url(#cardShadow)">
+    
+    <!-- Shadow -->
+    <ellipse cx="110" cy="216" rx="55" ry="12" fill="#831843" opacity="0.25" filter="url(#ambOcc)"/>
+    <!-- Sari Body & Pallu -->
+    <path d="M62 210 C62 165 92 145 110 145 C128 145 158 165 158 210 Z" fill="url(#sariG)"/>
+    <path d="M75 210 L125 150 L145 210 Z" fill="#db2777"/>
+    <!-- Gold Border on Sari -->
+    <path d="M75 160 Q110 185 145 160" stroke="#facc15" stroke-width="4.5" fill="none"/>
+    <!-- Golden Bangle -->
+    <ellipse cx="78" cy="188" rx="7" ry="3" fill="#facc15"/>
+    <ellipse cx="142" cy="188" rx="7" ry="3" fill="#facc15"/>
+    <!-- Loving Face -->
+    <circle cx="110" cy="115" r="28" fill="#fed7aa"/>
+    <!-- Shiny Black Hair & Bun with Flowers -->
+    <path d="M84 115 C84 88 136 88 136 115 C136 98 120 92 110 92 C100 92 84 98 84 115 Z" fill="#1e1b4b"/>
+    <circle cx="78" cy="115" r="6" fill="#f43f5e"/>
+    <circle cx="142" cy="115" r="6" fill="#f43f5e"/>
+    <!-- Red Bindi -->
+    <circle cx="110" cy="106" r="3" fill="#dc2626"/>
+    <!-- Kind Eyes & Eyelashes -->
+    <ellipse cx="98" cy="115" rx="4" ry="5.5" fill="#1e293b"/>
+    <circle cx="96.5" cy="113.5" r="1.8" fill="#ffffff"/>
+    <ellipse cx="122" cy="115" rx="4" ry="5.5" fill="#1e293b"/>
+    <circle cx="120.5" cy="113.5" r="1.8" fill="#ffffff"/>
+    <!-- Gentle Smile & Cheeks -->
+    <ellipse cx="93" cy="122" rx="4" ry="2.2" fill="#f43f5e" opacity="0.45"/>
+    <ellipse cx="127" cy="122" rx="4" ry="2.2" fill="#f43f5e" opacity="0.45"/>
+    <path d="M105 125 Q110 130 115 125" stroke="#9a3412" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+    <!-- Small Lotus in Hand -->
+    <path d="M110 182 C104 172 108 165 110 162 C112 165 116 172 110 182 Z" fill="#fb7185"/>
+    
+  </g>
+
+  <!-- Sparkles -->
+  <path d="M38 78 L41 68 L44 78 L54 81 L44 84 L41 94 L38 84 L28 81 Z" fill="#fef08a" opacity="0.8"/>
+  <circle cx="185" cy="105" r="2" fill="#ffffff" opacity="0.85"/>
+</svg>
