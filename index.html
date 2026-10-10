@@ -131,56 +131,56 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 // Curriculum
 const lessons = [
   // Swar (स्वर)
-  {c:'अ', sound:'a', word:'अनार', phonic:'अ से अनार'},
-  {c:'आ', sound:'aa', word:'आम', phonic:'आ से आम'},
-  {c:'इ', sound:'i', word:'इमली', phonic:'इ से इमली'},
-  {c:'ई', sound:'ee', word:'ईख', phonic:'ई से ईख'},
-  {c:'उ', sound:'u', word:'उल्लू', phonic:'उ से उल्लू'},
-  {c:'ऊ', sound:'oo', word:'ऊन', phonic:'ऊ से ऊन'},
-  {c:'ऋ', sound:'ri', word:'ऋषि', phonic:'ऋ से ऋषि'},
-  {c:'ए', sound:'e', word:'एड़ी', phonic:'ए से एड़ी'},
-  {c:'ऐ', sound:'ai', word:'ऐनक', phonic:'ऐ से ऐनक'},
-  {c:'ओ', sound:'o', word:'ओखली', phonic:'ओ से ओखली'},
-  {c:'औ', sound:'au', word:'औरत', phonic:'औ से औरत'},
-  {c:'अं', sound:'ang', word:'अंगूर', phonic:'अं से अंगूर'},
-  {c:'अः', sound:'aha', word:'प्रातः', phonic:'अः खाली'},
+  {c:'अ', sound:'a', word:'अनार', phonic:'अ से अनार', audio:'audio/sw_a.m4a'},
+  {c:'आ', sound:'aa', word:'आम', phonic:'आ से आम', audio:'audio/sw_aa.m4a'},
+  {c:'इ', sound:'i', word:'इमली', phonic:'इ से इमली', audio:'audio/sw_i.m4a'},
+  {c:'ई', sound:'ee', word:'ईख', phonic:'ई से ईख', audio:'audio/sw_ee.m4a'},
+  {c:'उ', sound:'u', word:'उल्लू', phonic:'उ से उल्लू', audio:'audio/sw_u.m4a'},
+  {c:'ऊ', sound:'oo', word:'ऊन', phonic:'ऊ से ऊन', audio:'audio/sw_oo.m4a'},
+  {c:'ऋ', sound:'ri', word:'ऋषि', phonic:'ऋ से ऋषि', audio:'audio/sw_ri.m4a'},
+  {c:'ए', sound:'e', word:'एड़ी', phonic:'ए से एड़ी', audio:'audio/sw_e.m4a'},
+  {c:'ऐ', sound:'ai', word:'ऐनक', phonic:'ऐ से ऐनक', audio:'audio/sw_ai.m4a'},
+  {c:'ओ', sound:'o', word:'ओखली', phonic:'ओ से ओखली', audio:'audio/sw_o.m4a'},
+  {c:'औ', sound:'au', word:'औरत', phonic:'औ से औरत', audio:'audio/sw_au.m4a'},
+  {c:'अं', sound:'ang', word:'अंगूर', phonic:'अं से अंगूर', audio:'audio/sw_ang.m4a'},
+  {c:'अः', sound:'aha', word:'प्रातः', phonic:'अः खाली', audio:'audio/sw_aha.m4a'},
   // Vyanjan (व्यंजन)
-  {c:'क', sound:'ka', word:'कमल', phonic:'क से कमल'},
-  {c:'ख', sound:'kha', word:'खरगोश', phonic:'ख से खरगोश'},
-  {c:'ग', sound:'ga', word:'गमला', phonic:'ग से गमला'},
-  {c:'घ', sound:'gha', word:'घर', phonic:'घ से घर'},
-  {c:'ङ', sound:'nga', word:'खाली', phonic:'ङ खाली'},
-  {c:'च', sound:'cha', word:'चम्मच', phonic:'च से चम्मच'},
-  {c:'छ', sound:'chha', word:'छतरी', phonic:'छ से छतरी'},
-  {c:'ज', sound:'ja', word:'जहाज', phonic:'ज से जहाज'},
-  {c:'झ', sound:'jha', word:'झंडा', phonic:'झ से झंडा'},
-  {c:'ञ', sound:'nya', word:'खाली', phonic:'ञ खाली'},
-  {c:'ट', sound:'ta', word:'टमाटर', phonic:'ट से टमाटर'},
-  {c:'ठ', sound:'tha', word:'ठठेरा', phonic:'ठ से ठठेरा'},
-  {c:'ड', sound:'da', word:'डमरू', phonic:'ड से डमरू'},
-  {c:'ढ', sound:'dha', word:'ढक्कन', phonic:'ढ से ढक्कन'},
-  {c:'ण', sound:'na', word:'खाली', phonic:'ण खाली'},
-  {c:'त', sound:'ta', word:'तितली', phonic:'त से तितली'},
-  {c:'थ', sound:'tha', word:'थर्मस', phonic:'थ से थर्मस'},
-  {c:'द', sound:'da', word:'दवात', phonic:'द से दवात'},
-  {c:'ध', sound:'dha', word:'धनुष', phonic:'ध से धनुष'},
-  {c:'न', sound:'na', word:'नल', phonic:'न से नल'},
-  {c:'प', sound:'pa', word:'पतंग', phonic:'प से पतंग'},
-  {c:'फ', sound:'pha', word:'फल', phonic:'फ से फल'},
-  {c:'ब', sound:'ba', word:'बत्तख', phonic:'ब से बत्तख'},
-  {c:'भ', sound:'bha', word:'भालू', phonic:'भ से भालू'},
-  {c:'म', sound:'ma', word:'मछली', phonic:'म से मछली'},
-  {c:'य', sound:'ya', word:'यज्ञ', phonic:'य से यज्ञ'},
-  {c:'र', sound:'ra', word:'रथ', phonic:'र से रथ'},
-  {c:'ल', sound:'la', word:'लट्टू', phonic:'ल से लट्टू'},
-  {c:'व', sound:'va', word:'वक', phonic:'व से वक'},
-  {c:'श', sound:'sha', word:'शलजम', phonic:'श से शलजम'},
-  {c:'ष', sound:'sha', word:'षट्कोण', phonic:'ष से षट्कोण'},
-  {c:'स', sound:'sa', word:'सेब', phonic:'स से सेब'},
-  {c:'ह', sound:'ha', word:'हाथी', phonic:'ह से हाथी'},
-  {c:'क्ष', sound:'ksha', word:'क्षत्रिय', phonic:'क्ष से क्षत्रिय'},
-  {c:'त्र', sound:'tra', word:'त्रिशूल', phonic:'त्र से त्रिशूल'},
-  {c:'ज्ञ', sound:'gya', word:'ज्ञानी', phonic:'ज्ञ से ज्ञानी'}
+  {c:'क', sound:'ka', word:'कमल', phonic:'क से कमल', audio:'audio/vy_ka.m4a'},
+  {c:'ख', sound:'kha', word:'खरगोश', phonic:'ख से खरगोश', audio:'audio/vy_kha.m4a'},
+  {c:'ग', sound:'ga', word:'गमला', phonic:'ग से गमला', audio:'audio/vy_ga.m4a'},
+  {c:'घ', sound:'gha', word:'घर', phonic:'घ से घर', audio:'audio/vy_gha.m4a'},
+  {c:'ङ', sound:'nga', word:'खाली', phonic:'ङ खाली', audio:'audio/vy_nga.m4a'},
+  {c:'च', sound:'cha', word:'चम्मच', phonic:'च से चम्मच', audio:'audio/vy_cha.m4a'},
+  {c:'छ', sound:'chha', word:'छतरी', phonic:'छ से छतरी', audio:'audio/vy_chha.m4a'},
+  {c:'ज', sound:'ja', word:'जहाज', phonic:'ज से जहाज', audio:'audio/vy_ja.m4a'},
+  {c:'झ', sound:'jha', word:'झंडा', phonic:'झ से झंडा', audio:'audio/vy_jha.m4a'},
+  {c:'ञ', sound:'nya', word:'खाली', phonic:'ञ खाली', audio:'audio/vy_nya.m4a'},
+  {c:'ट', sound:'ta', word:'टमाटर', phonic:'ट से टमाटर', audio:'audio/vy_ta1.m4a'},
+  {c:'ठ', sound:'tha', word:'ठठेरा', phonic:'ठ से ठठेरा', audio:'audio/vy_tha1.m4a'},
+  {c:'ड', sound:'da', word:'डमरू', phonic:'ड से डमरू', audio:'audio/vy_da1.m4a'},
+  {c:'ढ', sound:'dha', word:'ढक्कन', phonic:'ढ से ढक्कन', audio:'audio/vy_dha1.m4a'},
+  {c:'ण', sound:'na', word:'खाली', phonic:'ण खाली', audio:'audio/vy_na1.m4a'},
+  {c:'त', sound:'ta', word:'तितली', phonic:'त से तितली', audio:'audio/vy_ta2.m4a'},
+  {c:'थ', sound:'tha', word:'थर्मस', phonic:'थ से थर्मस', audio:'audio/vy_tha2.m4a'},
+  {c:'द', sound:'da', word:'दवात', phonic:'द से दवात', audio:'audio/vy_da2.m4a'},
+  {c:'ध', sound:'dha', word:'धनुष', phonic:'ध से धनुष', audio:'audio/vy_dha2.m4a'},
+  {c:'न', sound:'na', word:'नल', phonic:'न से नल', audio:'audio/vy_na2.m4a'},
+  {c:'प', sound:'pa', word:'पतंग', phonic:'प से पतंग', audio:'audio/vy_pa.m4a'},
+  {c:'फ', sound:'pha', word:'फल', phonic:'फ से फल', audio:'audio/vy_pha.m4a'},
+  {c:'ब', sound:'ba', word:'बत्तख', phonic:'ब से बत्तख', audio:'audio/vy_ba.m4a'},
+  {c:'भ', sound:'bha', word:'भालू', phonic:'भ से भालू', audio:'audio/vy_bha.m4a'},
+  {c:'म', sound:'ma', word:'मछली', phonic:'म से मछली', audio:'audio/vy_ma.m4a'},
+  {c:'य', sound:'ya', word:'यज्ञ', phonic:'य से यज्ञ', audio:'audio/vy_ya.m4a'},
+  {c:'र', sound:'ra', word:'रथ', phonic:'र से रथ', audio:'audio/vy_ra.m4a'},
+  {c:'ल', sound:'la', word:'लट्टू', phonic:'ल से लट्टू', audio:'audio/vy_la.m4a'},
+  {c:'व', sound:'va', word:'वक', phonic:'व से वक', audio:'audio/vy_va.m4a'},
+  {c:'श', sound:'sha', word:'शलजम', phonic:'श से शलजम', audio:'audio/vy_sha1.m4a'},
+  {c:'ष', sound:'sha', word:'षट्कोण', phonic:'ष से षट्कोण', audio:'audio/vy_sha2.m4a'},
+  {c:'स', sound:'sa', word:'सेब', phonic:'स से सेब', audio:'audio/vy_sa.m4a'},
+  {c:'ह', sound:'ha', word:'हाथी', phonic:'ह से हाथी', audio:'audio/vy_ha.m4a'},
+  {c:'क्ष', sound:'ksha', word:'क्षत्रिय', phonic:'क्ष से क्षत्रिय', audio:'audio/vy_ksha.m4a'},
+  {c:'त्र', sound:'tra', word:'त्रिशूल', phonic:'त्र से त्रिशूल', audio:'audio/vy_tra.m4a'},
+  {c:'ज्ञ', sound:'gya', word:'ज्ञानी', phonic:'ज्ञ से ज्ञानी', audio:'audio/vy_gya.m4a'}
 ];
 
 let idx = 0;
@@ -489,10 +489,23 @@ function clearPad() {
   drawPad();
 }
 
-let ttsAudio = null;
+const audioMap = {};
+function preloadAudio() {
+  lessons.forEach(item => {
+    if (item.audio) {
+      const a = new Audio();
+      a.preload = 'auto';
+      a.src = item.audio;
+      audioMap[item.audio] = a;
+    }
+  });
+}
+preloadAudio();
+
+let activeAudio = null;
 function speak() {
   const item = lessons[idx];
-  const text = item.phonic || (item.c + ' से ' + item.word);
+  if (!item) return;
 
   // Visual pulse on the letter/word
   const wordEl = $('anchorWord');
@@ -506,34 +519,38 @@ function speak() {
   }
 
   // Stop previous audio
-  if (ttsAudio) {
-    try { ttsAudio.pause(); } catch(e){}
-    ttsAudio = null;
+  if (activeAudio) {
+    try {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
+    } catch(e){}
+    activeAudio = null;
   }
 
-  // Primary: Native Hindi TTS Audio stream (real crystal-clear Hindi pronunciation)
-  const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=hi&q=${encodeURIComponent(text)}`;
-  const audio = new Audio(ttsUrl);
-  ttsAudio = audio;
-
-  audio.play().catch(() => {
-    // Fallback: Web Speech API if offline
-    if ('speechSynthesis' in window) {
-      try {
-        if (window.speechSynthesis.paused) window.speechSynthesis.resume();
-        const u = new SpeechSynthesisUtterance(text);
-        window._activeUtterance = u;
-        u.lang = 'hi-IN';
-        u.rate = 0.72;
-        const voices = window.speechSynthesis.getVoices() || [];
-        const hi = voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi') || (v.name && v.name.toLowerCase().includes('hindi')));
-        if (hi) u.voice = hi;
-        window.speechSynthesis.speak(u);
-      } catch (err) {
-        console.warn('SpeechSynthesis fallback error:', err);
-      }
+  if (item.audio) {
+    const audio = audioMap[item.audio] || new Audio(item.audio);
+    audio.currentTime = 0;
+    activeAudio = audio;
+    const p = audio.play();
+    if (p !== undefined) {
+      p.catch(err => {
+        console.warn('Native audio play error, retrying with fresh instance:', err);
+        const fresh = new Audio(item.audio);
+        activeAudio = fresh;
+        fresh.play().catch(e => {
+          console.warn('Fresh Audio retry error:', e);
+          if ('speechSynthesis' in window) {
+            try {
+              if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+              const u = new SpeechSynthesisUtterance(item.phonic || item.c);
+              u.lang = 'hi-IN';
+              window.speechSynthesis.speak(u);
+            } catch(e){}
+          }
+        });
+      });
     }
-  });
+  }
 }
 
 // Discriminative Handwriting Auto-Evaluator (3x3 Zone Correlation + True IoU)
@@ -782,6 +799,7 @@ $('guideModeBtn').onclick = () => {
 $('sound').onclick = speak;
 $('letter').onclick = speak;
 $('hear').onclick = speak;
+if ($('anchorWord')) $('anchorWord').onclick = (e) => { e.stopPropagation(); speak(); };
 $('replay').onclick = drawGuide;
 $('erase').onclick = clearPad;
 $('retry').onclick = () => {
