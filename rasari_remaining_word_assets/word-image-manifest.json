@@ -1,0 +1,462 @@
+{
+  "version": 1,
+  "style": "Rasari storybook garden, warm 3D illustration",
+  "items": [
+    {
+      "id": "imli",
+      "hindi": "इमली",
+      "english": "Tamarind",
+      "src": "images/imli.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "eekh",
+      "hindi": "ईख",
+      "english": "Sugarcane",
+      "src": "images/eekh.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "oon",
+      "hindi": "ऊन",
+      "english": "Wool",
+      "src": "images/oon.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "rishi",
+      "hindi": "ऋषि",
+      "english": "Sage",
+      "src": "images/rishi.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "edi",
+      "hindi": "एड़ी",
+      "english": "Heel with anklet",
+      "src": "images/edi.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "ainak",
+      "hindi": "ऐनक",
+      "english": "Spectacles",
+      "src": "images/ainak.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "okhli",
+      "hindi": "ओखली",
+      "english": "Mortar and pestle",
+      "src": "images/okhli.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "aurat",
+      "hindi": "औरत",
+      "english": "Woman in sari",
+      "src": "images/aurat.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "angoor",
+      "hindi": "अंगूर",
+      "english": "Grapes",
+      "src": "images/angoor.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "pratah",
+      "hindi": "प्रातः",
+      "english": "Sunrise",
+      "src": "images/pratah.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "khargosh",
+      "hindi": "खरगोश",
+      "english": "Rabbit",
+      "src": "images/khargosh.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "kabootar",
+      "hindi": "कबूतर",
+      "english": "Pigeon",
+      "src": "images/kabootar.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "tota",
+      "hindi": "तोता",
+      "english": "Parrot",
+      "src": "images/tota.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "mor",
+      "hindi": "मोर",
+      "english": "Peacock",
+      "src": "images/mor.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "bhalu",
+      "hindi": "भालू",
+      "english": "Bear",
+      "src": "images/bhalu.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "machhli",
+      "hindi": "मछली",
+      "english": "Fish",
+      "src": "images/machhli.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "bak",
+      "hindi": "बक",
+      "english": "Crane",
+      "src": "images/bak.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "battakh",
+      "hindi": "बत्तख",
+      "english": "Duckling",
+      "src": "images/battakh.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "sher",
+      "hindi": "शेर",
+      "english": "Lion cub",
+      "src": "images/sher.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "haathi",
+      "hindi": "हाथी",
+      "english": "Elephant",
+      "src": "images/haathi.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "gaay",
+      "hindi": "गाय",
+      "english": "Cow",
+      "src": "images/gaay.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "yagya",
+      "hindi": "यज्ञ",
+      "english": "Hawan kund",
+      "src": "images/yagya.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "rath",
+      "hindi": "रथ",
+      "english": "Chariot",
+      "src": "images/rath.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "hal",
+      "hindi": "हल",
+      "english": "Plough",
+      "src": "images/hal.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "khat",
+      "hindi": "खत",
+      "english": "Letter envelope",
+      "src": "images/khat.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "damru",
+      "hindi": "डमरू",
+      "english": "Damru drum",
+      "src": "images/damru.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "trishul",
+      "hindi": "त्रिशूल",
+      "english": "Trident",
+      "src": "images/trishul.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "baan",
+      "hindi": "बाण",
+      "english": "Arrow and target",
+      "src": "images/baan.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "dhanush",
+      "hindi": "धनुष",
+      "english": "Bow and arrow",
+      "src": "images/dhanush.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "thathera",
+      "hindi": "ठठेरा",
+      "english": "Copper craftsman",
+      "src": "images/thathera.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "kshatriya",
+      "hindi": "क्षत्रिय",
+      "english": "Warrior prince",
+      "src": "images/kshatriya.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "gyani",
+      "hindi": "ज्ञानी",
+      "english": "Child scholar",
+      "src": "images/gyani.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "deepak",
+      "hindi": "दीपक",
+      "english": "Oil lamp",
+      "src": "images/deepak.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "gamla",
+      "hindi": "गमला",
+      "english": "Flower pot",
+      "src": "images/gamla.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "ghar",
+      "hindi": "घर",
+      "english": "Cottage",
+      "src": "images/ghar.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "jahaz",
+      "hindi": "जहाज",
+      "english": "Ship",
+      "src": "images/jahaz.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "jhanda",
+      "hindi": "झंडा",
+      "english": "Indian flag",
+      "src": "images/jhanda.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "tamatar",
+      "hindi": "टमाटर",
+      "english": "Tomato",
+      "src": "images/tamatar.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "dhakkan",
+      "hindi": "ढक्कन",
+      "english": "Cooking pot and lid",
+      "src": "images/dhakkan.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "titli",
+      "hindi": "तितली",
+      "english": "Butterfly",
+      "src": "images/titli.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "thermos",
+      "hindi": "थर्मस",
+      "english": "Thermos flask",
+      "src": "images/thermos.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "dawaat",
+      "hindi": "दवात",
+      "english": "Inkpot and quill",
+      "src": "images/dawaat.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "nal",
+      "hindi": "नल",
+      "english": "Water tap",
+      "src": "images/nal.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "patang",
+      "hindi": "पतंग",
+      "english": "Kite",
+      "src": "images/patang.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "bus",
+      "hindi": "बस",
+      "english": "School bus",
+      "src": "images/bus.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "lattu",
+      "hindi": "लट्टू",
+      "english": "Spinning top",
+      "src": "images/lattu.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "shaljam",
+      "hindi": "शलजम",
+      "english": "Turnip",
+      "src": "images/shaljam.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "shatkon",
+      "hindi": "षट्कोण",
+      "english": "Hexagon prism",
+      "src": "images/shatkon.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "seb",
+      "hindi": "सेब",
+      "english": "Apple",
+      "src": "images/seb.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "khali",
+      "hindi": "खाली",
+      "english": "Star on slate",
+      "src": "images/khali.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "sooraj",
+      "hindi": "सूरज",
+      "english": "Sun",
+      "src": "images/sooraj.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "chand",
+      "hindi": "चाँद",
+      "english": "Moon",
+      "src": "images/chand.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "ped",
+      "hindi": "पेड़",
+      "english": "Tree",
+      "src": "images/ped.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "cycle",
+      "hindi": "साइकिल",
+      "english": "Bicycle",
+      "src": "images/cycle.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "samosa",
+      "hindi": "समोसा",
+      "english": "Samosa",
+      "src": "images/samosa.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "lattu2",
+      "hindi": "लट्टू",
+      "english": "Spinning top (alternate)",
+      "src": "images/lattu2.webp",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "doodh",
+      "hindi": "दूध",
+      "english": "Milk",
+      "src": "images/doodh.webp",
+      "width": 512,
+      "height": 512
+    }
+  ]
+}
