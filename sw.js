@@ -1,4 +1,4 @@
-const APP_VERSION = '1.9.9';
+const APP_VERSION = '2.0.0';
 const CACHE = `rasari-hindi-v${APP_VERSION}`;
 const ASSETS = [
   './',
@@ -139,6 +139,8 @@ const ASSETS = [
   './images/bhalu.png',
   './images/bus.png',
   './images/chand.png',
+  './images/chammach.png',
+  './images/chhatri.png',
   './images/cycle.png',
   './images/damru.png',
   './images/dawaat.png',
@@ -171,6 +173,7 @@ const ASSETS = [
   './images/oon.png',
   './images/patang.png',
   './images/ped.png',
+  './images/phal.png',
   './images/pratah.png',
   './images/rath.png',
   './images/rishi.png',
