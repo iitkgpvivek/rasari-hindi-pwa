@@ -67,12 +67,12 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 
 
-/* Right Clue & Recall Card: High-res card filling the entire clipboard */
-.clue-board{position:absolute;left:76.2%;top:25.2%;width:20.4%;height:35.6%;display:flex;align-items:center;justify-content:center;z-index:5;pointer-events:auto;box-sizing:border-box;padding:3px}
-.clue-emoji{width:100%;height:100%;border-radius:18px;border:3.5px solid #ffca4f;background:#fffdf5;box-shadow:0 8px 18px rgba(0,0,0,0.18),inset 0 0 0 1.5px rgba(255,255,255,0.8);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:transform .18s cubic-bezier(.175,.885,.32,1.275),box-shadow .18s ease;font-size:clamp(68px,8.5vw,110px);line-height:1}
-.clue-emoji:hover{transform:scale(1.02);box-shadow:0 10px 22px rgba(0,0,0,0.22)}
+/* Right Clue & Recall Card: Fits flush within outer clipboard frame with zero double-border */
+.clue-board{position:absolute;left:75.85%;top:26.4%;width:20.85%;height:33.9%;display:flex;align-items:center;justify-content:center;z-index:5;pointer-events:auto;box-sizing:border-box;padding:0}
+.clue-emoji{width:100%;height:100%;border-radius:0 0 18px 18px;border:none;background:transparent;box-shadow:none;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:transform .18s cubic-bezier(.175,.885,.32,1.275);font-size:clamp(68px,8.5vw,110px);line-height:1}
+.clue-emoji:hover{transform:scale(1.02)}
 .clue-emoji:active{transform:scale(0.96)}
-.clue-emoji img,.clue-img{width:100%;height:100%;object-fit:cover;display:block}
+.clue-emoji img,.clue-img{width:100%;height:100%;object-fit:cover;display:block;border-radius:0 0 18px 18px}
 .clue-emoji svg{width:100%;height:100%;max-width:92%;max-height:92%;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.12))}
 .clue-sound-pill{position:absolute;bottom:7px;right:7px;background:rgba(255,255,255,0.92);border:1.5px solid #ffca4f;border-radius:999px;padding:2px 8px;font-size:clamp(11px,1.2vw,14px);font-weight:800;color:#7a4600;display:flex;align-items:center;gap:4px;box-shadow:0 2px 6px rgba(0,0,0,0.16);pointer-events:none;z-index:3}
 
