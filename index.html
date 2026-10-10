@@ -17,94 +17,633 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .app{width:100vw;height:100dvh;position:relative;overflow:hidden;background:#bfeaff;isolation:isolate}
 .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none;z-index:-1}
 .logo{position:absolute;left:45.5%;top:1.3%;height:4.2%;display:flex;align-items:center;gap:7px;font-size:clamp(16px,2vw,26px);font-weight:800;color:#144b78}.logoicon{width:clamp(28px,3vw,39px);height:clamp(28px,3vw,39px);border-radius:12px;background:#0f7a66;color:white;display:grid;place-items:center;font:700 24px Georgia,serif}
-.badge{position:absolute;right:1.7%;top:1.5%;background:#fff8df;border:2px solid white;border-radius:99px;padding:5px 12px;font-size:clamp(10px,1.1vw,14px);font-weight:800;color:#80531a}
+.badge{position:absolute;right:1.7%;top:1.5%;background:#fff8df;border:2px solid white;border-radius:99px;padding:5px 12px;font-size:clamp(10px,1.1vw,14px);font-weight:800;color:#80531a;box-shadow:0 2px 4px rgba(0,0,0,0.06)}
 .nav{position:absolute;left:23%;right:13%;top:5.3%;height:9.2%;display:flex;align-items:center;justify-content:space-between}.step{display:flex;flex-direction:column;align-items:center;gap:0;font-size:clamp(10px,1.3vw,16px);font-weight:800;white-space:nowrap;color:#143e70}.circ{width:clamp(34px,5.2vw,58px);height:clamp(34px,5.2vw,58px);display:grid;place-items:center;border-radius:50%;background:#f7f8fc;border:4px solid white;box-shadow:0 3px 0 #c8dce3;font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(17px,2.2vw,28px)}.step.active .circ{background:#ffcf50;border-color:#fff4c6;box-shadow:0 0 0 3px #ffbd32}
-.prompt{position:absolute;left:7.2%;top:19.7%;width:17.7%;height:4.4%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(13px,1.8vw,24px);font-weight:800;color:#123b6c;white-space:nowrap}
-.letter{position:absolute;left:10.3%;top:25.2%;width:14%;height:8.5%;display:flex;align-items:center;justify-content:center;font-family:'Noto Sans Devanagari','Nirmala UI',sans-serif;font-size:clamp(46px,6.5vw,88px);font-weight:800;color:#103d70}
+.prompt{position:absolute;left:5.2%;top:18.5%;width:21.7%;height:4.4%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.6vw,22px);font-weight:800;color:#123b6c;white-space:nowrap}
+.letter{position:absolute;left:9.3%;top:23.5%;width:16%;height:9.5%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Noto Sans Devanagari','Nirmala UI',sans-serif;font-size:clamp(44px,6.2vw,84px);font-weight:800;color:#103d70;line-height:1}
+.anchorword{font-size:clamp(11px,1.2vw,16px);font-weight:800;color:#0f7a66;margin-top:2px}
 .soundleft{position:absolute;left:3.9%;top:23.5%;width:7.3%;height:10%;border-radius:50%;background:transparent;color:transparent}
+
+/* Top toolbar over writing slate */
+.toolbar-top{position:absolute;left:27.8%;top:25.2%;height:4.4%;display:flex;align-items:center;gap:8px;z-index:2}
+.stage-badge{background:#ffffffdd;border:2px solid #0f7a66;border-radius:999px;padding:3px 10px;font-size:clamp(10px,1.1vw,13px);font-weight:800;color:#0f7a66;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.08)}
+.ctrl-pill{background:#fff8df;border:2px solid #e2a03f;border-radius:999px;padding:3px 10px;font-size:clamp(10px,1.1vw,13px);font-weight:800;color:#80531a;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.08);transition:all .15s}
+.ctrl-pill:active{transform:scale(0.95)}
+
 #write{position:absolute;left:27.8%;top:30.2%;width:45.6%;height:45.5%;touch-action:none}
 .guideheading{position:absolute;left:77.7%;top:20.2%;width:16.2%;height:5.8%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.6vw,20px);font-weight:800;color:#49370d;white-space:nowrap}.guideheading button{margin-left:7px;border-radius:50%;width:26px;height:26px;background:#fff8df;color:#a66c14;font-size:17px}
 #guide{position:absolute;left:76.8%;top:26.7%;width:19.5%;height:31.8%;pointer-events:none}
 .sidebtn{position:absolute;top:61.8%;height:13.5%;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:clamp(12px,1.5vw,19px);font-weight:800}.sidebtn .ico{font-size:clamp(20px,2.5vw,31px);line-height:1}.erase{left:76.8%;width:10%;background:transparent;color:#c43b62}.retry{left:87.2%;width:9.5%;background:transparent;color:#1167a5}
 .hint{position:absolute;left:29%;top:76.2%;font-size:clamp(9px,1vw,13px);font-weight:700;color:#6c8a7e}
-.praise{position:absolute;left:14%;top:84.2%;width:19%;height:7.6%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.7vw,21px);font-weight:800;color:#81501a;white-space:nowrap}
+.praise{position:absolute;left:10%;top:84.2%;width:26%;height:7.6%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(11px,1.5vw,19px);font-weight:800;color:#81501a}
 .bottombtn{position:absolute;top:80.6%;height:12.2%;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:9px;color:white;font-size:clamp(15px,2vw,24px);font-weight:800;background:transparent}.done{left:38.5%;width:28.5%}.hear{left:68%;width:28%}
-.modal{display:none;position:absolute;inset:0;z-index:10;background:#123b6c80;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.dialog{background:#fffdf5;border:5px solid white;border-radius:28px;text-align:center;padding:24px;max-width:400px;width:100%;box-shadow:0 7px 0 #bddbce}.dialog h2{font-size:30px;margin:0 0 8px}.dialog p{font-size:17px;margin:0 0 18px}.dialog button{border-radius:15px;background:#37b949;color:white;padding:12px 20px;font-size:17px;font-weight:800}
-@media(max-width:680px){.nav{left:22%;right:4%;top:6%}.step{font-size:9px}.circ{width:31px;height:31px;font-size:17px;border-width:3px}.prompt{font-size:12px}.letter{font-size:50px}.guideheading{font-size:10px}.guideheading button{width:20px;height:20px;font-size:12px}.sidebtn{font-size:10px}.praise{font-size:10px}.bottombtn{font-size:12px}.hint{display:none}}
-@media(max-aspect-ratio:1/1){.bg{object-fit:cover;object-position:center}.nav{left:20%;right:3%;top:6%}.prompt,.letter{display:none}#write{left:24%;top:30%;width:51%;height:45%}#guide{left:76%;width:21%}.praise{left:4%;width:25%}.hint{display:none}.done{left:35%;width:30%}.hear{left:67%;width:30%}}
+.modal{display:none;position:absolute;inset:0;z-index:10;background:#123b6c80;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.dialog{background:#fffdf5;border:5px solid white;border-radius:28px;text-align:center;padding:24px;max-width:400px;width:100%;box-shadow:0 7px 0 #bddbce}.dialog h2{font-size:28px;margin:0 0 6px}.dialog p{font-size:16px;margin:0 0 16px}.dialog button{border-radius:15px;background:#37b949;color:white;padding:12px 20px;font-size:17px;font-weight:800}
+.score-badge{margin-bottom:10px;display:inline-block;padding:5px 14px;border-radius:999px;background:#ffefc2;color:#7e5200;font-weight:800;font-size:15px;border:1px solid #ffd276}
+
 .update-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(160%);background:#0d2847;color:#ffffff;padding:8px 16px;border-radius:999px;box-shadow:0 10px 28px rgba(0,0,0,0.35);display:flex;align-items:center;gap:12px;font-size:clamp(12px,1.4vw,15px);font-weight:700;z-index:10000;transition:transform .35s cubic-bezier(.175,.885,.32,1.275);border:2px solid #ffca4f;pointer-events:none;opacity:0}
 .update-toast.show{transform:translateX(-50%) translateY(0);pointer-events:auto;opacity:1}
 .update-toast button{background:#39b84a;color:white;border:none;border-radius:999px;padding:6px 14px;font-size:clamp(12px,1.3vw,14px);font-weight:800;cursor:pointer;box-shadow:0 2px 0 #1e6e28}
 .update-toast button:active{transform:translateY(1px);box-shadow:none}
-</style></head><body><main class="app" id="app">
+
+@media(max-width:680px){.nav{left:22%;right:4%;top:6%}.step{font-size:9px}.circ{width:31px;height:31px;font-size:17px;border-width:3px}.prompt{font-size:11px}.letter{font-size:42px}.toolbar-top{left:24%;gap:4px}.stage-badge,.ctrl-pill{font-size:9px;padding:2px 6px}.guideheading{font-size:10px}.guideheading button{width:20px;height:20px;font-size:12px}.sidebtn{font-size:10px}.praise{font-size:10px}.bottombtn{font-size:12px}.hint{display:none}}
+@media(max-aspect-ratio:1/1){.bg{object-fit:cover;object-position:center}.nav{left:20%;right:3%;top:6%}.prompt,.letter{display:none}.toolbar-top{left:24%}#write{left:24%;top:30%;width:51%;height:45%}#guide{left:76%;width:21%}.praise{left:4%;width:25%}.hint{display:none}.done{left:35%;width:30%}.hear{left:67%;width:30%}}
+</style>
+</head>
+<body>
+<main class="app" id="app">
 <img class="bg" src="./background.jpg" alt="">
-<div class="logo" id="home" style="cursor:pointer"><span class="logoicon">र</span><span>rasari</span></div><div class="badge">⭐ 5-minute practice</div>
-<nav class="nav" aria-label="Practice steps"><div class="step active" id="st1"><span class="circ" id="navLetter">क</span><span>Today's letter</span></div><div class="step" id="st2"><span class="circ">ा</span><span>Matra</span></div><div class="step" id="st3"><span class="circ">का</span><span>Word</span></div><div class="step" id="st4"><span class="circ">★</span><span>My progress</span></div></nav>
-<div class="prompt">Write this letter</div><div class="letter" id="letter">क</div><button class="soundleft" id="sound" aria-label="Hear letter"></button>
+<div class="logo" id="home" style="cursor:pointer"><span class="logoicon">र</span><span>rasari</span></div>
+<div class="badge" id="bananaBadge">🍌 <span id="bananaCount">0</span> treats</div>
+
+<nav class="nav" aria-label="Practice steps">
+  <div class="step active" id="st1"><span class="circ" id="navLetter">अ</span><span>Today's letter</span></div>
+  <div class="step" id="st2"><span class="circ">ा</span><span>Matra</span></div>
+  <div class="step" id="st3"><span class="circ">का</span><span>Word</span></div>
+  <div class="step" id="st4"><span class="circ">★</span><span>Progress</span></div>
+</nav>
+
+<div class="prompt" id="promptText">Write this letter</div>
+<div class="letter" id="letter">
+  <span id="charGlyph">अ</span>
+  <span class="anchorword" id="anchorWord">अनार</span>
+</div>
+<button class="soundleft" id="sound" aria-label="Hear letter"></button>
+
+<div class="toolbar-top">
+  <span class="stage-badge" id="stageBadge">Stage 1/3: Trace ✍️</span>
+  <button class="ctrl-pill" id="hintBtn" title="Flash guide for 3s">💡 Hint</button>
+  <button class="ctrl-pill" id="guideModeBtn" title="Guide mode">👁️ Auto</button>
+</div>
+
 <canvas id="write" aria-label="Writing canvas"></canvas>
-<div class="guideheading">See how to write <button id="replay" aria-label="Replay guide">↻</button></div><canvas id="guide" aria-label="Letter guide"></canvas>
-<button class="sidebtn erase" id="erase"><span class="ico">🧽</span>Erase</button><button class="sidebtn retry" id="retry"><span class="ico">↶</span>Try again</button>
-<div class="hint">Write here · follow the guide</div><div class="praise" id="praise">⭐ Great effort!</div>
-<button class="bottombtn done" id="done">✓ I'm done!</button><button class="bottombtn hear" id="hear">🔊 Hear again</button>
-<div class="modal" id="modal"><div class="dialog"><h2 id="mt">Great job!</h2><p id="mp">You practised क.</p><button id="next">Next letter →</button></div></div>
-<aside id="update-toast" class="update-toast" role="status" aria-live="polite"><span>✨ New version available!</span><button id="update-btn">Update Now ↻</button></aside>
+
+<div class="guideheading">See how to write <button id="replay" aria-label="Replay guide">↻</button></div>
+<canvas id="guide" aria-label="Letter guide"></canvas>
+
+<button class="sidebtn erase" id="erase"><span class="ico">🧽</span>Erase</button>
+<button class="sidebtn retry" id="retry"><span class="ico">↶</span>Try again</button>
+
+<div class="hint">Write between lines · follow the guide</div>
+<div class="praise" id="praise">⭐ Great effort!</div>
+
+<button class="bottombtn done" id="done">✓ I'm done!</button>
+<button class="bottombtn hear" id="hear">🔊 Hear again</button>
+
+<div class="modal" id="modal">
+  <div class="dialog">
+    <h2 id="mt">Great job!</h2>
+    <div id="scoreBadge" class="score-badge">Match: 85% ⭐⭐⭐</div>
+    <p id="mp">You practised letter.</p>
+    <button id="next">Next letter →</button>
+  </div>
+</div>
+
+<aside id="update-toast" class="update-toast" role="status" aria-live="polite">
+  <span>✨ New version available!</span>
+  <button id="update-btn">Update Now ↻</button>
+</aside>
 </main>
+
 <script>
-const lessons=[{c:'क',sound:'ka'},{c:'अ',sound:'a'},{c:'आ',sound:'aa'},{c:'इ',sound:'i'},{c:'ई',sound:'ee'},{c:'म',sound:'ma'},{c:'का',sound:'kaa'},{c:'कि',sound:'ki'},{c:'की',sound:'kee'},{c:'मा',sound:'maa'}];
-let idx=0,done=0,strokes=0,drawing=false,last=null;const $=id=>document.getElementById(id),w=$('write'),ctx=w.getContext('2d'),g=$('guide'),gx=g.getContext('2d');
-function fit(c,x){let r=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=Math.max(1,Math.round(r.width*d));c.height=Math.max(1,Math.round(r.height*d));x.setTransform(d,0,0,d,0,0)}
-function drawPad(){fit(w,ctx);let ww=w.clientWidth,h=w.clientHeight;ctx.clearRect(0,0,ww,h);ctx.lineWidth=3;ctx.strokeStyle='#7cbdf8';ctx.beginPath();ctx.moveTo(0,h*.18);ctx.lineTo(ww,h*.18);ctx.stroke();ctx.setLineDash([9,9]);ctx.strokeStyle='#b9dfff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,h*.5);ctx.lineTo(ww,h*.5);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='#ff8ca5';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,h*.82);ctx.lineTo(ww,h*.82);ctx.stroke();ctx.save();ctx.globalAlpha=.16;ctx.fillStyle='#5c7b70';ctx.font='700 '+Math.floor(h*.63)+'px "Noto Sans Devanagari","Nirmala UI",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lessons[idx].c,ww/2,h*.5);ctx.restore()}
-function drawGuide(){fit(g,gx);let ww=g.clientWidth,h=g.clientHeight;gx.clearRect(0,0,ww,h);gx.fillStyle='#fff8e4';gx.fillRect(0,0,ww,h);let a=h*.22,b=h*.5,c=h*.8;[[a,'#93d8f3',false],[b,'#b8dff0',true],[c,'#ff9aaa',false]].forEach(v=>{gx.beginPath();gx.setLineDash(v[2]?[6,5]:[]);gx.strokeStyle=v[1];gx.lineWidth=2;gx.moveTo(8,v[0]);gx.lineTo(ww-8,v[0]);gx.stroke()});gx.setLineDash([]);let band=c-a;gx.fillStyle='#102f25';gx.font='700 '+Math.floor(band*.87)+'px "Noto Sans Devanagari","Nirmala UI",sans-serif';gx.textAlign='center';gx.textBaseline='middle';gx.fillText(lessons[idx].c,ww*.5,(a+c)/2);gx.fillStyle='#168ed4';gx.beginPath();gx.arc(20,a+4,10,0,Math.PI*2);gx.fill();gx.fillStyle='white';gx.font='bold 11px sans-serif';gx.fillText('1',20,a+4);gx.strokeStyle='#168ed4';gx.lineWidth=3;gx.beginPath();gx.moveTo(33,a+4);gx.lineTo(Math.min(ww-15,70),a+4);gx.lineTo(Math.min(ww-21,64),a-2);gx.moveTo(Math.min(ww-15,70),a+4);gx.lineTo(Math.min(ww-21,64),a+10);gx.stroke()}
-function render(){let c=lessons[idx].c;$('letter').textContent=c;$('navLetter').textContent=c;$('praise').textContent='⭐ Great effort!';strokes=0;drawPad();drawGuide();['st1','st2','st3','st4'].forEach((id,i)=>$(id).classList.toggle('active',i===(idx<5?0:idx<9?1:2)))}
-function pos(e){let r=w.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-w.addEventListener('pointerdown',e=>{e.preventDefault();drawing=true;last=pos(e);w.setPointerCapture(e.pointerId);strokes++;ctx.strokeStyle='#173e33';ctx.lineWidth=Math.max(4,w.clientWidth*.006);ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(last.x+.1,last.y+.1);ctx.stroke()});
-w.addEventListener('pointermove',e=>{if(!drawing)return;e.preventDefault();let p=pos(e);ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p});
-['pointerup','pointercancel'].forEach(e=>w.addEventListener(e,()=>{drawing=false;last=null}));
-function speak(){if('speechSynthesis'in window){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(lessons[idx].c);u.lang='hi-IN';u.rate=.72;speechSynthesis.speak(u)}}
-function clear(){drawPad();strokes=0}
-$('sound').onclick=speak;$('hear').onclick=speak;$('replay').onclick=drawGuide;$('erase').onclick=clear;$('retry').onclick=()=>{clear();$('praise').textContent='Try again — you can do it!'};
-window.addEventListener('resize',()=>{drawPad();drawGuide()});
-$('done').onclick=()=>{if(!strokes){$('praise').textContent='Write the letter first ✍️';return}done++;$('mt').textContent='Great job!';$('mp').textContent='You practised '+lessons[idx].c+'.';$('next').textContent=done>=6?'Finish practice':'Next letter →';$('modal').classList.add('show')};
-function advance(){$('modal').classList.remove('show');idx=(idx+1)%lessons.length;render()}
-$('next').onclick=()=>{if(done>=6){done=0;idx=0;$('mt').textContent='Fantastic work!';$('mp').textContent='You completed six writing tries.';$('next').textContent='Practise again';$('next').onclick=()=>{$('modal').classList.remove('show');$('next').onclick=advance;render()};return}advance()};
-if($('home'))$('home').onclick=()=>{idx=0;done=0;$('modal').classList.remove('show');render()};
-function setupPWAUpdate(){
-  if(!('serviceWorker' in navigator)||location.protocol==='file:')return;
-  let refreshing=false;
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(!refreshing){refreshing=true;window.location.reload()}
+// Complete Curriculum: 13 Swar + 33 Vyanjans + Conjuncts with phonic anchor words
+const lessons = [
+  // Swar (स्वर)
+  {c:'अ', sound:'a', word:'अनार', phonic:'अ से अनार'},
+  {c:'आ', sound:'aa', word:'आम', phonic:'आ से आम'},
+  {c:'इ', sound:'i', word:'इमली', phonic:'इ से इमली'},
+  {c:'ई', sound:'ee', word:'ईख', phonic:'ई से ईख'},
+  {c:'उ', sound:'u', word:'उल्लू', phonic:'उ से उल्लू'},
+  {c:'ऊ', sound:'oo', word:'ऊन', phonic:'ऊ से ऊन'},
+  {c:'ऋ', sound:'ri', word:'ऋषि', phonic:'ऋ से ऋषि'},
+  {c:'ए', sound:'e', word:'एड़ी', phonic:'ए से एड़ी'},
+  {c:'ऐ', sound:'ai', word:'ऐनक', phonic:'ऐ से ऐनक'},
+  {c:'ओ', sound:'o', word:'ओखली', phonic:'ओ से ओखली'},
+  {c:'औ', sound:'au', word:'औरत', phonic:'औ से औरत'},
+  {c:'अं', sound:'ang', word:'अंगूर', phonic:'अं से अंगूर'},
+  {c:'अः', sound:'aha', word:'प्रातः', phonic:'अः खाली'},
+  // Vyanjan (व्यंजन)
+  {c:'क', sound:'ka', word:'कमल', phonic:'क से कमल'},
+  {c:'ख', sound:'kha', word:'खरगोश', phonic:'ख से खरगोश'},
+  {c:'ग', sound:'ga', word:'गमला', phonic:'ग से गमला'},
+  {c:'घ', sound:'gha', word:'घर', phonic:'घ से घर'},
+  {c:'ङ', sound:'nga', word:'खाली', phonic:'ङ खाली'},
+  {c:'च', sound:'cha', word:'चम्मच', phonic:'च से चम्मच'},
+  {c:'छ', sound:'chha', word:'छतरी', phonic:'छ से छतरी'},
+  {c:'ज', sound:'ja', word:'जहाज', phonic:'ज से जहाज'},
+  {c:'झ', sound:'jha', word:'झंडा', phonic:'झ से झंडा'},
+  {c:'ञ', sound:'nya', word:'खाली', phonic:'ञ खाली'},
+  {c:'ट', sound:'ta', word:'टमाटर', phonic:'ट से टमाटर'},
+  {c:'ठ', sound:'tha', word:'ठठेरा', phonic:'ठ से ठठेरा'},
+  {c:'ड', sound:'da', word:'डमरू', phonic:'ड से डमरू'},
+  {c:'ढ', sound:'dha', word:'ढक्कन', phonic:'ढ से ढक्कन'},
+  {c:'ण', sound:'na', word:'खाली', phonic:'ण खाली'},
+  {c:'त', sound:'ta', word:'तितली', phonic:'त से तितली'},
+  {c:'थ', sound:'tha', word:'थर्मस', phonic:'थ से थर्मस'},
+  {c:'द', sound:'da', word:'दवात', phonic:'द से दवात'},
+  {c:'ध', sound:'dha', word:'धनुष', phonic:'ध से धनुष'},
+  {c:'न', sound:'na', word:'नल', phonic:'न से नल'},
+  {c:'प', sound:'pa', word:'पतंग', phonic:'प से पतंग'},
+  {c:'फ', sound:'pha', word:'फल', phonic:'फ से फल'},
+  {c:'ब', sound:'ba', word:'बत्तख', phonic:'ब से बत्तख'},
+  {c:'भ', sound:'bha', word:'भालू', phonic:'भ से भालू'},
+  {c:'म', sound:'ma', word:'मछली', phonic:'म से मछली'},
+  {c:'य', sound:'ya', word:'यज्ञ', phonic:'य से यज्ञ'},
+  {c:'र', sound:'ra', word:'रथ', phonic:'र से रथ'},
+  {c:'ल', sound:'la', word:'लट्टू', phonic:'ल से लट्टू'},
+  {c:'व', sound:'va', word:'वक', phonic:'व से वक'},
+  {c:'श', sound:'sha', word:'शलजम', phonic:'श से शलजम'},
+  {c:'ष', sound:'sha', word:'षट्कोण', phonic:'ष से षट्कोण'},
+  {c:'स', sound:'sa', word:'सेब', phonic:'स से सेब'},
+  {c:'ह', sound:'ha', word:'हाथी', phonic:'ह से हाथी'},
+  {c:'क्ष', sound:'ksha', word:'क्षत्रिय', phonic:'क्ष से क्षत्रिय'},
+  {c:'त्र', sound:'tra', word:'त्रिशूल', phonic:'त्र से त्रिशूल'},
+  {c:'ज्ञ', sound:'gya', word:'ज्ञानी', phonic:'ज्ञ से ज्ञानी'}
+];
+
+let idx = 0;
+let userStrokes = [];
+let currentStroke = null;
+let drawing = false;
+let last = null;
+
+// Scaffolded Watermark States
+let stageIndex = 0; // 0 = Trace, 1 = Ghost, 2 = Freehand
+let guideMode = 'auto'; // 'auto', 'on', 'off'
+let hintActive = false;
+let hintTimer = null;
+
+// Gamification & adaptive storage
+let bananas = parseInt(localStorage.getItem('rasari_bananas') || '0', 10);
+let struggleMap = JSON.parse(localStorage.getItem('rasari_struggle') || '{}');
+
+const $ = id => document.getElementById(id);
+const w = $('write'), ctx = w.getContext('2d');
+const g = $('guide'), gx = g.getContext('2d');
+
+$('bananaCount').textContent = bananas;
+
+function fit(c, x) {
+  let r = c.getBoundingClientRect(), d = devicePixelRatio || 1;
+  c.width = Math.max(1, Math.round(r.width * d));
+  c.height = Math.max(1, Math.round(r.height * d));
+  x.setTransform(d, 0, 0, d, 0, 0);
+}
+
+function updateStageUI() {
+  const stageLabels = ['Stage 1/3: Trace ✍️', 'Stage 2/3: Ghost 👻', 'Stage 3/3: Freehand ⭐'];
+  $('stageBadge').textContent = stageLabels[stageIndex];
+  if (guideMode === 'auto') {
+    $('guideModeBtn').textContent = '👁️ Auto';
+  } else if (guideMode === 'on') {
+    $('guideModeBtn').textContent = '👁️ ON';
+  } else {
+    $('guideModeBtn').textContent = '🕶️ OFF';
+  }
+}
+
+function drawPad() {
+  fit(w, ctx);
+  let ww = w.clientWidth, h = w.clientHeight;
+  ctx.clearRect(0, 0, ww, h);
+
+  // 3-tier school guidelines
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#7cbdf8';
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.18);
+  ctx.lineTo(ww, h * 0.18);
+  ctx.stroke();
+
+  ctx.setLineDash([9, 9]);
+  ctx.strokeStyle = '#b9dfff';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.5);
+  ctx.lineTo(ww, h * 0.5);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+  ctx.strokeStyle = '#ff8ca5';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.82);
+  ctx.lineTo(ww, h * 0.82);
+  ctx.stroke();
+
+  // Watermark alpha determination
+  let alpha = 0;
+  if (hintActive) {
+    alpha = 0.28;
+  } else if (guideMode === 'on') {
+    alpha = 0.22;
+  } else if (guideMode === 'off') {
+    alpha = 0;
+  } else {
+    // Auto mode: Stage 0 (Trace) = 0.22, Stage 1 (Ghost) = 0.05, Stage 2 (Freehand) = 0
+    if (stageIndex === 0) alpha = 0.22;
+    else if (stageIndex === 1) alpha = 0.05;
+    else alpha = 0;
+  }
+
+  if (alpha > 0) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#1c5e4c';
+    ctx.font = '700 ' + Math.floor(h * 0.63) + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(lessons[idx].c, ww / 2, h * 0.5);
+    ctx.restore();
+  }
+
+  // Redraw user strokes
+  ctx.save();
+  ctx.strokeStyle = '#173e33';
+  ctx.lineWidth = Math.max(4, ww * 0.007);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  userStrokes.forEach(stroke => {
+    if (!stroke || stroke.length === 0) return;
+    ctx.beginPath();
+    ctx.moveTo(stroke[0].x, stroke[0].y);
+    for (let i = 1; i < stroke.length; i++) {
+      ctx.lineTo(stroke[i].x, stroke[i].y);
+    }
+    if (stroke.length === 1) {
+      ctx.lineTo(stroke[0].x + 0.1, stroke[0].y + 0.1);
+    }
+    ctx.stroke();
   });
-  window.addEventListener('load',async()=>{
-    try{
-      const reg=await navigator.serviceWorker.register('./sw.js');
-      const toast=$('update-toast'),btn=$('update-btn');
-      function promptUpdate(worker){
-        if(!toast||!btn)return;
+  ctx.restore();
+}
+
+function drawGuide() {
+  fit(g, gx);
+  let ww = g.clientWidth, h = g.clientHeight;
+  gx.clearRect(0, 0, ww, h);
+  gx.fillStyle = '#fff8e4';
+  gx.fillRect(0, 0, ww, h);
+
+  let a = h * 0.22, b = h * 0.5, c = h * 0.8;
+  [[a, '#93d8f3', false], [b, '#b8dff0', true], [c, '#ff9aaa', false]].forEach(v => {
+    gx.beginPath();
+    gx.setLineDash(v[2] ? [6, 5] : []);
+    gx.strokeStyle = v[1];
+    gx.lineWidth = 2;
+    gx.moveTo(8, v[0]);
+    gx.lineTo(ww - 8, v[0]);
+    gx.stroke();
+  });
+  gx.setLineDash([]);
+
+  let band = c - a;
+  gx.fillStyle = '#102f25';
+  gx.font = '700 ' + Math.floor(band * 0.87) + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
+  gx.textAlign = 'center';
+  gx.textBaseline = 'middle';
+  gx.fillText(lessons[idx].c, ww * 0.5, (a + c) / 2);
+
+  // Stroke order arrow hint
+  gx.fillStyle = '#168ed4';
+  gx.beginPath();
+  gx.arc(20, a + 4, 10, 0, Math.PI * 2);
+  gx.fill();
+  gx.fillStyle = 'white';
+  gx.font = 'bold 11px sans-serif';
+  gx.fillText('1', 20, a + 4);
+
+  gx.strokeStyle = '#168ed4';
+  gx.lineWidth = 3;
+  gx.beginPath();
+  gx.moveTo(33, a + 4);
+  gx.lineTo(Math.min(ww - 15, 70), a + 4);
+  gx.lineTo(Math.min(ww - 21, 64), a - 2);
+  gx.moveTo(Math.min(ww - 15, 70), a + 4);
+  gx.lineTo(Math.min(ww - 21, 64), a + 10);
+  gx.stroke();
+}
+
+function render() {
+  const item = lessons[idx];
+  $('charGlyph').textContent = item.c;
+  $('anchorWord').textContent = item.word || '';
+  $('navLetter').textContent = item.c;
+  $('praise').textContent = '⭐ Great effort!';
+  updateStageUI();
+  drawPad();
+  drawGuide();
+
+  ['st1', 'st2', 'st3', 'st4'].forEach((id, i) => {
+    $(id).classList.toggle('active', i === (idx < 13 ? 0 : idx < 30 ? 1 : 2));
+  });
+}
+
+function pos(e) {
+  let r = w.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+w.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  drawing = true;
+  w.setPointerCapture(e.pointerId);
+  const p = pos(e);
+  last = p;
+  currentStroke = [p];
+  userStrokes.push(currentStroke);
+
+  ctx.strokeStyle = '#173e33';
+  ctx.lineWidth = Math.max(4, w.clientWidth * 0.007);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+  ctx.lineTo(p.x + 0.1, p.y + 0.1);
+  ctx.stroke();
+});
+
+w.addEventListener('pointermove', e => {
+  if (!drawing || !currentStroke) return;
+  e.preventDefault();
+  const p = pos(e);
+  currentStroke.push(p);
+
+  ctx.strokeStyle = '#173e33';
+  ctx.lineWidth = Math.max(4, w.clientWidth * 0.007);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(last.x, last.y);
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+  last = p;
+});
+
+['pointerup', 'pointercancel'].forEach(ev => {
+  w.addEventListener(ev, () => {
+    drawing = false;
+    currentStroke = null;
+    last = null;
+  });
+});
+
+function clearPad() {
+  userStrokes = [];
+  drawPad();
+}
+
+function speak() {
+  if ('speechSynthesis' in window) {
+    speechSynthesis.cancel();
+    let text = lessons[idx].phonic || (lessons[idx].c + ' से ' + lessons[idx].word);
+    let u = new SpeechSynthesisUtterance(text);
+    u.lang = 'hi-IN';
+    u.rate = 0.72;
+    speechSynthesis.speak(u);
+  }
+}
+
+// In-Browser Offline Handwriting Auto-Evaluator
+function evaluateHandwriting(targetChar) {
+  const S = 100;
+  const ww = w.clientWidth, h = w.clientHeight;
+  const totalPoints = userStrokes.reduce((acc, s) => acc + s.length, 0);
+  if (!userStrokes.length || totalPoints < 6) {
+    return { score: 0, pass: false, reason: 'empty' };
+  }
+
+  // 1. Offscreen target font mask
+  const tc = document.createElement('canvas');
+  tc.width = S; tc.height = S;
+  const tx = tc.getContext('2d');
+  tx.fillStyle = '#000'; tx.fillRect(0, 0, S, S);
+  tx.fillStyle = '#fff';
+  tx.font = '700 ' + Math.floor(S * 0.63) + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
+  tx.textAlign = 'center'; tx.textBaseline = 'middle';
+  tx.fillText(targetChar, S / 2, S * 0.5);
+  const tData = tx.getImageData(0, 0, S, S).data;
+  let tPixels = 0;
+  for (let i = 0; i < tData.length; i += 4) {
+    if (tData[i] > 100) tPixels++;
+  }
+  if (tPixels === 0) return { score: 100, pass: true };
+
+  // 2. Offscreen user drawing
+  const uc = document.createElement('canvas');
+  uc.width = S; uc.height = S;
+  const ux = uc.getContext('2d');
+  ux.fillStyle = '#000'; ux.fillRect(0, 0, S, S);
+  ux.strokeStyle = '#fff';
+  ux.lineWidth = Math.max(5, (ww * 0.007) * (S / ww));
+  ux.lineCap = 'round'; ux.lineJoin = 'round';
+
+  const scaleX = S / ww, scaleY = S / h;
+  userStrokes.forEach(str => {
+    if (!str.length) return;
+    ux.beginPath();
+    ux.moveTo(str[0].x * scaleX, str[0].y * scaleY);
+    for (let i = 1; i < str.length; i++) {
+      ux.lineTo(str[i].x * scaleX, str[i].y * scaleY);
+    }
+    if (str.length === 1) ux.lineTo(str[0].x * scaleX + 0.1, str[0].y * scaleY + 0.1);
+    ux.stroke();
+  });
+  const uData = ux.getImageData(0, 0, S, S).data;
+
+  // 3. Pixel comparison
+  let matched = 0, uPixels = 0, spill = 0;
+  for (let i = 0; i < uData.length; i += 4) {
+    const u = uData[i] > 100;
+    const t = tData[i] > 100;
+    if (u) uPixels++;
+    if (u && t) matched++;
+    if (u && !t) spill++;
+  }
+
+  const coverage = matched / tPixels;
+  const precision = uPixels > 0 ? (matched / uPixels) : 0;
+  const spillRatio = uPixels > 0 ? (spill / uPixels) : 0;
+
+  // Devanagari Shirorekha (top bar) check
+  let topBarHit = false;
+  const topBandEnd = Math.floor(S * 0.3);
+  for (let y = Math.floor(S * 0.12); y <= topBandEnd; y++) {
+    for (let x = Math.floor(S * 0.22); x <= Math.floor(S * 0.78); x++) {
+      if (uData[(y * S + x) * 4] > 100) {
+        topBarHit = true; break;
+      }
+    }
+    if (topBarHit) break;
+  }
+
+  let rawScore = (coverage * 0.65 + precision * 0.35) * 100;
+  if (coverage > 0.32 && spillRatio < 0.7) {
+    rawScore = Math.min(100, rawScore * 1.35);
+  }
+  if (!topBarHit && rawScore > 40) {
+    rawScore -= 12;
+  }
+  if (uPixels > (S * S * 0.42)) {
+    rawScore = Math.max(10, rawScore * 0.35);
+  }
+
+  const score = Math.round(Math.min(100, Math.max(0, rawScore)));
+  const pass = score >= 45 && coverage >= 0.28;
+
+  return { score, pass, coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
+}
+
+// Done Handler with Auto-Evaluation and Stage Progression
+$('done').onclick = () => {
+  if (!userStrokes.length) {
+    $('praise').textContent = 'Write the letter first ✍️';
+    return;
+  }
+
+  const result = evaluateHandwriting(lessons[idx].c);
+
+  if (!result.pass) {
+    $('praise').textContent = result.score > 25
+      ? 'Almost there! Follow the guide lines 💡'
+      : 'Try following the strokes in the guide ↶';
+    return;
+  }
+
+  const isFreehand = (guideMode === 'auto' && stageIndex === 2) || (guideMode === 'off');
+  let treatsEarned = isFreehand ? 3 : (stageIndex === 1 ? 2 : 1);
+  bananas += treatsEarned;
+  localStorage.setItem('rasari_bananas', bananas);
+  $('bananaCount').textContent = bananas;
+
+  // Update struggle & mastery tracker
+  const char = lessons[idx].c;
+  if (!struggleMap[char]) struggleMap[char] = { attempts: 0, passes: 0, freehand: false };
+  struggleMap[char].attempts++;
+  struggleMap[char].passes++;
+  if (isFreehand) struggleMap[char].freehand = true;
+  localStorage.setItem('rasari_struggle', JSON.stringify(struggleMap));
+
+  $('scoreBadge').textContent = `Match: ${result.score}% ` + (result.score >= 75 ? '⭐⭐⭐' : '⭐⭐');
+
+  if (isFreehand) {
+    $('mt').textContent = '🌟 Letter Mastered Freehand!';
+    $('mp').textContent = `You wrote ${lessons[idx].c} from memory! +${treatsEarned} bananas 🍌`;
+  } else {
+    $('mt').textContent = 'Great writing!';
+    $('mp').textContent = `You wrote ${lessons[idx].c} (+${treatsEarned} bananas 🍌)`;
+  }
+
+  if (guideMode === 'auto') {
+    stageIndex = (stageIndex + 1) % 3;
+    updateStageUI();
+  }
+
+  $('next').textContent = (stageIndex === 0) ? 'Next letter →' : 'Next level →';
+  $('modal').classList.add('show');
+};
+
+function advance() {
+  $('modal').classList.remove('show');
+  if (stageIndex === 0) {
+    idx = (idx + 1) % lessons.length;
+  }
+  clearPad();
+  render();
+}
+
+$('next').onclick = advance;
+
+// Toolbar button event handlers
+$('hintBtn').onclick = () => {
+  if (hintTimer) clearTimeout(hintTimer);
+  hintActive = true;
+  $('hintBtn').style.background = '#ffd066';
+  drawPad();
+  hintTimer = setTimeout(() => {
+    hintActive = false;
+    $('hintBtn').style.background = '#fff8df';
+    drawPad();
+  }, 3000);
+};
+
+const modes = ['auto', 'on', 'off'];
+$('guideModeBtn').onclick = () => {
+  const nextIdx = (modes.indexOf(guideMode) + 1) % modes.length;
+  guideMode = modes[nextIdx];
+  updateStageUI();
+  drawPad();
+};
+
+$('sound').onclick = speak;
+$('hear').onclick = speak;
+$('replay').onclick = drawGuide;
+$('erase').onclick = clearPad;
+$('retry').onclick = () => {
+  clearPad();
+  $('praise').textContent = 'Try again — you can do it!';
+};
+
+if ($('home')) {
+  $('home').onclick = () => {
+    idx = 0;
+    stageIndex = 0;
+    $('modal').classList.remove('show');
+    clearPad();
+    render();
+  };
+}
+
+window.addEventListener('resize', () => {
+  drawPad();
+  drawGuide();
+});
+
+// PWA Auto-Update Detection
+function setupPWAUpdate() {
+  if (!('serviceWorker' in navigator) || location.protocol === 'file:') return;
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
+  });
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('./sw.js');
+      const toast = $('update-toast'), btn = $('update-btn');
+      function promptUpdate(worker) {
+        if (!toast || !btn) return;
         toast.classList.add('show');
-        btn.onclick=()=>{
-          btn.disabled=true;
-          btn.textContent='Updating...';
-          worker.postMessage({type:'SKIP_WAITING'});
+        btn.onclick = () => {
+          btn.disabled = true;
+          btn.textContent = 'Updating...';
+          worker.postMessage({ type: 'SKIP_WAITING' });
         };
       }
-      if(reg.waiting)promptUpdate(reg.waiting);
-      reg.addEventListener('updatefound',()=>{
-        const w=reg.installing;
-        if(w){
-          w.addEventListener('statechange',()=>{
-            if(w.state==='installed'&&navigator.serviceWorker.controller){
+      if (reg.waiting) promptUpdate(reg.waiting);
+      reg.addEventListener('updatefound', () => {
+        const w = reg.installing;
+        if (w) {
+          w.addEventListener('statechange', () => {
+            if (w.state === 'installed' && navigator.serviceWorker.controller) {
               promptUpdate(w);
             }
           });
         }
       });
-      setInterval(()=>reg.update().catch(()=>{}),60000);
-      document.addEventListener('visibilitychange',()=>{
-        if(document.visibilityState==='visible')reg.update().catch(()=>{});
+      setInterval(() => reg.update().catch(() => {}), 60000);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') reg.update().catch(() => {});
       });
-    }catch(e){console.warn('SW register error',e)}
+    } catch (e) {
+      console.warn('SW register error', e);
+    }
   });
 }
+
 setupPWAUpdate();
 render();
-</script></body></html>
+</script>
+</body>
+</html>
