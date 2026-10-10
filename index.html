@@ -66,12 +66,11 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 
 
-/* Right Clue & Recall Card: Only the image and ONE big sound button */
-.clue-board{position:absolute;left:76.5%;top:25.5%;width:19.8%;height:34.5%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:5;pointer-events:auto;text-align:center;padding:6px;box-sizing:border-box}
-.clue-emoji{font-size:clamp(56px,7.5vw,94px);line-height:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.15));transition:transform .2s;cursor:pointer}
+
+/* Right Clue & Recall Card: Only the image in the clipboard */
+.clue-board{position:absolute;left:76.5%;top:25.5%;width:19.8%;height:35%;display:grid;place-items:center;z-index:5;pointer-events:auto;text-align:center;box-sizing:border-box}
+.clue-emoji{font-size:clamp(68px,8.5vw,110px);line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.15));transition:transform .2s cubic-bezier(.175,.885,.32,1.275);cursor:pointer}
 .clue-emoji:active{transform:scale(1.15)}
-.clue-sound-btn{width:clamp(54px,6vw,74px);height:clamp(54px,6vw,74px);border-radius:50%;background:#fff8df;border:3px solid #d4933b;box-shadow:0 4px 0 #b37322;font-size:clamp(26px,3.2vw,36px);display:grid;place-items:center;cursor:pointer;transition:transform .12s,box-shadow .12s}
-.clue-sound-btn:active{transform:translateY(2px);box-shadow:0 2px 0 #b37322}
 
 /* Disabled state for steps (e.g. Swars with no matra) */
 .step.disabled{opacity:0.35;pointer-events:none;filter:grayscale(1)}
@@ -232,12 +231,11 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <div class="guideheading" id="guideHeading"><span id="guideTitle">Visual Clue</span></div>
 <div class="clue-board" id="clueBoard">
   <div class="clue-emoji" id="clueEmoji">🍎</div>
-  <button class="clue-sound-btn" id="clueSoundBtn" aria-label="Hear clue sound">🔊</button>
 </div>
 <canvas id="guide" aria-label="Letter guide" style="display:none"></canvas>
 
 <button class="sidebtn erase" id="erase"><span class="ico">🧽</span>Erase</button>
-<button class="sidebtn retry" id="retry"><span class="ico">↶</span>Try again</button>
+<button class="sidebtn retry" id="clueSoundBtn"><span class="ico">🔊</span>Hear</button>
 
 <button class="prev-btn" id="prevBtn">⇦ Prev</button>
 <button class="bottombtn done" id="done">✓ I'm done!</button>
@@ -1043,7 +1041,6 @@ function updateLetterStar(c) {
     count += (m.matra ? 1 : 0);
     m.star = count === 3 ? 3 : (count === 2 ? 2 : (count >= 1 ? 1 : 0));
   } else {
-    // Swars only have Letter + Word
     m.star = count === 2 ? 3 : (count === 1 ? 2 : 0);
   }
   localStorage.setItem('rasari_mastery_v2', JSON.stringify(masteryData));
@@ -1183,7 +1180,6 @@ function drawPad() {
   const item = lessons[idx];
   const m = getLetterMastery(item.c);
 
-  // Scaffolding based on mastery
   let alpha = 0;
   if (hintActive) {
     alpha = 0.28;
@@ -1683,9 +1679,9 @@ $('guideModeBtn').onclick = () => {
 
 $('sound').onclick = speakLetter;
 $('letter').onclick = speakLetter;
+$('clueEmoji').onclick = speakClue;
 $('clueSoundBtn').onclick = speakClue;
 $('erase').onclick = clearPad;
-$('retry').onclick = clearPad;
 
 function goHome() {
   setLetter(0);
@@ -1762,21 +1758,18 @@ function render() {
   $('prevBtn').textContent = '⇦ ' + lessons[prevIdx].c;
   $('nextBtn').textContent = lessons[nextIdx].c + ' ⇨';
 
-  // Dynamic Stage Setup
+  // Dynamic Stage Setup (Right Clue: Pure Visual Clue, no text!)
   if (currentStep === 1) {
     // Stage 1: Letter Recall
     $('promptText').textContent = "Write letter " + item.c;
-    $('guideTitle').textContent = "Visual Clue";
     $('clueEmoji').textContent = item.emoji;
   } else if (currentStep === 2 && !item.isSwar) {
     // Stage 2: Matra Recall
     $('promptText').textContent = "Add matra to " + item.c;
-    $('guideTitle').textContent = "Visual Clue";
     $('clueEmoji').textContent = item.matra?.exEmoji || '🌿';
   } else if (currentStep === 3) {
     // Stage 3: Word Recall
     $('promptText').textContent = "Write word with " + item.c;
-    $('guideTitle').textContent = "Visual Clue";
     $('clueEmoji').textContent = item.emoji;
   }
 
