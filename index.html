@@ -201,6 +201,12 @@ function updateStageUI() {
   }
 }
 
+function getBrushWidth() {
+  const h = w.clientHeight;
+  const fontSize = Math.floor(h * 0.63);
+  return Math.max(16, Math.round(fontSize * 0.11));
+}
+
 function drawPad() {
   fit(w, ctx);
   let ww = w.clientWidth, h = w.clientHeight;
@@ -256,23 +262,28 @@ function drawPad() {
     ctx.restore();
   }
 
-  // Redraw user strokes
+  // Redraw user strokes with width matching the watermark
+  const bw = getBrushWidth();
   ctx.save();
   ctx.strokeStyle = '#173e33';
-  ctx.lineWidth = Math.max(4, ww * 0.007);
+  ctx.fillStyle = '#173e33';
+  ctx.lineWidth = bw;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   userStrokes.forEach(stroke => {
     if (!stroke || stroke.length === 0) return;
-    ctx.beginPath();
-    ctx.moveTo(stroke[0].x, stroke[0].y);
-    for (let i = 1; i < stroke.length; i++) {
-      ctx.lineTo(stroke[i].x, stroke[i].y);
-    }
     if (stroke.length === 1) {
-      ctx.lineTo(stroke[0].x + 0.1, stroke[0].y + 0.1);
+      ctx.beginPath();
+      ctx.arc(stroke[0].x, stroke[0].y, bw / 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(stroke[0].x, stroke[0].y);
+      for (let i = 1; i < stroke.length; i++) {
+        ctx.lineTo(stroke[i].x, stroke[i].y);
+      }
+      ctx.stroke();
     }
-    ctx.stroke();
   });
   ctx.restore();
 }
@@ -352,14 +363,15 @@ w.addEventListener('pointerdown', e => {
   currentStroke = [p];
   userStrokes.push(currentStroke);
 
+  const bw = getBrushWidth();
   ctx.strokeStyle = '#173e33';
-  ctx.lineWidth = Math.max(4, w.clientWidth * 0.007);
+  ctx.fillStyle = '#173e33';
+  ctx.lineWidth = bw;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.beginPath();
-  ctx.moveTo(p.x, p.y);
-  ctx.lineTo(p.x + 0.1, p.y + 0.1);
-  ctx.stroke();
+  ctx.arc(p.x, p.y, bw / 2, 0, Math.PI * 2);
+  ctx.fill();
 });
 
 w.addEventListener('pointermove', e => {
@@ -368,8 +380,9 @@ w.addEventListener('pointermove', e => {
   const p = pos(e);
   currentStroke.push(p);
 
+  const bw = getBrushWidth();
   ctx.strokeStyle = '#173e33';
-  ctx.lineWidth = Math.max(4, w.clientWidth * 0.007);
+  ctx.lineWidth = bw;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.beginPath();
@@ -434,19 +447,26 @@ function evaluateHandwriting(targetChar) {
   const ux = uc.getContext('2d');
   ux.fillStyle = '#000'; ux.fillRect(0, 0, S, S);
   ux.strokeStyle = '#fff';
-  ux.lineWidth = Math.max(5, (ww * 0.007) * (S / ww));
+  ux.fillStyle = '#fff';
+  const offscreenBw = Math.max(6, Math.round(S * 0.63 * 0.11));
+  ux.lineWidth = offscreenBw;
   ux.lineCap = 'round'; ux.lineJoin = 'round';
 
   const scaleX = S / ww, scaleY = S / h;
   userStrokes.forEach(str => {
     if (!str.length) return;
-    ux.beginPath();
-    ux.moveTo(str[0].x * scaleX, str[0].y * scaleY);
-    for (let i = 1; i < str.length; i++) {
-      ux.lineTo(str[i].x * scaleX, str[i].y * scaleY);
+    if (str.length === 1) {
+      ux.beginPath();
+      ux.arc(str[0].x * scaleX, str[0].y * scaleY, offscreenBw / 2, 0, Math.PI * 2);
+      ux.fill();
+    } else {
+      ux.beginPath();
+      ux.moveTo(str[0].x * scaleX, str[0].y * scaleY);
+      for (let i = 1; i < str.length; i++) {
+        ux.lineTo(str[i].x * scaleX, str[i].y * scaleY);
+      }
+      ux.stroke();
     }
-    if (str.length === 1) ux.lineTo(str[0].x * scaleX + 0.1, str[0].y * scaleY + 0.1);
-    ux.stroke();
   });
   const uData = ux.getImageData(0, 0, S, S).data;
 
