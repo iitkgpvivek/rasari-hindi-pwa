@@ -32,6 +32,10 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .modal{display:none;position:absolute;inset:0;z-index:10;background:#123b6c80;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.dialog{background:#fffdf5;border:5px solid white;border-radius:28px;text-align:center;padding:24px;max-width:400px;width:100%;box-shadow:0 7px 0 #bddbce}.dialog h2{font-size:30px;margin:0 0 8px}.dialog p{font-size:17px;margin:0 0 18px}.dialog button{border-radius:15px;background:#37b949;color:white;padding:12px 20px;font-size:17px;font-weight:800}
 @media(max-width:680px){.nav{left:22%;right:4%;top:6%}.step{font-size:9px}.circ{width:31px;height:31px;font-size:17px;border-width:3px}.prompt{font-size:12px}.letter{font-size:50px}.guideheading{font-size:10px}.guideheading button{width:20px;height:20px;font-size:12px}.sidebtn{font-size:10px}.praise{font-size:10px}.bottombtn{font-size:12px}.hint{display:none}}
 @media(max-aspect-ratio:1/1){.bg{object-fit:cover;object-position:center}.nav{left:20%;right:3%;top:6%}.prompt,.letter{display:none}#write{left:24%;top:30%;width:51%;height:45%}#guide{left:76%;width:21%}.praise{left:4%;width:25%}.hint{display:none}.done{left:35%;width:30%}.hear{left:67%;width:30%}}
+.update-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(160%);background:#0d2847;color:#ffffff;padding:8px 16px;border-radius:999px;box-shadow:0 10px 28px rgba(0,0,0,0.35);display:flex;align-items:center;gap:12px;font-size:clamp(12px,1.4vw,15px);font-weight:700;z-index:10000;transition:transform .35s cubic-bezier(.175,.885,.32,1.275);border:2px solid #ffca4f;pointer-events:none;opacity:0}
+.update-toast.show{transform:translateX(-50%) translateY(0);pointer-events:auto;opacity:1}
+.update-toast button{background:#39b84a;color:white;border:none;border-radius:999px;padding:6px 14px;font-size:clamp(12px,1.3vw,14px);font-weight:800;cursor:pointer;box-shadow:0 2px 0 #1e6e28}
+.update-toast button:active{transform:translateY(1px);box-shadow:none}
 </style></head><body><main class="app" id="app">
 <img class="bg" src="./background.jpg" alt="">
 <div class="logo" id="home" style="cursor:pointer"><span class="logoicon">र</span><span>rasari</span></div><div class="badge">⭐ 5-minute practice</div>
@@ -43,6 +47,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <div class="hint">Write here · follow the guide</div><div class="praise" id="praise">⭐ Great effort!</div>
 <button class="bottombtn done" id="done">✓ I'm done!</button><button class="bottombtn hear" id="hear">🔊 Hear again</button>
 <div class="modal" id="modal"><div class="dialog"><h2 id="mt">Great job!</h2><p id="mp">You practised क.</p><button id="next">Next letter →</button></div></div>
+<aside id="update-toast" class="update-toast" role="status" aria-live="polite"><span>✨ New version available!</span><button id="update-btn">Update Now ↻</button></aside>
 </main>
 <script>
 const lessons=[{c:'क',sound:'ka'},{c:'अ',sound:'a'},{c:'आ',sound:'aa'},{c:'इ',sound:'i'},{c:'ई',sound:'ee'},{c:'म',sound:'ma'},{c:'का',sound:'kaa'},{c:'कि',sound:'ki'},{c:'की',sound:'kee'},{c:'मा',sound:'maa'}];
@@ -63,6 +68,43 @@ $('done').onclick=()=>{if(!strokes){$('praise').textContent='Write the letter fi
 function advance(){$('modal').classList.remove('show');idx=(idx+1)%lessons.length;render()}
 $('next').onclick=()=>{if(done>=6){done=0;idx=0;$('mt').textContent='Fantastic work!';$('mp').textContent='You completed six writing tries.';$('next').textContent='Practise again';$('next').onclick=()=>{$('modal').classList.remove('show');$('next').onclick=advance;render()};return}advance()};
 if($('home'))$('home').onclick=()=>{idx=0;done=0;$('modal').classList.remove('show');render()};
-if('serviceWorker'in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+function setupPWAUpdate(){
+  if(!('serviceWorker' in navigator)||location.protocol==='file:')return;
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(!refreshing){refreshing=true;window.location.reload()}
+  });
+  window.addEventListener('load',async()=>{
+    try{
+      const reg=await navigator.serviceWorker.register('./sw.js');
+      const toast=$('update-toast'),btn=$('update-btn');
+      function promptUpdate(worker){
+        if(!toast||!btn)return;
+        toast.classList.add('show');
+        btn.onclick=()=>{
+          btn.disabled=true;
+          btn.textContent='Updating...';
+          worker.postMessage({type:'SKIP_WAITING'});
+        };
+      }
+      if(reg.waiting)promptUpdate(reg.waiting);
+      reg.addEventListener('updatefound',()=>{
+        const w=reg.installing;
+        if(w){
+          w.addEventListener('statechange',()=>{
+            if(w.state==='installed'&&navigator.serviceWorker.controller){
+              promptUpdate(w);
+            }
+          });
+        }
+      });
+      setInterval(()=>reg.update().catch(()=>{}),60000);
+      document.addEventListener('visibilitychange',()=>{
+        if(document.visibilityState==='visible')reg.update().catch(()=>{});
+      });
+    }catch(e){console.warn('SW register error',e)}
+  });
+}
+setupPWAUpdate();
 render();
 </script></body></html>
