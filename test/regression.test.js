@@ -217,10 +217,22 @@ test('Bottom pills use << and >> symbols with centered larger typography', () =>
   assert(!prevBtnStyle[1].includes('clamp(14px,1.8vw,23px)'), '.prev-btn font size must be increased');
 });
 
-test('Accurate visual illustrations provided (Anaar is not an Apple)', () => {
+test('Accurate visual illustrations provided (Anaar is not an Apple, Yagya is not a Diya, Rath is not a Wheel, Hal is not a Crop)', () => {
   assert(html.includes('const ILLUSTRATIONS = {'), 'Must have custom illustrations dictionary');
   assert(html.includes('"अनार":'), 'Must have accurate illustration for अनार');
+  assert(html.includes('"यज्ञ":'), 'Must have Hawan Kund illustration for यज्ञ (not a Diya)');
+  assert(html.includes('"रथ":'), 'Must have Royal Chariot illustration for रथ (not a tire/wheel)');
+  assert(html.includes('"हल":'), 'Must have Farmer Plow illustration for हल (not a crop icon)');
+  assert(html.includes('"डमरू":'), 'Must have Shiva Damru illustration for डमरू');
   assert(html.includes('renderClue(item,'), 'render function must call renderClue');
+
+  // Verify all 49 core curriculum words are covered in ILLUSTRATIONS
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const lessonsMatch = scriptContent.match(/const lessons = (\[[\s\S]*?\]);/);
+  const lessons = JSON.parse(lessonsMatch[1]);
+  lessons.forEach(l => {
+    assert(html.includes(`"${l.word}":`), `ILLUSTRATIONS must include custom vector for "${l.word}" (${l.c})`);
+  });
 });
 
 console.log('\n----------------------------------------------------');
