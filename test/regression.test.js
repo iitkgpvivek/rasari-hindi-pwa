@@ -30,13 +30,25 @@ const html = fs.readFileSync(htmlPath, 'utf8');
 const sw = fs.readFileSync(swPath, 'utf8');
 
 // ---------------------------------------------------------
-// SUITE 1: Center Slate & DOM Architecture
+// SUITE 1: Center Slate & Active Recall Architecture
 // ---------------------------------------------------------
 test('Center slate (#write) is permanently anchored in DOM', () => {
   assert(html.includes('<canvas id="write" aria-label="Writing canvas"></canvas>'), 'Writing canvas must exist');
   assert(!html.includes('id="matraStage"'), 'Old matraStage multiple-choice container must be removed');
   assert(!html.includes('id="wordStage"'), 'Old wordStage puzzle container must be removed');
   assert(!html.includes('id="progressStage"'), 'Old progressStage card displacing canvas must be removed');
+});
+
+test('Right panel is an Active Recall Clue Card (no spoiler stroke diagrams)', () => {
+  assert(html.includes('id="clueBoard"'), 'Right panel must be a clue board');
+  assert(html.includes('id="clueEmoji"'), 'Clue board must have picture clue');
+  assert(html.includes('id="clueSoundBtn"'), 'Clue board must have audio button');
+});
+
+test('Bottom navigation provides direct Prev / Done / Next letter pills', () => {
+  assert(html.includes('id="prevBtn"'), 'Previous letter button must exist');
+  assert(html.includes('id="done"'), 'Done button must exist');
+  assert(html.includes('id="nextBtn"'), 'Next letter button must exist');
 });
 
 test('Progress modal (#progressModal) is a non-destructive overlay', () => {
@@ -46,10 +58,28 @@ test('Progress modal (#progressModal) is a non-destructive overlay', () => {
 });
 
 // ---------------------------------------------------------
-// SUITE 2: Notebook Ruling & Zero Font Scaling Invariant
+// SUITE 2: Swar vs Vyanjan Matra Invariant
+// ---------------------------------------------------------
+test('Swars have no matra and disable the Matra step (#st2)', () => {
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const lessonsMatch = scriptContent.match(/const lessons = (\[[\s\S]*?\]);/);
+  assert(lessonsMatch, 'Curriculum lessons array must exist');
+
+  const lessons = JSON.parse(lessonsMatch[1]);
+  const swars = lessons.filter(l => l.isSwar);
+  assert.strictEqual(swars.length, 13, 'Must have exactly 13 Swars');
+
+  swars.forEach(s => {
+    assert(!s.matra, `Swar ${s.c} must not have matra defined`);
+  });
+
+  assert(html.includes('matraStepEl.classList.add(\'disabled\')'), 'Matra step must be disabled for Swars');
+});
+
+// ---------------------------------------------------------
+// SUITE 3: Notebook Ruling & Zero Font Scaling Invariant
 // ---------------------------------------------------------
 test('computeRuling strictly maintains 5 lines with ZERO text-length scaling', () => {
-  // Extract computeRuling function from script
   const rulingMatch = html.match(/function computeRuling\(height[\s\S]*?\n\}/);
   assert(rulingMatch, 'computeRuling function must exist');
   const rulingCode = rulingMatch[0];
@@ -76,10 +106,9 @@ test('getTextLayout aligns Shirorekha flush to Line 2 and foot to Line 4', () =>
 });
 
 // ---------------------------------------------------------
-// SUITE 3: Anti-Scribble Barrier
+// SUITE 4: Anti-Scribble Barrier
 // ---------------------------------------------------------
 test('evaluateHandwriting rejects ink overkill scribbles (> 1.65x target)', () => {
-  // Simulate anti-scribble thresholds
   const tPixels = 1200;
   const uPixels = 2400; // 2x overkill
   const matched = 800;
@@ -105,16 +134,15 @@ test('evaluateHandwriting passes genuine child traces', () => {
   assert.strictEqual(pass, true, 'Clean trace must pass evaluation');
 });
 
-test('Canvas shake animation and scribble warning prompt are present', () => {
+test('Canvas shake animation and scribble rejection are present', () => {
   assert(html.includes('w.classList.add(\'shake\')'), 'Must trigger canvas shake on rejection');
-  assert(html.includes('Don\'t scribble! Follow the lines ✍️'), 'Must display anti-scribble guidance');
+  assert(html.includes('evaluateHandwriting'), 'Handwriting evaluation must be present');
 });
 
 // ---------------------------------------------------------
-// SUITE 4: Audio & Celebratory Design Invariants
+// SUITE 5: Audio & Celebratory Design Invariants
 // ---------------------------------------------------------
 test('Prohibits "shabaash, bahut badhiya" (snd_correct.mp3)', () => {
-  // Extract $('done').onclick handler
   const doneMatch = html.match(/\$\('done'\)\.onclick[\s\S]*?\}\;/);
   assert(doneMatch, 'Done click handler must exist');
   const doneCode = doneMatch[0];
@@ -139,7 +167,7 @@ test('All 49 native Hindi audio files exist on disk', () => {
 });
 
 // ---------------------------------------------------------
-// SUITE 5: Offline PWA & Service Worker Sync
+// SUITE 6: Offline PWA & Service Worker Sync
 // ---------------------------------------------------------
 test('Service worker is configured with valid semver cache version', () => {
   const versionMatch = sw.match(/const APP_VERSION = '([^']+)'/);

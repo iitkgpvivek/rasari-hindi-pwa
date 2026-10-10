@@ -52,14 +52,22 @@ Children often scribble in frustration or playfulness. The handwriting evaluator
 
 ---
 
-## 5. Offline PWA & Service Worker Rules
+## 5. Active Recall (Retrieval Practice) & Swar-Matra Rules
+1. **NO Spoiler Stroke Diagrams:** The right card MUST NOT draw the solved stroke diagram or spell out the word. It must show ONLY the visual/audio clue (e.g. 🥭 Picture + sound button). The child must construct the word in their own head.
+2. **Hint On Demand:** Only when child explicitly taps `💡 Hint` does a faint guide watermark temporarily appear on the writing slate for 3 seconds.
+3. **Swar vs Vyanjan Invariant:** Swars (`अ` to `अः`) DO NOT take matras. When a Swar is in focus, the Matra tab (`#st2`) MUST be disabled. Vyanjans cycle across diverse Grade 1 matras (`ा, ि, ी, ु, ू, े, ो`).
+4. **Direct Bottom Navigation:** Bottom pills provide `⇦ Prev Letter` and `Next Letter ⇨` direct navigation, alongside the central `✓ I'm done!` button.
+
+---
+
+## 6. Offline PWA & Service Worker Rules
 1. The app MUST operate completely offline without external CDNs or API calls.
-2. Any commit that updates `index.html` or assets MUST bump `APP_VERSION` in `sw.js` (e.g., `1.6.1` -> `1.6.2`).
+2. Any commit that updates `index.html` or assets MUST bump `APP_VERSION` in `sw.js` (e.g., `1.7.0`).
 3. The PWA toast (`#update-toast`) must notify the tablet of new service worker updates.
 
 ---
 
-## 6. Regression Testing
+## 7. Regression Testing
 Run the automated test suite before committing any changes:
 ```bash
 npm test
