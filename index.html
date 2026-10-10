@@ -65,13 +65,13 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .score-badge{margin-bottom:10px;display:inline-block;padding:5px 14px;border-radius:999px;background:#ffefc2;color:#7e5200;font-weight:800;font-size:15px;border:1px solid #ffd276}
 
 
-/* Right Clue & Recall Card */
-.clue-board{position:absolute;left:76.5%;top:25.5%;width:19.8%;height:34.5%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;z-index:5;pointer-events:auto;text-align:center;padding:6px;box-sizing:border-box}
-.clue-emoji{font-size:clamp(46px,6vw,72px);line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.12));transition:transform .2s}
+
+/* Right Clue & Recall Card: Only the image and ONE big sound button */
+.clue-board{position:absolute;left:76.5%;top:25.5%;width:19.8%;height:34.5%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:5;pointer-events:auto;text-align:center;padding:6px;box-sizing:border-box}
+.clue-emoji{font-size:clamp(56px,7.5vw,94px);line-height:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.15));transition:transform .2s;cursor:pointer}
 .clue-emoji:active{transform:scale(1.15)}
-.clue-subtitle{font-size:clamp(11px,1.3vw,16px);font-weight:800;color:#5a3f12;background:#fff8df;padding:2px 10px;border-radius:999px;border:1px solid #ebcf9b}
-.clue-sound-btn{margin-top:2px;background:#e5f7f2;border:1.5px solid #0f7a66;border-radius:999px;padding:3px 10px;font-size:clamp(10px,1.1vw,13px);font-weight:800;color:#0f7a66;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
-.clue-sound-btn:active{transform:scale(0.95)}
+.clue-sound-btn{width:clamp(54px,6vw,74px);height:clamp(54px,6vw,74px);border-radius:50%;background:#fff8df;border:3px solid #d4933b;box-shadow:0 4px 0 #b37322;font-size:clamp(26px,3.2vw,36px);display:grid;place-items:center;cursor:pointer;transition:transform .12s,box-shadow .12s}
+.clue-sound-btn:active{transform:translateY(2px);box-shadow:0 2px 0 #b37322}
 
 /* Disabled state for steps (e.g. Swars with no matra) */
 .step.disabled{opacity:0.35;pointer-events:none;filter:grayscale(1)}
@@ -218,7 +218,6 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <div class="prompt" id="promptText">Write this letter</div>
 <div class="letter" id="letter">
   <span id="charGlyph">अ</span>
-  <span class="anchorword" id="anchorWord">🔊 अनार</span>
 </div>
 <button class="soundleft" id="sound" aria-label="Hear letter"></button>
 
@@ -230,11 +229,10 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 <canvas id="write" aria-label="Writing canvas"></canvas>
 
-<div class="guideheading" id="guideHeading"><span id="guideTitle">💡 Clue & Sound</span> <button id="replay" aria-label="Replay clue sound">🔊</button></div>
+<div class="guideheading" id="guideHeading"><span id="guideTitle">Visual Clue</span></div>
 <div class="clue-board" id="clueBoard">
-  <div class="clue-emoji" id="clueEmoji">🪷</div>
-  <div class="clue-subtitle" id="clueSubtitle">Write letter क</div>
-  <button class="clue-sound-btn" id="clueSoundBtn">🔊 Hear Sound</button>
+  <div class="clue-emoji" id="clueEmoji">🍎</div>
+  <button class="clue-sound-btn" id="clueSoundBtn" aria-label="Hear clue sound">🔊</button>
 </div>
 <canvas id="guide" aria-label="Letter guide" style="display:none"></canvas>
 
@@ -493,7 +491,7 @@ const lessons = [
       "sym": "ा",
       "name": "आ की मात्रा (ा)",
       "combo": "चा",
-      "exWord": "चाय",
+      "exWord": "चावल",
       "exEmoji": "☕",
       "hint": "च + ा = चा"
     }
@@ -833,7 +831,7 @@ const lessons = [
       "sym": "ा",
       "name": "आ की मात्रा (ा)",
       "combo": "या",
-      "exWord": "याद",
+      "exWord": "याक",
       "exEmoji": "💭",
       "hint": "य + ा = या"
     }
@@ -1194,7 +1192,6 @@ function drawPad() {
   } else if (guideMode === 'off') {
     alpha = 0;
   } else {
-    // Auto Mode: check performance for this step
     const stepPassed = (currentStep === 1 && m.recall) ||
                        (currentStep === 2 && m.matra) ||
                        (currentStep === 3 && m.word);
@@ -1358,7 +1355,6 @@ function speakClue() {
     setTimeout(() => clueEmoji.style.transform = 'scale(1)', 400);
   }
 
-  // Play letter phonic sound
   playSnd(item.audio);
 }
 
@@ -1609,7 +1605,6 @@ $('done').onclick = () => {
   $('scoreBadge').textContent = 'Match: ' + result.score + '% ' + (result.score >= 75 ? '⭐⭐⭐' : '⭐⭐');
 
   if (currentStep === 1) {
-    // Mode 1: Today's Letter progression
     const nextIdx = (idx + 1) % lessons.length;
     $('mt').textContent = '🌟 Letter Written!';
     $('mp').textContent = 'Awesome! You wrote ' + char + '! (+' + treatsEarned + ' bananas 🍌)';
@@ -1619,7 +1614,6 @@ $('done').onclick = () => {
       setLetter(nextIdx);
     };
   } else if (currentStep === 2) {
-    // Mode 2: Matra progression
     let nextIdx = (idx + 1) % lessons.length;
     while (lessons[nextIdx].isSwar) {
       nextIdx = (nextIdx + 1) % lessons.length;
@@ -1632,7 +1626,6 @@ $('done').onclick = () => {
       setLetter(nextIdx);
     };
   } else if (currentStep === 3) {
-    // Mode 3: Word progression
     const nextIdx = (idx + 1) % lessons.length;
     $('mt').textContent = '🎉 Word Mastered!';
     $('mp').textContent = 'Brilliant! You wrote ' + lessons[idx].word + '! (+' + treatsEarned + ' bananas 🍌)';
@@ -1650,7 +1643,6 @@ $('done').onclick = () => {
 $('prevBtn').onclick = () => {
   let prevIdx = (idx - 1 + lessons.length) % lessons.length;
   if (currentStep === 2) {
-    // If in Matra mode, skip Swars
     while (lessons[prevIdx].isSwar) {
       prevIdx = (prevIdx - 1 + lessons.length) % lessons.length;
     }
@@ -1661,7 +1653,6 @@ $('prevBtn').onclick = () => {
 $('nextBtn').onclick = () => {
   let nextIdx = (idx + 1) % lessons.length;
   if (currentStep === 2) {
-    // If in Matra mode, skip Swars
     while (lessons[nextIdx].isSwar) {
       nextIdx = (nextIdx + 1) % lessons.length;
     }
@@ -1693,7 +1684,6 @@ $('guideModeBtn').onclick = () => {
 $('sound').onclick = speakLetter;
 $('letter').onclick = speakLetter;
 $('clueSoundBtn').onclick = speakClue;
-$('replay').onclick = speakClue;
 $('erase').onclick = clearPad;
 $('retry').onclick = clearPad;
 
@@ -1721,18 +1711,15 @@ function setLetter(newIdx) {
   idx = newIdx;
   const item = lessons[idx];
 
-  // If currently in Matra step but switched to a Swar, redirect to Step 1
   if (item.isSwar && currentStep === 2) {
     currentStep = 1;
   }
 
-  // Update Bottom Nav Pills with letter names
   let prevIdx = (idx - 1 + lessons.length) % lessons.length;
   let nextIdx = (idx + 1) % lessons.length;
   $('prevBtn').textContent = '⇦ ' + lessons[prevIdx].c;
   $('nextBtn').textContent = lessons[nextIdx].c + ' ⇨';
 
-  // Update Swar-Matra Top Sky Tab state
   const matraStepEl = $('st2');
   if (item.isSwar) {
     matraStepEl.classList.add('disabled');
@@ -1765,7 +1752,7 @@ function render() {
   const item = lessons[idx];
   const m = getLetterMastery(item.c);
 
-  // Left Callout: ALWAYS the Anchor Letter in Focus!
+  // Left Callout: ONLY the action to be done and the focus letter!
   $('charGlyph').textContent = item.c;
   $('navLetter').textContent = item.c;
 
@@ -1779,28 +1766,18 @@ function render() {
   if (currentStep === 1) {
     // Stage 1: Letter Recall
     $('promptText').textContent = "Write letter " + item.c;
-    $('anchorWord').textContent = item.emoji + ' ' + (item.word || '');
-    $('guideTitle').textContent = "💡 Clue & Sound";
+    $('guideTitle').textContent = "Visual Clue";
     $('clueEmoji').textContent = item.emoji;
-    $('clueSubtitle').textContent = item.phonic || (item.c + ' से ' + item.word);
-    $('clueSoundBtn').textContent = "🔊 Hear " + item.c;
   } else if (currentStep === 2 && !item.isSwar) {
     // Stage 2: Matra Recall
-    const combo = item.matra?.combo || item.c;
     $('promptText').textContent = "Add matra to " + item.c;
-    $('anchorWord').textContent = item.matra?.sym ? (item.c + ' + ' + item.matra.sym) : '';
-    $('guideTitle').textContent = "🌿 Matra Clue";
+    $('guideTitle').textContent = "Visual Clue";
     $('clueEmoji').textContent = item.matra?.exEmoji || '🌿';
-    $('clueSubtitle').textContent = item.matra?.hint || (item.c + ' + ' + item.matra?.sym + ' = ?');
-    $('clueSoundBtn').textContent = "🔊 Hear " + combo;
   } else if (currentStep === 3) {
-    // Stage 3: Word Recall (NO SPOILERS! Picture Clue Only)
+    // Stage 3: Word Recall
     $('promptText').textContent = "Write word with " + item.c;
-    $('anchorWord').textContent = item.emoji;
-    $('guideTitle').textContent = "🧩 Picture Clue";
+    $('guideTitle').textContent = "Visual Clue";
     $('clueEmoji').textContent = item.emoji;
-    $('clueSubtitle').textContent = "What is this picture?";
-    $('clueSoundBtn').textContent = "🔊 Hear Word";
   }
 
   // Update Stage Badge

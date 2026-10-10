@@ -39,10 +39,13 @@ test('Center slate (#write) is permanently anchored in DOM', () => {
   assert(!html.includes('id="progressStage"'), 'Old progressStage card displacing canvas must be removed');
 });
 
-test('Right panel is an Active Recall Clue Card (no spoiler stroke diagrams)', () => {
+test('Right panel is an Active Recall Clue Card (no spoiler stroke diagrams, single sound button)', () => {
   assert(html.includes('id="clueBoard"'), 'Right panel must be a clue board');
   assert(html.includes('id="clueEmoji"'), 'Clue board must have picture clue');
   assert(html.includes('id="clueSoundBtn"'), 'Clue board must have audio button');
+  assert(!html.includes('id="anchorWord"'), 'Left side must have no image or anchor word text');
+  assert(!html.includes('id="clueSubtitle"'), 'Right panel must have no text');
+  assert(!html.includes('id="replay"'), 'Must have only ONE sound button on the right');
 });
 
 test('Bottom navigation provides direct Prev / Done / Next letter pills', () => {
