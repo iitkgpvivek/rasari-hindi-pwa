@@ -68,46 +68,116 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .update-toast.show{transform:translateX(-50%) translateY(0);pointer-events:auto;opacity:1}
 .update-toast button{background:#39b84a;color:white;border:none;border-radius:999px;padding:6px 14px;font-size:clamp(12px,1.3vw,14px);font-weight:800;cursor:pointer;box-shadow:0 2px 0 #1e6e28}
 
-/* Station Cards for Steps 2, 3, 4 */
-.station-card{position:absolute;left:27.5%;top:19.5%;width:45.8%;height:56.5%;background:#fffef9;border:3px solid #144b78;border-radius:18px;box-shadow:inset 0 2px 8px rgba(0,0,0,0.06),0 6px 16px rgba(0,0,0,0.12);display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:12px;z-index:6;box-sizing:border-box}
-.station-title{font-size:clamp(12px,1.4vw,17px);font-weight:800;color:#0f7a66;background:#e5f7f2;border:1.5px solid #0f7a66;padding:3px 12px;border-radius:999px;display:flex;align-items:center;gap:6px}
-.station-formula{display:flex;align-items:center;justify-content:center;gap:10px;margin:4px 0;width:100%}
-.formula-box{width:clamp(44px,5.6vw,68px);height:clamp(44px,5.6vw,68px);border-radius:14px;background:#f7f9fd;border:3px solid #144b78;display:grid;place-items:center;font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(26px,3.4vw,44px);font-weight:800;color:#103d70;box-shadow:0 3px 0 #bdd0e6}
-.formula-box.slot-target{border-style:dashed;border-color:#e67e22;background:#fff8ee;color:#e67e22}
-.formula-box.filled{border-style:solid;border-color:#27ae60;background:#ebfbee;color:#27ae60;animation:popIn .3s cubic-bezier(.175,.885,.32,1.275)}
-.formula-sign{font-size:clamp(20px,2.6vw,30px);font-weight:800;color:#889bb2}
-.station-prompt{font-size:clamp(12px,1.3vw,16px);font-weight:700;color:#553c12;text-align:center;margin:2px 0}
-.options-grid{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:4px}
-.opt-tile{min-width:clamp(44px,5.4vw,64px);height:clamp(44px,5.4vw,64px);padding:0 8px;border-radius:14px;background:#fff8df;border:3px solid #d4933b;box-shadow:0 3px 0 #b37322;font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(22px,3vw,36px);font-weight:800;color:#78450d;display:grid;place-items:center;cursor:pointer;transition:transform .12s,background .15s}
-.opt-tile:active{transform:translateY(2px);box-shadow:0 1px 0 #b37322}
-.opt-tile.wrong{background:#ffd5d5;border-color:#d93838;box-shadow:0 3px 0 #a82020;animation:shake .4s}
-.opt-tile.correct{background:#d5ffd9;border-color:#27ae60;box-shadow:0 3px 0 #1b7a42}
+/* Progress Sticker Book Modal & Animations */
+@keyframes canvasShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+#write.shake {
+  animation: canvasShake 0.4s ease-in-out;
+}
 
-/* Progress / Mastery Screen */
-.progress-card{position:absolute;left:27.5%;top:19.5%;width:69%;height:56.5%;background:#fffef7;border:3px solid #144b78;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,0.18);display:flex;flex-direction:column;padding:12px;z-index:25;box-sizing:border-box}
-.prog-head{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #ebdfce;padding-bottom:6px}
-.prog-title{font-size:clamp(14px,1.6vw,19px);font-weight:800;color:#144b78;display:flex;align-items:center;gap:6px}
-.prog-close{border-radius:50%;width:28px;height:28px;background:#eef2f7;color:#144b78;font-size:15px;font-weight:800;cursor:pointer}
-.prog-stats{display:flex;align-items:gap;gap:6px;margin:5px 0;font-size:clamp(10px,1.1vw,13px);font-weight:800;flex-wrap:wrap}
-.stat-pill{padding:2px 8px;border-radius:999px;background:#f0f4f9;color:#1b4d7c;border:1px solid #d4dfec}
-.stat-pill.gold{background:#fff8db;color:#8f610a;border-color:#f3d26b}
-.stat-pill.red{background:#ffebee;color:#b71c1c;border-color:#ffcdd2}
-.prog-tabs{display:flex;gap:5px;margin:3px 0}
-.prog-tab{padding:3px 10px;border-radius:999px;background:#edf2f7;color:#4a627a;font-size:clamp(9px,1vw,12px);font-weight:800;cursor:pointer}
-.prog-tab.active{background:#0f7a66;color:white}
-.matrix-grid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(58px,7vw,78px),1fr));gap:6px;padding:6px 2px}
-.matrix-card{background:white;border:2px solid #ccdbe8;border-radius:10px;padding:5px 3px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .12s,box-shadow .12s;box-shadow:0 2px 4px rgba(0,0,0,0.04)}
-.matrix-card:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.1)}
-.matrix-char{font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(20px,2.6vw,28px);font-weight:800;color:#103d70;line-height:1}
-.matrix-thumb{font-size:14px;margin:1px 0}
-.matrix-stars{font-size:11px}
-.matrix-skills{display:flex;gap:3px;margin-top:2px}
-.skill-dot{width:5px;height:5px;border-radius:50%;background:#d8e2ec}
-.skill-dot.done{background:#27ae60}
-.matrix-card.gold-card{border-color:#f1c40f;background:#fffdf0}
-.matrix-card.weak-card{border-color:#e74c3c;background:#fff5f5}
-@keyframes popIn{0%{transform:scale(0.5);opacity:0}80%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.sticker-modal-dialog {
+  background: #fffef7;
+  border: 5px solid white;
+  border-radius: 28px;
+  text-align: center;
+  padding: 18px;
+  max-width: 580px;
+  width: 94%;
+  box-shadow: 0 8px 0 #b2d5e7;
+  display: flex;
+  flex-direction: column;
+  max-height: 86vh;
+}
+.sticker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #ebdfce;
+  padding-bottom: 8px;
+}
+.sticker-head h2 {
+  margin: 0;
+  font-size: clamp(18px, 2.2vw, 24px);
+  color: #144b78;
+}
+.sticker-close {
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  background: #eef2f7;
+  color: #144b78;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.sticker-stats {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+  font-size: 13px;
+  font-weight: 800;
+  flex-wrap: wrap;
+}
+.stat-pill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #f0f4f9;
+  color: #1b4d7c;
+  border: 1px solid #d4dfec;
+}
+.stat-pill.gold {
+  background: #fff8db;
+  color: #8f610a;
+  border-color: #f3d26b;
+}
+.sticker-grid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 8px;
+  padding: 8px 2px;
+}
+.sticker-card {
+  background: white;
+  border: 2px solid #ccdbe8;
+  border-radius: 12px;
+  padding: 6px 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform .12s, box-shadow .12s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+.sticker-card:active {
+  transform: scale(0.95);
+}
+.sticker-char {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: #103d70;
+  line-height: 1.1;
+}
+.sticker-thumb {
+  font-size: 14px;
+  margin: 1px 0;
+}
+.sticker-stars {
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.sticker-card.gold-card {
+  border-color: #f1c40f;
+  background: #fffdf0;
+  box-shadow: 0 0 0 1px #f1c40f;
+}
 
 @media(max-width:680px){.nav{left:22%;right:4%;top:6%}.step{font-size:9px}.circ{width:31px;height:31px;font-size:17px;border-width:3px}.prompt{font-size:11px}.letter{font-size:42px}.toolbar-top{left:28%;gap:4px}.stage-badge,.ctrl-pill{font-size:9px;padding:2px 6px}.guideheading{font-size:10px}.sidebtn{font-size:10px}.praise{font-size:10px}.bottombtn{font-size:14px}}
 @media(max-aspect-ratio:1/1){.bg{object-fit:cover;object-position:center}}
@@ -142,40 +212,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 <canvas id="write" aria-label="Writing canvas"></canvas>
 
-<!-- Station 2: Matra Combining Lab -->
-<div id="matraStage" class="station-card" style="display:none">
-  <div class="station-title">🌿 मात्रा जोड़ो (Combine Matra)</div>
-  <div class="station-formula" id="matraFormula"></div>
-  <div class="station-prompt" id="matraPrompt"></div>
-  <div class="options-grid" id="matraOptions"></div>
-</div>
-
-<!-- Station 3: Word Builder -->
-<div id="wordStage" class="station-card" style="display:none">
-  <div class="station-title">🧩 शब्द बनाओ (Build Word)</div>
-  <div style="font-size:clamp(34px,4.5vw,52px);line-height:1" id="wordEmoji">🪷</div>
-  <div class="station-formula" id="wordFormula"></div>
-  <div class="station-prompt" id="wordPrompt"></div>
-  <div class="options-grid" id="wordOptions"></div>
-</div>
-
-<!-- Station 4: Mastery Dashboard Matrix -->
-<div id="progressStage" class="progress-card" style="display:none">
-  <div class="prog-head">
-    <div class="prog-title">🏆 अक्षर मास्टरी (Letter Mastery)</div>
-    <button class="prog-close" id="progClose" aria-label="Close">✕</button>
-  </div>
-  <div class="prog-stats" id="progStats"></div>
-  <div class="prog-tabs">
-    <button class="prog-tab active" data-filter="all">सभी (All)</button>
-    <button class="prog-tab" data-filter="swar">स्वर (13)</button>
-    <button class="prog-tab" data-filter="vyanjan">व्यंजन (36)</button>
-    <button class="prog-tab" data-filter="weak">⚠️ Needs Practice</button>
-  </div>
-  <div class="matrix-grid" id="matrixGrid"></div>
-</div>
-
-<div class="guideheading" id="guideHeading">See how to write <button id="replay" aria-label="Replay guide">↻</button></div>
+<div class="guideheading" id="guideHeading"><span id="guideTitle">See how to write</span> <span id="guideThumb" style="margin-left:5px">🪷</span> <button id="replay" aria-label="Replay guide">↻</button></div>
 <canvas id="guide" aria-label="Letter guide"></canvas>
 
 <button class="sidebtn erase" id="erase"><span class="ico">🧽</span>Erase</button>
@@ -195,6 +232,21 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
   </div>
 </div>
 
+
+<div class="modal" id="progressModal">
+  <div class="dialog sticker-modal-dialog">
+    <div class="sticker-head">
+      <h2>🏆 My Letter Stars ⭐</h2>
+      <button class="sticker-close" id="closeProgressBtn" aria-label="Close">✕</button>
+    </div>
+    <div class="sticker-stats">
+      <span class="stat-pill gold">🌟 Mastered: <span id="masteredCount">0</span>/49</span>
+      <span class="stat-pill">🍌 <span id="treatCount">0</span> treats</span>
+    </div>
+    <div class="sticker-grid" id="stickerGrid"></div>
+  </div>
+</div>
+
 <aside id="update-toast" class="update-toast" role="status" aria-live="polite">
   <span>✨ New version available!</span>
   <button id="update-btn">Update Now ↻</button>
@@ -202,7 +254,8 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 </main>
 
 <script>
-// Curriculum: 13 Swar + 36 Vyanjan with Matra & Word Puzzle bank
+
+// Curriculum: 13 Swar + 36 Vyanjan with Matra & Word Targets
 const lessons = [
   {
     "c": "अ",
@@ -1945,10 +1998,9 @@ const lessons = [
   }
 ];
 
-
 // App State
 let idx = 0;
-let currentStep = 1; // 1 = Letter Recall, 2 = Matra Combining, 3 = Word Puzzle, 4 = Progress
+let currentStep = 1; // 1 = Letter Recall, 2 = Matra Writing, 3 = Word Writing
 let userStrokes = [];
 let currentStroke = null;
 let drawing = false;
@@ -1958,7 +2010,6 @@ let stageIndex = 0; // 0 = Trace, 1 = Ghost, 2 = Freehand
 let guideMode = 'auto'; // 'auto', 'on', 'off'
 let hintActive = false;
 let hintTimer = null;
-let currentMatrixFilter = 'all';
 
 let bananas = parseInt(localStorage.getItem('rasari_bananas') || '0', 10);
 let masteryData = JSON.parse(localStorage.getItem('rasari_mastery_v2') || '{}');
@@ -1984,11 +2035,19 @@ function updateLetterStar(c) {
   return m.star;
 }
 
-function fit(c, x) {
-  let r = c.getBoundingClientRect(), d = devicePixelRatio || 1;
-  c.width = Math.max(1, Math.round(r.width * d));
-  c.height = Math.max(1, Math.round(r.height * d));
-  x.setTransform(d, 0, 0, d, 0, 0);
+function getTargetText() {
+  const item = lessons[idx];
+  if (!item) return '';
+  if (currentStep === 2) return (item.matra && item.matra.combo) || item.c;
+  if (currentStep === 3) return (item.puzzle && item.puzzle.word) || item.word || item.c;
+  return item.c;
+}
+
+function fit(canvas, context) {
+  const r = canvas.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.round(r.width * d));
+  canvas.height = Math.max(1, Math.round(r.height * d));
+  context.setTransform(d, 0, 0, d, 0, 0);
 }
 
 function updateStageUI() {
@@ -1997,7 +2056,7 @@ function updateStageUI() {
   $('guideModeBtn').textContent = guideMode === 'auto' ? '👁️ Auto' : (guideMode === 'on' ? '👁️ ON' : '🕶️ OFF');
 }
 
-function computeRuling(height) {
+function computeRuling(height, text = '') {
   const line1 = Math.round(height * 0.22);
   const line2 = Math.round(height * 0.38);
   const line3 = Math.round(height * 0.55);
@@ -2005,8 +2064,14 @@ function computeRuling(height) {
   const line5 = Math.round(height * 0.88);
 
   const bodyHeight = line4 - line2;
-  const fontSize = Math.round(bodyHeight / 0.68);
-  const brushWidth = Math.max(16, Math.round(fontSize * 0.11));
+  const baseFontSize = Math.round(bodyHeight / 0.68);
+
+  let scale = 1.0;
+  if (text.length >= 3) scale = 0.72;
+  else if (text.length === 2) scale = 0.88;
+
+  const fontSize = Math.round(baseFontSize * scale);
+  const brushWidth = Math.max(15, Math.round(fontSize * 0.11));
 
   return { line1, line2, line3, line4, line5, bodyHeight, fontSize, brushWidth };
 }
@@ -2078,19 +2143,19 @@ function drawNotebookLines(context, width, ruling, isGuide = false) {
 }
 
 function getBrushWidth() {
-  const r = computeRuling(w.clientHeight);
+  const targetText = getTargetText();
+  const r = computeRuling(w.clientHeight, targetText);
   return r.brushWidth;
 }
 
 function drawPad() {
   fit(w, ctx);
-  let ww = w.clientWidth, h = w.clientHeight;
+  const ww = w.clientWidth, h = w.clientHeight;
   ctx.clearRect(0, 0, ww, h);
 
-  const ruling = computeRuling(h);
+  const targetText = getTargetText();
+  const ruling = computeRuling(h, targetText);
   drawNotebookLines(ctx, ww, ruling, false);
-
-  const char = lessons[idx].c;
 
   let alpha = 0;
   if (hintActive) {
@@ -2105,17 +2170,19 @@ function drawPad() {
     else alpha = 0;
   }
 
-  if (alpha > 0) {
+  // Draw Watermark
+  if (alpha > 0 && targetText) {
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.fillStyle = '#1c5e4c';
     ctx.font = '700 ' + ruling.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    ctx.fillText(char, ww / 2, ruling.line4);
+    ctx.fillText(targetText, ww / 2, ruling.line4);
     ctx.restore();
   }
 
+  // Draw User Strokes
   const bw = ruling.brushWidth;
   ctx.save();
   ctx.strokeStyle = '#173e33';
@@ -2143,22 +2210,23 @@ function drawPad() {
 
 function drawGuide() {
   fit(g, gx);
-  let ww = g.clientWidth, h = g.clientHeight;
+  const ww = g.clientWidth, h = g.clientHeight;
   gx.clearRect(0, 0, ww, h);
 
-  const ruling = computeRuling(h);
+  const targetText = getTargetText();
+  const ruling = computeRuling(h, targetText);
   drawNotebookLines(gx, ww, ruling, true);
 
-  const char = lessons[idx].c;
-
+  // Model text
   gx.save();
   gx.fillStyle = '#102f25';
   gx.font = '700 ' + ruling.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
   gx.textAlign = 'center';
   gx.textBaseline = 'alphabetic';
-  gx.fillText(char, ww / 2, ruling.line4);
+  gx.fillText(targetText, ww / 2, ruling.line4);
 
-  const badgeX = Math.round(ww * 0.18);
+  // Stroke number indicator
+  const badgeX = Math.round(ww * 0.16);
   const badgeY = ruling.line2;
   gx.fillStyle = '#168ed4';
   gx.beginPath();
@@ -2184,7 +2252,7 @@ function drawGuide() {
 }
 
 function pos(e) {
-  let r = w.getBoundingClientRect();
+  const r = w.getBoundingClientRect();
   return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
@@ -2248,11 +2316,8 @@ function preloadAudio() {
       audioMap[item.audio] = a;
     }
   });
-  ['audio/snd_correct.mp3', 'audio/snd_tryagain.mp3'].forEach(src => {
-    const a = new Audio();
-    a.src = src;
-    audioMap[src] = a;
-  });
+  const aTry = new Audio('audio/snd_tryagain.mp3');
+  audioMap['audio/snd_tryagain.mp3'] = aTry;
 }
 preloadAudio();
 
@@ -2285,12 +2350,75 @@ function speak() {
     }, 500);
   }
 
+  // Play natural native Hindi audio for the letter
   playSnd(item.audio);
 }
 
+// High-Energy Confetti Particle System
+const confettiCanvas = document.createElement('canvas');
+confettiCanvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999;display:none';
+document.body.appendChild(confettiCanvas);
+const cfx = confettiCanvas.getContext('2d');
+let confettiParticles = [];
+let confettiAnimId = null;
+
+function triggerConfetti() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+  confettiCanvas.style.display = 'block';
+
+  confettiParticles = [];
+  const colors = ['#f1c40f', '#e67e22', '#2ecc71', '#3498db', '#e91e63', '#9b59b6'];
+  for (let i = 0; i < 90; i++) {
+    confettiParticles.push({
+      x: window.innerWidth * (0.3 + Math.random() * 0.4),
+      y: window.innerHeight * 0.65,
+      vx: (Math.random() - 0.5) * 16,
+      vy: -Math.random() * 14 - 6,
+      w: Math.random() * 10 + 6,
+      h: Math.random() * 6 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      tilt: Math.random() * 10,
+      tiltSpeed: Math.random() * 0.15 + 0.05,
+      gravity: 0.45
+    });
+  }
+
+  let frames = 0;
+  function updateConfetti() {
+    cfx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    frames++;
+
+    confettiParticles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += p.gravity;
+      p.tilt += p.tiltSpeed;
+
+      cfx.save();
+      cfx.translate(p.x, p.y);
+      cfx.rotate(p.tilt);
+      cfx.fillStyle = p.color;
+      cfx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      cfx.restore();
+    });
+
+    if (frames < 110) {
+      confettiAnimId = requestAnimationFrame(updateConfetti);
+    } else {
+      confettiCanvas.style.display = 'none';
+      cfx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      cancelAnimationFrame(confettiAnimId);
+    }
+  }
+
+  if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+  updateConfetti();
+}
+
 // Discriminative Handwriting Auto-Evaluator with Anti-Scribble Barrier
-function evaluateHandwriting(targetChar) {
-  const S = 120;
+function evaluateHandwriting(targetString) {
+  const S = 140;
   const ww = w.clientWidth, h = w.clientHeight;
   const totalPoints = userStrokes.reduce((acc, s) => acc + s.length, 0);
 
@@ -2304,11 +2432,11 @@ function evaluateHandwriting(targetChar) {
   const tx = tc.getContext('2d');
   tx.fillStyle = '#000'; tx.fillRect(0, 0, S, S);
   tx.fillStyle = '#fff';
-  const tRuling = computeRuling(S);
+  const tRuling = computeRuling(S, targetString);
   tx.font = '700 ' + tRuling.fontSize + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif';
   tx.textAlign = 'center';
   tx.textBaseline = 'alphabetic';
-  tx.fillText(targetChar, S / 2, tRuling.line4);
+  tx.fillText(targetString, S / 2, tRuling.line4);
   let tData = tx.getImageData(0, 0, S, S).data;
 
   let tPixels = 0;
@@ -2317,8 +2445,8 @@ function evaluateHandwriting(targetChar) {
   }
 
   if (tPixels < 30) {
-    tx.font = 'bold ' + Math.round(S * 0.52) + 'px sans-serif';
-    tx.fillText(targetChar, S / 2, Math.round(S * 0.72));
+    tx.font = 'bold ' + Math.round(S * 0.48) + 'px sans-serif';
+    tx.fillText(targetString, S / 2, Math.round(S * 0.72));
     tData = tx.getImageData(0, 0, S, S).data;
     tPixels = 0;
     for (let i = 0; i < tData.length; i += 4) {
@@ -2384,19 +2512,19 @@ function evaluateHandwriting(targetChar) {
   const iou = union > 0 ? (matched / union) : 0;
 
   // ANTI-SCRIBBLE BARRIER:
-  // Reject if drawn ink is > 2.0x target letter size
-  if (uPixels > tPixels * 2.0) {
+  // Reject if drawn ink exceeds 1.65x the target letter size
+  if (uPixels > tPixels * 1.65) {
     return { score: 10, pass: false, reason: 'scribble', coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
   }
 
-  // Reject if precision < 32% (drawn all over empty space)
-  if (precision < 0.32) {
-    return { score: Math.round(precision * 45), pass: false, reason: 'scribble', coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
+  // Reject if precision < 35% (strokes drawn mostly in blank negative space)
+  if (precision < 0.35) {
+    return { score: Math.round(precision * 40), pass: false, reason: 'scribble', coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
   }
 
   // Devanagari Top Bar (Shirorekha) check
-  const targetHasTopBar = (tZones[0] + tZones[1] + tZones[2]) / tPixels > 0.18;
-  const userHasTopBar = uPixels > 0 ? ((uZones[0] + uZones[1] + uZones[2]) / uPixels > 0.14) : false;
+  const targetHasTopBar = (tZones[0] + tZones[1] + tZones[2]) / tPixels > 0.16;
+  const userHasTopBar = uPixels > 0 ? ((uZones[0] + uZones[1] + uZones[2]) / uPixels > 0.12) : false;
   let structurePenalty = 0;
   if (targetHasTopBar && !userHasTopBar) {
     structurePenalty = 25;
@@ -2405,8 +2533,8 @@ function evaluateHandwriting(targetChar) {
   // Spill penalty for stray strokes
   const spillRatio = spill / tPixels;
   let spillPenalty = 0;
-  if (spillRatio > 0.80) {
-    spillPenalty = Math.min(30, Math.round((spillRatio - 0.80) * 45));
+  if (spillRatio > 0.75) {
+    spillPenalty = Math.min(30, Math.round((spillRatio - 0.75) * 45));
   }
 
   let score = Math.round(
@@ -2418,35 +2546,35 @@ function evaluateHandwriting(targetChar) {
   );
   score = Math.max(0, Math.min(100, score));
 
-  const pass = score >= 52 && coverage >= 0.40 && precision >= 0.34 && iou >= 0.24 && (uPixels <= tPixels * 2.0);
+  const pass = score >= 50 && coverage >= 0.38 && precision >= 0.34 && iou >= 0.22 && (uPixels <= tPixels * 1.65);
 
   return {
     score,
     pass,
-    reason: pass ? 'ok' : (precision < 0.35 || uPixels > tPixels * 1.9 ? 'scribble' : 'mismatch'),
+    reason: pass ? 'ok' : (precision < 0.35 || uPixels > tPixels * 1.65 ? 'scribble' : 'mismatch'),
     iou: Math.round(iou * 100),
     coverage: Math.round(coverage * 100),
     precision: Math.round(precision * 100)
   };
 }
 
-// Done Handler for Step 1
+// Done Handler for Writing
 $('done').onclick = () => {
-  if (currentStep !== 1) {
-    setStep(currentStep + 1);
-    return;
-  }
-
   if (!userStrokes.length) {
     $('praise').textContent = 'Write the letter first ✍️';
     return;
   }
 
-  const result = evaluateHandwriting(lessons[idx].c);
+  const targetText = getTargetText();
+  const result = evaluateHandwriting(targetText);
 
   if (!result.pass) {
+    // Visual shake on canvas
+    w.classList.add('shake');
+    setTimeout(() => w.classList.remove('shake'), 450);
+
     if (result.reason === 'scribble') {
-      $('praise').textContent = "Don't scribble! Trace the letter lines ✍️";
+      $('praise').textContent = "Don't scribble! Follow the lines ✍️";
       playSnd('audio/snd_tryagain.mp3');
     } else {
       $('praise').textContent = result.score > 25
@@ -2457,7 +2585,9 @@ $('done').onclick = () => {
     return;
   }
 
-  playSnd('audio/snd_correct.mp3');
+  // Passing writing celebration with confetti!
+  triggerConfetti();
+
   const isFreehand = (guideMode === 'auto' && stageIndex === 2) || (guideMode === 'off');
   let treatsEarned = isFreehand ? 3 : (stageIndex === 1 ? 2 : 1);
   bananas += treatsEarned;
@@ -2468,17 +2598,48 @@ $('done').onclick = () => {
   const m = getLetterMastery(char);
   m.attempts++;
   m.passes++;
-  m.recall = true;
-  updateLetterStar(char);
+
+  if (currentStep === 1) m.recall = true;
+  else if (currentStep === 2) m.matra = true;
+  else if (currentStep === 3) m.word = true;
+
+  const starCount = updateLetterStar(char);
 
   $('scoreBadge').textContent = 'Match: ' + result.score + '% ' + (result.score >= 75 ? '⭐⭐⭐' : '⭐⭐');
 
-  if (isFreehand) {
-    $('mt').textContent = '🌟 Letter Recalled Freehand!';
-    $('mp').textContent = 'You wrote ' + char + ' from memory! (+' + treatsEarned + ' bananas 🍌)';
-  } else {
-    $('mt').textContent = 'Great writing!';
-    $('mp').textContent = 'You wrote ' + char + ' (+' + treatsEarned + ' bananas 🍌)';
+  if (currentStep === 1) {
+    $('mt').textContent = isFreehand ? '🌟 Letter Written Freehand!' : 'Great Writing!';
+    $('mp').textContent = 'You wrote ' + char + '! (+' + treatsEarned + ' bananas 🍌)';
+    $('next').textContent = 'Next: Write with Matra (' + lessons[idx].matra.combo + ') →';
+    $('next').onclick = () => {
+      $('modal').classList.remove('show');
+      setStep(2);
+    };
+  } else if (currentStep === 2) {
+    $('mt').textContent = '🌿 Matra Written!';
+    $('mp').textContent = 'You wrote ' + lessons[idx].matra.combo + ' (' + lessons[idx].matra.exWord + ')! (+' + treatsEarned + ' bananas 🍌)';
+    const nextWord = (lessons[idx].puzzle && lessons[idx].puzzle.word) || lessons[idx].word;
+    $('next').textContent = 'Next: Write the Word (' + nextWord + ') →';
+    $('next').onclick = () => {
+      $('modal').classList.remove('show');
+      setStep(3);
+    };
+  } else if (currentStep === 3) {
+    const wordTarget = (lessons[idx].puzzle && lessons[idx].puzzle.word) || lessons[idx].word;
+    if (starCount === 3) {
+      $('mt').textContent = '👑 Letter Mastered 100%!';
+      $('scoreBadge').textContent = '⭐⭐⭐ 3 GOLD STARS ⭐⭐⭐';
+      $('mp').textContent = 'Awesome! You mastered ' + char + ' across Letter, Matra, and Word! (+' + (treatsEarned + 2) + ' bananas 🍌)';
+    } else {
+      $('mt').textContent = '🎉 Word Completed!';
+      $('mp').textContent = 'You wrote ' + wordTarget + '! (+' + treatsEarned + ' bananas 🍌)';
+    }
+    $('next').textContent = 'Next Letter →';
+    $('next').onclick = () => {
+      $('modal').classList.remove('show');
+      idx = (idx + 1) % lessons.length;
+      setStep(1);
+    };
   }
 
   if (guideMode === 'auto') {
@@ -2486,11 +2647,6 @@ $('done').onclick = () => {
     updateStageUI();
   }
 
-  $('next').textContent = 'Next: Add Matra →';
-  $('next').onclick = () => {
-    $('modal').classList.remove('show');
-    setStep(2);
-  };
   $('modal').classList.add('show');
 };
 
@@ -2499,7 +2655,6 @@ function advance() {
   idx = (idx + 1) % lessons.length;
   clearPad();
   setStep(1);
-  render();
 }
 
 $('next').onclick = advance;
@@ -2542,7 +2697,6 @@ function goHome() {
   $('modal').classList.remove('show');
   clearPad();
   setStep(1);
-  render();
 }
 
 if ($('home')) $('home').onclick = goHome;
@@ -2557,316 +2711,99 @@ window.addEventListener('resize', () => {
 $('st1').onclick = () => setStep(1);
 $('st2').onclick = () => setStep(2);
 $('st3').onclick = () => setStep(3);
-$('st4').onclick = () => setStep(4);
+$('st4').onclick = () => openProgressStickers();
 
 function setStep(stepNum) {
   currentStep = stepNum;
-  ['st1', 'st2', 'st3', 'st4'].forEach((id, i) => {
+  ['st1', 'st2', 'st3'].forEach((id, i) => {
     $(id).classList.toggle('active', i === stepNum - 1);
   });
+  $('st4').classList.remove('active');
 
   const item = lessons[idx];
-
-  $('matraStage').style.display = 'none';
-  $('wordStage').style.display = 'none';
-  $('progressStage').style.display = 'none';
+  clearPad();
 
   if (stepNum === 1) {
-    // Step 1: Letter Recall Gym
-    $('write').style.display = 'block';
-    $('toolbarTop').style.display = 'flex';
-    $('guideHeading').style.display = 'flex';
-    $('guide').style.display = 'block';
-    $('erase').style.display = 'flex';
-    $('retry').style.display = 'flex';
-    $('praise').style.display = 'flex';
-    $('done').style.display = 'flex';
-    $('hear').style.display = 'flex';
-    $('done').textContent = "✓ I'm done!";
-
+    // Step 1: Letter Recall
     $('promptText').textContent = "Write this letter";
     $('charGlyph').textContent = item.c;
-    $('anchorWord').textContent = item.emoji + ' ' + item.word;
-
-    drawPad();
-    drawGuide();
+    $('anchorWord').textContent = item.emoji + ' ' + (item.word || '');
+    $('guideTitle').textContent = "See: " + item.c;
+    $('guideThumb').textContent = item.emoji;
+    $('praise').textContent = "⭐ Write " + item.c;
   } else if (stepNum === 2) {
-    // Step 2: Matra Combining Lab
-    $('write').style.display = 'none';
-    $('toolbarTop').style.display = 'none';
-    $('guideHeading').style.display = 'none';
-    $('guide').style.display = 'none';
-    $('erase').style.display = 'none';
-    $('retry').style.display = 'none';
-    $('praise').style.display = 'flex';
-    $('done').style.display = 'none';
-    $('hear').style.display = 'flex';
-
-    $('promptText').textContent = "Combine the Matra";
-    $('charGlyph').textContent = item.matra.combo || item.c;
+    // Step 2: Matra Writing
+    const combo = (item.matra && item.matra.combo) || item.c;
+    $('promptText').textContent = "Write with Matra";
+    $('charGlyph').textContent = combo;
     $('anchorWord').textContent = item.matra.exEmoji + ' ' + item.matra.exWord;
-
-    renderMatraStage(item);
+    $('guideTitle').textContent = "See: " + combo;
+    $('guideThumb').textContent = item.matra.exEmoji;
+    $('praise').textContent = "⭐ Write " + combo + " (" + item.matra.exWord + ")";
   } else if (stepNum === 3) {
-    // Step 3: Word Builder
-    $('write').style.display = 'none';
-    $('toolbarTop').style.display = 'none';
-    $('guideHeading').style.display = 'none';
-    $('guide').style.display = 'none';
-    $('erase').style.display = 'none';
-    $('retry').style.display = 'none';
-    $('praise').style.display = 'flex';
-    $('done').style.display = 'none';
-    $('hear').style.display = 'flex';
-
-    $('promptText').textContent = "Make the word";
-    $('charGlyph').textContent = item.c;
-    $('anchorWord').textContent = item.puzzle.emoji + ' ' + item.puzzle.word;
-
-    renderWordStage(item);
-  } else if (stepNum === 4) {
-    // Step 4: Progress Mastery Matrix
-    renderProgressStage();
-  }
-}
-
-function renderMatraStage(item) {
-  const stage = $('matraStage');
-  stage.style.display = 'flex';
-
-  const isSwar = idx < 13;
-  const m = item.matra;
-  const formulaEl = $('matraFormula');
-  const promptEl = $('matraPrompt');
-  const optsEl = $('matraOptions');
-
-  $('praise').textContent = 'Tap the matching matra 💡';
-
-  if (isSwar) {
-    formulaEl.innerHTML = '<div class="formula-box">' + item.c + '</div>' +
-      '<div class="formula-sign">➔</div>' +
-      '<div class="formula-box slot-target" id="matraTargetSlot">?</div>' +
-      '<div class="formula-sign">=</div>' +
-      '<div class="formula-box" style="font-size:32px">' + m.exEmoji + '</div>';
-    promptEl.textContent = 'स्वर ' + item.c + ' की सही मात्रा चुनो (' + m.exWord + ' ' + m.exEmoji + ')';
-  } else {
-    formulaEl.innerHTML = '<div class="formula-box">' + item.c + '</div>' +
-      '<div class="formula-sign">+</div>' +
-      '<div class="formula-box slot-target" id="matraTargetSlot">?</div>' +
-      '<div class="formula-sign">=</div>' +
-      '<div class="formula-box" style="font-size:clamp(22px,3vw,34px)">' + m.combo + ' ' + m.exEmoji + '</div>';
-    promptEl.textContent = item.c + ' में सही मात्रा जोड़कर \'' + m.exWord + '\' बनाओ!';
+    // Step 3: Word Writing
+    const targetWord = (item.puzzle && item.puzzle.word) || item.word;
+    const targetEmoji = (item.puzzle && item.puzzle.emoji) || item.emoji;
+    $('promptText').textContent = "Write this word";
+    $('charGlyph').textContent = targetWord;
+    $('anchorWord').textContent = targetEmoji + ' ' + targetWord;
+    $('guideTitle').textContent = "Word: " + targetWord;
+    $('guideThumb').textContent = targetEmoji;
+    $('praise').textContent = "⭐ Write " + targetWord;
   }
 
-  const shuffled = [...m.opts].sort(() => Math.random() - 0.5);
-  optsEl.innerHTML = '';
-  shuffled.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'opt-tile';
-    btn.textContent = opt;
-    btn.onclick = () => {
-      if (opt === m.sym) {
-        btn.classList.add('correct');
-        const targetSlot = $('matraTargetSlot');
-        if (targetSlot) {
-          targetSlot.textContent = opt;
-          targetSlot.classList.remove('slot-target');
-          targetSlot.classList.add('filled');
-        }
-        playSnd('audio/snd_correct.mp3');
-        bananas += 2;
-        localStorage.setItem('rasari_bananas', bananas);
-        $('bananaCount').textContent = bananas;
-
-        const char = item.c;
-        const letterM = getLetterMastery(char);
-        letterM.matra = true;
-        updateLetterStar(char);
-
-        $('praise').textContent = '🌟 बहुत बढ़िया! Matra Mastered!';
-
-        setTimeout(() => {
-          $('mt').textContent = '🌿 Matra Combined!';
-          $('scoreBadge').textContent = item.c + ' + ' + m.sym + ' = ' + m.combo + ' (' + m.exWord + ' ' + m.exEmoji + ')';
-          $('mp').textContent = 'Super! You earned +2 bananas 🍌';
-          $('next').textContent = 'Next: Build Word →';
-          $('next').onclick = () => {
-            $('modal').classList.remove('show');
-            setStep(3);
-          };
-          $('modal').classList.add('show');
-        }, 600);
-      } else {
-        btn.classList.add('wrong');
-        playSnd('audio/snd_tryagain.mp3');
-        $('praise').textContent = 'Try again! Look at the sound ↶';
-        setTimeout(() => btn.classList.remove('wrong'), 500);
-      }
-    };
-    optsEl.appendChild(btn);
-  });
+  drawPad();
+  drawGuide();
 }
 
-function renderWordStage(item) {
-  const stage = $('wordStage');
-  stage.style.display = 'flex';
+function openProgressStickers() {
+  const modal = $('progressModal');
+  if (!modal) return;
 
-  const p = item.puzzle;
-  $('wordEmoji').textContent = p.emoji;
-  $('praise').textContent = 'Find the missing letter 🧩';
-
-  const formulaEl = $('wordFormula');
-  const promptEl = $('wordPrompt');
-  const optsEl = $('wordOptions');
-
-  promptEl.textContent = 'चित्र देखकर शब्द पूरा करो (' + p.word + ' ' + p.emoji + ')';
-
-  formulaEl.innerHTML = '';
-  p.slots.forEach((s, i) => {
-    const box = document.createElement('div');
-    if (i === p.missing) {
-      box.className = 'formula-box slot-target';
-      box.id = 'wordTargetSlot';
-      box.textContent = '?';
-    } else {
-      box.className = 'formula-box';
-      box.textContent = s;
-    }
-    formulaEl.appendChild(box);
-  });
-
-  const correctLetter = p.slots[p.missing];
-  const shuffled = [...p.opts].sort(() => Math.random() - 0.5);
-
-  optsEl.innerHTML = '';
-  shuffled.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'opt-tile';
-    btn.textContent = opt;
-    btn.onclick = () => {
-      if (opt === correctLetter) {
-        btn.classList.add('correct');
-        const targetSlot = $('wordTargetSlot');
-        if (targetSlot) {
-          targetSlot.textContent = opt;
-          targetSlot.classList.remove('slot-target');
-          targetSlot.classList.add('filled');
-        }
-        playSnd('audio/snd_correct.mp3');
-
-        bananas += 3;
-        localStorage.setItem('rasari_bananas', bananas);
-        $('bananaCount').textContent = bananas;
-
-        const char = item.c;
-        const letterM = getLetterMastery(char);
-        letterM.word = true;
-        const stars = updateLetterStar(char);
-
-        $('praise').textContent = '🌟 शानदार! Word Complete!';
-
-        setTimeout(() => {
-          if (stars === 3) {
-            $('mt').textContent = '👑 Letter Mastered 100%!';
-            $('scoreBadge').textContent = '⭐⭐⭐ GOLD STAR ⭐⭐⭐';
-            $('mp').textContent = 'Awesome! You mastered ' + item.c + ' in Writing, Matras, and Words! (+5 bananas 🍌)';
-          } else {
-            $('mt').textContent = '🎉 Word Completed!';
-            $('scoreBadge').textContent = 'Word: ' + p.word + ' ' + p.emoji;
-            $('mp').textContent = 'Great effort! Keep going for 3 stars!';
-          }
-          $('next').textContent = 'Next Letter →';
-          $('next').onclick = () => {
-            $('modal').classList.remove('show');
-            idx = (idx + 1) % lessons.length;
-            setStep(1);
-            render();
-          };
-          $('modal').classList.add('show');
-        }, 700);
-      } else {
-        btn.classList.add('wrong');
-        playSnd('audio/snd_tryagain.mp3');
-        $('praise').textContent = 'Not quite! Look at the picture ↶';
-        setTimeout(() => btn.classList.remove('wrong'), 500);
-      }
-    };
-    optsEl.appendChild(btn);
-  });
-}
-
-function renderProgressStage() {
-  const stage = $('progressStage');
-  stage.style.display = 'flex';
-
-  let masteredCount = 0, inProgressCount = 0, weakCount = 0;
+  let masteredCount = 0;
   lessons.forEach(l => {
     const m = getLetterMastery(l.c);
     if (m.star === 3) masteredCount++;
-    else if (m.star >= 1) inProgressCount++;
-    else weakCount++;
   });
 
-  const statsEl = $('progStats');
-  statsEl.innerHTML = '<span class="stat-pill gold">🌟 Mastered: ' + masteredCount + '/49</span>' +
-    '<span class="stat-pill">⏳ Learning: ' + inProgressCount + '/49</span>' +
-    '<span class="stat-pill red">⚠️ Needs Practice: ' + weakCount + '/49</span>' +
-    '<span class="stat-pill">🍌 ' + bananas + ' treats</span>';
+  $('masteredCount').textContent = masteredCount;
+  $('treatCount').textContent = bananas;
 
-  const tabs = document.querySelectorAll('.prog-tab');
-  tabs.forEach(tab => {
-    tab.classList.toggle('active', tab.getAttribute('data-filter') === currentMatrixFilter);
-    tab.onclick = () => {
-      currentMatrixFilter = tab.getAttribute('data-filter');
-      renderProgressStage();
-    };
-  });
-
-  const gridEl = $('matrixGrid');
-  gridEl.innerHTML = '';
+  const grid = $('stickerGrid');
+  grid.innerHTML = '';
 
   lessons.forEach((l, i) => {
     const m = getLetterMastery(l.c);
-    const isSwar = i < 13;
-
-    if (currentMatrixFilter === 'swar' && !isSwar) return;
-    if (currentMatrixFilter === 'vyanjan' && isSwar) return;
-    if (currentMatrixFilter === 'weak' && m.star >= 2) return;
-
     const card = document.createElement('div');
-    card.className = 'matrix-card' + (m.star === 3 ? ' gold-card' : (m.star === 0 ? ' weak-card' : ''));
+    card.className = 'sticker-card' + (m.star === 3 ? ' gold-card' : '');
 
     const starIcons = m.star === 3 ? '⭐⭐⭐' : (m.star === 2 ? '⭐⭐' : (m.star === 1 ? '⭐' : '⚪'));
 
-    card.innerHTML = '<div class="matrix-char">' + l.c + '</div>' +
-      '<div class="matrix-thumb">' + l.emoji + '</div>' +
-      '<div class="matrix-stars">' + starIcons + '</div>' +
-      '<div class="matrix-skills">' +
-        '<span class="skill-dot ' + (m.recall ? 'done' : '') + '" title="Writing"></span>' +
-        '<span class="skill-dot ' + (m.matra ? 'done' : '') + '" title="Matra"></span>' +
-        '<span class="skill-dot ' + (m.word ? 'done' : '') + '" title="Word"></span>' +
-      '</div>';
+    card.innerHTML = '<div class="sticker-char">' + l.c + '</div>' +
+      '<div class="sticker-thumb">' + l.emoji + '</div>' +
+      '<div class="sticker-stars">' + starIcons + '</div>';
 
     card.onclick = () => {
       idx = i;
+      modal.classList.remove('show');
       setStep(1);
-      render();
     };
 
-    gridEl.appendChild(card);
+    grid.appendChild(card);
   });
 
-  $('progClose').onclick = () => {
-    setStep(1);
-  };
+  modal.classList.add('show');
 }
+
+$('closeProgressBtn').onclick = () => {
+  $('progressModal').classList.remove('show');
+};
 
 function render() {
   const item = lessons[idx];
   $('charGlyph').textContent = item.c;
   $('anchorWord').textContent = item.emoji + ' ' + (item.word || '');
   $('navLetter').textContent = item.c;
-  $('praise').textContent = '⭐ Great effort!';
   updateStageUI();
   setStep(currentStep);
 }
