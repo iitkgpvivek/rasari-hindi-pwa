@@ -1,4 +1,4 @@
-const APP_VERSION = '1.9.5';
+const APP_VERSION = '1.9.6';
 const CACHE = `rasari-hindi-v${APP_VERSION}`;
 const ASSETS = [
   './',
@@ -68,6 +68,10 @@ const ASSETS = [
   './audio/matra_o.mp3',
   './audio/matra_au.mp3',
   './audio/matra_ang.mp3',
+  './images/anaar.webp',
+  './images/aam.webp',
+  './images/ullu.webp',
+  './images/kamal.webp',
   './images/aag.svg',
   './images/aalu.svg',
   './images/aam.svg',
