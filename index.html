@@ -16,42 +16,66 @@
 button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:3px solid #147ac2;outline-offset:2px}
 .app{width:100vw;height:100dvh;position:relative;overflow:hidden;background:#bfeaff;isolation:isolate}
 .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none;z-index:-1}
-.logo{position:absolute;left:45.5%;top:1.3%;height:4.2%;display:flex;align-items:center;gap:7px;font-size:clamp(16px,2vw,26px);font-weight:800;color:#144b78}.logoicon{width:clamp(28px,3vw,39px);height:clamp(28px,3vw,39px);border-radius:12px;background:#0f7a66;color:white;display:grid;place-items:center;font:700 24px Georgia,serif}
-.badge{position:absolute;right:1.7%;top:1.5%;background:#fff8df;border:2px solid white;border-radius:99px;padding:5px 12px;font-size:clamp(10px,1.1vw,14px);font-weight:800;color:#80531a;box-shadow:0 2px 4px rgba(0,0,0,0.06)}
-.nav{position:absolute;left:23%;right:13%;top:5.3%;height:9.2%;display:flex;align-items:center;justify-content:space-between}.step{display:flex;flex-direction:column;align-items:center;gap:0;font-size:clamp(10px,1.3vw,16px);font-weight:800;white-space:nowrap;color:#143e70}.circ{width:clamp(34px,5.2vw,58px);height:clamp(34px,5.2vw,58px);display:grid;place-items:center;border-radius:50%;background:#f7f8fc;border:4px solid white;box-shadow:0 3px 0 #c8dce3;font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(17px,2.2vw,28px)}.step.active .circ{background:#ffcf50;border-color:#fff4c6;box-shadow:0 0 0 3px #ffbd32}
-.prompt{position:absolute;left:5.2%;top:18.5%;width:21.7%;height:4.4%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.6vw,22px);font-weight:800;color:#123b6c;white-space:nowrap}
-.letter{position:absolute;left:9.3%;top:23.5%;width:16%;height:9.5%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Noto Sans Devanagari','Nirmala UI',sans-serif;font-size:clamp(44px,6.2vw,84px);font-weight:800;color:#103d70;line-height:1}
-.anchorword{font-size:clamp(11px,1.2vw,16px);font-weight:800;color:#0f7a66;margin-top:2px}
-.soundleft{position:absolute;left:3.9%;top:23.5%;width:7.3%;height:10%;border-radius:50%;background:transparent;color:transparent}
 
-/* Top toolbar over writing slate */
-.toolbar-top{position:absolute;left:27.8%;top:25.2%;height:4.4%;display:flex;align-items:center;gap:8px;z-index:2}
-.stage-badge{background:#ffffffdd;border:2px solid #0f7a66;border-radius:999px;padding:3px 10px;font-size:clamp(10px,1.1vw,13px);font-weight:800;color:#0f7a66;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.08)}
-.ctrl-pill{background:#fff8df;border:2px solid #e2a03f;border-radius:999px;padding:3px 10px;font-size:clamp(10px,1.1vw,13px);font-weight:800;color:#80531a;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.08);transition:all .15s}
+/* Home button mapped directly over the dark blue circle on the top-left */
+.homebtn{position:absolute;left:1.2%;top:2.2%;width:5.2%;height:7.5%;border-radius:50%;background:transparent;cursor:pointer;z-index:10}
+
+.logo{position:absolute;left:48%;top:1.2%;height:4.2%;display:flex;align-items:center;gap:7px;font-size:clamp(16px,2vw,26px);font-weight:800;color:#144b78}.logoicon{width:clamp(28px,3vw,39px);height:clamp(28px,3vw,39px);border-radius:12px;background:#0f7a66;color:white;display:grid;place-items:center;font:700 24px Georgia,serif}
+.badge{position:absolute;right:1.7%;top:1.5%;background:#fff8df;border:2px solid white;border-radius:99px;padding:5px 12px;font-size:clamp(10px,1.1vw,14px);font-weight:800;color:#80531a;box-shadow:0 2px 4px rgba(0,0,0,0.06)}
+
+/* Top nav steps inside the light blue sky banner */
+.nav{position:absolute;left:24%;right:14%;top:5.2%;height:9.2%;display:flex;align-items:center;justify-content:space-between}.step{display:flex;flex-direction:column;align-items:center;gap:0;font-size:clamp(10px,1.3vw,16px);font-weight:800;white-space:nowrap;color:#143e70}.circ{width:clamp(34px,5.2vw,58px);height:clamp(34px,5.2vw,58px);display:grid;place-items:center;border-radius:50%;background:#f7f8fc;border:4px solid white;box-shadow:0 3px 0 #c8dce3;font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(17px,2.2vw,28px)}.step.active .circ{background:#ffcf50;border-color:#fff4c6;box-shadow:0 0 0 3px #ffbd32}
+
+/* Left Speech Bubble */
+.prompt{position:absolute;left:4%;top:18.2%;width:20%;height:4.2%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.5vw,20px);font-weight:800;color:#123b6c;white-space:nowrap;pointer-events:none}
+.letter{position:absolute;left:4%;top:22.5%;width:20%;height:12%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Noto Sans Devanagari','Nirmala UI',sans-serif;font-size:clamp(46px,6.2vw,84px);font-weight:800;color:#103d70;line-height:1;cursor:pointer}
+.anchorword{font-size:clamp(13px,1.5vw,20px);font-weight:800;color:#0f7a66;margin-top:2px;display:flex;align-items:center;gap:4px}
+.soundleft{position:absolute;left:3.5%;top:18%;width:21%;height:18%;border-radius:24px;background:transparent;cursor:pointer;z-index:2}
+
+/* Center Writing Slate - Perfectly aligned over the center white board */
+#write{position:absolute;left:27.5%;top:19.5%;width:45.8%;height:56.5%;touch-action:none;cursor:crosshair}
+
+/* Stage & Mode Toolbar placed cleanly inside the top of the center slate */
+.toolbar-top{position:absolute;left:28.5%;top:20.5%;height:4.2%;display:flex;align-items:center;gap:8px;z-index:5}
+.stage-badge{background:#ffffffdd;border:2px solid #0f7a66;border-radius:999px;padding:3px 10px;font-size:clamp(10px,1.1vw,13px);font-weight:800;color:#0f7a66;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.06)}
+.ctrl-pill{background:#fff8df;border:2px solid #e2a03f;border-radius:999px;padding:3px 10px;font-size:clamp(10px,1.1vw,13px);font-weight:800;color:#80531a;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.06);transition:all .15s}
 .ctrl-pill:active{transform:scale(0.95)}
 
-#write{position:absolute;left:27.8%;top:30.2%;width:45.6%;height:45.5%;touch-action:none}
-.guideheading{position:absolute;left:77.7%;top:20.2%;width:16.2%;height:5.8%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.6vw,20px);font-weight:800;color:#49370d;white-space:nowrap}.guideheading button{margin-left:7px;border-radius:50%;width:26px;height:26px;background:#fff8df;color:#a66c14;font-size:17px}
-#guide{position:absolute;left:76.8%;top:26.7%;width:19.5%;height:31.8%;pointer-events:none}
-.sidebtn{position:absolute;top:61.8%;height:13.5%;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:clamp(12px,1.5vw,19px);font-weight:800}.sidebtn .ico{font-size:clamp(20px,2.5vw,31px);line-height:1}.erase{left:76.8%;width:10%;background:transparent;color:#c43b62}.retry{left:87.2%;width:9.5%;background:transparent;color:#1167a5}
-.hint{position:absolute;left:29%;top:76.2%;font-size:clamp(9px,1vw,13px);font-weight:700;color:#6c8a7e}
-.praise{position:absolute;left:10%;top:84.2%;width:26%;height:7.6%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(11px,1.5vw,19px);font-weight:800;color:#81501a}
-.bottombtn{position:absolute;top:80.6%;height:12.2%;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:9px;color:white;font-size:clamp(15px,2vw,24px);font-weight:800;background:transparent}.done{left:38.5%;width:28.5%}.hear{left:68%;width:28%}
-.modal{display:none;position:absolute;inset:0;z-index:10;background:#123b6c80;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.dialog{background:#fffdf5;border:5px solid white;border-radius:28px;text-align:center;padding:24px;max-width:400px;width:100%;box-shadow:0 7px 0 #bddbce}.dialog h2{font-size:28px;margin:0 0 6px}.dialog p{font-size:16px;margin:0 0 16px}.dialog button{border-radius:15px;background:#37b949;color:white;padding:12px 20px;font-size:17px;font-weight:800}
+/* Right "See how to write" card */
+.guideheading{position:absolute;left:76.5%;top:19.8%;width:19.8%;height:5.5%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.5vw,19px);font-weight:800;color:#49370d;white-space:nowrap}
+.guideheading button{margin-left:7px;border-radius:50%;width:26px;height:26px;background:transparent;color:#7a4e10;font-size:18px;font-weight:800;cursor:pointer}
+#guide{position:absolute;left:76.5%;top:26.2%;width:19.8%;height:32.5%;pointer-events:none}
+
+/* Right Erase & Try Again buttons mapped transparently over pink & blue artwork cards */
+.sidebtn{position:absolute;top:61.5%;height:14%;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:clamp(12px,1.5vw,19px);font-weight:800;background:transparent;cursor:pointer;transition:transform .1s}
+.sidebtn:active{transform:scale(0.96)}
+.sidebtn .ico{font-size:clamp(22px,2.6vw,32px);line-height:1}
+.erase{left:75.8%;width:10.2%;color:#a82e50}
+.retry{left:86.8%;width:10.2%;color:#155787}
+
+/* Bottom CTA buttons mapped transparently over green and orange artwork buttons */
+.praise{position:absolute;left:4%;top:80%;width:27%;height:12.5%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(13px,1.7vw,22px);font-weight:800;color:#81501a;background:transparent;pointer-events:none}
+.bottombtn{position:absolute;top:79.5%;height:13.5%;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:10px;color:white;font-size:clamp(16px,2.2vw,27px);font-weight:800;background:transparent;cursor:pointer;transition:transform .1s;text-shadow:0 2px 4px rgba(0,0,0,0.25)}
+.bottombtn:active{transform:scale(0.97)}
+.done{left:36.5%;width:28%}
+.hear{left:66.5%;width:28%}
+
+/* Modal */
+.modal{display:none;position:absolute;inset:0;z-index:20;background:#123b6c80;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.dialog{background:#fffdf5;border:5px solid white;border-radius:28px;text-align:center;padding:24px;max-width:400px;width:100%;box-shadow:0 7px 0 #bddbce}.dialog h2{font-size:28px;margin:0 0 6px}.dialog p{font-size:16px;margin:0 0 16px}.dialog button{border-radius:15px;background:#37b949;color:white;padding:12px 20px;font-size:17px;font-weight:800}
 .score-badge{margin-bottom:10px;display:inline-block;padding:5px 14px;border-radius:999px;background:#ffefc2;color:#7e5200;font-weight:800;font-size:15px;border:1px solid #ffd276}
 
 .update-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(160%);background:#0d2847;color:#ffffff;padding:8px 16px;border-radius:999px;box-shadow:0 10px 28px rgba(0,0,0,0.35);display:flex;align-items:center;gap:12px;font-size:clamp(12px,1.4vw,15px);font-weight:700;z-index:10000;transition:transform .35s cubic-bezier(.175,.885,.32,1.275);border:2px solid #ffca4f;pointer-events:none;opacity:0}
 .update-toast.show{transform:translateX(-50%) translateY(0);pointer-events:auto;opacity:1}
 .update-toast button{background:#39b84a;color:white;border:none;border-radius:999px;padding:6px 14px;font-size:clamp(12px,1.3vw,14px);font-weight:800;cursor:pointer;box-shadow:0 2px 0 #1e6e28}
-.update-toast button:active{transform:translateY(1px);box-shadow:none}
 
-@media(max-width:680px){.nav{left:22%;right:4%;top:6%}.step{font-size:9px}.circ{width:31px;height:31px;font-size:17px;border-width:3px}.prompt{font-size:11px}.letter{font-size:42px}.toolbar-top{left:24%;gap:4px}.stage-badge,.ctrl-pill{font-size:9px;padding:2px 6px}.guideheading{font-size:10px}.guideheading button{width:20px;height:20px;font-size:12px}.sidebtn{font-size:10px}.praise{font-size:10px}.bottombtn{font-size:12px}.hint{display:none}}
-@media(max-aspect-ratio:1/1){.bg{object-fit:cover;object-position:center}.nav{left:20%;right:3%;top:6%}.prompt,.letter{display:none}.toolbar-top{left:24%}#write{left:24%;top:30%;width:51%;height:45%}#guide{left:76%;width:21%}.praise{left:4%;width:25%}.hint{display:none}.done{left:35%;width:30%}.hear{left:67%;width:30%}}
+@media(max-width:680px){.nav{left:22%;right:4%;top:6%}.step{font-size:9px}.circ{width:31px;height:31px;font-size:17px;border-width:3px}.prompt{font-size:11px}.letter{font-size:42px}.toolbar-top{left:28%;gap:4px}.stage-badge,.ctrl-pill{font-size:9px;padding:2px 6px}.guideheading{font-size:10px}.sidebtn{font-size:10px}.praise{font-size:10px}.bottombtn{font-size:14px}}
+@media(max-aspect-ratio:1/1){.bg{object-fit:cover;object-position:center}}
 </style>
 </head>
 <body>
 <main class="app" id="app">
 <img class="bg" src="./background.jpg" alt="">
+<button class="homebtn" id="homeBtn" aria-label="Home"></button>
 <div class="logo" id="home" style="cursor:pointer"><span class="logoicon">र</span><span>rasari</span></div>
 <div class="badge" id="bananaBadge">🍌 <span id="bananaCount">0</span> treats</div>
 
@@ -65,7 +89,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <div class="prompt" id="promptText">Write this letter</div>
 <div class="letter" id="letter">
   <span id="charGlyph">अ</span>
-  <span class="anchorword" id="anchorWord">अनार</span>
+  <span class="anchorword" id="anchorWord">🔊 अनार</span>
 </div>
 <button class="soundleft" id="sound" aria-label="Hear letter"></button>
 
@@ -83,7 +107,6 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <button class="sidebtn erase" id="erase"><span class="ico">🧽</span>Erase</button>
 <button class="sidebtn retry" id="retry"><span class="ico">↶</span>Try again</button>
 
-<div class="hint">Write between lines · follow the guide</div>
 <div class="praise" id="praise">⭐ Great effort!</div>
 
 <button class="bottombtn done" id="done">✓ I'm done!</button>
@@ -105,7 +128,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 </main>
 
 <script>
-// Complete Curriculum: 13 Swar + 33 Vyanjans + Conjuncts with phonic anchor words
+// Curriculum
 const lessons = [
   // Swar (स्वर)
   {c:'अ', sound:'a', word:'अनार', phonic:'अ से अनार'},
@@ -166,13 +189,11 @@ let currentStroke = null;
 let drawing = false;
 let last = null;
 
-// Scaffolded Watermark States
 let stageIndex = 0; // 0 = Trace, 1 = Ghost, 2 = Freehand
 let guideMode = 'auto'; // 'auto', 'on', 'off'
 let hintActive = false;
 let hintTimer = null;
 
-// Gamification & adaptive storage
 let bananas = parseInt(localStorage.getItem('rasari_bananas') || '0', 10);
 let struggleMap = JSON.parse(localStorage.getItem('rasari_struggle') || '{}');
 
@@ -192,144 +213,102 @@ function fit(c, x) {
 function updateStageUI() {
   const stageLabels = ['Stage 1/3: Trace ✍️', 'Stage 2/3: Ghost 👻', 'Stage 3/3: Freehand ⭐'];
   $('stageBadge').textContent = stageLabels[stageIndex];
-  if (guideMode === 'auto') {
-    $('guideModeBtn').textContent = '👁️ Auto';
-  } else if (guideMode === 'on') {
-    $('guideModeBtn').textContent = '👁️ ON';
-  } else {
-    $('guideModeBtn').textContent = '🕶️ OFF';
-  }
+  $('guideModeBtn').textContent = guideMode === 'auto' ? '👁️ Auto' : (guideMode === 'on' ? '👁️ ON' : '🕶️ OFF');
 }
 
-function computeLetterLayout(context, char, width, height, fontScale = 0.50) {
-  const fontSize = Math.floor(height * fontScale);
-  context.font = '700 ' + fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
-  const m = context.measureText(char);
+/**
+ * Notebook 5-Line Ruling System:
+ * Line 1: Upper Matra Guide (Light Blue Dashed)
+ * Line 2: BOLD Shirorekha Headline (Dark Blue Solid) -> EXACT top of letter body
+ * Line 3: Midline Guide (Light Cyan Dashed)
+ * Line 4: BOLD Base Line (Dark Blue Solid) -> EXACT bottom of letter body
+ * Line 5: Lower Matra Guide (Light Pink Dashed)
+ */
+function computeRuling(height) {
+  const line1 = Math.round(height * 0.22);
+  const line2 = Math.round(height * 0.38);
+  const line3 = Math.round(height * 0.55);
+  const line4 = Math.round(height * 0.72);
+  const line5 = Math.round(height * 0.88);
 
-  const ascent = m.actualBoundingBoxAscent || Math.round(fontSize * 0.68);
-  const descent = m.actualBoundingBoxDescent || 0;
-  const letterHeight = ascent + descent;
-  const matraZone = Math.max(14, Math.round(letterHeight * 0.35));
-
-  // Center the 5 lines vertically inside the available height
-  const cy = height * 0.50;
-  const baseY = cy + Math.round((ascent - descent) / 2);
-
-  // Line 2 (Shirorekha / Top Bold Line): EXACTLY at top of letter
-  const line2 = baseY - ascent;
-  // Line 4 (Base / Bottom Bold Line): EXACTLY at bottom of letter
-  const line4 = baseY + descent;
-  // Line 3 (Midline Dashed): Exactly in middle of body
-  const line3 = Math.round((line2 + line4) / 2);
-  // Line 1 (Upper Matra): Line 2 minus upper matra zone
-  const line1 = line2 - matraZone;
-  // Line 5 (Lower Matra): Line 4 plus lower matra zone
-  const line5 = line4 + matraZone;
-
-  // Horizontal framing tailored to the exact letter width
-  const cx = width / 2;
-  const glyphLeft = m.actualBoundingBoxLeft || Math.round(m.width / 2);
-  const glyphRight = m.actualBoundingBoxRight || Math.round(m.width / 2);
-  const letterWidth = glyphLeft + glyphRight;
-
-  const padX = Math.max(26, Math.round(letterWidth * 0.30));
-  const cellLeft = Math.max(8, Math.round(cx - glyphLeft - padX));
-  const cellRight = Math.min(width - 8, Math.round(cx + glyphRight + padX));
-
+  const bodyHeight = line4 - line2; // The exact letter body zone
+  // In Noto Sans Devanagari, font ascent from baseline to Shirorekha is ~0.68 of fontSize
+  const fontSize = Math.round(bodyHeight / 0.68);
   const brushWidth = Math.max(16, Math.round(fontSize * 0.11));
 
-  return {
-    fontSize,
-    ascent,
-    descent,
-    letterHeight,
-    matraZone,
-    baseY,
-    cx,
-    line1,
-    line2,
-    line3,
-    line4,
-    line5,
-    cellLeft,
-    cellRight,
-    brushWidth
-  };
+  return { line1, line2, line3, line4, line5, bodyHeight, fontSize, brushWidth };
 }
 
-function draw5Lines(context, layout, isGuide = false) {
-  const { line1, line2, line3, line4, line5, cellLeft, cellRight } = layout;
+function drawNotebookLines(context, width, ruling, isGuide = false) {
+  const { line1, line2, line3, line4, line5 } = ruling;
+  const startX = Math.round(width * 0.06);
+  const endX = Math.round(width * 0.94);
 
   context.save();
-  // Clean soft notebook card behind writing cell
-  context.fillStyle = '#fffef7';
-  context.strokeStyle = '#c4deec';
-  context.lineWidth = 1.5;
-  const cardH = (line5 - line1) + 16;
-  const cardY = line1 - 8;
-  const radius = Math.min(16, Math.round((cellRight - cellLeft) * 0.08));
 
-  if (context.roundRect) {
-    context.beginPath();
-    context.roundRect(cellLeft, cardY, cellRight - cellLeft, cardH, radius);
-    context.fill();
-    context.stroke();
-  } else {
-    context.fillRect(cellLeft, cardY, cellRight - cellLeft, cardH);
-    context.strokeRect(cellLeft, cardY, cellRight - cellLeft, cardH);
-  }
-
-  // Line 1: Upper Matra Guide (Light Blue Dashed)
+  // Line 1: Upper Matra Guide
   context.strokeStyle = '#8ecdf7';
-  context.lineWidth = 1.5;
-  context.setLineDash([6, 5]);
+  context.lineWidth = 1.8;
+  context.setLineDash([7, 6]);
   context.beginPath();
-  context.moveTo(cellLeft, line1);
-  context.lineTo(cellRight, line1);
+  context.moveTo(startX, line1);
+  context.lineTo(endX, line1);
   context.stroke();
 
-  // Line 2: TOP BOLD SHIROREKHA LINE (Bold Solid Dark Blue)
+  // Line 2: BOLD SHIROREKHA LINE
   context.setLineDash([]);
   context.strokeStyle = '#124170';
-  context.lineWidth = isGuide ? 2.5 : 3.5;
+  context.lineWidth = isGuide ? 3 : 4;
   context.beginPath();
-  context.moveTo(cellLeft, line2);
-  context.lineTo(cellRight, line2);
+  context.moveTo(startX, line2);
+  context.lineTo(endX, line2);
   context.stroke();
 
-  // Line 3: Midline (Light Cyan Dashed)
+  // Line 3: Midline Guide
   context.strokeStyle = '#a4d4f2';
   context.lineWidth = 1.5;
-  context.setLineDash([5, 5]);
-  context.beginPath();
-  context.moveTo(cellLeft, line3);
-  context.lineTo(cellRight, line3);
-  context.stroke();
-
-  // Line 4: BOTTOM BOLD BASE LINE (Bold Solid Dark Blue)
-  context.setLineDash([]);
-  context.strokeStyle = '#124170';
-  context.lineWidth = isGuide ? 2.5 : 3.5;
-  context.beginPath();
-  context.moveTo(cellLeft, line4);
-  context.lineTo(cellRight, line4);
-  context.stroke();
-
-  // Line 5: Lower Matra Guide (Light Pink Dashed)
-  context.strokeStyle = '#f8a5b8';
-  context.lineWidth = 1.5;
   context.setLineDash([6, 5]);
   context.beginPath();
-  context.moveTo(cellLeft, line5);
-  context.lineTo(cellRight, line5);
+  context.moveTo(startX, line3);
+  context.lineTo(endX, line3);
   context.stroke();
+
+  // Line 4: BOLD BASE LINE
+  context.setLineDash([]);
+  context.strokeStyle = '#124170';
+  context.lineWidth = isGuide ? 3 : 4;
+  context.beginPath();
+  context.moveTo(startX, line4);
+  context.lineTo(endX, line4);
+  context.stroke();
+
+  // Line 5: Lower Matra Guide
+  context.strokeStyle = '#f8a5b8';
+  context.lineWidth = 1.8;
+  context.setLineDash([7, 6]);
+  context.beginPath();
+  context.moveTo(startX, line5);
+  context.lineTo(endX, line5);
+  context.stroke();
+
+  // Subtle zone labels on the writing canvas
+  if (!isGuide && width > 300) {
+    context.setLineDash([]);
+    context.fillStyle = '#689cb8';
+    context.font = '700 11px sans-serif';
+    context.textAlign = 'left';
+    context.textBaseline = 'middle';
+    context.fillText('मात्रा ↑', startX + 4, (line1 + line2) / 2);
+    context.fillStyle = '#c77286';
+    context.fillText('मात्रा ↓', startX + 4, (line4 + line5) / 2);
+  }
 
   context.restore();
 }
 
 function getBrushWidth() {
-  const layout = computeLetterLayout(ctx, lessons[idx].c, w.clientWidth, w.clientHeight, 0.50);
-  return layout.brushWidth;
+  const r = computeRuling(w.clientHeight);
+  return r.brushWidth;
 }
 
 function drawPad() {
@@ -337,13 +316,12 @@ function drawPad() {
   let ww = w.clientWidth, h = w.clientHeight;
   ctx.clearRect(0, 0, ww, h);
 
+  const ruling = computeRuling(h);
+  drawNotebookLines(ctx, ww, ruling, false);
+
   const char = lessons[idx].c;
-  const layout = computeLetterLayout(ctx, char, ww, h, 0.50);
 
-  // 1. Draw 5 lines tailored to exact letter width
-  draw5Lines(ctx, layout, false);
-
-  // 2. Watermark alpha determination
+  // Watermark alpha
   let alpha = 0;
   if (hintActive) {
     alpha = 0.28;
@@ -352,26 +330,25 @@ function drawPad() {
   } else if (guideMode === 'off') {
     alpha = 0;
   } else {
-    // Auto mode: Stage 0 (Trace) = 0.22, Stage 1 (Ghost) = 0.05, Stage 2 (Freehand) = 0
     if (stageIndex === 0) alpha = 0.22;
     else if (stageIndex === 1) alpha = 0.05;
     else alpha = 0;
   }
 
-  // 3. Draw Watermark Sitting EXACTLY between Line 2 and Line 4
+  // Draw Watermark: Baseline sits on Line 4, Shirorekha touches Line 2
   if (alpha > 0) {
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.fillStyle = '#1c5e4c';
-    ctx.font = '700 ' + layout.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
+    ctx.font = '700 ' + ruling.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    ctx.fillText(char, layout.cx, layout.baseY);
+    ctx.fillText(char, ww / 2, ruling.line4);
     ctx.restore();
   }
 
-  // 4. Redraw user strokes with width matching the watermark
-  const bw = layout.brushWidth;
+  // Redraw user strokes with bold brush matching the watermark
+  const bw = ruling.brushWidth;
   ctx.save();
   ctx.strokeStyle = '#173e33';
   ctx.fillStyle = '#173e33';
@@ -401,23 +378,22 @@ function drawGuide() {
   let ww = g.clientWidth, h = g.clientHeight;
   gx.clearRect(0, 0, ww, h);
 
+  const ruling = computeRuling(h);
+  drawNotebookLines(gx, ww, ruling, true);
+
   const char = lessons[idx].c;
-  const layout = computeLetterLayout(gx, char, ww, h, 0.50);
 
-  // 1. Draw identical 5 lines tailored to exact letter width
-  draw5Lines(gx, layout, true);
-
-  // 2. Draw model letter Sitting EXACTLY between Line 2 and Line 4
+  // Draw model letter sitting exactly between Line 2 and Line 4
   gx.save();
   gx.fillStyle = '#102f25';
-  gx.font = '700 ' + layout.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
+  gx.font = '700 ' + ruling.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
   gx.textAlign = 'center';
   gx.textBaseline = 'alphabetic';
-  gx.fillText(char, layout.cx, layout.baseY);
+  gx.fillText(char, ww / 2, ruling.line4);
 
-  // 3. Stroke order numbered indicator on Line 2 (Shirorekha)
-  const badgeX = layout.cellLeft + 14;
-  const badgeY = layout.line2;
+  // Stroke order numbered indicator on Line 2 (Shirorekha)
+  const badgeX = Math.round(ww * 0.18);
+  const badgeY = ruling.line2;
   gx.fillStyle = '#168ed4';
   gx.beginPath();
   gx.arc(badgeX, badgeY, 9, 0, Math.PI * 2);
@@ -428,15 +404,15 @@ function drawGuide() {
   gx.textBaseline = 'middle';
   gx.fillText('1', badgeX, badgeY);
 
-  // Stroke order directional arrow
+  // Directional arrow on Shirorekha
   gx.strokeStyle = '#168ed4';
   gx.lineWidth = 2.5;
   gx.beginPath();
   gx.moveTo(badgeX + 11, badgeY);
-  gx.lineTo(Math.min(layout.cellRight - 10, badgeX + 42), badgeY);
-  gx.lineTo(Math.min(layout.cellRight - 15, badgeX + 37), badgeY - 4);
-  gx.moveTo(Math.min(layout.cellRight - 10, badgeX + 42), badgeY);
-  gx.lineTo(Math.min(layout.cellRight - 15, badgeX + 37), badgeY + 4);
+  gx.lineTo(Math.min(ww * 0.85, badgeX + 42), badgeY);
+  gx.lineTo(Math.min(ww * 0.85, badgeX + 37), badgeY - 4);
+  gx.moveTo(Math.min(ww * 0.85, badgeX + 42), badgeY);
+  gx.lineTo(Math.min(ww * 0.85, badgeX + 37), badgeY + 4);
   gx.stroke();
 
   gx.restore();
@@ -445,7 +421,7 @@ function drawGuide() {
 function render() {
   const item = lessons[idx];
   $('charGlyph').textContent = item.c;
-  $('anchorWord').textContent = item.word || '';
+  $('anchorWord').textContent = '🔊 ' + (item.word || '');
   $('navLetter').textContent = item.c;
   $('praise').textContent = '⭐ Great effort!';
   updateStageUI();
@@ -513,18 +489,81 @@ function clearPad() {
   drawPad();
 }
 
-function speak() {
-  if ('speechSynthesis' in window) {
-    speechSynthesis.cancel();
-    let text = lessons[idx].phonic || (lessons[idx].c + ' से ' + lessons[idx].word);
-    let u = new SpeechSynthesisUtterance(text);
-    u.lang = 'hi-IN';
-    u.rate = 0.72;
-    speechSynthesis.speak(u);
+/**
+ * Bulletproof Audio Player (Speech Synthesis + Web Audio Chime Fallback)
+ */
+let audioCtx = null;
+function playMarimbaChime() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    if (!audioCtx) audioCtx = new AudioContext();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(523.25, now); // C5
+    osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.12); // E5
+
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.35);
+  } catch (e) {
+    // Audio context not available, ignore
   }
 }
 
-// In-Browser Offline Handwriting Auto-Evaluator
+let activeUtterance = null;
+function speak() {
+  // Always play friendly chime for instant tactile feedback
+  playMarimbaChime();
+
+  if (!('speechSynthesis' in window)) return;
+
+  try {
+    // If speaking or paused, safely resume
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+
+    const item = lessons[idx];
+    const text = item.phonic || (item.c + ' से ' + item.word);
+
+    const u = new SpeechSynthesisUtterance(text);
+    activeUtterance = u; // Keep reference to prevent GC bug on Android/iOS
+    u.lang = 'hi-IN';
+    u.rate = 0.72;
+
+    const voices = window.speechSynthesis.getVoices() || [];
+    const hiVoice = voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi') || (v.name && v.name.toLowerCase().includes('hindi')));
+    if (hiVoice) {
+      u.voice = hiVoice;
+    }
+
+    u.onend = () => { activeUtterance = null; };
+    u.onerror = () => { activeUtterance = null; };
+
+    window.speechSynthesis.speak(u);
+  } catch (err) {
+    console.warn('Speech error:', err);
+  }
+}
+
+// Pre-load voices so they are ready when clicked
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    window.speechSynthesis.getVoices();
+  };
+}
+
+// Offline Handwriting Auto-Evaluator
 function evaluateHandwriting(targetChar) {
   const S = 100;
   const ww = w.clientWidth, h = w.clientHeight;
@@ -533,31 +572,33 @@ function evaluateHandwriting(targetChar) {
     return { score: 0, pass: false, reason: 'empty' };
   }
 
-  // 1. Offscreen target font mask
+  // Target font mask
   const tc = document.createElement('canvas');
   tc.width = S; tc.height = S;
   const tx = tc.getContext('2d');
   tx.fillStyle = '#000'; tx.fillRect(0, 0, S, S);
   tx.fillStyle = '#fff';
-  const tLayout = computeLetterLayout(tx, targetChar, S, S, 0.50);
-  tx.font = '700 ' + tLayout.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
-  tx.textAlign = 'center'; tx.textBaseline = 'alphabetic';
-  tx.fillText(targetChar, tLayout.cx, tLayout.baseY);
+  const tRuling = computeRuling(S);
+  tx.font = '700 ' + tRuling.fontSize + 'px "Noto Sans Devanagari","Nirmala UI",sans-serif';
+  tx.textAlign = 'center';
+  tx.textBaseline = 'alphabetic';
+  tx.fillText(targetChar, S / 2, tRuling.line4);
   const tData = tx.getImageData(0, 0, S, S).data;
+
   let tPixels = 0;
   for (let i = 0; i < tData.length; i += 4) {
     if (tData[i] > 100) tPixels++;
   }
   if (tPixels === 0) return { score: 100, pass: true };
 
-  // 2. Offscreen user drawing
+  // User drawing
   const uc = document.createElement('canvas');
   uc.width = S; uc.height = S;
   const ux = uc.getContext('2d');
   ux.fillStyle = '#000'; ux.fillRect(0, 0, S, S);
   ux.strokeStyle = '#fff';
   ux.fillStyle = '#fff';
-  const offscreenBw = tLayout.brushWidth;
+  const offscreenBw = tRuling.brushWidth;
   ux.lineWidth = offscreenBw;
   ux.lineCap = 'round'; ux.lineJoin = 'round';
 
@@ -579,7 +620,6 @@ function evaluateHandwriting(targetChar) {
   });
   const uData = ux.getImageData(0, 0, S, S).data;
 
-  // 3. Pixel comparison
   let matched = 0, uPixels = 0, spill = 0;
   for (let i = 0; i < uData.length; i += 4) {
     const u = uData[i] > 100;
@@ -593,24 +633,9 @@ function evaluateHandwriting(targetChar) {
   const precision = uPixels > 0 ? (matched / uPixels) : 0;
   const spillRatio = uPixels > 0 ? (spill / uPixels) : 0;
 
-  // Devanagari Shirorekha (top bar) check
-  let topBarHit = false;
-  const topBandEnd = Math.floor(S * 0.3);
-  for (let y = Math.floor(S * 0.12); y <= topBandEnd; y++) {
-    for (let x = Math.floor(S * 0.22); x <= Math.floor(S * 0.78); x++) {
-      if (uData[(y * S + x) * 4] > 100) {
-        topBarHit = true; break;
-      }
-    }
-    if (topBarHit) break;
-  }
-
   let rawScore = (coverage * 0.65 + precision * 0.35) * 100;
-  if (coverage > 0.32 && spillRatio < 0.7) {
+  if (coverage > 0.30 && spillRatio < 0.70) {
     rawScore = Math.min(100, rawScore * 1.35);
-  }
-  if (!topBarHit && rawScore > 40) {
-    rawScore -= 12;
   }
   if (uPixels > (S * S * 0.42)) {
     rawScore = Math.max(10, rawScore * 0.35);
@@ -622,7 +647,7 @@ function evaluateHandwriting(targetChar) {
   return { score, pass, coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
 }
 
-// Done Handler with Auto-Evaluation and Stage Progression
+// Done Handler
 $('done').onclick = () => {
   if (!userStrokes.length) {
     $('praise').textContent = 'Write the letter first ✍️';
@@ -633,8 +658,8 @@ $('done').onclick = () => {
 
   if (!result.pass) {
     $('praise').textContent = result.score > 25
-      ? 'Almost there! Follow the guide lines 💡'
-      : 'Try following the strokes in the guide ↶';
+      ? 'Almost there! Follow the lines 💡'
+      : 'Follow the guide arrows ↶';
     return;
   }
 
@@ -644,7 +669,6 @@ $('done').onclick = () => {
   localStorage.setItem('rasari_bananas', bananas);
   $('bananaCount').textContent = bananas;
 
-  // Update struggle & mastery tracker
   const char = lessons[idx].c;
   if (!struggleMap[char]) struggleMap[char] = { attempts: 0, passes: 0, freehand: false };
   struggleMap[char].attempts++;
@@ -682,7 +706,7 @@ function advance() {
 
 $('next').onclick = advance;
 
-// Toolbar button event handlers
+// Toolbar Handlers
 $('hintBtn').onclick = () => {
   if (hintTimer) clearTimeout(hintTimer);
   hintActive = true;
@@ -704,6 +728,7 @@ $('guideModeBtn').onclick = () => {
 };
 
 $('sound').onclick = speak;
+$('letter').onclick = speak;
 $('hear').onclick = speak;
 $('replay').onclick = drawGuide;
 $('erase').onclick = clearPad;
@@ -712,15 +737,16 @@ $('retry').onclick = () => {
   $('praise').textContent = 'Try again — you can do it!';
 };
 
-if ($('home')) {
-  $('home').onclick = () => {
-    idx = 0;
-    stageIndex = 0;
-    $('modal').classList.remove('show');
-    clearPad();
-    render();
-  };
+function goHome() {
+  idx = 0;
+  stageIndex = 0;
+  $('modal').classList.remove('show');
+  clearPad();
+  render();
 }
+
+if ($('home')) $('home').onclick = goHome;
+if ($('homeBtn')) $('homeBtn').onclick = goHome;
 
 window.addEventListener('resize', () => {
   drawPad();
