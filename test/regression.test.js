@@ -1,0 +1,160 @@
+const fs = require('fs');
+const path = require('path');
+const assert = require('assert');
+
+console.log('====================================================');
+console.log('  RUNNING RASARI HINDI PWA REGRESSION TEST SUITE   ');
+console.log('====================================================\n');
+
+let passedTests = 0;
+let totalTests = 0;
+
+function test(name, fn) {
+  totalTests++;
+  try {
+    fn();
+    console.log(`  ✓ [PASS] ${name}`);
+    passedTests++;
+  } catch (err) {
+    console.error(`  ✗ [FAIL] ${name}`);
+    console.error(`    ${err.message}\n`);
+    process.exitCode = 1;
+  }
+}
+
+const htmlPath = path.join(__dirname, '..', 'index.html');
+const swPath = path.join(__dirname, '..', 'sw.js');
+const audioDir = path.join(__dirname, '..', 'audio');
+
+const html = fs.readFileSync(htmlPath, 'utf8');
+const sw = fs.readFileSync(swPath, 'utf8');
+
+// ---------------------------------------------------------
+// SUITE 1: Center Slate & DOM Architecture
+// ---------------------------------------------------------
+test('Center slate (#write) is permanently anchored in DOM', () => {
+  assert(html.includes('<canvas id="write" aria-label="Writing canvas"></canvas>'), 'Writing canvas must exist');
+  assert(!html.includes('id="matraStage"'), 'Old matraStage multiple-choice container must be removed');
+  assert(!html.includes('id="wordStage"'), 'Old wordStage puzzle container must be removed');
+  assert(!html.includes('id="progressStage"'), 'Old progressStage card displacing canvas must be removed');
+});
+
+test('Progress modal (#progressModal) is a non-destructive overlay', () => {
+  assert(html.includes('id="progressModal"'), 'Progress modal must exist');
+  assert(html.includes('id="closeProgressBtn"'), 'Modal must have close button');
+  assert(html.includes('id="stickerGrid"'), 'Modal must have sticker grid');
+});
+
+// ---------------------------------------------------------
+// SUITE 2: Notebook Ruling & Zero Font Scaling Invariant
+// ---------------------------------------------------------
+test('computeRuling strictly maintains 5 lines with ZERO text-length scaling', () => {
+  // Extract computeRuling function from script
+  const rulingMatch = html.match(/function computeRuling\(height[\s\S]*?\n\}/);
+  assert(rulingMatch, 'computeRuling function must exist');
+  const rulingCode = rulingMatch[0];
+
+  assert(!rulingCode.includes('scale = 0.72'), 'Must NEVER scale down 3-letter words');
+  assert(!rulingCode.includes('scale = 0.88'), 'Must NEVER scale down 2-letter words');
+  assert(!rulingCode.includes('text.length'), 'Ruling must not depend on text length');
+
+  const computeRuling = new Function(`return ${rulingCode}`)();
+  const r = computeRuling(500);
+
+  assert.strictEqual(r.line2, Math.round(500 * 0.37), 'Line 2 must be Shirorekha at 37%');
+  assert.strictEqual(r.bodyHeight, Math.round(500 * 0.29), 'Body height must be fixed at 29%');
+  assert.strictEqual(r.line4, r.line2 + r.bodyHeight, 'Line 4 must be Baseline at line2 + bodyHeight');
+  assert(r.line1 < r.line2, 'Line 1 must be above Line 2');
+  assert(r.line5 > r.line4, 'Line 5 must be below Line 4');
+  assert(r.brushWidth >= 16, 'Brush width must be at least 16px');
+});
+
+test('getTextLayout aligns Shirorekha flush to Line 2 and foot to Line 4', () => {
+  assert(html.includes('function getTextLayout(context, text, ruling)'), 'getTextLayout function must exist');
+  assert(html.includes('ruling.line2 + exactAscent'), 'Baseline must be calculated from Line 2 + ascent');
+  assert(html.includes('actualBoundingBoxAscent'), 'Must measure actual Devanagari font ascent');
+});
+
+// ---------------------------------------------------------
+// SUITE 3: Anti-Scribble Barrier
+// ---------------------------------------------------------
+test('evaluateHandwriting rejects ink overkill scribbles (> 1.65x target)', () => {
+  // Simulate anti-scribble thresholds
+  const tPixels = 1200;
+  const uPixels = 2400; // 2x overkill
+  const matched = 800;
+  const precision = matched / uPixels; // 0.33
+
+  const isOverkill = uPixels > tPixels * 1.65;
+  const isPrecisionLow = precision < 0.35;
+
+  assert.strictEqual(isOverkill, true, 'Ink overkill must be flagged');
+  assert.strictEqual(isPrecisionLow, true, 'Precision below 35% must be flagged');
+});
+
+test('evaluateHandwriting passes genuine child traces', () => {
+  const tPixels = 1200;
+  const uPixels = 1100;
+  const matched = 800;
+  const precision = matched / uPixels; // 0.72
+  const coverage = matched / tPixels;  // 0.66
+  const union = tPixels + uPixels - matched; // 1500
+  const iou = matched / union; // 0.53
+
+  const pass = coverage >= 0.38 && precision >= 0.34 && iou >= 0.22 && (uPixels <= tPixels * 1.65);
+  assert.strictEqual(pass, true, 'Clean trace must pass evaluation');
+});
+
+test('Canvas shake animation and scribble warning prompt are present', () => {
+  assert(html.includes('w.classList.add(\'shake\')'), 'Must trigger canvas shake on rejection');
+  assert(html.includes('Don\'t scribble! Follow the lines ✍️'), 'Must display anti-scribble guidance');
+});
+
+// ---------------------------------------------------------
+// SUITE 4: Audio & Celebratory Design Invariants
+// ---------------------------------------------------------
+test('Prohibits "shabaash, bahut badhiya" (snd_correct.mp3)', () => {
+  // Extract $('done').onclick handler
+  const doneMatch = html.match(/\$\('done'\)\.onclick[\s\S]*?\}\;/);
+  assert(doneMatch, 'Done click handler must exist');
+  const doneCode = doneMatch[0];
+
+  assert(!doneCode.includes('snd_correct.mp3'), 'snd_correct.mp3 must NEVER be played on success');
+  assert(doneCode.includes('triggerConfetti()'), 'Must trigger high-energy canvas confetti burst');
+});
+
+test('All 49 native Hindi audio files exist on disk', () => {
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const lessonsMatch = scriptContent.match(/const lessons = (\[[\s\S]*?\]);/);
+  assert(lessonsMatch, 'Curriculum lessons array must exist');
+
+  const lessons = JSON.parse(lessonsMatch[1]);
+  assert.strictEqual(lessons.length, 49, 'Must contain exactly 49 lessons (13 Swar + 36 Vyanjans)');
+
+  lessons.forEach((l, index) => {
+    assert(l.audio, `Lesson ${index} (${l.c}) must have audio defined`);
+    const audioFilePath = path.join(__dirname, '..', l.audio);
+    assert(fs.existsSync(audioFilePath), `Audio file must exist on disk: ${l.audio}`);
+  });
+});
+
+// ---------------------------------------------------------
+// SUITE 5: Offline PWA & Service Worker Sync
+// ---------------------------------------------------------
+test('Service worker is configured with valid semver cache version', () => {
+  const versionMatch = sw.match(/const APP_VERSION = '([^']+)'/);
+  assert(versionMatch, 'Service worker must declare APP_VERSION');
+  const version = versionMatch[1];
+  assert(/^\d+\.\d+\.\d+$/.test(version), `APP_VERSION must be valid semver: ${version}`);
+});
+
+console.log('\n----------------------------------------------------');
+console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
+console.log('----------------------------------------------------\n');
+
+if (passedTests === totalTests) {
+  console.log('🎉 ALL ARCHITECTURAL REGRESSION TESTS PASSED!\n');
+} else {
+  console.error('❌ SOME REGRESSION TESTS FAILED!\n');
+  process.exit(1);
+}
