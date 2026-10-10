@@ -71,6 +71,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .clue-board{position:absolute;left:76.5%;top:25.5%;width:19.8%;height:35%;display:grid;place-items:center;z-index:5;pointer-events:auto;text-align:center;box-sizing:border-box}
 .clue-emoji{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:clamp(68px,8.5vw,110px);line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.15));transition:transform .2s cubic-bezier(.175,.885,.32,1.275);cursor:pointer;user-select:none}
 .clue-emoji svg{width:clamp(75px,9.5vw,120px);height:clamp(75px,9.5vw,120px);max-width:90%;max-height:90%;display:block}
+.clue-emoji img, .clue-img{width:clamp(75px,9.5vw,120px);height:clamp(75px,9.5vw,120px);max-width:90%;max-height:90%;object-fit:cover;border-radius:18px;display:block;box-shadow:0 4px 10px rgba(0,0,0,0.12)}
 .clue-emoji:active{transform:scale(1.15)}
 
 /* Disabled state for steps (e.g. Swars with no matra) */
@@ -234,20 +235,18 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 <div class="toolbar-top" id="toolbarTop">
   <span class="stage-badge" id="stageBadge">Stage 1/3: Trace ✍️</span>
-  <button class="ctrl-pill" id="hintBtn" title="Flash guide for 3s">💡 Hint</button>
-  <button class="ctrl-pill" id="guideModeBtn" title="Guide mode">👁️ Auto</button>
 </div>
 
 <canvas id="write" aria-label="Writing canvas"></canvas>
 
 <div class="guideheading" id="guideHeading"><span id="guideTitle">Visual Clue</span></div>
-<div class="clue-board" id="clueBoard">
+<div class="clue-board" id="clueBoard" title="Tap to hear word">
   <div class="clue-emoji" id="clueEmoji"></div>
 </div>
 <canvas id="guide" aria-label="Letter guide" style="display:none"></canvas>
 
 <button class="sidebtn erase" id="erase"><span class="ico">🧽</span>Erase</button>
-<button class="sidebtn retry" id="clueSoundBtn"><span class="ico">🔊</span>Hear</button>
+<button class="sidebtn retry" id="hintBtn"><span class="ico">💡</span>Hint</button>
 
 <button class="prev-btn" id="prevBtn">&lt;&lt; Prev</button>
 <button class="bottombtn done" id="done">✓ I'm done!</button>
@@ -425,9 +424,9 @@ const lessons = [
     "c": "ख",
     "isSwar": false,
     "sound": "kha",
-    "word": "खत",
-    "emoji": "✉️",
-    "phonic": "ख से खत",
+    "word": "खरगोश",
+    "emoji": "🐇",
+    "phonic": "खरगोश वाला ख",
     "audio": "audio/vy_kha.mp3",
     "matra": {
       "sym": "ी",
@@ -527,9 +526,9 @@ const lessons = [
     "c": "ज",
     "isSwar": false,
     "sound": "ja",
-    "word": "जल",
-    "emoji": "💧",
-    "phonic": "ज से जल",
+    "word": "जहाज",
+    "emoji": "🚢",
+    "phonic": "जहाज वाला ज",
     "audio": "audio/vy_ja.mp3",
     "matra": {
       "sym": "ी",
@@ -578,9 +577,9 @@ const lessons = [
     "c": "ट",
     "isSwar": false,
     "sound": "ta",
-    "word": "टब",
-    "emoji": "🛁",
-    "phonic": "ट से टब",
+    "word": "टमाटर",
+    "emoji": "🍅",
+    "phonic": "टमाटर वाला ट",
     "audio": "audio/vy_ta1.mp3",
     "matra": {
       "sym": "ो",
@@ -595,9 +594,9 @@ const lessons = [
     "c": "ठ",
     "isSwar": false,
     "sound": "tha",
-    "word": "ठप्पा",
-    "emoji": "📮",
-    "phonic": "ठ से ठप्पा",
+    "word": "ठठेरा",
+    "emoji": "🔨",
+    "phonic": "ठठेरा वाला ठ",
     "audio": "audio/vy_tha1.mp3",
     "matra": {
       "sym": "े",
@@ -782,9 +781,9 @@ const lessons = [
     "c": "ब",
     "isSwar": false,
     "sound": "ba",
-    "word": "बस",
-    "emoji": "🚌",
-    "phonic": "ब से बस",
+    "word": "बत्तख",
+    "emoji": "🦆",
+    "phonic": "बत्तख वाला ब",
     "audio": "audio/vy_ba.mp3",
     "matra": {
       "sym": "ी",
@@ -935,9 +934,9 @@ const lessons = [
     "c": "स",
     "isSwar": false,
     "sound": "sa",
-    "word": "सच",
-    "emoji": "⚖️",
-    "phonic": "स से सच",
+    "word": "सेब",
+    "emoji": "🍎",
+    "phonic": "सेब वाला स",
     "audio": "audio/vy_sa.mp3",
     "matra": {
       "sym": "े",
@@ -952,9 +951,9 @@ const lessons = [
     "c": "ह",
     "isSwar": false,
     "sound": "ha",
-    "word": "हल",
-    "emoji": "🌾",
-    "phonic": "ह से हल",
+    "word": "हाथी",
+    "emoji": "🐘",
+    "phonic": "हाथी वाला ह",
     "audio": "audio/vy_ha.mp3",
     "matra": {
       "sym": "ा",
@@ -1076,7 +1075,20 @@ const ILLUSTRATIONS = {
   "वीणा": "<svg viewBox=\"0 0 100 100\" width=\"100\" height=\"100\">\n    <ellipse cx=\"32\" cy=\"68\" rx=\"20\" ry=\"18\" fill=\"#d97706\" stroke=\"#78350f\" stroke-width=\"2\"/>\n    <ellipse cx=\"32\" cy=\"68\" rx=\"16\" ry=\"14\" fill=\"#f59e0b\"/>\n    <ellipse cx=\"66\" cy=\"30\" rx=\"11\" ry=\"10\" fill=\"#d97706\"/>\n    <line x1=\"24\" y1=\"76\" x2=\"80\" y2=\"20\" stroke=\"#78350f\" stroke-width=\"6.5\" stroke-linecap=\"round\"/>\n    <path d=\"M78 22 C84 14 90 20 86 28\" stroke=\"#b45309\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/>\n    <line x1=\"26\" y1=\"74\" x2=\"80\" y2=\"20\" stroke=\"#fef3c7\" stroke-width=\"1.2\"/>\n    <line x1=\"28\" y1=\"76\" x2=\"82\" y2=\"22\" stroke=\"#fef3c7\" stroke-width=\"1.2\"/>\n    <circle cx=\"74\" cy=\"24\" r=\"2.5\" fill=\"#f59e0b\"/>\n    <circle cx=\"70\" cy=\"28\" r=\"2.5\" fill=\"#f59e0b\"/>\n  </svg>",
   "याक": "<svg viewBox=\"0 0 100 100\" width=\"100\" height=\"100\">\n    <polygon points=\"12,56 36,28 60,56\" fill=\"#b0bec5\" opacity=\"0.5\"/>\n    <polygon points=\"30,36 36,28 42,36\" fill=\"#ffffff\"/>\n    <ellipse cx=\"54\" cy=\"60\" rx=\"26\" ry=\"18\" fill=\"#3e2723\"/>\n    <path d=\"M28 64 C32 82 76 82 80 64 Z\" fill=\"#271610\"/>\n    <g stroke=\"#1b0000\" stroke-width=\"2\">\n      <line x1=\"36\" y1=\"68\" x2=\"36\" y2=\"82\"/>\n      <line x1=\"46\" y1=\"68\" x2=\"46\" y2=\"84\"/>\n      <line x1=\"56\" y1=\"68\" x2=\"56\" y2=\"84\"/>\n      <line x1=\"66\" y1=\"68\" x2=\"66\" y2=\"82\"/>\n    </g>\n    <rect x=\"36\" y=\"78\" width=\"6\" height=\"10\" rx=\"2\" fill=\"#271610\"/>\n    <rect x=\"66\" y=\"78\" width=\"6\" height=\"10\" rx=\"2\" fill=\"#271610\"/>\n    <ellipse cx=\"30\" cy=\"50\" rx=\"12\" ry=\"11\" fill=\"#3e2723\"/>\n    <ellipse cx=\"24\" cy=\"54\" rx=\"7\" ry=\"5\" fill=\"#5d4037\"/>\n    <circle cx=\"28\" cy=\"46\" r=\"2\" fill=\"#212121\"/>\n    <path d=\"M30 44 C26 30 18 32 16 34\" stroke=\"#cfd8dc\" stroke-width=\"3.5\" fill=\"none\" stroke-linecap=\"round\"/>\n    <path d=\"M34 44 C36 30 44 32 46 34\" stroke=\"#cfd8dc\" stroke-width=\"3.5\" fill=\"none\" stroke-linecap=\"round\"/>\n  </svg>",
   "दीपक": "<svg viewBox=\"0 0 100 100\" width=\"100\" height=\"100\">\n    <ellipse cx=\"50\" cy=\"72\" rx=\"34\" ry=\"12\" fill=\"#d84315\"/>\n    <ellipse cx=\"50\" cy=\"68\" rx=\"28\" ry=\"7\" fill=\"#bf360c\"/>\n    <ellipse cx=\"50\" cy=\"67\" rx=\"24\" ry=\"5\" fill=\"#ffb300\"/>\n    <path d=\"M50 20 C56 36 62 48 58 58 C54 66 46 66 42 58 C38 48 44 36 50 20 Z\" fill=\"#ff6d00\"/>\n    <path d=\"M50 28 C53 38 57 46 54 54 C52 58 48 58 46 54 C43 46 47 38 50 28 Z\" fill=\"#ffea00\"/>\n    <circle cx=\"50\" cy=\"46\" r=\"3\" fill=\"#ffffff\"/>\n  </svg>",
-  "सेब": "<svg viewBox=\"0 0 100 100\" width=\"100\" height=\"100\">\n    <path d=\"M50 24 Q52 14 58 10\" stroke=\"#5d4037\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>\n    <path d=\"M54 14 C62 10 70 16 66 22 C58 22 54 18 54 14 Z\" fill=\"#43a047\"/>\n    <path d=\"M50 32 C40 20 18 24 20 54 C22 78 40 88 50 86 C60 88 78 78 80 54 C82 24 60 20 50 32 Z\" fill=\"#e53935\"/>\n    <ellipse cx=\"36\" cy=\"42\" rx=\"6\" ry=\"3\" transform=\"rotate(-30 36 42)\" fill=\"#ffffff\" opacity=\"0.35\"/>\n  </svg>"
+  "सेब": "<svg viewBox=\"0 0 100 100\" width=\"100\" height=\"100\">\n    <path d=\"M50 24 Q52 14 58 10\" stroke=\"#5d4037\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>\n    <path d=\"M54 14 C62 10 70 16 66 22 C58 22 54 18 54 14 Z\" fill=\"#43a047\"/>\n    <path d=\"M50 32 C40 20 18 24 20 54 C22 78 40 88 50 86 C60 88 78 78 80 54 C82 24 60 20 50 32 Z\" fill=\"#e53935\"/>\n    <ellipse cx=\"36\" cy=\"42\" rx=\"6\" ry=\"3\" transform=\"rotate(-30 36 42)\" fill=\"#ffffff\" opacity=\"0.35\"/>\n  </svg>",
+  "खरगोश": "<svg viewBox=\"0 0 100 100\" width=\"100\" height=\"100\">\n    <ellipse cx=\"50\" cy=\"68\" rx=\"26\" ry=\"22\" fill=\"#ffffff\" stroke=\"#e0e0e0\" stroke-width=\"2\"/>\n    <ellipse cx=\"36\" cy=\"28\" rx=\"9\" ry=\"22\" fill=\"#ffffff\" stroke=\"#e0e0e0\" stroke-width=\"2\" transform=\"rotate(-12 36 28)\"/>\n    <ellipse cx=\"36\" cy=\"28\" rx=\"5\" ry=\"16\" fill=\"#ffcdd2\" transform=\"rotate(-12 36 28)\"/>\n    <ellipse cx=\"64\" cy=\"28\" rx=\"9\" ry=\"22\" fill=\"#ffffff\" stroke=\"#e0e0e0\" stroke-width=\"2\" transform=\"rotate(12 64 28)\"/>\n    <ellipse cx=\"64\" cy=\"28\" rx=\"5\" ry=\"16\" fill=\"#ffcdd2\" transform=\"rotate(12 64 28)\"/>\n    <circle cx=\"50\" cy=\"50\" r=\"22\" fill=\"#ffffff\" stroke=\"#e0e0e0\" stroke-width=\"2\"/>\n    <circle cx=\"42\" cy=\"46\" r=\"4.5\" fill=\"#212121\"/>\n    <circle cx=\"43.5\" cy=\"44.5\" r=\"1.5\" fill=\"#ffffff\"/>\n    <circle cx=\"58\" cy=\"46\" r=\"4.5\" fill=\"#212121\"/>\n    <circle cx=\"59.5\" cy=\"44.5\" r=\"1.5\" fill=\"#ffffff\"/>\n    <ellipse cx=\"50\" cy=\"53\" rx=\"3.5\" ry=\"2.5\" fill=\"#f48fb1\"/>\n    <path d=\"M46 56 Q50 59 54 56\" stroke=\"#424242\" stroke-width=\"1.8\" fill=\"none\" stroke-linecap=\"round\"/>\n    <polygon points=\"58,62 76,68 62,74\" fill=\"#ff7043\"/>\n    <ellipse cx=\"78\" cy=\"68\" rx=\"4\" ry=\"2\" fill=\"#43a047\" transform=\"rotate(20 78 68)\"/>\n  </svg>",
+  "जहाज": "<svg viewBox=\"0 0 100 100\" width=\"100\" height=\"100\">\n    <path d=\"M14 62 L86 62 L78 82 C76 86 24 86 22 82 Z\" fill=\"#ffffff\" stroke=\"#1565c0\" stroke-width=\"3\"/>\n    <path d=\"M18 62 L82 62 L78 72 L22 72 Z\" fill=\"#d32f2f\"/>\n    <rect x=\"34\" y=\"38\" width=\"32\" height=\"24\" rx=\"3\" fill=\"#ffffff\" stroke=\"#1565c0\" stroke-width=\"2\"/>\n    <rect x=\"42\" y=\"24\" width=\"16\" height=\"14\" rx=\"2\" fill=\"#e0e0e0\" stroke=\"#1565c0\" stroke-width=\"2\"/>\n    <rect x=\"46\" y=\"14\" width=\"8\" height=\"10\" fill=\"#f57c00\"/>\n    <path d=\"M48 8 Q46 2 52 4 Q56 8 52 10\" stroke=\"#b0bec5\" stroke-width=\"2\" fill=\"none\" opacity=\"0.6\"/>\n    <circle cx=\"42\" cy=\"50\" r=\"3.5\" fill=\"#ffd54f\" stroke=\"#ffa000\" stroke-width=\"1\"/>\n    <circle cx=\"58\" cy=\"50\" r=\"3.5\" fill=\"#ffd54f\" stroke=\"#ffa000\" stroke-width=\"1\"/>\n    <path d=\"M6 86 Q25 80 50 86 Q75 92 94 86\" stroke=\"#29b6f6\" stroke-width=\"4.5\" fill=\"none\" stroke-linecap=\"round\"/>\n  </svg>",
+  "टमाटर": "<svg viewBox=\"0 0 100 100\" width=\"100\" height=\"100\">\n    <defs>\n      <radialGradient id=\"tomG\" cx=\"38%\" cy=\"38%\" r=\"62%\">\n        <stop offset=\"0%\" stop-color=\"#ff5252\"/>\n        <stop offset=\"65%\" stop-color=\"#d50000\"/>\n        <stop offset=\"100%\" stop-color=\"#8e0000\"/>\n      </radialGradient>\n    </defs>\n    <circle cx=\"50\" cy=\"58\" r=\"34\" fill=\"url(#tomG)\"/>\n    <ellipse cx=\"38\" cy=\"42\" rx=\"8\" ry=\"4\" transform=\"rotate(-30 38 42)\" fill=\"#ffffff\" opacity=\"0.4\"/>\n    <polygon points=\"50,24 44,14 46,24 38,18 42,26 34,26 42,30 50,26 58,30 66,26 58,26 62,18 54,24 56,14\" fill=\"#2e7d32\"/>\n    <path d=\"M50 24 Q48 10 40 8\" stroke=\"#33691e\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>\n  </svg>",
+  "ठठेरा": "<svg viewBox=\"0 0 100 100\" width=\"100\" height=\"100\">\n    <circle cx=\"50\" cy=\"32\" r=\"14\" fill=\"#ffcc80\"/>\n    <circle cx=\"46\" cy=\"30\" r=\"2\" fill=\"#212121\"/>\n    <circle cx=\"54\" cy=\"30\" r=\"2\" fill=\"#212121\"/>\n    <path d=\"M47 38 Q50 41 53 38\" stroke=\"#212121\" stroke-width=\"1.8\" fill=\"none\"/>\n    <ellipse cx=\"50\" cy=\"20\" rx=\"15\" ry=\"6\" fill=\"#d84315\"/>\n    <path d=\"M34 50 L66 50 L62 82 L38 82 Z\" fill=\"#e65100\"/>\n    <ellipse cx=\"50\" cy=\"74\" rx=\"22\" ry=\"16\" fill=\"#d97706\" stroke=\"#b45309\" stroke-width=\"2\"/>\n    <ellipse cx=\"50\" cy=\"62\" rx=\"14\" ry=\"4\" fill=\"#f59e0b\"/>\n    <line x1=\"68\" y1=\"46\" x2=\"84\" y2=\"34\" stroke=\"#5d4037\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n    <rect x=\"80\" y=\"28\" width=\"12\" height=\"12\" rx=\"2\" fill=\"#78909c\" transform=\"rotate(30 86 34)\"/>\n  </svg>",
+  "बत्तख": "<svg viewBox=\"0 0 100 100\" width=\"100\" height=\"100\">\n    <defs>\n      <radialGradient id=\"duckG\" cx=\"40%\" cy=\"35%\" r=\"65%\">\n        <stop offset=\"0%\" stop-color=\"#fff59d\"/>\n        <stop offset=\"60%\" stop-color=\"#fbc02d\"/>\n        <stop offset=\"100%\" stop-color=\"#f57f17\"/>\n      </radialGradient>\n    </defs>\n    <ellipse cx=\"52\" cy=\"66\" rx=\"28\" ry=\"18\" fill=\"url(#duckG)\"/>\n    <circle cx=\"64\" cy=\"40\" r=\"16\" fill=\"url(#duckG)\"/>\n    <circle cx=\"68\" cy=\"36\" r=\"3\" fill=\"#212121\"/>\n    <circle cx=\"69\" cy=\"35\" r=\"1\" fill=\"#ffffff\"/>\n    <polygon points=\"76,38 94,44 76,48\" fill=\"#ff6f00\"/>\n    <path d=\"M38 60 C38 52 48 50 56 56 C50 66 40 68 38 60 Z\" fill=\"#f57f17\"/>\n    <path d=\"M14 84 Q34 78 54 84 Q74 90 92 84\" stroke=\"#29b6f6\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/>\n  </svg>",
+  "हाथी": "<svg viewBox=\"0 0 100 100\" width=\"100\" height=\"100\">\n    <ellipse cx=\"44\" cy=\"62\" rx=\"30\" ry=\"24\" fill=\"#90a4ae\"/>\n    <circle cx=\"66\" cy=\"42\" r=\"18\" fill=\"#90a4ae\"/>\n    <ellipse cx=\"56\" cy=\"38\" rx=\"10\" ry=\"16\" fill=\"#cfd8dc\" stroke=\"#78909c\" stroke-width=\"1.5\"/>\n    <circle cx=\"72\" cy=\"38\" r=\"3\" fill=\"#212121\"/>\n    <circle cx=\"73\" cy=\"37\" r=\"1\" fill=\"#ffffff\"/>\n    <path d=\"M78 46 Q88 52 84 68 Q80 76 74 74 Q72 70 76 68 Q80 58 74 52 Z\" fill=\"#90a4ae\"/>\n    <path d=\"M74 52 L82 54 L76 56 Z\" fill=\"#ffffff\"/>\n    <rect x=\"28\" y=\"76\" width=\"10\" height=\"18\" rx=\"4\" fill=\"#78909c\"/>\n    <rect x=\"52\" y=\"76\" width=\"10\" height=\"18\" rx=\"4\" fill=\"#78909c\"/>\n  </svg>",
+  "कबूतर": "<svg viewBox=\"0 0 100 100\" width=\"100\" height=\"100\">\n    <ellipse cx=\"48\" cy=\"62\" rx=\"26\" ry=\"20\" fill=\"#b0bec5\"/>\n    <circle cx=\"68\" cy=\"38\" r=\"14\" fill=\"#90a4ae\"/>\n    <circle cx=\"72\" cy=\"35\" r=\"3\" fill=\"#e91e63\"/>\n    <circle cx=\"72.5\" cy=\"35\" r=\"1.5\" fill=\"#212121\"/>\n    <polygon points=\"78,38 90,41 78,44\" fill=\"#ffb74d\"/>\n    <path d=\"M34 54 C34 44 48 44 54 52 C46 64 36 64 34 54 Z\" fill=\"#78909c\"/>\n    <path d=\"M22 62 L10 54 L12 66 Z\" fill=\"#78909c\"/>\n  </svg>"
+};
+
+// 3D Pixar-style Image Assets matching the monkey and garden vibe
+const IMAGES = {
+  "कमल": "images/kamal.jpg",
+  "खरगोश": "images/khargosh.jpg"
 };
 
 // Grade 1 Hindi Barakhadi Matras (13 combinations: क, का, कि, की, कु, कू, कृ, के, कै, को, कौ, कं, कः)
@@ -1436,7 +1448,9 @@ function renderClue(item, step) {
     fallback = wordObj.emoji || item.emoji;
   }
 
-  if (ILLUSTRATIONS[key]) {
+  if (IMAGES[key]) {
+    clueEl.innerHTML = '<img src="' + IMAGES[key] + '" class="clue-img" alt="' + key + '">';
+  } else if (ILLUSTRATIONS[key]) {
     clueEl.innerHTML = ILLUSTRATIONS[key];
   } else {
     clueEl.textContent = fallback;
@@ -1802,6 +1816,26 @@ function playSnd(src) {
   } catch(e){}
 }
 
+function speakHindi(phrase, fallbackAudio) {
+  if ('speechSynthesis' in window && window.SpeechSynthesisUtterance) {
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(phrase);
+      u.lang = 'hi-IN';
+      u.rate = 0.85;
+      const voices = window.speechSynthesis.getVoices();
+      const hiVoice = voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi'));
+      if (hiVoice) u.voice = hiVoice;
+      u.onerror = () => {
+        if (fallbackAudio) playSnd(fallbackAudio);
+      };
+      window.speechSynthesis.speak(u);
+      return;
+    } catch(e) {}
+  }
+  if (fallbackAudio) playSnd(fallbackAudio);
+}
+
 function speakLetter() {
   const item = lessons[idx];
   if (!item) return;
@@ -1816,7 +1850,12 @@ function speakLetter() {
     }, 400);
   }
 
-  playSnd(item.audio);
+  // Pressing letter on the left speaks "[word] वाला [letter]" e.g. "कमल वाला क", "खरगोश वाला ख"
+  const phrase = (item.c === 'ङ' || item.c === 'ञ' || item.c === 'अः')
+    ? (item.c + ' खाली')
+    : (item.word + ' वाला ' + item.c);
+
+  speakHindi(phrase, item.audio);
 }
 
 function speakClue() {
@@ -1829,21 +1868,22 @@ function speakClue() {
     setTimeout(() => clueEmoji.style.transform = 'scale(1)', 400);
   }
 
-  if (currentStep === 3) {
+  // Pressing picture on the right speaks out ONLY the word that the picture denotes!
+  // e.g. "कबूतर", "कमल", "खरगोश" - Not "ka se kabootar"
+  let targetWord = item.word;
+  if (currentStep === 2 && !item.isSwar) {
+    const m = getLetterMastery(item.c);
+    const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+    const combo = getMatraCombo(item.c, matraObj.sym);
+    const wordObj = (WORD_BANKS[item.c] || []).find(w => w.word.startsWith(combo));
+    targetWord = wordObj ? wordObj.word : (item.matra?.exWord || item.word);
+  } else if (currentStep === 3) {
     const m = getLetterMastery(item.c);
     const wordObj = getWordForLetter(item.c, m.wordIndex || 0);
-    if ('speechSynthesis' in window && window.SpeechSynthesisUtterance) {
-      try {
-        const u = new SpeechSynthesisUtterance(wordObj.word);
-        u.lang = 'hi-IN';
-        u.rate = 0.85;
-        window.speechSynthesis.speak(u);
-        return;
-      } catch(e) {}
-    }
+    targetWord = wordObj.word;
   }
 
-  playSnd(item.audio);
+  speakHindi(targetWord, item.audio);
 }
 
 // High-Energy Confetti Particle System
@@ -2222,31 +2262,33 @@ $('nextBtn').onclick = () => {
   setLetter(nextIdx);
 };
 
-// Toolbar Handlers
+// Toolbar / Hint & Speech Handlers
 $('hintBtn').onclick = () => {
   if (hintTimer) clearTimeout(hintTimer);
   hintActive = true;
-  $('hintBtn').style.background = '#ffd066';
+  $('hintBtn').style.transform = 'scale(1.08)';
   drawPad();
   hintTimer = setTimeout(() => {
     hintActive = false;
-    $('hintBtn').style.background = '#fff8df';
+    $('hintBtn').style.transform = 'scale(1)';
     drawPad();
   }, 3000);
 };
 
-const modes = ['auto', 'on', 'off'];
-$('guideModeBtn').onclick = () => {
-  const nextIdx = (modes.indexOf(guideMode) + 1) % modes.length;
-  guideMode = modes[nextIdx];
-  $('guideModeBtn').textContent = guideMode === 'auto' ? '👁️ Auto' : (guideMode === 'on' ? '👁️ ON' : '🕶️ OFF');
-  drawPad();
-};
+if ($('guideModeBtn')) {
+  const modes = ['auto', 'on', 'off'];
+  $('guideModeBtn').onclick = () => {
+    const nextIdx = (modes.indexOf(guideMode) + 1) % modes.length;
+    guideMode = modes[nextIdx];
+    $('guideModeBtn').textContent = guideMode === 'auto' ? '👁️ Auto' : (guideMode === 'on' ? '👁️ ON' : '🕶️ OFF');
+    drawPad();
+  };
+}
 
 $('sound').onclick = speakLetter;
 $('letter').onclick = speakLetter;
+$('clueBoard').onclick = speakClue;
 $('clueEmoji').onclick = speakClue;
-$('clueSoundBtn').onclick = speakClue;
 $('erase').onclick = clearPad;
 
 function goHome() {
