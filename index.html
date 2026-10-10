@@ -1841,7 +1841,7 @@ function speakHindi(phrase, fallbackAudio) {
       const u = new SpeechSynthesisUtterance(phrase);
       u.lang = 'hi-IN';
       u.rate = 0.88;
-      u.pitch = 1.38; // Authentic cheerful Indian child pitch
+      u.pitch = 1.0; // Clear, warm, natural Indian voice
       const v = getHindiVoice();
       if (v) u.voice = v;
       u.onerror = (e) => {
