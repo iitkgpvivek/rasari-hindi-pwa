@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#bfeaff">
+<meta name="description" content="A cheerful Hindi letter-writing practice app for children.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<title>Rasari Hindi Writing Gym</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap');
+:root{--navy:#123b6c;--teal:#0f7a66;--gold:#ffca4f;--pink:#ff7d9c;--green:#39b84a}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--navy);background:#bfeaff;overscroll-behavior:none}
+button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:3px solid #147ac2;outline-offset:2px}
+.app{width:100vw;height:100dvh;position:relative;overflow:hidden;background:#bfeaff;isolation:isolate}
+.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none;z-index:-1}
+.logo{position:absolute;left:45.5%;top:1.3%;height:4.2%;display:flex;align-items:center;gap:7px;font-size:clamp(16px,2vw,26px);font-weight:800;color:#144b78}.logoicon{width:clamp(28px,3vw,39px);height:clamp(28px,3vw,39px);border-radius:12px;background:#0f7a66;color:white;display:grid;place-items:center;font:700 24px Georgia,serif}
+.badge{position:absolute;right:1.7%;top:1.5%;background:#fff8df;border:2px solid white;border-radius:99px;padding:5px 12px;font-size:clamp(10px,1.1vw,14px);font-weight:800;color:#80531a}
+.nav{position:absolute;left:23%;right:13%;top:5.3%;height:9.2%;display:flex;align-items:center;justify-content:space-between}.step{display:flex;flex-direction:column;align-items:center;gap:0;font-size:clamp(10px,1.3vw,16px);font-weight:800;white-space:nowrap;color:#143e70}.circ{width:clamp(34px,5.2vw,58px);height:clamp(34px,5.2vw,58px);display:grid;place-items:center;border-radius:50%;background:#f7f8fc;border:4px solid white;box-shadow:0 3px 0 #c8dce3;font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(17px,2.2vw,28px)}.step.active .circ{background:#ffcf50;border-color:#fff4c6;box-shadow:0 0 0 3px #ffbd32}
+.prompt{position:absolute;left:7.2%;top:19.7%;width:17.7%;height:4.4%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(13px,1.8vw,24px);font-weight:800;color:#123b6c;white-space:nowrap}
+.letter{position:absolute;left:10.3%;top:25.2%;width:14%;height:8.5%;display:flex;align-items:center;justify-content:center;font-family:'Noto Sans Devanagari','Nirmala UI',sans-serif;font-size:clamp(46px,6.5vw,88px);font-weight:800;color:#103d70}
+.soundleft{position:absolute;left:3.9%;top:23.5%;width:7.3%;height:10%;border-radius:50%;background:transparent;color:transparent}
+#write{position:absolute;left:27.8%;top:30.2%;width:45.6%;height:45.5%;touch-action:none}
+.guideheading{position:absolute;left:77.7%;top:20.2%;width:16.2%;height:5.8%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.6vw,20px);font-weight:800;color:#49370d;white-space:nowrap}.guideheading button{margin-left:7px;border-radius:50%;width:26px;height:26px;background:#fff8df;color:#a66c14;font-size:17px}
+#guide{position:absolute;left:76.8%;top:26.7%;width:19.5%;height:31.8%;pointer-events:none}
+.sidebtn{position:absolute;top:61.8%;height:13.5%;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:clamp(12px,1.5vw,19px);font-weight:800}.sidebtn .ico{font-size:clamp(20px,2.5vw,31px);line-height:1}.erase{left:76.8%;width:10%;background:transparent;color:#c43b62}.retry{left:87.2%;width:9.5%;background:transparent;color:#1167a5}
+.hint{position:absolute;left:29%;top:76.2%;font-size:clamp(9px,1vw,13px);font-weight:700;color:#6c8a7e}
+.praise{position:absolute;left:14%;top:84.2%;width:19%;height:7.6%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.7vw,21px);font-weight:800;color:#81501a;white-space:nowrap}
+.bottombtn{position:absolute;top:80.6%;height:12.2%;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:9px;color:white;font-size:clamp(15px,2vw,24px);font-weight:800;background:transparent}.done{left:38.5%;width:28.5%}.hear{left:68%;width:28%}
+.modal{display:none;position:absolute;inset:0;z-index:10;background:#123b6c80;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.dialog{background:#fffdf5;border:5px solid white;border-radius:28px;text-align:center;padding:24px;max-width:400px;width:100%;box-shadow:0 7px 0 #bddbce}.dialog h2{font-size:30px;margin:0 0 8px}.dialog p{font-size:17px;margin:0 0 18px}.dialog button{border-radius:15px;background:#37b949;color:white;padding:12px 20px;font-size:17px;font-weight:800}
+@media(max-width:680px){.nav{left:22%;right:4%;top:6%}.step{font-size:9px}.circ{width:31px;height:31px;font-size:17px;border-width:3px}.prompt{font-size:12px}.letter{font-size:50px}.guideheading{font-size:10px}.guideheading button{width:20px;height:20px;font-size:12px}.sidebtn{font-size:10px}.praise{font-size:10px}.bottombtn{font-size:12px}.hint{display:none}}
+@media(max-aspect-ratio:1/1){.bg{object-fit:cover;object-position:center}.nav{left:20%;right:3%;top:6%}.prompt,.letter{display:none}#write{left:24%;top:30%;width:51%;height:45%}#guide{left:76%;width:21%}.praise{left:4%;width:25%}.hint{display:none}.done{left:35%;width:30%}.hear{left:67%;width:30%}}
+</style></head><body><main class="app" id="app">
+<img class="bg" src="./background.jpg" alt="">
+<div class="logo" id="home" style="cursor:pointer"><span class="logoicon">र</span><span>rasari</span></div><div class="badge">⭐ 5-minute practice</div>
+<nav class="nav" aria-label="Practice steps"><div class="step active" id="st1"><span class="circ" id="navLetter">क</span><span>Today's letter</span></div><div class="step" id="st2"><span class="circ">ा</span><span>Matra</span></div><div class="step" id="st3"><span class="circ">का</span><span>Word</span></div><div class="step" id="st4"><span class="circ">★</span><span>My progress</span></div></nav>
+<div class="prompt">Write this letter</div><div class="letter" id="letter">क</div><button class="soundleft" id="sound" aria-label="Hear letter"></button>
+<canvas id="write" aria-label="Writing canvas"></canvas>
+<div class="guideheading">See how to write <button id="replay" aria-label="Replay guide">↻</button></div><canvas id="guide" aria-label="Letter guide"></canvas>
+<button class="sidebtn erase" id="erase"><span class="ico">🧽</span>Erase</button><button class="sidebtn retry" id="retry"><span class="ico">↶</span>Try again</button>
+<div class="hint">Write here · follow the guide</div><div class="praise" id="praise">⭐ Great effort!</div>
+<button class="bottombtn done" id="done">✓ I'm done!</button><button class="bottombtn hear" id="hear">🔊 Hear again</button>
+<div class="modal" id="modal"><div class="dialog"><h2 id="mt">Great job!</h2><p id="mp">You practised क.</p><button id="next">Next letter →</button></div></div>
+</main>
+<script>
+const lessons=[{c:'क',sound:'ka'},{c:'अ',sound:'a'},{c:'आ',sound:'aa'},{c:'इ',sound:'i'},{c:'ई',sound:'ee'},{c:'म',sound:'ma'},{c:'का',sound:'kaa'},{c:'कि',sound:'ki'},{c:'की',sound:'kee'},{c:'मा',sound:'maa'}];
+let idx=0,done=0,strokes=0,drawing=false,last=null;const $=id=>document.getElementById(id),w=$('write'),ctx=w.getContext('2d'),g=$('guide'),gx=g.getContext('2d');
+function fit(c,x){let r=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=Math.max(1,Math.round(r.width*d));c.height=Math.max(1,Math.round(r.height*d));x.setTransform(d,0,0,d,0,0)}
+function drawPad(){fit(w,ctx);let ww=w.clientWidth,h=w.clientHeight;ctx.clearRect(0,0,ww,h);ctx.lineWidth=3;ctx.strokeStyle='#7cbdf8';ctx.beginPath();ctx.moveTo(0,h*.18);ctx.lineTo(ww,h*.18);ctx.stroke();ctx.setLineDash([9,9]);ctx.strokeStyle='#b9dfff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,h*.5);ctx.lineTo(ww,h*.5);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='#ff8ca5';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,h*.82);ctx.lineTo(ww,h*.82);ctx.stroke();ctx.save();ctx.globalAlpha=.16;ctx.fillStyle='#5c7b70';ctx.font='700 '+Math.floor(h*.63)+'px "Noto Sans Devanagari","Nirmala UI",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lessons[idx].c,ww/2,h*.5);ctx.restore()}
+function drawGuide(){fit(g,gx);let ww=g.clientWidth,h=g.clientHeight;gx.clearRect(0,0,ww,h);gx.fillStyle='#fff8e4';gx.fillRect(0,0,ww,h);let a=h*.22,b=h*.5,c=h*.8;[[a,'#93d8f3',false],[b,'#b8dff0',true],[c,'#ff9aaa',false]].forEach(v=>{gx.beginPath();gx.setLineDash(v[2]?[6,5]:[]);gx.strokeStyle=v[1];gx.lineWidth=2;gx.moveTo(8,v[0]);gx.lineTo(ww-8,v[0]);gx.stroke()});gx.setLineDash([]);let band=c-a;gx.fillStyle='#102f25';gx.font='700 '+Math.floor(band*.87)+'px "Noto Sans Devanagari","Nirmala UI",sans-serif';gx.textAlign='center';gx.textBaseline='middle';gx.fillText(lessons[idx].c,ww*.5,(a+c)/2);gx.fillStyle='#168ed4';gx.beginPath();gx.arc(20,a+4,10,0,Math.PI*2);gx.fill();gx.fillStyle='white';gx.font='bold 11px sans-serif';gx.fillText('1',20,a+4);gx.strokeStyle='#168ed4';gx.lineWidth=3;gx.beginPath();gx.moveTo(33,a+4);gx.lineTo(Math.min(ww-15,70),a+4);gx.lineTo(Math.min(ww-21,64),a-2);gx.moveTo(Math.min(ww-15,70),a+4);gx.lineTo(Math.min(ww-21,64),a+10);gx.stroke()}
+function render(){let c=lessons[idx].c;$('letter').textContent=c;$('navLetter').textContent=c;$('praise').textContent='⭐ Great effort!';strokes=0;drawPad();drawGuide();['st1','st2','st3','st4'].forEach((id,i)=>$(id).classList.toggle('active',i===(idx<5?0:idx<9?1:2)))}
+function pos(e){let r=w.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+w.addEventListener('pointerdown',e=>{e.preventDefault();drawing=true;last=pos(e);w.setPointerCapture(e.pointerId);strokes++;ctx.strokeStyle='#173e33';ctx.lineWidth=Math.max(4,w.clientWidth*.006);ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(last.x+.1,last.y+.1);ctx.stroke()});
+w.addEventListener('pointermove',e=>{if(!drawing)return;e.preventDefault();let p=pos(e);ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p});
+['pointerup','pointercancel'].forEach(e=>w.addEventListener(e,()=>{drawing=false;last=null}));
+function speak(){if('speechSynthesis'in window){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(lessons[idx].c);u.lang='hi-IN';u.rate=.72;speechSynthesis.speak(u)}}
+function clear(){drawPad();strokes=0}
+$('sound').onclick=speak;$('hear').onclick=speak;$('replay').onclick=drawGuide;$('erase').onclick=clear;$('retry').onclick=()=>{clear();$('praise').textContent='Try again — you can do it!'};
+window.addEventListener('resize',()=>{drawPad();drawGuide()});
+$('done').onclick=()=>{if(!strokes){$('praise').textContent='Write the letter first ✍️';return}done++;$('mt').textContent='Great job!';$('mp').textContent='You practised '+lessons[idx].c+'.';$('next').textContent=done>=6?'Finish practice':'Next letter →';$('modal').classList.add('show')};
+function advance(){$('modal').classList.remove('show');idx=(idx+1)%lessons.length;render()}
+$('next').onclick=()=>{if(done>=6){done=0;idx=0;$('mt').textContent='Fantastic work!';$('mp').textContent='You completed six writing tries.';$('next').textContent='Practise again';$('next').onclick=()=>{$('modal').classList.remove('show');$('next').onclick=advance;render()};return}advance()};
+if($('home'))$('home').onclick=()=>{idx=0;done=0;$('modal').classList.remove('show');render()};
+if('serviceWorker'in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+render();
+</script></body></html>

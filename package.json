@@ -1,0 +1,9 @@
+{
+  "name": "rasari-hindi-pwa",
+  "version": "1.0.0",
+  "description": "Rasari Hindi Writing Gym — Progressive Web App",
+  "scripts": {
+    "dev": "npx -y serve . -l 3000",
+    "start": "npx -y serve . -l 3000"
+  }
+}

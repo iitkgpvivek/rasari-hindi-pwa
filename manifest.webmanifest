@@ -1,0 +1,24 @@
+{
+  "name": "Rasari Hindi Writing Gym",
+  "short_name": "Rasari Hindi",
+  "description": "A cheerful Hindi letter-writing practice app for children.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#bfeaff",
+  "theme_color": "#bfeaff",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
