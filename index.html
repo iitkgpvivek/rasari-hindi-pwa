@@ -3191,19 +3191,17 @@ function openApertureMode() {
 }
 
 function closeApertureMode() {
-  const isExplicitClose = arguments[0] !== false;
-  if (isExplicitClose) {
-    writeModeActive = false;
-    localStorage.setItem('rasari_write_mode', 'false');
-    if (userStrokes.length > 0) {
-      mainCtaState = 'done';
-    } else {
-      mainCtaState = 'write';
-    }
-    updateMainCta();
-  }
+  writeModeActive = false;
+  localStorage.setItem('rasari_write_mode', 'false');
   isApertureMode = false;
   updateWriteModeBtn();
+
+  if (userStrokes.length > 0) {
+    mainCtaState = 'done';
+  } else {
+    mainCtaState = 'write';
+  }
+  updateMainCta();
 
   const overlay = $('apertureOverlay');
   if (overlay) overlay.style.display = 'none';
@@ -3528,9 +3526,7 @@ function render() {
   }
 
   drawPad();
-  if (writeModeActive) {
-    openApertureMode();
-  } else if (isApertureMode) {
+  if (isApertureMode) {
     currentPracticeUnits = decomposeWordToUnits(getTargetText());
     updateApertureView();
   }
