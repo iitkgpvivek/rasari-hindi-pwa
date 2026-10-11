@@ -329,6 +329,35 @@ test('Full-Screen Aperture Writing Shield Mode & Akshara-by-Akshara guidance are
   assert.deepStrictEqual(kamalSegs, ['क', 'म', 'ल'], 'Must correctly segment Devanagari words into Aksharas');
 });
 
+test('Exact Letter/Matra box sizing, separate matra progression, and Write Mode state toggle', () => {
+  assert(html.includes('function decomposeWordToUnits('), 'decomposeWordToUnits must exist');
+  assert(html.includes('function updateWriteModeBtn()'), 'updateWriteModeBtn must exist');
+  assert(html.includes('currentUnitIndex = 0;'), 'Must always start on first letter when opening Write Mode');
+
+  // Verify separate letter & matra decomposition logic
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const matraNamesMatch = scriptContent.match(/const MATRA_NAMES = \{[\s\S]*?\};/);
+  assert(matraNamesMatch, 'MATRA_NAMES mapping must exist');
+
+  const evalFn = new Function(`${matraNamesMatch[0]};
+    function isMatraChar(ch) {
+      const code = ch.charCodeAt(0);
+      return (code >= 0x093e && code <= 0x094c) || code === 0x0902 || code === 0x0901 || code === 0x0903;
+    }
+    return ${scriptContent.match(/function decomposeWordToUnits\(word\)[\s\S]*?\n\}/)[0]};
+  `);
+  const decompose = evalFn();
+  const kitabUnits = decompose('किताब');
+  assert.strictEqual(kitabUnits.length, 5, 'किताब must decompose into 5 units: क, ि, त, ा, ब');
+  assert.strictEqual(kitabUnits[0].char, 'क');
+  assert.strictEqual(kitabUnits[1].char, 'ि');
+  assert.strictEqual(kitabUnits[1].type, 'matra');
+  assert.strictEqual(kitabUnits[2].char, 'त');
+  assert.strictEqual(kitabUnits[3].char, 'ा');
+  assert.strictEqual(kitabUnits[3].type, 'matra');
+  assert.strictEqual(kitabUnits[4].char, 'ब');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');

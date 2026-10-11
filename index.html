@@ -266,7 +266,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 <div class="toolbar-top" id="toolbarTop">
   <span class="stage-badge" id="stageBadge">Stage 1/3: Trace ✍️</span>
-  <button class="ctrl-pill" id="startWritingBtn" style="background:#28a745; color:white; border-color:#208637; font-weight:800;" title="Open Focused Writing Mode with Full Palm Shield">✍️ Write Mode</button>
+  <button class="ctrl-pill" id="startWritingBtn" title="Toggle Focused Writing Mode with Full Palm Shield">✍️ Write Mode: OFF</button>
   <button class="ctrl-pill active" id="palmGuardToggle" title="Toggle Palm Rest Shield for stylus">🖐️ Guard</button>
   <button class="ctrl-pill" id="fullscreenToggle" title="Toggle Fullscreen to hide tablet navigation buttons">⛶ Fullscreen</button>
   <button class="ctrl-pill" id="stylusHelpBtn" title="Stylus & Tablet Lock Help">🛡️ Help</button>
@@ -1734,6 +1734,10 @@ let palmGuardEnabled = localStorage.getItem('rasari_palm_guard') !== 'false';
 let palmGuardHeightPct = parseFloat(localStorage.getItem('rasari_palm_guard_h') || '20');
 let lastDrawEndTime = 0;
 let isApertureMode = false;
+let writeModeActive = localStorage.getItem('rasari_write_mode') === 'true';
+let currentPracticeUnits = [];
+let currentUnitIndex = 0;
+let unitStrokesMap = [];
 let currentAksharas = [];
 let currentAksharaIndex = 0;
 let aksharaStrokesMap = [];
@@ -2055,7 +2059,7 @@ w.addEventListener('pointerdown', e => {
 
   // Reject touches outside the active aperture window in Aperture Mode
   if (isApertureMode) {
-    const metrics = getAksharaMetrics(currentAksharaIndex);
+    const metrics = getAksharaMetrics(currentUnitIndex);
     const margin = 12;
     if (e.clientX < metrics.winScreenL - margin ||
         e.clientX > metrics.winScreenL + metrics.winScreenW + margin ||
@@ -2076,10 +2080,10 @@ w.addEventListener('pointerdown', e => {
   currentStroke = [p];
   userStrokes.push(currentStroke);
   if (isApertureMode) {
-    if (!aksharaStrokesMap[currentAksharaIndex]) {
-      aksharaStrokesMap[currentAksharaIndex] = [];
+    if (!unitStrokesMap[currentUnitIndex]) {
+      unitStrokesMap[currentUnitIndex] = [];
     }
-    aksharaStrokesMap[currentAksharaIndex].push(currentStroke);
+    unitStrokesMap[currentUnitIndex].push(currentStroke);
   }
 
   const bw = getBrushWidth();
@@ -2101,7 +2105,7 @@ w.addEventListener('pointermove', e => {
 
   // In Aperture Mode, ignore if dragged too far outside the window
   if (isApertureMode) {
-    const metrics = getAksharaMetrics(currentAksharaIndex);
+    const metrics = getAksharaMetrics(currentUnitIndex);
     const maxMargin = 28;
     if (e.clientX < metrics.winScreenL - maxMargin ||
         e.clientX > metrics.winScreenL + metrics.winScreenW + maxMargin ||
@@ -2144,8 +2148,8 @@ function clearPad() {
   currentStroke = null;
   last = null;
   activePointerId = null;
-  if (isApertureMode && currentAksharas && currentAksharas.length) {
-    aksharaStrokesMap = currentAksharas.map(() => []);
+  if (isApertureMode && currentPracticeUnits && currentPracticeUnits.length) {
+    unitStrokesMap = currentPracticeUnits.map(() => []);
   }
   drawPad();
 }
@@ -2845,18 +2849,95 @@ if ($('homeBtn')) $('homeBtn').onclick = goHome;
 // ------------------------------------------------------------------
 // Full-Screen Aperture Writing Shield Mode & Akshara-by-Akshara Engine
 // ------------------------------------------------------------------
-function getAksharaSegments(text) {
-  if (!text) return [];
+const MATRA_NAMES = {
+  '\u093e': { name: 'आ की मात्रा (ा)', zone: 'side' },
+  '\u093f': { name: 'इ की मात्रा (ि)', zone: 'left-arch' },
+  '\u0940': { name: 'ई की मात्रा (ी)', zone: 'right-arch' },
+  '\u0941': { name: 'उ की मात्रा (ु)', zone: 'bottom' },
+  '\u0942': { name: 'ऊ की मात्रा (ू)', zone: 'bottom' },
+  '\u0943': { name: 'ऋ की मात्रा (ृ)', zone: 'bottom' },
+  '\u0947': { name: 'ए की मात्रा (े)', zone: 'top' },
+  '\u0948': { name: 'ऐ की मात्रा (ै)', zone: 'top' },
+  '\u094b': { name: 'ओ की मात्रा (ो)', zone: 'top-side' },
+  '\u094c': { name: 'औ की मात्रा (ौ)', zone: 'top-side' },
+  '\u0902': { name: 'अं की बिंदी (ं)', zone: 'top' },
+  '\u0901': { name: 'चन्द्रबिन्दु (ँ)', zone: 'top' },
+  '\u0903': { name: 'विसर्ग (ः)', zone: 'side' }
+};
+
+function isMatraChar(ch) {
+  if (!ch) return false;
+  const code = ch.charCodeAt(0);
+  return (code >= 0x093e && code <= 0x094c) || code === 0x0902 || code === 0x0901 || code === 0x0903;
+}
+
+function decomposeWordToUnits(word) {
+  if (!word) return [];
+  let clusters = [];
   if (typeof Intl !== 'undefined' && Intl.Segmenter) {
     try {
       const seg = new Intl.Segmenter('hi', { granularity: 'grapheme' });
-      return Array.from(seg.segment(text), s => s.segment);
+      clusters = Array.from(seg.segment(word), s => ({ segment: s.segment, index: s.index }));
     } catch (_) {}
   }
-  return text.split('');
+  if (!clusters.length) {
+    clusters = Array.from(word).map((ch, i) => ({ segment: ch, index: i }));
+  }
+
+  const units = [];
+  for (const cl of clusters) {
+    const s = cl.segment;
+    const chars = Array.from(s);
+    const lastChar = chars[chars.length - 1];
+
+    if (chars.length > 1 && isMatraChar(lastChar)) {
+      const basePart = chars.slice(0, -1).join('');
+      const matraChar = lastChar;
+      const baseUnitIdx = units.length;
+
+      // 1. Base consonant or letter
+      units.push({
+        type: 'base',
+        char: basePart,
+        baseChar: basePart,
+        combo: s,
+        cluster: s,
+        charIndex: cl.index,
+        charLength: basePart.length
+      });
+
+      // 2. Matra
+      units.push({
+        type: 'matra',
+        char: matraChar,
+        baseChar: basePart,
+        baseUnitIdx: baseUnitIdx,
+        combo: s,
+        cluster: s,
+        matraInfo: MATRA_NAMES[matraChar] || { name: matraChar, zone: 'top' },
+        charIndex: cl.index + basePart.length,
+        charLength: matraChar.length
+      });
+    } else {
+      units.push({
+        type: 'base',
+        char: s,
+        baseChar: s,
+        combo: s,
+        cluster: s,
+        charIndex: cl.index,
+        charLength: s.length
+      });
+    }
+  }
+  return units;
 }
 
-function getAksharaMetrics(akIndex) {
+function getAksharaSegments(text) {
+  return decomposeWordToUnits(text).map(u => u.char);
+}
+
+function getAksharaMetrics(unitIdx) {
   const targetText = getTargetText() || 'अ';
   const cW = w.clientWidth || 400;
   const cH = w.clientHeight || 400;
@@ -2867,48 +2948,97 @@ function getAksharaMetrics(akIndex) {
   const fullTextWidth = ctx.measureText(targetText).width;
   const textStartX = (cW / 2) - (fullTextWidth / 2);
 
-  const akList = (currentAksharas && currentAksharas.length > 0)
-    ? currentAksharas
-    : getAksharaSegments(targetText);
+  const units = (currentPracticeUnits && currentPracticeUnits.length > 0)
+    ? currentPracticeUnits
+    : decomposeWordToUnits(targetText);
 
-  let charPos = 0;
-  const ranges = akList.map(ak => {
-    const start = charPos;
-    const end = charPos + ak.length;
-    charPos = end;
-    return { start, end, ak };
-  });
+  if (unitIdx >= units.length) unitIdx = 0;
+  const unit = units[unitIdx] || { type: 'base', char: targetText, combo: targetText, charIndex: 0 };
 
-  const curRange = ranges[akIndex] || ranges[0] || { start: 0, end: targetText.length, ak: targetText };
-  const prefixBefore = targetText.slice(0, curRange.start);
-  const prefixWith = targetText.slice(0, curRange.end);
+  // Base character metrics
+  const basePrefixBefore = targetText.slice(0, unit.baseCharIndex !== undefined ? unit.baseCharIndex : unit.charIndex);
+  const basePrefixWith = targetText.slice(0, (unit.baseCharIndex !== undefined ? unit.baseCharIndex : unit.charIndex) + (unit.baseChar ? unit.baseChar.length : 1));
+  const baseWBefore = basePrefixBefore ? ctx.measureText(basePrefixBefore).width : 0;
+  const baseWWith = ctx.measureText(basePrefixWith).width;
+  const baseStartX = textStartX + baseWBefore;
+  const baseEndX = textStartX + baseWWith;
+  const baseWidth = Math.max(16, baseEndX - baseStartX);
+  const baseCenterX = (baseStartX + baseEndX) / 2;
 
-  const widthBefore = prefixBefore ? ctx.measureText(prefixBefore).width : 0;
-  const widthWith = ctx.measureText(prefixWith).width;
+  let winL, winT, winW, winH;
 
-  const aksharaStartX = textStartX + widthBefore;
-  const aksharaEndX = textStartX + widthWith;
-  const aksharaWidth = Math.max(16, aksharaEndX - aksharaStartX);
-  const aksharaCenterX = (aksharaStartX + aksharaEndX) / 2;
+  if (unit.type === 'base') {
+    // -------------------------------------------------------------
+    // Base Consonant / Vowel: EXACTLY between Line 2 & Line 4!
+    // Line 2 (Shirorekha) is the top bar. Line 4 (Baseline) is the foot.
+    // -------------------------------------------------------------
+    winT = ruling.line2 - 3;
+    const winB = ruling.line4 + 3;
+    winH = winB - winT;
+    winW = Math.max(Math.round(ruling.bodyHeight * 0.72), baseWidth + 14);
+    winL = baseCenterX - (winW / 2);
+  } else {
+    // -------------------------------------------------------------
+    // Matra: Positioned and sized based on where the matra sits!
+    // -------------------------------------------------------------
+    const zone = unit.matraInfo ? unit.matraInfo.zone : 'top';
+    if (zone === 'top') {
+      // Top matra (Line 1 to Line 2): sits right on top of the letter
+      winT = ruling.line1 - 3;
+      const winB = ruling.line2 + 3;
+      winH = winB - winT;
+      winW = Math.max(Math.round(ruling.bodyHeight * 0.65), baseWidth * 0.85 + 12);
+      winL = baseCenterX - (winW / 2);
+    } else if (zone === 'bottom') {
+      // Bottom matra (Line 4 to Line 5): sits right below the foot
+      winT = ruling.line4 - 3;
+      const winB = ruling.line5 + 3;
+      winH = winB - winT;
+      winW = Math.max(Math.round(ruling.bodyHeight * 0.55), baseWidth * 0.75 + 10);
+      winL = baseCenterX - (winW / 2);
+    } else if (zone === 'side' || zone === 'top-side') {
+      // Side matra (Line 2 to Line 4): sits beside the letter
+      winT = (zone === 'top-side') ? (ruling.line1 - 3) : (ruling.line2 - 3);
+      const winB = ruling.line4 + 3;
+      winH = winB - winT;
 
-  // Window bounds on canvas
-  const paddingX = Math.round(ruling.bodyHeight * 0.32);
-  const minWinW = Math.round(ruling.bodyHeight * 1.25);
-  const winW = Math.max(minWinW, aksharaWidth + paddingX * 2);
-  let winL = aksharaCenterX - (winW / 2);
+      const matraPrefixBefore = targetText.slice(0, unit.charIndex);
+      const matraPrefixWith = targetText.slice(0, unit.charIndex + unit.char.length);
+      const mWBefore = ctx.measureText(matraPrefixBefore).width;
+      const mWWith = ctx.measureText(matraPrefixWith).width;
+      const mStartX = textStartX + mWBefore;
+      const mEndX = textStartX + mWWith;
+      const mWidth = Math.max(14, mEndX - mStartX);
+      const mCenterX = (mStartX + mEndX) / 2;
 
-  // Clamp within canvas horizontal bounds with safe margins
+      winW = Math.max(Math.round(ruling.bodyHeight * 0.45), mWidth + 12);
+      winL = mCenterX - (winW / 2);
+    } else if (zone === 'left-arch') {
+      // Chhoti 'i' matra (Line 1 to Line 4): left stem and top arch
+      winT = ruling.line1 - 3;
+      const winB = ruling.line4 + 3;
+      winH = winB - winT;
+      winW = Math.max(Math.round(ruling.bodyHeight * 0.72), baseWidth + 16);
+      winL = baseCenterX - (winW / 2) - 8;
+    } else if (zone === 'right-arch') {
+      // Badi 'ee' matra (Line 1 to Line 4): top arch and right stem
+      winT = ruling.line1 - 3;
+      const winB = ruling.line4 + 3;
+      winH = winB - winT;
+      winW = Math.max(Math.round(ruling.bodyHeight * 0.72), baseWidth + 16);
+      winL = baseCenterX - (winW / 2) + 8;
+    } else {
+      winT = ruling.line1 - 3;
+      const winB = ruling.line5 + 3;
+      winH = winB - winT;
+      winW = Math.max(Math.round(ruling.bodyHeight * 0.75), baseWidth + 14);
+      winL = baseCenterX - (winW / 2);
+    }
+  }
+
   winL = Math.max(4, Math.min(cW - winW - 4, winL));
   const finalWinW = Math.min(winW, cW - 8);
 
-  // Vertical bounds on canvas (cover Upper Matra line 1 to Lower Matra line 5 with generous padding)
-  const padTop = Math.round(ruling.bodyHeight * 0.22);
-  const padBottom = Math.round(ruling.bodyHeight * 0.22);
-  const winT = Math.max(4, ruling.line1 - padTop);
-  const winB = Math.min(cH - 4, ruling.line5 + padBottom);
-  const winH = winB - winT;
-
-  // Screen coordinates
   const cRect = w.getBoundingClientRect();
   const screenWinL = Math.round(cRect.left + winL);
   const screenWinT = Math.round(cRect.top + winT);
@@ -2916,9 +3046,11 @@ function getAksharaMetrics(akIndex) {
   const screenWinH = Math.round(winH);
 
   return {
-    akshara: curRange.ak,
-    aksharaCenterX,
-    aksharaWidth,
+    unit,
+    akshara: unit.char,
+    baseCenterX,
+    aksharaCenterX: baseCenterX,
+    aksharaWidth: baseWidth,
     winScreenL: screenWinL,
     winScreenT: screenWinT,
     winScreenW: screenWinW,
@@ -2929,16 +3061,19 @@ function getAksharaMetrics(akIndex) {
 function updateApertureView() {
   if (!isApertureMode) return;
   const targetText = getTargetText();
-  if (!currentAksharas || currentAksharas.length === 0) {
-    currentAksharas = getAksharaSegments(targetText);
-    if (currentAksharas.length === 0) currentAksharas = [targetText || 'अ'];
+  if (!currentPracticeUnits || currentPracticeUnits.length === 0) {
+    currentPracticeUnits = decomposeWordToUnits(targetText);
+    if (!currentPracticeUnits.length) {
+      currentPracticeUnits = [{ type: 'base', char: targetText || 'अ', combo: targetText || 'अ' }];
+    }
   }
-  if (currentAksharaIndex >= currentAksharas.length) {
-    currentAksharaIndex = 0;
+  if (currentUnitIndex >= currentPracticeUnits.length) {
+    currentUnitIndex = 0;
   }
 
-  const curAkshara = currentAksharas[currentAksharaIndex];
-  const metrics = getAksharaMetrics(currentAksharaIndex);
+  const unit = currentPracticeUnits[currentUnitIndex];
+  const totalUnits = currentPracticeUnits.length;
+  const metrics = getAksharaMetrics(currentUnitIndex);
 
   // Position the aperture cutout window
   const win = $('apertureWindow');
@@ -2990,48 +3125,72 @@ function updateApertureView() {
   // Update top bar labels
   const badge = $('apertureBadge');
   if (badge) {
-    badge.textContent = currentAksharas.length > 1
-      ? `${curAkshara} (${currentAksharaIndex + 1}/${currentAksharas.length})`
-      : curAkshara;
+    if (unit.type === 'base') {
+      badge.textContent = totalUnits > 1 ? `Letter: ${unit.char} (${currentUnitIndex + 1}/${totalUnits})` : unit.char;
+    } else {
+      badge.textContent = `Matra: ${unit.char} (${currentUnitIndex + 1}/${totalUnits})`;
+    }
   }
 
   const prompt = $('aperturePrompt');
   if (prompt) {
-    if (currentAksharas.length > 1) {
-      prompt.textContent = `Write '${curAkshara}' in '${targetText}' ✍️ (Rest hand anywhere)`;
+    if (unit.type === 'base') {
+      if (totalUnits > 1) {
+        prompt.textContent = `Write '${unit.char}' (${currentUnitIndex + 1}/${totalUnits} in ${targetText}) ✍️`;
+      } else {
+        prompt.textContent = `Write '${unit.char}' ✍️ (Rest hand anywhere safely)`;
+      }
     } else {
-      prompt.textContent = `Write '${curAkshara}' ✍️ (Rest hand anywhere safely)`;
+      const mName = unit.matraInfo ? unit.matraInfo.name : unit.char;
+      prompt.textContent = `Add matra '${unit.char}' (${mName}) to '${unit.baseChar}' 🌿`;
     }
   }
 
   const doneBtn = $('apertureDoneBtn');
   if (doneBtn) {
-    if (currentAksharas.length > 1) {
-      doneBtn.textContent = (currentAksharaIndex === currentAksharas.length - 1) ? '✓ Finish Word!' : '✓ Next Letter →';
+    if (totalUnits > 1) {
+      doneBtn.textContent = (currentUnitIndex === totalUnits - 1) ? '✓ Finish Word!' : '✓ Next Step →';
     } else {
       doneBtn.textContent = '✓ Done!';
     }
   }
 }
 
-function openApertureMode() {
-  isApertureMode = true;
-  const targetText = getTargetText();
-  currentAksharas = getAksharaSegments(targetText);
-  if (currentAksharas.length === 0) currentAksharas = [targetText || 'अ'];
+function updateWriteModeBtn() {
+  const btn = $('startWritingBtn');
+  if (!btn) return;
+  if (writeModeActive) {
+    btn.textContent = '✍️ Write Mode: ON';
+    btn.classList.add('active');
+    btn.style.background = '#28a745';
+    btn.style.color = '#ffffff';
+    btn.style.borderColor = '#208637';
+  } else {
+    btn.textContent = '✍️ Write Mode: OFF';
+    btn.classList.remove('active');
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }
+}
 
-  if (aksharaStrokesMap.length !== currentAksharas.length) {
-    aksharaStrokesMap = currentAksharas.map(() => []);
-    currentAksharaIndex = 0;
+function openApertureMode() {
+  writeModeActive = true;
+  isApertureMode = true;
+  currentUnitIndex = 0; // ALWAYS starts at the FIRST letter!
+  localStorage.setItem('rasari_write_mode', 'true');
+  updateWriteModeBtn();
+
+  const targetText = getTargetText();
+  currentPracticeUnits = decomposeWordToUnits(targetText);
+  if (!currentPracticeUnits.length) {
+    currentPracticeUnits = [{ type: 'base', char: targetText || 'अ', combo: targetText || 'अ' }];
   }
-  if (currentAksharaIndex >= currentAksharas.length) {
-    currentAksharaIndex = 0;
-  }
+  unitStrokesMap = currentPracticeUnits.map(() => []);
 
   const overlay = $('apertureOverlay');
   if (overlay) overlay.style.display = 'block';
 
-  // Temporarily hide the bottom palm guard shield while full aperture overlay is active
   const bottomGuard = $('palmGuardShield');
   if (bottomGuard) bottomGuard.style.display = 'none';
 
@@ -3039,7 +3198,14 @@ function openApertureMode() {
 }
 
 function closeApertureMode() {
+  const isExplicitClose = arguments[0] !== false;
+  if (isExplicitClose) {
+    writeModeActive = false;
+    localStorage.setItem('rasari_write_mode', 'false');
+  }
   isApertureMode = false;
+  updateWriteModeBtn();
+
   const overlay = $('apertureOverlay');
   if (overlay) overlay.style.display = 'none';
 
@@ -3048,11 +3214,11 @@ function closeApertureMode() {
 }
 
 function clearCurrentAksharaStrokes() {
-  const curStrokes = aksharaStrokesMap[currentAksharaIndex] || [];
+  const curStrokes = unitStrokesMap[currentUnitIndex] || [];
   if (curStrokes.length > 0) {
     const strokeSet = new Set(curStrokes);
     userStrokes = userStrokes.filter(s => !strokeSet.has(s));
-    aksharaStrokesMap[currentAksharaIndex] = [];
+    unitStrokesMap[currentUnitIndex] = [];
     drawing = false;
     currentStroke = null;
     last = null;
@@ -3064,24 +3230,42 @@ function clearCurrentAksharaStrokes() {
 function handleApertureDone() {
   if (drawing || (Date.now() - lastDrawEndTime < 300)) return;
 
-  const curAkshara = currentAksharas[currentAksharaIndex];
-  const curStrokes = aksharaStrokesMap[currentAksharaIndex] || [];
+  if (!currentPracticeUnits || currentUnitIndex >= currentPracticeUnits.length) {
+    currentUnitIndex = 0;
+  }
+  const unit = currentPracticeUnits[currentUnitIndex];
+  const curStrokes = unitStrokesMap[currentUnitIndex] || [];
 
   const totalPoints = curStrokes.reduce((acc, s) => acc + s.length, 0);
-  if (!curStrokes.length || totalPoints < 6) {
+  if (!curStrokes.length || totalPoints < 4) {
     const win = $('apertureWindow');
     if (win) {
       win.classList.add('shake');
       setTimeout(() => win.classList.remove('shake'), 450);
     }
     const prompt = $('aperturePrompt');
-    if (prompt) prompt.textContent = `Write '${curAkshara}' first! ✍️`;
+    if (prompt) {
+      prompt.textContent = unit.type === 'base'
+        ? `Write '${unit.char}' first! ✍️`
+        : `Add '${unit.char}' matra first! 🌿`;
+    }
     return;
   }
 
-  const { aksharaCenterX } = getAksharaMetrics(currentAksharaIndex);
-  const strokeOffset = aksharaCenterX - (w.clientWidth / 2);
-  const result = evaluateHandwriting(curAkshara, curStrokes, strokeOffset);
+  const metrics = getAksharaMetrics(currentUnitIndex);
+  const strokeOffset = metrics.baseCenterX - (w.clientWidth / 2);
+
+  let result;
+  if (unit.type === 'base') {
+    result = evaluateHandwriting(unit.char, curStrokes, strokeOffset);
+  } else {
+    // Combine base strokes + matra strokes to evaluate the full combo
+    const baseStrokes = (unit.baseUnitIdx !== undefined && unitStrokesMap[unit.baseUnitIdx])
+      ? unitStrokesMap[unit.baseUnitIdx]
+      : [];
+    const comboStrokes = baseStrokes.concat(curStrokes);
+    result = evaluateHandwriting(unit.combo, comboStrokes, strokeOffset);
+  }
 
   if (!result.pass) {
     const win = $('apertureWindow');
@@ -3095,9 +3279,11 @@ function handleApertureDone() {
     const prompt = $('aperturePrompt');
     if (prompt) {
       if (result.reason === 'scribble') {
-        prompt.textContent = `Don't scribble! Follow the lines for '${curAkshara}' ✍️`;
+        prompt.textContent = `Don't scribble! Follow the lines for '${unit.char}' ✍️`;
       } else {
-        prompt.textContent = `Try again! Follow the lines for '${curAkshara}' ✍️`;
+        prompt.textContent = unit.type === 'base'
+          ? `Try again! Follow the lines for '${unit.char}' ✍️`
+          : `Try again! Add '${unit.char}' matra carefully 🌿`;
       }
     }
 
@@ -3111,18 +3297,20 @@ function handleApertureDone() {
     return;
   }
 
-  // Akshara passed!
-  if (currentAksharaIndex < currentAksharas.length - 1) {
-    currentAksharaIndex++;
+  // Passed this unit!
+  if (currentUnitIndex < currentPracticeUnits.length - 1) {
+    currentUnitIndex++;
     updateApertureView();
-    const nextAk = currentAksharas[currentAksharaIndex];
+    const nextUnit = currentPracticeUnits[currentUnitIndex];
     const prompt = $('aperturePrompt');
     if (prompt) {
-      prompt.textContent = `Great! Now write '${nextAk}' (${currentAksharaIndex + 1}/${currentAksharas.length}) ✍️`;
+      prompt.textContent = nextUnit.type === 'base'
+        ? `Great! Now write '${nextUnit.char}' (${currentUnitIndex + 1}/${currentPracticeUnits.length}) ✍️`
+        : `Super! Now add matra '${nextUnit.char}' 🌿`;
     }
   } else {
-    // All Aksharas of this word or letter complete!
-    closeApertureMode();
+    // All units of this word complete!
+    closeApertureMode(false); // keep writeModeActive true for continuous palm protection
     window._forcePassDone = true;
     $('done').click();
   }
@@ -3145,16 +3333,24 @@ if ($('apertureBar')) {
 }
 
 if ($('startWritingBtn')) {
-  $('startWritingBtn').onclick = () => openApertureMode();
+  $('startWritingBtn').onclick = () => {
+    if (writeModeActive) {
+      closeApertureMode(true);
+    } else {
+      openApertureMode();
+    }
+  };
 }
 
 if ($('apertureSoundBtn')) {
   $('apertureSoundBtn').onclick = () => {
-    if (currentStep === 1) {
+    if (currentPracticeUnits && currentPracticeUnits[currentUnitIndex]) {
+      const u = currentPracticeUnits[currentUnitIndex];
+      speakHindi(u.combo || u.char, lessons[idx]?.audio);
+    } else if (currentStep === 1) {
       speakLetter();
     } else {
-      const curAk = (currentAksharas && currentAksharas[currentAksharaIndex]) || getTargetText();
-      speakHindi(curAk, lessons[idx]?.audio);
+      speakHindi(getTargetText(), lessons[idx]?.audio);
     }
   };
 }
@@ -3180,8 +3376,10 @@ if ($('apertureDoneBtn')) {
 }
 
 if ($('apertureCloseBtn')) {
-  $('apertureCloseBtn').onclick = () => closeApertureMode();
+  $('apertureCloseBtn').onclick = () => closeApertureMode(true);
 }
+
+updateWriteModeBtn();
 
 window.addEventListener('resize', () => {
   drawPad();
@@ -3199,8 +3397,8 @@ $('st4').onclick = () => openProgressStickers();
 function setLetter(newIdx) {
   clearPad();
   idx = newIdx;
-  currentAksharaIndex = 0;
-  aksharaStrokesMap = [];
+  currentUnitIndex = 0;
+  unitStrokesMap = [];
   const item = lessons[idx];
 
   if (item.isSwar && currentStep === 2) {
@@ -3230,11 +3428,6 @@ function setLetter(newIdx) {
   }
 
   render();
-  if (isApertureMode) {
-    currentAksharas = getAksharaSegments(getTargetText());
-    aksharaStrokesMap = currentAksharas.map(() => []);
-    updateApertureView();
-  }
 }
 
 function setStep(stepNum) {
@@ -3249,15 +3442,10 @@ function setStep(stepNum) {
   });
   $('st4').classList.remove('active');
 
-  currentAksharaIndex = 0;
-  aksharaStrokesMap = [];
+  currentUnitIndex = 0;
+  unitStrokesMap = [];
   clearPad();
   render();
-  if (isApertureMode) {
-    currentAksharas = getAksharaSegments(getTargetText());
-    aksharaStrokesMap = currentAksharas.map(() => []);
-    updateApertureView();
-  }
 }
 
 function render() {
@@ -3307,8 +3495,10 @@ function render() {
   }
 
   drawPad();
-  if (isApertureMode) {
-    currentAksharas = getAksharaSegments(getTargetText());
+  if (writeModeActive) {
+    openApertureMode();
+  } else if (isApertureMode) {
+    currentPracticeUnits = decomposeWordToUnits(getTargetText());
     updateApertureView();
   }
 }
