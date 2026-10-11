@@ -281,6 +281,21 @@ test('Mastery Star Criteria: 1 star = letter, 2 stars = matra, 3 stars = 10 word
   assert(code.includes('m.wordsMastered.length >= 10'), 'Must require at least 10 mastered words for 3 stars');
 });
 
+test('Software Palm Rejection & Palm Guard Shield are active', () => {
+  assert(html.includes('id="palmGuardShield"'), 'Palm Guard Shield overlay must exist');
+  assert(html.includes('id="palmGuardToggle"'), 'Palm Guard toggle button must exist');
+  assert(html.includes('function isPalmContact(e)'), 'isPalmContact discriminative function must exist');
+  assert(html.includes('activePointerId'), 'Single active pointer locking must be implemented to prevent multi-touch jitter');
+  assert(html.includes('lastDrawEndTime'), 'Drawing cooldown lockout on bottom buttons must be implemented');
+});
+
+test('Fullscreen Kiosk Mode & Parental Guidance modal protect against OS navigation exits', () => {
+  assert(html.includes('id="fullscreenToggle"'), 'Fullscreen toggle button must exist');
+  assert(html.includes('id="stylusModal"'), 'Stylus & Tablet guidance modal must exist');
+  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'manifest.webmanifest'), 'utf8'));
+  assert.strictEqual(manifest.display, 'fullscreen', 'Manifest must specify fullscreen display to hide tablet navigation bar');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');

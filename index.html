@@ -35,10 +35,19 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 #write{position:absolute;left:27.5%;top:19.5%;width:45.8%;height:56.5%;touch-action:none;cursor:crosshair}
 
 /* Stage & Mode Toolbar placed cleanly inside the top of the center slate */
-.toolbar-top{position:absolute;left:28.5%;top:20.5%;height:4.2%;display:flex;align-items:center;gap:8px;z-index:5}
-.stage-badge{background:#ffffffdd;border:2px solid #0f7a66;border-radius:999px;padding:3px 10px;font-size:clamp(10px,1.1vw,13px);font-weight:800;color:#0f7a66;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.06)}
-.ctrl-pill{background:#fff8df;border:2px solid #e2a03f;border-radius:999px;padding:3px 10px;font-size:clamp(10px,1.1vw,13px);font-weight:800;color:#80531a;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.06);transition:all .15s}
+.toolbar-top{position:absolute;left:28%;top:20.2%;max-width:44.8%;height:4.5%;display:flex;align-items:center;gap:6px;z-index:7;flex-wrap:nowrap}
+.stage-badge{background:#ffffffdd;border:2px solid #0f7a66;border-radius:999px;padding:3px 8px;font-size:clamp(9px,1.05vw,12px);font-weight:800;color:#0f7a66;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.06);white-space:nowrap}
+.ctrl-pill{background:#fff8df;border:2px solid #e2a03f;border-radius:999px;padding:3px 8px;font-size:clamp(9px,1.05vw,12px);font-weight:800;color:#80531a;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.06);transition:all .15s;white-space:nowrap}
 .ctrl-pill:active{transform:scale(0.95)}
+.ctrl-pill.active{background:#ffefc2;border-color:#b47514;color:#6d3d04}
+
+/* Palm Guard Shield: Child Wrist & Hand Rest Band */
+.palm-guard-shield{position:absolute;left:27.5%;width:45.8%;bottom:24%;height:20%;background:rgba(14,43,36,0.82);border-top:2.5px dashed #ffca4f;border-radius:0 0 16px 16px;box-shadow:0 -4px 16px rgba(0,0,0,0.35);z-index:6;touch-action:none;display:flex;flex-direction:column;justify-content:flex-start;user-select:none;transition:background .15s ease;pointer-events:auto}
+.palm-guard-shield.active-touch{background:rgba(18,62,52,0.94);border-top-color:#ffe082}
+.palm-guard-handle{width:100%;height:26px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,202,79,0.25);color:#fff6da;font-size:clamp(9px,1.05vw,12px);font-weight:800;text-shadow:0 1px 2px rgba(0,0,0,0.5);cursor:ns-resize;touch-action:none}
+.palm-guard-title{display:flex;align-items:center;gap:5px}
+.palm-guard-drag{font-size:10px;color:#ffd276;background:rgba(0,0,0,0.25);padding:1px 6px;border-radius:999px;border:1px solid rgba(255,210,118,0.4)}
+.palm-guard-body{flex:1;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.65);font-size:clamp(10px,1.15vw,13px);font-weight:700;letter-spacing:0.5px}
 
 /* Right "See how to write" card */
 .guideheading{position:absolute;left:76.5%;top:19.8%;width:19.8%;height:5.5%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.5vw,19px);font-weight:800;color:#49370d;white-space:nowrap}
@@ -235,9 +244,22 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 <div class="toolbar-top" id="toolbarTop">
   <span class="stage-badge" id="stageBadge">Stage 1/3: Trace ✍️</span>
+  <button class="ctrl-pill active" id="palmGuardToggle" title="Toggle Palm Rest Shield for stylus">🖐️ Palm Guard: ON</button>
+  <button class="ctrl-pill" id="fullscreenToggle" title="Toggle Fullscreen to hide tablet navigation buttons">⛶ Fullscreen</button>
+  <button class="ctrl-pill" id="stylusHelpBtn" title="Stylus & Tablet Lock Help">🛡️ Stylus Help</button>
 </div>
 
 <canvas id="write" aria-label="Writing canvas"></canvas>
+
+<div class="palm-guard-shield" id="palmGuardShield" aria-label="Palm Rest Shield">
+  <div class="palm-guard-handle" id="palmGuardHandle">
+    <span class="palm-guard-title"><span>🖐️</span> Rest Hand Here</span>
+    <span class="palm-guard-drag" id="palmGuardDrag" title="Drag to adjust size">↕ Drag to size</span>
+  </div>
+  <div class="palm-guard-body" id="palmGuardBody">
+    <span>Palm Protected ✍️ Write above</span>
+  </div>
+</div>
 
 <div class="guideheading" id="guideHeading"><span id="guideTitle">Visual Clue</span></div>
 <div class="clue-board" id="clueBoard" title="Tap to hear word">
@@ -273,6 +295,43 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
       <span class="stat-pill">🍌 <span id="treatCount">0</span> treats</span>
     </div>
     <div class="sticker-grid" id="stickerGrid"></div>
+  </div>
+</div>
+
+<div class="modal" id="stylusModal">
+  <div class="dialog" style="max-width: 520px; text-align: left; padding: 22px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; border-bottom: 1.5px solid #ebd9b8; padding-bottom: 8px;">
+      <h2 style="font-size: 21px; margin: 0; color: #143e70;">🛡️ Stylus &amp; Palm Protection Guide</h2>
+      <button id="closeStylusBtn" style="background:transparent; border:none; font-size:22px; color:#78450d; cursor:pointer; font-weight:800; padding:0 4px;">✕</button>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap: 11px; font-size: 13.5px; color: #333; line-height: 1.45;">
+      <div style="background:#f0f9f5; border:1.5px solid #7bc6a4; border-radius:14px; padding:10px 12px;">
+        <strong style="color:#0e6856; display:flex; align-items:center; gap:6px;">🖐️ 1. Software Palm Guard (Active on Slate)</strong>
+        <p style="margin:4px 0 0; font-size:12.5px; color:#234b41;">
+          The bottom translucent band on the blackboard is a protected Hand Rest Pad. Your child can comfortably rest their entire hand and wrist on it while writing above! Drag the <strong>↕ Drag</strong> handle up or down to adjust its height.
+        </p>
+      </div>
+
+      <div style="background:#eef6fc; border:1.5px solid #8ecdf7; border-radius:14px; padding:10px 12px;">
+        <strong style="color:#124170; display:flex; align-items:center; gap:6px;">⛶ 2. Hide Tablet Home &amp; Back Buttons (Fullscreen Mode)</strong>
+        <p style="margin:4px 0 0; font-size:12.5px; color:#173d61;">
+          Tap <strong>⛶ Fullscreen</strong> in the top toolbar. On Android tablets and Chrome, this completely hides the bottom Home, Back, and Recent Apps buttons so small hands cannot accidentally trigger them.
+        </p>
+      </div>
+
+      <div style="background:#fff9eb; border:1.5px solid #f6cf7c; border-radius:14px; padding:10px 12px;">
+        <strong style="color:#80531a; display:flex; align-items:center; gap:6px;">🔒 3. Child Lock for Tablets (Zero Accidental Exits)</strong>
+        <ul style="margin:4px 0 0 16px; padding:0; font-size:12px; color:#604018;">
+          <li><strong>iPad (Guided Access):</strong> Go to <em>Settings → Accessibility → Guided Access (Turn ON)</em>. Inside Rasari, triple-click the Top/Power button to lock! Completely disables Home bar, gestures &amp; Mission Control.</li>
+          <li><strong>Android (App Pinning):</strong> Go to <em>Settings → Security → App Pinning (Turn ON)</em>. Open Recents, tap the Rasari icon, and tap <em>Pin</em>. Locks the screen so Home &amp; Back buttons cannot exit.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="margin-top: 15px; text-align: center;">
+      <button id="gotItStylusBtn" style="border-radius:15px; background:#37b949; color:white; padding:10px 24px; font-size:15px; font-weight:800; cursor:pointer;">Got It! ✍️</button>
+    </div>
   </div>
 </div>
 
@@ -1612,6 +1671,11 @@ let userStrokes = [];
 let currentStroke = null;
 let drawing = false;
 let last = null;
+let activePointerId = null;
+let isStylusOnlyMode = false;
+let palmGuardEnabled = localStorage.getItem('rasari_palm_guard') !== 'false';
+let palmGuardHeightPct = parseFloat(localStorage.getItem('rasari_palm_guard_h') || '20');
+let lastDrawEndTime = 0;
 
 let guideMode = 'auto'; // 'auto', 'on', 'off'
 let hintActive = false;
@@ -1884,10 +1948,55 @@ function pos(e) {
   return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
+function isPalmContact(e) {
+  // If active stylus (pen) has been detected, reject any accidental touch events
+  if (isStylusOnlyMode && e.pointerType === 'touch') return true;
+
+  // Contact width/height threshold (capacitive palm/wrist touches typically exceed 30px)
+  if (e.width && e.width > 30) return true;
+  if (e.height && e.height > 30) return true;
+  if (e.width && e.height && (e.width * e.height > 850)) return true;
+
+  return false;
+}
+
+function isInsidePalmGuard(e) {
+  if (!palmGuardEnabled) return false;
+  const guard = $('palmGuardShield');
+  if (!guard) return false;
+  const gr = guard.getBoundingClientRect();
+  return (e.clientX >= gr.left && e.clientX <= gr.right && e.clientY >= gr.top && e.clientY <= gr.bottom);
+}
+
 w.addEventListener('pointerdown', e => {
+  // Auto-detect active stylus hardware (e.g. Apple Pencil, S-Pen, USI Pen)
+  if (e.pointerType === 'pen') {
+    isStylusOnlyMode = true;
+  }
+
+  // Prevent multi-touch jitter: only one pointer can draw at a time
+  if (activePointerId !== null && e.pointerId !== activePointerId) {
+    e.preventDefault();
+    return;
+  }
+
+  // Reject broad palm/wrist contact on capacitive screens
+  if (isPalmContact(e)) {
+    e.preventDefault();
+    return;
+  }
+
+  // Reject touches landing inside the Palm Guard rest pad
+  if (isInsidePalmGuard(e)) {
+    e.preventDefault();
+    return;
+  }
+
   e.preventDefault();
+  activePointerId = e.pointerId;
   drawing = true;
-  w.setPointerCapture(e.pointerId);
+  try { w.setPointerCapture(e.pointerId); } catch (_) {}
+
   const p = pos(e);
   last = p;
   currentStroke = [p];
@@ -1904,6 +2013,12 @@ w.addEventListener('pointerdown', e => {
 
 w.addEventListener('pointermove', e => {
   if (!drawing || !last) return;
+  // Strictly enforce pointer ID to eliminate palm jumping
+  if (e.pointerId !== activePointerId) return;
+
+  // Clamp stroke if it enters Palm Guard rest pad
+  if (isInsidePalmGuard(e)) return;
+
   e.preventDefault();
   const p = pos(e);
   currentStroke.push(p);
@@ -1921,16 +2036,167 @@ w.addEventListener('pointermove', e => {
 });
 
 ['pointerup', 'pointercancel'].forEach(ev => {
-  w.addEventListener(ev, () => {
+  w.addEventListener(ev, e => {
+    if (e.pointerId !== activePointerId) return;
     drawing = false;
     currentStroke = null;
     last = null;
+    activePointerId = null;
+    lastDrawEndTime = Date.now();
   });
 });
 
 function clearPad() {
   userStrokes = [];
+  drawing = false;
+  currentStroke = null;
+  last = null;
+  activePointerId = null;
   drawPad();
+}
+
+// ------------------------------------------------------------------
+// Palm Guard Shield & Interactive Rest Pad Management
+// ------------------------------------------------------------------
+function updatePalmGuardUI() {
+  const guard = $('palmGuardShield');
+  const toggleBtn = $('palmGuardToggle');
+  if (guard) {
+    guard.style.height = palmGuardHeightPct + '%';
+    guard.style.display = palmGuardEnabled ? 'flex' : 'none';
+  }
+  if (toggleBtn) {
+    toggleBtn.textContent = palmGuardEnabled ? '🖐️ Palm Guard: ON' : '🖐️ Palm Guard: OFF';
+    if (palmGuardEnabled) toggleBtn.classList.add('active');
+    else toggleBtn.classList.remove('active');
+  }
+}
+
+// Initialize Palm Guard UI
+updatePalmGuardUI();
+
+if ($('palmGuardToggle')) {
+  $('palmGuardToggle').onclick = () => {
+    palmGuardEnabled = !palmGuardEnabled;
+    localStorage.setItem('rasari_palm_guard', palmGuardEnabled ? 'true' : 'false');
+    updatePalmGuardUI();
+  };
+}
+
+// Drag handle to adjust Palm Guard height
+let isDraggingGuard = false;
+let dragStartY = 0;
+let dragStartHeight = 20;
+
+const guardHandle = $('palmGuardHandle');
+if (guardHandle) {
+  guardHandle.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    e.preventDefault();
+    isDraggingGuard = true;
+    dragStartY = e.clientY;
+    dragStartHeight = palmGuardHeightPct;
+    try { guardHandle.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+
+  guardHandle.addEventListener('pointermove', e => {
+    if (!isDraggingGuard) return;
+    e.stopPropagation();
+    e.preventDefault();
+    const deltaY = dragStartY - e.clientY; // upward drag increases height
+    const slateH = w.clientHeight || 400;
+    const deltaPct = (deltaY / slateH) * 100;
+    let newH = Math.max(12, Math.min(38, dragStartHeight + deltaPct));
+    palmGuardHeightPct = Math.round(newH);
+    if ($('palmGuardShield')) {
+      $('palmGuardShield').style.height = palmGuardHeightPct + '%';
+    }
+  });
+
+  ['pointerup', 'pointercancel'].forEach(ev => {
+    guardHandle.addEventListener(ev, e => {
+      if (!isDraggingGuard) return;
+      isDraggingGuard = false;
+      e.stopPropagation();
+      localStorage.setItem('rasari_palm_guard_h', palmGuardHeightPct.toString());
+    });
+  });
+}
+
+// Absorb all palm and wrist contact on the Palm Guard Shield
+const guardShield = $('palmGuardShield');
+if (guardShield) {
+  guardShield.addEventListener('pointerdown', e => {
+    if (e.target.closest('#palmGuardHandle')) return;
+    e.stopPropagation();
+    e.preventDefault();
+    guardShield.classList.add('active-touch');
+  });
+
+  ['pointerup', 'pointercancel'].forEach(ev => {
+    guardShield.addEventListener(ev, () => {
+      guardShield.classList.remove('active-touch');
+    });
+  });
+
+  // Touch event fallback
+  ['touchstart', 'touchmove', 'touchend', 'touchcancel'].forEach(ev => {
+    guardShield.addEventListener(ev, e => {
+      if (e.target.closest('#palmGuardHandle')) return;
+      e.stopPropagation();
+    }, { passive: false });
+  });
+}
+
+// ------------------------------------------------------------------
+// Fullscreen Kiosk Mode (Hides Tablet Bottom Home/Back Navigation)
+// ------------------------------------------------------------------
+function isFullscreenActive() {
+  return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+}
+
+function updateFullscreenBtn() {
+  const fs = isFullscreenActive();
+  const btn = $('fullscreenToggle');
+  if (btn) {
+    btn.textContent = fs ? '⛶ Exit Fullscreen' : '⛶ Fullscreen';
+    if (fs) btn.classList.add('active');
+    else btn.classList.remove('active');
+  }
+}
+
+function toggleFullscreen() {
+  if (!isFullscreenActive()) {
+    const docEl = document.documentElement;
+    const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+    if (req) {
+      req.call(docEl).then(updateFullscreenBtn).catch(() => updateFullscreenBtn());
+    }
+  } else {
+    const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+    if (exit) {
+      exit.call(document).then(updateFullscreenBtn).catch(() => updateFullscreenBtn());
+    }
+  }
+}
+
+if ($('fullscreenToggle')) {
+  $('fullscreenToggle').onclick = toggleFullscreen;
+}
+document.addEventListener('fullscreenchange', updateFullscreenBtn);
+document.addEventListener('webkitfullscreenchange', updateFullscreenBtn);
+
+// ------------------------------------------------------------------
+// Stylus & Tablet Lock Help Modal
+// ------------------------------------------------------------------
+if ($('stylusHelpBtn')) {
+  $('stylusHelpBtn').onclick = () => $('stylusModal').classList.add('show');
+}
+if ($('closeStylusBtn')) {
+  $('closeStylusBtn').onclick = () => $('stylusModal').classList.remove('show');
+}
+if ($('gotItStylusBtn')) {
+  $('gotItStylusBtn').onclick = () => $('stylusModal').classList.remove('show');
 }
 
 // Audio System
@@ -2243,7 +2509,10 @@ function evaluateHandwriting(targetString) {
 }
 
 // Done Handler: Evaluates, Celebrates, and Advances scaffold/matra/word on focus letter
-$('done').onclick = () => {
+$('done').onclick = e => {
+  if (drawing || (Date.now() - lastDrawEndTime < 350)) return;
+  if (e && ((e.width && e.width > 30) || (e.height && e.height > 30))) return;
+
   if (!userStrokes.length) {
     w.classList.add('shake');
     setTimeout(() => w.classList.remove('shake'), 450);
@@ -2397,7 +2666,10 @@ $('done').onclick = () => {
 };
 
 // Previous and Next Letter Direct Buttons
-$('prevBtn').onclick = () => {
+$('prevBtn').onclick = e => {
+  if (drawing || (Date.now() - lastDrawEndTime < 350)) return;
+  if (e && ((e.width && e.width > 30) || (e.height && e.height > 30))) return;
+
   let prevIdx = (idx - 1 + lessons.length) % lessons.length;
   if (currentStep === 2) {
     while (lessons[prevIdx].isSwar) {
@@ -2407,7 +2679,10 @@ $('prevBtn').onclick = () => {
   setLetter(prevIdx);
 };
 
-$('nextBtn').onclick = () => {
+$('nextBtn').onclick = e => {
+  if (drawing || (Date.now() - lastDrawEndTime < 350)) return;
+  if (e && ((e.width && e.width > 30) || (e.height && e.height > 30))) return;
+
   let nextIdx = (idx + 1) % lessons.length;
   if (currentStep === 2) {
     while (lessons[nextIdx].isSwar) {
@@ -2416,6 +2691,18 @@ $('nextBtn').onclick = () => {
   }
   setLetter(nextIdx);
 };
+
+// Absorb accidental resting palm contact on bottom buttons
+['done', 'prevBtn', 'nextBtn'].forEach(id => {
+  const btn = $(id);
+  if (!btn) return;
+  btn.addEventListener('pointerdown', e => {
+    if (drawing || (Date.now() - lastDrawEndTime < 350) || (e.width && e.width > 30) || (e.height && e.height > 30)) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  });
+});
 
 // Toolbar / Hint & Speech Handlers
 $('hintBtn').onclick = () => {
