@@ -2878,80 +2878,54 @@ const MATRA_NAMES = {
   '\u0903': { name: 'विसर्ग (ः)', zone: 'side' }
 };
 
-function isMatraChar(ch) {
-  if (!ch) return false;
-  const code = ch.charCodeAt(0);
-  return (code >= 0x093e && code <= 0x094c) || code === 0x0902 || code === 0x0901 || code === 0x0903;
+function hasTopMatra(str) {
+  if (!str) return false;
+  for (const ch of str) {
+    const c = ch.charCodeAt(0);
+    if (c === 0x093f || c === 0x0940 || c === 0x0947 || c === 0x0948 || c === 0x094b || c === 0x094c || c === 0x0902 || c === 0x0901) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function hasBottomMatra(str) {
+  if (!str) return false;
+  // Consonant 'र' attaches 'u' and 'oo' matras at the waist (ru / roo), remaining flush between Line 2 and Line 4
+  if (str.startsWith('र') || str.startsWith('रु') || str.startsWith('रू')) {
+    return false;
+  }
+  for (const ch of str) {
+    const c = ch.charCodeAt(0);
+    if (c === 0x0941 || c === 0x0942 || c === 0x0943) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function decomposeWordToUnits(word) {
   if (!word) return [];
-  let clusters = [];
+  let segments = [];
   if (typeof Intl !== 'undefined' && Intl.Segmenter) {
     try {
       const seg = new Intl.Segmenter('hi', { granularity: 'grapheme' });
-      clusters = Array.from(seg.segment(word), s => ({ segment: s.segment, index: s.index }));
+      segments = Array.from(seg.segment(word), s => ({ segment: s.segment, index: s.index }));
     } catch (_) {}
   }
-  if (!clusters.length) {
-    clusters = Array.from(word).map((ch, i) => ({ segment: ch, index: i }));
+  if (!segments.length) {
+    segments = Array.from(word).map((ch, i) => ({ segment: ch, index: i }));
   }
 
-  const units = [];
-  for (const cl of clusters) {
-    const s = cl.segment;
-    const chars = Array.from(s);
-    const lastChar = chars[chars.length - 1];
-
-    if (chars.length > 1 && isMatraChar(lastChar)) {
-      const basePart = chars.slice(0, -1).join('');
-      const matraChar = lastChar;
-      const baseUnitIdx = units.length;
-
-      // 1. Base consonant or letter
-      units.push({
-        type: 'base',
-        char: basePart,
-        baseChar: basePart,
-        combo: s,
-        cluster: s,
-        charIndex: cl.index,
-        charLength: basePart.length
-      });
-
-      let matraInfo = MATRA_NAMES[matraChar] || { name: matraChar, zone: 'top' };
-      if (basePart === 'र' && (matraChar === '\u0941' || matraChar === '\u0942')) {
-        matraInfo = {
-          name: matraChar === '\u0941' ? 'उ की मात्रा (ु)' : 'ऊ की मात्रा (ू)',
-          zone: 'ra-waist'
-        };
-      }
-
-      // 2. Matra
-      units.push({
-        type: 'matra',
-        char: matraChar,
-        baseChar: basePart,
-        baseUnitIdx: baseUnitIdx,
-        combo: s,
-        cluster: s,
-        matraInfo: matraInfo,
-        charIndex: cl.index + basePart.length,
-        charLength: matraChar.length
-      });
-    } else {
-      units.push({
-        type: 'base',
-        char: s,
-        baseChar: s,
-        combo: s,
-        cluster: s,
-        charIndex: cl.index,
-        charLength: s.length
-      });
-    }
-  }
-  return units;
+  return segments.map((s, idx) => ({
+    type: 'akshara',
+    char: s.segment,
+    index: idx,
+    charIndex: s.index,
+    charLength: s.segment.length,
+    hasTop: hasTopMatra(s.segment),
+    hasBottom: hasBottomMatra(s.segment)
+  }));
 }
 
 function getAksharaSegments(text) {
@@ -2974,95 +2948,29 @@ function getAksharaMetrics(unitIdx) {
     : decomposeWordToUnits(targetText);
 
   if (unitIdx >= units.length) unitIdx = 0;
-  const unit = units[unitIdx] || { type: 'base', char: targetText, combo: targetText, charIndex: 0 };
+  const unit = units[unitIdx] || { char: targetText, charIndex: 0, charLength: targetText.length };
 
-  // Base character metrics
-  const basePrefixBefore = targetText.slice(0, unit.baseCharIndex !== undefined ? unit.baseCharIndex : unit.charIndex);
-  const basePrefixWith = targetText.slice(0, (unit.baseCharIndex !== undefined ? unit.baseCharIndex : unit.charIndex) + (unit.baseChar ? unit.baseChar.length : 1));
-  const baseWBefore = basePrefixBefore ? ctx.measureText(basePrefixBefore).width : 0;
-  const baseWWith = ctx.measureText(basePrefixWith).width;
-  const baseStartX = textStartX + baseWBefore;
-  const baseEndX = textStartX + baseWWith;
-  const baseWidth = Math.max(16, baseEndX - baseStartX);
-  const baseCenterX = (baseStartX + baseEndX) / 2;
+  // Exact horizontal position along Devanagari Akshara boundaries
+  const prefixBefore = targetText.slice(0, unit.charIndex);
+  const prefixWith = targetText.slice(0, unit.charIndex + (unit.charLength || unit.char.length));
+  const wBefore = prefixBefore ? ctx.measureText(prefixBefore).width : 0;
+  const wWith = ctx.measureText(prefixWith).width;
 
-  let winL, winT, winW, winH;
+  const aksharaStartX = textStartX + wBefore;
+  const aksharaEndX = textStartX + wWith;
+  const aksharaWidth = Math.max(16, aksharaEndX - aksharaStartX);
+  const aksharaCenterX = (aksharaStartX + aksharaEndX) / 2;
 
-  if (unit.type === 'base') {
-    // -------------------------------------------------------------
-    // Base Consonant / Vowel: EXACTLY between Line 2 & Line 4!
-    // Line 2 (Shirorekha) is the top bar. Line 4 (Baseline) is the foot.
-    // -------------------------------------------------------------
-    winT = ruling.line2 - 3;
-    const winB = ruling.line4 + 3;
-    winH = winB - winT;
-    winW = Math.max(Math.round(ruling.bodyHeight * 0.72), baseWidth + 14);
-    winL = baseCenterX - (winW / 2);
-  } else {
-    // -------------------------------------------------------------
-    // Matra: Positioned and sized based on where the matra sits!
-    // -------------------------------------------------------------
-    const zone = unit.matraInfo ? unit.matraInfo.zone : 'top';
-    if (zone === 'ra-waist') {
-      // 'u' and 'oo' matras on 'र' (रु / रू): attached to the right waist of 'र' between Line 2 and Line 4!
-      winT = ruling.line2 - 3;
-      const winB = ruling.line4 + 3;
-      winH = winB - winT;
-      winW = Math.max(Math.round(ruling.bodyHeight * 0.55), baseWidth * 0.75 + 16);
-      winL = baseCenterX - 4;
-    } else if (zone === 'top') {
-      // Top matra (Line 1 to Line 2): sits right on top of the letter
-      winT = ruling.line1 - 3;
-      const winB = ruling.line2 + 3;
-      winH = winB - winT;
-      winW = Math.max(Math.round(ruling.bodyHeight * 0.65), baseWidth * 0.85 + 12);
-      winL = baseCenterX - (winW / 2);
-    } else if (zone === 'bottom') {
-      // Bottom matra (Line 4 to Line 5): sits right below the foot
-      winT = ruling.line4 - 3;
-      const winB = ruling.line5 + 3;
-      winH = winB - winT;
-      winW = Math.max(Math.round(ruling.bodyHeight * 0.55), baseWidth * 0.75 + 10);
-      winL = baseCenterX - (winW / 2);
-    } else if (zone === 'side' || zone === 'top-side') {
-      // Side matra (Line 2 to Line 4): sits beside the letter
-      winT = (zone === 'top-side') ? (ruling.line1 - 3) : (ruling.line2 - 3);
-      const winB = ruling.line4 + 3;
-      winH = winB - winT;
+  // Exact vertical ruling bounds: Line 1 for top matras (ि, ी, े...), Line 5 for bottom matras (ु, ू...), Line 2-4 for body
+  const hasTop = unit.hasTop !== undefined ? unit.hasTop : hasTopMatra(unit.char);
+  const hasBottom = unit.hasBottom !== undefined ? unit.hasBottom : hasBottomMatra(unit.char);
 
-      const matraPrefixBefore = targetText.slice(0, unit.charIndex);
-      const matraPrefixWith = targetText.slice(0, unit.charIndex + unit.char.length);
-      const mWBefore = ctx.measureText(matraPrefixBefore).width;
-      const mWWith = ctx.measureText(matraPrefixWith).width;
-      const mStartX = textStartX + mWBefore;
-      const mEndX = textStartX + mWWith;
-      const mWidth = Math.max(14, mEndX - mStartX);
-      const mCenterX = (mStartX + mEndX) / 2;
+  const winT = hasTop ? (ruling.line1 - 4) : (ruling.line2 - 4);
+  const winB = hasBottom ? (ruling.line5 + 4) : (ruling.line4 + 4);
+  const winH = winB - winT;
 
-      winW = Math.max(Math.round(ruling.bodyHeight * 0.45), mWidth + 12);
-      winL = mCenterX - (winW / 2);
-    } else if (zone === 'left-arch') {
-      // Chhoti 'i' matra (Line 1 to Line 4): left stem and top arch
-      winT = ruling.line1 - 3;
-      const winB = ruling.line4 + 3;
-      winH = winB - winT;
-      winW = Math.max(Math.round(ruling.bodyHeight * 0.72), baseWidth + 16);
-      winL = baseCenterX - (winW / 2) - 8;
-    } else if (zone === 'right-arch') {
-      // Badi 'ee' matra (Line 1 to Line 4): top arch and right stem
-      winT = ruling.line1 - 3;
-      const winB = ruling.line4 + 3;
-      winH = winB - winT;
-      winW = Math.max(Math.round(ruling.bodyHeight * 0.72), baseWidth + 16);
-      winL = baseCenterX - (winW / 2) + 8;
-    } else {
-      winT = ruling.line1 - 3;
-      const winB = ruling.line5 + 3;
-      winH = winB - winT;
-      winW = Math.max(Math.round(ruling.bodyHeight * 0.75), baseWidth + 14);
-      winL = baseCenterX - (winW / 2);
-    }
-  }
+  const winW = Math.max(Math.round(ruling.bodyHeight * 0.78), aksharaWidth + 24);
+  let winL = aksharaCenterX - (winW / 2);
 
   winL = Math.max(4, Math.min(cW - winW - 4, winL));
   const finalWinW = Math.min(winW, cW - 8);
@@ -3076,9 +2984,9 @@ function getAksharaMetrics(unitIdx) {
   return {
     unit,
     akshara: unit.char,
-    baseCenterX,
-    aksharaCenterX: baseCenterX,
-    aksharaWidth: baseWidth,
+    baseCenterX: aksharaCenterX,
+    aksharaCenterX: aksharaCenterX,
+    aksharaWidth: aksharaWidth,
     canvasWinL: winL,
     canvasWinT: winT,
     canvasWinW: finalWinW,
@@ -3179,28 +3087,15 @@ function updateApertureView() {
   // Update top bar labels
   const badge = $('apertureBadge');
   if (badge) {
-    if (unit.type === 'base') {
-      badge.textContent = totalUnits > 1 ? `Letter: ${unit.char} (${currentUnitIndex + 1}/${totalUnits})` : unit.char;
-    } else {
-      badge.textContent = `Matra: ${unit.char} (${currentUnitIndex + 1}/${totalUnits})`;
-    }
+    badge.textContent = totalUnits > 1 ? `${unit.char} (${currentUnitIndex + 1}/${totalUnits})` : unit.char;
   }
 
   const prompt = $('aperturePrompt');
   if (prompt) {
-    if (unit.type === 'base') {
-      if (totalUnits > 1) {
-        prompt.textContent = `Write '${unit.char}' (${currentUnitIndex + 1}/${totalUnits} in ${targetText}) ✍️`;
-      } else {
-        prompt.textContent = `Write '${unit.char}' ✍️ (Rest hand anywhere safely)`;
-      }
+    if (totalUnits > 1) {
+      prompt.textContent = `Write '${unit.char}' (${currentUnitIndex + 1}/${totalUnits} in ${targetText}) ✍️`;
     } else {
-      const mName = unit.matraInfo ? unit.matraInfo.name : unit.char;
-      if (unit.matraInfo && unit.matraInfo.zone === 'ra-waist') {
-        prompt.textContent = `Add matra '${unit.char}' (${mName}) to middle of '${unit.baseChar}' (रू) 🌿`;
-      } else {
-        prompt.textContent = `Add matra '${unit.char}' (${mName}) to '${unit.baseChar}' 🌿`;
-      }
+      prompt.textContent = `Write '${unit.char}' ✍️ (Rest hand anywhere safely)`;
     }
   }
 
@@ -3349,9 +3244,7 @@ function handleApertureDone() {
     }
     const prompt = $('aperturePrompt');
     if (prompt) {
-      prompt.textContent = unit.type === 'base'
-        ? `Write '${unit.char}' first! ✍️`
-        : `Add '${unit.char}' matra first! 🌿`;
+      prompt.textContent = `Write '${unit.char}' first! ✍️`;
     }
     return;
   }
@@ -3359,17 +3252,7 @@ function handleApertureDone() {
   const metrics = getAksharaMetrics(currentUnitIndex);
   const strokeOffset = metrics.baseCenterX - (w.clientWidth / 2);
 
-  let result;
-  if (unit.type === 'base') {
-    result = evaluateHandwriting(unit.char, curStrokes, strokeOffset);
-  } else {
-    // Combine base strokes + matra strokes to evaluate the full combo
-    const baseStrokes = (unit.baseUnitIdx !== undefined && unitStrokesMap[unit.baseUnitIdx])
-      ? unitStrokesMap[unit.baseUnitIdx]
-      : [];
-    const comboStrokes = baseStrokes.concat(curStrokes);
-    result = evaluateHandwriting(unit.combo, comboStrokes, strokeOffset);
-  }
+  const result = evaluateHandwriting(unit.char, curStrokes, strokeOffset);
 
   if (!result.pass) {
     const win = $('apertureWindow');
@@ -3385,9 +3268,7 @@ function handleApertureDone() {
       if (result.reason === 'scribble') {
         prompt.textContent = `Don't scribble! Follow the lines for '${unit.char}' ✍️`;
       } else {
-        prompt.textContent = unit.type === 'base'
-          ? `Try again! Follow the lines for '${unit.char}' ✍️`
-          : `Try again! Add '${unit.char}' matra carefully 🌿`;
+        prompt.textContent = `Try again! Follow the lines for '${unit.char}' ✍️`;
       }
     }
 
@@ -3408,9 +3289,7 @@ function handleApertureDone() {
     const nextUnit = currentPracticeUnits[currentUnitIndex];
     const prompt = $('aperturePrompt');
     if (prompt) {
-      prompt.textContent = nextUnit.type === 'base'
-        ? `Great! Now write '${nextUnit.char}' (${currentUnitIndex + 1}/${currentPracticeUnits.length}) ✍️`
-        : `Super! Now add matra '${nextUnit.char}' 🌿`;
+      prompt.textContent = `Great! Now write '${nextUnit.char}' (${currentUnitIndex + 1}/${currentPracticeUnits.length}) ✍️`;
     }
   } else {
     // All units of this word complete!

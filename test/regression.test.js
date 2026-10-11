@@ -329,63 +329,74 @@ test('Full-Screen Aperture Writing Shield Mode & Akshara-by-Akshara guidance are
   assert.deepStrictEqual(kamalSegs, ['क', 'म', 'ल'], 'Must correctly segment Devanagari words into Aksharas');
 });
 
-test('Exact Letter/Matra box sizing, separate matra progression, and Write Mode state toggle', () => {
+test('Option A: Akshara-level syllabic decomposition for Devanagari words and Write Mode state toggle', () => {
   assert(html.includes('function decomposeWordToUnits('), 'decomposeWordToUnits must exist');
   assert(html.includes('function updateWriteModeBtn()'), 'updateWriteModeBtn must exist');
   assert(html.includes('currentUnitIndex = 0;'), 'Must always start on first letter when opening Write Mode');
 
-  // Verify separate letter & matra decomposition logic
   const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
-  const matraNamesMatch = scriptContent.match(/const MATRA_NAMES = \{[\s\S]*?\};/);
-  assert(matraNamesMatch, 'MATRA_NAMES mapping must exist');
-
-  const evalFn = new Function(`${matraNamesMatch[0]};
-    function isMatraChar(ch) {
-      const code = ch.charCodeAt(0);
-      return (code >= 0x093e && code <= 0x094c) || code === 0x0902 || code === 0x0901 || code === 0x0903;
+  const evalFn = new Function(`
+    function hasTopMatra(str) {
+      if (!str) return false;
+      for (const ch of str) {
+        const c = ch.charCodeAt(0);
+        if (c === 0x093f || c === 0x0940 || c === 0x0947 || c === 0x0948 || c === 0x094b || c === 0x094c || c === 0x0902 || c === 0x0901) return true;
+      }
+      return false;
+    }
+    function hasBottomMatra(str) {
+      if (!str) return false;
+      if (str.startsWith('र') || str.startsWith('रु') || str.startsWith('रू')) return false;
+      for (const ch of str) {
+        const c = ch.charCodeAt(0);
+        if (c === 0x0941 || c === 0x0942 || c === 0x0943) return true;
+      }
+      return false;
     }
     return ${scriptContent.match(/function decomposeWordToUnits\(word\)[\s\S]*?\n\}/)[0]};
   `);
   const decompose = evalFn();
+
+  // किताब decomposes into natural syllables: कि, ता, ब (no broken micro-cuts)
   const kitabUnits = decompose('किताब');
-  assert.strictEqual(kitabUnits.length, 5, 'किताब must decompose into 5 units: क, ि, त, ा, ब');
-  assert.strictEqual(kitabUnits[0].char, 'क');
-  assert.strictEqual(kitabUnits[1].char, 'ि');
-  assert.strictEqual(kitabUnits[1].type, 'matra');
-  assert.strictEqual(kitabUnits[2].char, 'त');
-  assert.strictEqual(kitabUnits[3].char, 'ा');
-  assert.strictEqual(kitabUnits[3].type, 'matra');
-  assert.strictEqual(kitabUnits[4].char, 'ब');
+  assert.strictEqual(kitabUnits.length, 3, 'किताब must decompose into 3 Aksharas: कि, ता, ब');
+  assert.strictEqual(kitabUnits[0].char, 'कि');
+  assert.strictEqual(kitabUnits[1].char, 'ता');
+  assert.strictEqual(kitabUnits[2].char, 'ब');
+
+  // बच्चा decomposes into: ब, च्चा (conjunct handled natively)
+  const bachhaUnits = decompose('बच्चा');
+  assert.strictEqual(bachhaUnits.length, 2, 'बच्चा must decompose into 2 Aksharas: ब, च्चा');
+  assert.strictEqual(bachhaUnits[0].char, 'ब');
+  assert.strictEqual(bachhaUnits[1].char, 'च्चा');
+
+  // अमरूद decomposes into: अ, म, रू, द
+  const amaroodUnits = decompose('अमरूद');
+  assert.strictEqual(amaroodUnits.length, 4, 'अमरूद must decompose into 4 Aksharas: अ, म, रू, द');
+  assert.strictEqual(amaroodUnits[2].char, 'रू');
 });
 
-test('ra-waist aperture zone for "र" with u/oo matras (amarood), Prev navigation, and selective box clearing', () => {
+test('Akshara aperture sizing, matra ruling bounds (hasTop / hasBottom), Prev navigation, and selective box clearing', () => {
   assert(html.includes('id="aperturePrevBtn"'), 'Must have aperturePrevBtn in DOM for backward box navigation');
   assert(html.includes('id="apertureUnitsTrack"'), 'Must have apertureUnitsTrack in DOM for interactive unit selection');
-  assert(html.includes('ra-waist'), 'Must handle ra-waist aperture zone');
+  assert(html.includes('function hasTopMatra('), 'Must detect top matra for Line 1 expansion');
+  assert(html.includes('function hasBottomMatra('), 'Must detect bottom matra for Line 5 expansion');
 
-  // Verify ra-waist zone assignment in decomposeWordToUnits
   const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
-  const matraNamesMatch = scriptContent.match(/const MATRA_NAMES = \{[\s\S]*?\};/);
-  const evalFn = new Function(`${matraNamesMatch[0]};
-    function isMatraChar(ch) {
-      const code = ch.charCodeAt(0);
-      return (code >= 0x093e && code <= 0x094c) || code === 0x0902 || code === 0x0901 || code === 0x0903;
-    }
-    return ${scriptContent.match(/function decomposeWordToUnits\(word\)[\s\S]*?\n\}/)[0]};
-  `);
-  const decompose = evalFn();
+  const hasTopMatch = scriptContent.match(/function hasTopMatra\(str\)[\s\S]*?\n\}/)[0];
+  const hasBottomMatch = scriptContent.match(/function hasBottomMatra\(str\)[\s\S]*?\n\}/)[0];
+  const evalTop = new Function(`return ${hasTopMatch};`)();
+  const evalBottom = new Function(`return ${hasBottomMatch};`)();
 
-  // Test amarood (अमरूद): ू on र must have zone: 'ra-waist'
-  const amaroodUnits = decompose('अमरूद');
-  assert.strictEqual(amaroodUnits.length, 5, 'अमरूद must have 5 units: अ, म, र, ू, द');
-  assert.strictEqual(amaroodUnits[2].char, 'र');
-  assert.strictEqual(amaroodUnits[3].char, 'ू');
-  assert.strictEqual(amaroodUnits[3].matraInfo.zone, 'ra-waist', 'ू on र must have zone "ra-waist"');
+  // कि has top matra (ि reaches up to Line 1)
+  assert.strictEqual(evalTop('कि'), true, 'कि must have top matra flagged');
+  assert.strictEqual(evalBottom('कि'), false, 'कि must not have bottom matra');
 
-  // Contrast with non-ra letter (काजू): ू on ज must have zone: 'bottom'
-  const kajuUnits = decompose('काजू');
-  assert.strictEqual(kajuUnits[3].char, 'ू');
-  assert.strictEqual(kajuUnits[3].matraInfo.zone, 'bottom', 'ू on ज must retain zone "bottom"');
+  // कु has bottom matra (ु reaches down to Line 5)
+  assert.strictEqual(evalBottom('कु'), true, 'कु must have bottom matra flagged');
+
+  // रू on consonant र attaches at waist, staying flush between Line 2 and Line 4
+  assert.strictEqual(evalBottom('रू'), false, 'रू must stay within Line 2-4 without extending to Line 5');
 
   // Verify selective clearing includes spatial stroke checking
   const clearFnMatch = scriptContent.match(/function clearCurrentAksharaStrokes\(\)[\s\S]*?\n\}/)[0];
