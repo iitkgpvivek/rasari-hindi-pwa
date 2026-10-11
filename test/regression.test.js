@@ -296,6 +296,39 @@ test('Fullscreen Kiosk Mode & Parental Guidance modal protect against OS navigat
   assert.strictEqual(manifest.display, 'fullscreen', 'Manifest must specify fullscreen display to hide tablet navigation bar');
 });
 
+test('Full-Screen Aperture Writing Shield Mode & Akshara-by-Akshara guidance are active', () => {
+  // DOM overlay & blockers
+  assert(html.includes('id="apertureOverlay"'), 'Aperture overlay container must exist');
+  assert(html.includes('id="apertureBar"'), 'Top aperture controls bar must exist');
+  assert(html.includes('id="apertureWindow"'), 'Focused aperture window cutout must exist');
+  assert(html.includes('id="blockerTop"'), 'Top palm blocker shield must exist');
+  assert(html.includes('id="blockerBottom"'), 'Bottom palm blocker shield must exist');
+  assert(html.includes('id="blockerLeft"'), 'Left palm blocker shield must exist');
+  assert(html.includes('id="blockerRight"'), 'Right palm blocker shield must exist');
+
+  // Controls
+  assert(html.includes('id="startWritingBtn"'), 'Write Mode trigger button must exist');
+  assert(html.includes('id="apertureCloseBtn"'), 'Exit Writing Mode button must exist');
+  assert(html.includes('id="apertureDoneBtn"'), 'Next Akshara / Done button must exist');
+  assert(html.includes('id="apertureClearBtn"'), 'Clear stroke button must exist');
+  assert(html.includes('id="apertureHintBtn"'), 'Hint button must exist');
+  assert(html.includes('id="apertureSoundBtn"'), 'Sound button must exist');
+
+  // Logic functions
+  assert(html.includes('function openApertureMode()'), 'openApertureMode function must exist');
+  assert(html.includes('function closeApertureMode()'), 'closeApertureMode function must exist');
+  assert(html.includes('function updateApertureView()'), 'updateApertureView function must exist');
+  assert(html.includes('function getAksharaSegments('), 'getAksharaSegments function must exist');
+  assert(html.includes('function getAksharaMetrics('), 'getAksharaMetrics function must exist');
+  assert(html.includes('function handleApertureDone()'), 'handleApertureDone function must exist');
+  assert(html.includes('function clearCurrentAksharaStrokes()'), 'clearCurrentAksharaStrokes function must exist');
+
+  // Akshara segmentation test using Intl.Segmenter
+  const seg = new Intl.Segmenter('hi', { granularity: 'grapheme' });
+  const kamalSegs = Array.from(seg.segment('कमल'), s => s.segment);
+  assert.deepStrictEqual(kamalSegs, ['क', 'म', 'ल'], 'Must correctly segment Devanagari words into Aksharas');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');

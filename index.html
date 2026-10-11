@@ -49,6 +49,28 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .palm-guard-drag{font-size:10px;color:#ffd276;background:rgba(0,0,0,0.25);padding:1px 6px;border-radius:999px;border:1px solid rgba(255,210,118,0.4)}
 .palm-guard-body{flex:1;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.65);font-size:clamp(10px,1.15vw,13px);font-weight:700;letter-spacing:0.5px}
 
+/* Full-Screen Aperture Writing Shield (Palm Protected Mode) */
+.aperture-overlay{position:fixed;inset:0;z-index:1000;pointer-events:none;user-select:none}
+.aperture-bar{position:fixed;top:10px;left:50%;transform:translateX(-50%);width:94%;max-width:920px;height:52px;background:rgba(13,37,30,0.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:2px solid #ffca4f;border-radius:999px;display:flex;align-items:center;justify-content:space-between;padding:6px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.45);z-index:1003;pointer-events:auto}
+.aperture-bar-left{display:flex;align-items:center;gap:10px}
+.aperture-badge{background:#ffcf50;color:#533303;padding:4px 12px;border-radius:999px;font-weight:800;font-size:clamp(12px,1.4vw,15px)}
+.aperture-prompt{color:#fff9e6;font-weight:800;font-size:clamp(12px,1.4vw,16px)}
+.aperture-bar-right{display:flex;align-items:center;gap:7px}
+.aperture-btn{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,202,79,0.5);color:#ffffff;border-radius:999px;padding:5px 12px;font-size:clamp(11px,1.2vw,14px);font-weight:800;cursor:pointer;transition:transform .12s}
+.aperture-btn:active{transform:scale(0.95)}
+.aperture-btn.done-pill{background:#37b949;border-color:#55d667;color:white;padding:6px 16px;box-shadow:0 2px 8px rgba(55,185,73,0.4)}
+.aperture-close-btn{background:rgba(239,68,68,0.9);border:2px solid #ffffff;color:white;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;font-size:18px;font-weight:900;cursor:pointer;transition:transform .12s;box-shadow:0 2px 6px rgba(0,0,0,0.3)}
+.aperture-close-btn:active{transform:scale(0.92)}
+.aperture-blocker{position:fixed;background:rgba(14,38,30,0.96);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:1001;pointer-events:auto;touch-action:none}
+.aperture-blocker-label{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:rgba(255,210,118,0.55);font-size:clamp(11px,1.2vw,14px);font-weight:700;letter-spacing:0.5px;pointer-events:none;white-space:nowrap;user-select:none}
+.aperture-window{position:fixed;z-index:1002;pointer-events:none;border:3.5px solid #ffca4f;border-radius:20px;box-shadow:0 0 24px rgba(255,202,79,0.45),inset 0 0 16px rgba(255,202,79,0.15);transition:left .26s cubic-bezier(.2,.9,.3,1),width .26s,top .26s,height .26s}
+.aperture-window.shake{animation:canvasShake .4s ease-in-out}
+.aperture-guide-corner{position:absolute;width:14px;height:14px;border-color:#ffd276;border-style:solid}
+.corner-tl{top:-2px;left:-2px;border-width:3px 0 0 3px;border-top-left-radius:18px}
+.corner-tr{top:-2px;right:-2px;border-width:3px 3px 0 0;border-top-right-radius:18px}
+.corner-bl{bottom:-2px;left:-2px;border-width:0 0 3px 3px;border-bottom-left-radius:18px}
+.corner-br{bottom:-2px;right:-2px;border-width:0 3px 3px 0;border-bottom-right-radius:18px}
+
 /* Right "See how to write" card */
 .guideheading{position:absolute;left:76.5%;top:19.8%;width:19.8%;height:5.5%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.5vw,19px);font-weight:800;color:#49370d;white-space:nowrap}
 .guideheading button{margin-left:7px;border-radius:50%;width:26px;height:26px;background:transparent;color:#7a4e10;font-size:18px;font-weight:800;cursor:pointer}
@@ -244,9 +266,10 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 <div class="toolbar-top" id="toolbarTop">
   <span class="stage-badge" id="stageBadge">Stage 1/3: Trace ✍️</span>
-  <button class="ctrl-pill active" id="palmGuardToggle" title="Toggle Palm Rest Shield for stylus">🖐️ Palm Guard: ON</button>
+  <button class="ctrl-pill" id="startWritingBtn" style="background:#28a745; color:white; border-color:#208637; font-weight:800;" title="Open Focused Writing Mode with Full Palm Shield">✍️ Write Mode</button>
+  <button class="ctrl-pill active" id="palmGuardToggle" title="Toggle Palm Rest Shield for stylus">🖐️ Guard</button>
   <button class="ctrl-pill" id="fullscreenToggle" title="Toggle Fullscreen to hide tablet navigation buttons">⛶ Fullscreen</button>
-  <button class="ctrl-pill" id="stylusHelpBtn" title="Stylus & Tablet Lock Help">🛡️ Stylus Help</button>
+  <button class="ctrl-pill" id="stylusHelpBtn" title="Stylus & Tablet Lock Help">🛡️ Help</button>
 </div>
 
 <canvas id="write" aria-label="Writing canvas"></canvas>
@@ -258,6 +281,40 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
   </div>
   <div class="palm-guard-body" id="palmGuardBody">
     <span>Palm Protected ✍️ Write above</span>
+  </div>
+</div>
+
+<!-- Full-Screen Writing Aperture Shield (Palm Protected Mode) -->
+<div class="aperture-overlay" id="apertureOverlay" style="display:none">
+  <!-- Top Control Bar -->
+  <div class="aperture-bar" id="apertureBar">
+    <div class="aperture-bar-left">
+      <span class="aperture-badge" id="apertureBadge">Letter: अ</span>
+      <span class="aperture-prompt" id="aperturePrompt">Write 'अ' ✍️ (Rest hand anywhere)</span>
+    </div>
+    <div class="aperture-bar-right">
+      <button class="aperture-btn" id="apertureSoundBtn" title="Hear sound">🔊 Sound</button>
+      <button class="aperture-btn" id="apertureHintBtn" title="Show guide">💡 Hint</button>
+      <button class="aperture-btn" id="apertureClearBtn" title="Clear letter stroke">🧽 Clear</button>
+      <button class="aperture-btn done-pill" id="apertureDoneBtn">✓ Next</button>
+      <button class="aperture-close-btn" id="apertureCloseBtn" title="Exit Writing Mode" aria-label="Exit Writing Mode">✕</button>
+    </div>
+  </div>
+
+  <!-- 4 Blocker Shields (100% Palm Protection around the window) -->
+  <div class="aperture-blocker" id="blockerTop"></div>
+  <div class="aperture-blocker" id="blockerBottom">
+    <div class="aperture-blocker-label">🖐️ Palm Shield: Rest hand anywhere safely</div>
+  </div>
+  <div class="aperture-blocker" id="blockerLeft"></div>
+  <div class="aperture-blocker" id="blockerRight"></div>
+
+  <!-- Focused Cutout Window directly over the notebook canvas -->
+  <div class="aperture-window" id="apertureWindow">
+    <div class="aperture-guide-corner corner-tl"></div>
+    <div class="aperture-guide-corner corner-tr"></div>
+    <div class="aperture-guide-corner corner-bl"></div>
+    <div class="aperture-guide-corner corner-br"></div>
   </div>
 </div>
 
@@ -1676,6 +1733,10 @@ let isStylusOnlyMode = false;
 let palmGuardEnabled = localStorage.getItem('rasari_palm_guard') !== 'false';
 let palmGuardHeightPct = parseFloat(localStorage.getItem('rasari_palm_guard_h') || '20');
 let lastDrawEndTime = 0;
+let isApertureMode = false;
+let currentAksharas = [];
+let currentAksharaIndex = 0;
+let aksharaStrokesMap = [];
 
 let guideMode = 'auto'; // 'auto', 'on', 'off'
 let hintActive = false;
@@ -1987,9 +2048,22 @@ w.addEventListener('pointerdown', e => {
   }
 
   // Reject touches landing inside the Palm Guard rest pad
-  if (isInsidePalmGuard(e)) {
+  if (!isApertureMode && isInsidePalmGuard(e)) {
     e.preventDefault();
     return;
+  }
+
+  // Reject touches outside the active aperture window in Aperture Mode
+  if (isApertureMode) {
+    const metrics = getAksharaMetrics(currentAksharaIndex);
+    const margin = 12;
+    if (e.clientX < metrics.winScreenL - margin ||
+        e.clientX > metrics.winScreenL + metrics.winScreenW + margin ||
+        e.clientY < metrics.winScreenT - margin ||
+        e.clientY > metrics.winScreenT + metrics.winScreenH + margin) {
+      e.preventDefault();
+      return;
+    }
   }
 
   e.preventDefault();
@@ -2001,6 +2075,12 @@ w.addEventListener('pointerdown', e => {
   last = p;
   currentStroke = [p];
   userStrokes.push(currentStroke);
+  if (isApertureMode) {
+    if (!aksharaStrokesMap[currentAksharaIndex]) {
+      aksharaStrokesMap[currentAksharaIndex] = [];
+    }
+    aksharaStrokesMap[currentAksharaIndex].push(currentStroke);
+  }
 
   const bw = getBrushWidth();
   ctx.strokeStyle = '#173e33';
@@ -2017,7 +2097,19 @@ w.addEventListener('pointermove', e => {
   if (e.pointerId !== activePointerId) return;
 
   // Clamp stroke if it enters Palm Guard rest pad
-  if (isInsidePalmGuard(e)) return;
+  if (!isApertureMode && isInsidePalmGuard(e)) return;
+
+  // In Aperture Mode, ignore if dragged too far outside the window
+  if (isApertureMode) {
+    const metrics = getAksharaMetrics(currentAksharaIndex);
+    const maxMargin = 28;
+    if (e.clientX < metrics.winScreenL - maxMargin ||
+        e.clientX > metrics.winScreenL + metrics.winScreenW + maxMargin ||
+        e.clientY < metrics.winScreenT - maxMargin ||
+        e.clientY > metrics.winScreenT + metrics.winScreenH + maxMargin) {
+      return;
+    }
+  }
 
   e.preventDefault();
   const p = pos(e);
@@ -2052,6 +2144,9 @@ function clearPad() {
   currentStroke = null;
   last = null;
   activePointerId = null;
+  if (isApertureMode && currentAksharas && currentAksharas.length) {
+    aksharaStrokesMap = currentAksharas.map(() => []);
+  }
   drawPad();
 }
 
@@ -2370,12 +2465,13 @@ function triggerConfetti() {
 }
 
 // Discriminative Handwriting Auto-Evaluator with Anti-Scribble Barrier
-function evaluateHandwriting(targetString) {
+function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 0) {
   const S = 140;
   const ww = w.clientWidth, h = w.clientHeight;
-  const totalPoints = userStrokes.reduce((acc, s) => acc + s.length, 0);
+  const strokesToEval = customStrokes || userStrokes;
+  const totalPoints = strokesToEval.reduce((acc, s) => acc + s.length, 0);
 
-  if (!userStrokes.length || totalPoints < 8) {
+  if (!strokesToEval.length || totalPoints < 8) {
     return { score: 0, pass: false, reason: 'empty' };
   }
 
@@ -2422,17 +2518,17 @@ function evaluateHandwriting(targetString) {
   ux.lineCap = 'round'; ux.lineJoin = 'round';
 
   const scaleX = S / ww, scaleY = S / h;
-  userStrokes.forEach(str => {
+  strokesToEval.forEach(str => {
     if (!str || !str.length) return;
     if (str.length === 1) {
       ux.beginPath();
-      ux.arc(str[0].x * scaleX, str[0].y * scaleY, offscreenBw / 2, 0, Math.PI * 2);
+      ux.arc((str[0].x - strokeOffset) * scaleX, str[0].y * scaleY, offscreenBw / 2, 0, Math.PI * 2);
       ux.fill();
     } else {
       ux.beginPath();
-      ux.moveTo(str[0].x * scaleX, str[0].y * scaleY);
+      ux.moveTo((str[0].x - strokeOffset) * scaleX, str[0].y * scaleY);
       for (let i = 1; i < str.length; i++) {
-        ux.lineTo(str[i].x * scaleX, str[i].y * scaleY);
+        ux.lineTo((str[i].x - strokeOffset) * scaleX, str[i].y * scaleY);
       }
       ux.stroke();
     }
@@ -2520,7 +2616,12 @@ $('done').onclick = e => {
   }
 
   const targetText = getTargetText();
-  const result = evaluateHandwriting(targetText);
+  let result = evaluateHandwriting(targetText);
+  if (window._forcePassDone) {
+    result.pass = true;
+    result.score = 92;
+    window._forcePassDone = false;
+  }
 
   if (!result.pass) {
     w.classList.add('shake');
@@ -2741,8 +2842,350 @@ function goHome() {
 if ($('home')) $('home').onclick = goHome;
 if ($('homeBtn')) $('homeBtn').onclick = goHome;
 
+// ------------------------------------------------------------------
+// Full-Screen Aperture Writing Shield Mode & Akshara-by-Akshara Engine
+// ------------------------------------------------------------------
+function getAksharaSegments(text) {
+  if (!text) return [];
+  if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+    try {
+      const seg = new Intl.Segmenter('hi', { granularity: 'grapheme' });
+      return Array.from(seg.segment(text), s => s.segment);
+    } catch (_) {}
+  }
+  return text.split('');
+}
+
+function getAksharaMetrics(akIndex) {
+  const targetText = getTargetText() || 'अ';
+  const cW = w.clientWidth || 400;
+  const cH = w.clientHeight || 400;
+  const ruling = computeRuling(cH);
+  const layout = getTextLayout(ctx, targetText, ruling);
+  ctx.font = layout.fontStr;
+
+  const fullTextWidth = ctx.measureText(targetText).width;
+  const textStartX = (cW / 2) - (fullTextWidth / 2);
+
+  const akList = (currentAksharas && currentAksharas.length > 0)
+    ? currentAksharas
+    : getAksharaSegments(targetText);
+
+  let charPos = 0;
+  const ranges = akList.map(ak => {
+    const start = charPos;
+    const end = charPos + ak.length;
+    charPos = end;
+    return { start, end, ak };
+  });
+
+  const curRange = ranges[akIndex] || ranges[0] || { start: 0, end: targetText.length, ak: targetText };
+  const prefixBefore = targetText.slice(0, curRange.start);
+  const prefixWith = targetText.slice(0, curRange.end);
+
+  const widthBefore = prefixBefore ? ctx.measureText(prefixBefore).width : 0;
+  const widthWith = ctx.measureText(prefixWith).width;
+
+  const aksharaStartX = textStartX + widthBefore;
+  const aksharaEndX = textStartX + widthWith;
+  const aksharaWidth = Math.max(16, aksharaEndX - aksharaStartX);
+  const aksharaCenterX = (aksharaStartX + aksharaEndX) / 2;
+
+  // Window bounds on canvas
+  const paddingX = Math.round(ruling.bodyHeight * 0.32);
+  const minWinW = Math.round(ruling.bodyHeight * 1.25);
+  const winW = Math.max(minWinW, aksharaWidth + paddingX * 2);
+  let winL = aksharaCenterX - (winW / 2);
+
+  // Clamp within canvas horizontal bounds with safe margins
+  winL = Math.max(4, Math.min(cW - winW - 4, winL));
+  const finalWinW = Math.min(winW, cW - 8);
+
+  // Vertical bounds on canvas (cover Upper Matra line 1 to Lower Matra line 5 with generous padding)
+  const padTop = Math.round(ruling.bodyHeight * 0.22);
+  const padBottom = Math.round(ruling.bodyHeight * 0.22);
+  const winT = Math.max(4, ruling.line1 - padTop);
+  const winB = Math.min(cH - 4, ruling.line5 + padBottom);
+  const winH = winB - winT;
+
+  // Screen coordinates
+  const cRect = w.getBoundingClientRect();
+  const screenWinL = Math.round(cRect.left + winL);
+  const screenWinT = Math.round(cRect.top + winT);
+  const screenWinW = Math.round(finalWinW);
+  const screenWinH = Math.round(winH);
+
+  return {
+    akshara: curRange.ak,
+    aksharaCenterX,
+    aksharaWidth,
+    winScreenL: screenWinL,
+    winScreenT: screenWinT,
+    winScreenW: screenWinW,
+    winScreenH: screenWinH
+  };
+}
+
+function updateApertureView() {
+  if (!isApertureMode) return;
+  const targetText = getTargetText();
+  if (!currentAksharas || currentAksharas.length === 0) {
+    currentAksharas = getAksharaSegments(targetText);
+    if (currentAksharas.length === 0) currentAksharas = [targetText || 'अ'];
+  }
+  if (currentAksharaIndex >= currentAksharas.length) {
+    currentAksharaIndex = 0;
+  }
+
+  const curAkshara = currentAksharas[currentAksharaIndex];
+  const metrics = getAksharaMetrics(currentAksharaIndex);
+
+  // Position the aperture cutout window
+  const win = $('apertureWindow');
+  if (win) {
+    win.style.left = metrics.winScreenL + 'px';
+    win.style.top = metrics.winScreenT + 'px';
+    win.style.width = metrics.winScreenW + 'px';
+    win.style.height = metrics.winScreenH + 'px';
+  }
+
+  // Position the 4 blocker shields to cover 100% of the screen around the window
+  const topH = Math.max(0, metrics.winScreenT);
+  const bTop = $('blockerTop');
+  if (bTop) {
+    bTop.style.left = '0px';
+    bTop.style.top = '0px';
+    bTop.style.width = '100vw';
+    bTop.style.height = topH + 'px';
+  }
+
+  const botY = metrics.winScreenT + metrics.winScreenH;
+  const botH = Math.max(0, window.innerHeight - botY);
+  const bBottom = $('blockerBottom');
+  if (bBottom) {
+    bBottom.style.left = '0px';
+    bBottom.style.top = botY + 'px';
+    bBottom.style.width = '100vw';
+    bBottom.style.height = botH + 'px';
+  }
+
+  const bLeft = $('blockerLeft');
+  if (bLeft) {
+    bLeft.style.left = '0px';
+    bLeft.style.top = metrics.winScreenT + 'px';
+    bLeft.style.width = Math.max(0, metrics.winScreenL) + 'px';
+    bLeft.style.height = metrics.winScreenH + 'px';
+  }
+
+  const rightX = metrics.winScreenL + metrics.winScreenW;
+  const rightW = Math.max(0, window.innerWidth - rightX);
+  const bRight = $('blockerRight');
+  if (bRight) {
+    bRight.style.left = rightX + 'px';
+    bRight.style.top = metrics.winScreenT + 'px';
+    bRight.style.width = rightW + 'px';
+    bRight.style.height = metrics.winScreenH + 'px';
+  }
+
+  // Update top bar labels
+  const badge = $('apertureBadge');
+  if (badge) {
+    badge.textContent = currentAksharas.length > 1
+      ? `${curAkshara} (${currentAksharaIndex + 1}/${currentAksharas.length})`
+      : curAkshara;
+  }
+
+  const prompt = $('aperturePrompt');
+  if (prompt) {
+    if (currentAksharas.length > 1) {
+      prompt.textContent = `Write '${curAkshara}' in '${targetText}' ✍️ (Rest hand anywhere)`;
+    } else {
+      prompt.textContent = `Write '${curAkshara}' ✍️ (Rest hand anywhere safely)`;
+    }
+  }
+
+  const doneBtn = $('apertureDoneBtn');
+  if (doneBtn) {
+    if (currentAksharas.length > 1) {
+      doneBtn.textContent = (currentAksharaIndex === currentAksharas.length - 1) ? '✓ Finish Word!' : '✓ Next Letter →';
+    } else {
+      doneBtn.textContent = '✓ Done!';
+    }
+  }
+}
+
+function openApertureMode() {
+  isApertureMode = true;
+  const targetText = getTargetText();
+  currentAksharas = getAksharaSegments(targetText);
+  if (currentAksharas.length === 0) currentAksharas = [targetText || 'अ'];
+
+  if (aksharaStrokesMap.length !== currentAksharas.length) {
+    aksharaStrokesMap = currentAksharas.map(() => []);
+    currentAksharaIndex = 0;
+  }
+  if (currentAksharaIndex >= currentAksharas.length) {
+    currentAksharaIndex = 0;
+  }
+
+  const overlay = $('apertureOverlay');
+  if (overlay) overlay.style.display = 'block';
+
+  // Temporarily hide the bottom palm guard shield while full aperture overlay is active
+  const bottomGuard = $('palmGuardShield');
+  if (bottomGuard) bottomGuard.style.display = 'none';
+
+  updateApertureView();
+}
+
+function closeApertureMode() {
+  isApertureMode = false;
+  const overlay = $('apertureOverlay');
+  if (overlay) overlay.style.display = 'none';
+
+  updatePalmGuardUI();
+  drawPad();
+}
+
+function clearCurrentAksharaStrokes() {
+  const curStrokes = aksharaStrokesMap[currentAksharaIndex] || [];
+  if (curStrokes.length > 0) {
+    const strokeSet = new Set(curStrokes);
+    userStrokes = userStrokes.filter(s => !strokeSet.has(s));
+    aksharaStrokesMap[currentAksharaIndex] = [];
+    drawing = false;
+    currentStroke = null;
+    last = null;
+    activePointerId = null;
+    drawPad();
+  }
+}
+
+function handleApertureDone() {
+  if (drawing || (Date.now() - lastDrawEndTime < 300)) return;
+
+  const curAkshara = currentAksharas[currentAksharaIndex];
+  const curStrokes = aksharaStrokesMap[currentAksharaIndex] || [];
+
+  const totalPoints = curStrokes.reduce((acc, s) => acc + s.length, 0);
+  if (!curStrokes.length || totalPoints < 6) {
+    const win = $('apertureWindow');
+    if (win) {
+      win.classList.add('shake');
+      setTimeout(() => win.classList.remove('shake'), 450);
+    }
+    const prompt = $('aperturePrompt');
+    if (prompt) prompt.textContent = `Write '${curAkshara}' first! ✍️`;
+    return;
+  }
+
+  const { aksharaCenterX } = getAksharaMetrics(currentAksharaIndex);
+  const strokeOffset = aksharaCenterX - (w.clientWidth / 2);
+  const result = evaluateHandwriting(curAkshara, curStrokes, strokeOffset);
+
+  if (!result.pass) {
+    const win = $('apertureWindow');
+    if (win) {
+      win.classList.add('shake');
+      setTimeout(() => win.classList.remove('shake'), 450);
+    }
+    playSnd('audio/snd_tryagain.mp3');
+    clearCurrentAksharaStrokes();
+
+    const prompt = $('aperturePrompt');
+    if (prompt) {
+      if (result.reason === 'scribble') {
+        prompt.textContent = `Don't scribble! Follow the lines for '${curAkshara}' ✍️`;
+      } else {
+        prompt.textContent = `Try again! Follow the lines for '${curAkshara}' ✍️`;
+      }
+    }
+
+    hintActive = true;
+    drawPad();
+    if (hintTimer) clearTimeout(hintTimer);
+    hintTimer = setTimeout(() => {
+      hintActive = false;
+      drawPad();
+    }, 3000);
+    return;
+  }
+
+  // Akshara passed!
+  if (currentAksharaIndex < currentAksharas.length - 1) {
+    currentAksharaIndex++;
+    updateApertureView();
+    const nextAk = currentAksharas[currentAksharaIndex];
+    const prompt = $('aperturePrompt');
+    if (prompt) {
+      prompt.textContent = `Great! Now write '${nextAk}' (${currentAksharaIndex + 1}/${currentAksharas.length}) ✍️`;
+    }
+  } else {
+    // All Aksharas of this word or letter complete!
+    closeApertureMode();
+    window._forcePassDone = true;
+    $('done').click();
+  }
+}
+
+// Attach Touch-Absorbing Handlers to all 4 Blocker Shields
+const apertureBlockerEls = [$('blockerTop'), $('blockerBottom'), $('blockerLeft'), $('blockerRight')];
+apertureBlockerEls.forEach(b => {
+  if (!b) return;
+  ['pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'touchstart', 'touchmove', 'touchend', 'touchcancel'].forEach(ev => {
+    b.addEventListener(ev, e => {
+      e.stopPropagation();
+      e.preventDefault();
+    }, { passive: false });
+  });
+});
+
+if ($('apertureBar')) {
+  $('apertureBar').addEventListener('pointerdown', e => e.stopPropagation());
+}
+
+if ($('startWritingBtn')) {
+  $('startWritingBtn').onclick = () => openApertureMode();
+}
+
+if ($('apertureSoundBtn')) {
+  $('apertureSoundBtn').onclick = () => {
+    if (currentStep === 1) {
+      speakLetter();
+    } else {
+      const curAk = (currentAksharas && currentAksharas[currentAksharaIndex]) || getTargetText();
+      speakHindi(curAk, lessons[idx]?.audio);
+    }
+  };
+}
+
+if ($('apertureHintBtn')) {
+  $('apertureHintBtn').onclick = () => {
+    hintActive = true;
+    drawPad();
+    if (hintTimer) clearTimeout(hintTimer);
+    hintTimer = setTimeout(() => {
+      hintActive = false;
+      drawPad();
+    }, 3000);
+  };
+}
+
+if ($('apertureClearBtn')) {
+  $('apertureClearBtn').onclick = () => clearCurrentAksharaStrokes();
+}
+
+if ($('apertureDoneBtn')) {
+  $('apertureDoneBtn').onclick = () => handleApertureDone();
+}
+
+if ($('apertureCloseBtn')) {
+  $('apertureCloseBtn').onclick = () => closeApertureMode();
+}
+
 window.addEventListener('resize', () => {
   drawPad();
+  if (isApertureMode) updateApertureView();
 });
 
 // Step Navigation Handlers
@@ -2756,6 +3199,8 @@ $('st4').onclick = () => openProgressStickers();
 function setLetter(newIdx) {
   clearPad();
   idx = newIdx;
+  currentAksharaIndex = 0;
+  aksharaStrokesMap = [];
   const item = lessons[idx];
 
   if (item.isSwar && currentStep === 2) {
@@ -2785,6 +3230,11 @@ function setLetter(newIdx) {
   }
 
   render();
+  if (isApertureMode) {
+    currentAksharas = getAksharaSegments(getTargetText());
+    aksharaStrokesMap = currentAksharas.map(() => []);
+    updateApertureView();
+  }
 }
 
 function setStep(stepNum) {
@@ -2799,8 +3249,15 @@ function setStep(stepNum) {
   });
   $('st4').classList.remove('active');
 
+  currentAksharaIndex = 0;
+  aksharaStrokesMap = [];
   clearPad();
   render();
+  if (isApertureMode) {
+    currentAksharas = getAksharaSegments(getTargetText());
+    aksharaStrokesMap = currentAksharas.map(() => []);
+    updateApertureView();
+  }
 }
 
 function render() {
@@ -2850,6 +3307,10 @@ function render() {
   }
 
   drawPad();
+  if (isApertureMode) {
+    currentAksharas = getAksharaSegments(getTargetText());
+    updateApertureView();
+  }
 }
 
 function openProgressStickers() {
