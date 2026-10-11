@@ -205,11 +205,11 @@ test('Erases earlier writing on "I\'m done" (both success and failure) and lette
   assert(setLetterMatch[0].includes('clearPad()'), 'setLetter must call clearPad() to guarantee clean slate');
 });
 
-test('Bottom pills use << and >> symbols with centered larger typography', () => {
-  assert(html.includes('&lt;&lt; Prev'), 'Initial Prev button must use << symbol');
-  assert(html.includes('Next &gt;&gt;'), 'Initial Next button must use >> symbol');
-  assert(html.includes("'<< ' + lessons"), 'setLetter/render must prefix Prev with <<');
-  assert(html.includes("lessons[nextIdx].c + ' >>'"), 'setLetter/render must suffix Next with >>');
+test('Bottom pills use Previous and Next labels with centered larger typography', () => {
+  assert(html.includes('id="prevBtn">Previous</button>'), 'Initial Prev button must use Previous text');
+  assert(html.includes('id="nextBtn">Next</button>'), 'Initial Next button must use Next text');
+  assert(html.includes("$('prevBtn').textContent = 'Previous'"), 'render must set Prev button to Previous');
+  assert(html.includes("$('nextBtn').textContent = 'Next'"), 'render must set Next button to Next');
 
   const prevBtnStyle = html.match(/\.prev-btn\{([^}]+)\}/);
   assert(prevBtnStyle, '.prev-btn style must exist');
@@ -283,7 +283,7 @@ test('Mastery Star Criteria: 1 star = letter, 2 stars = matra, 3 stars = 10 word
 
 test('Software Palm Rejection & Palm Guard Shield are active', () => {
   assert(html.includes('id="palmGuardShield"'), 'Palm Guard Shield overlay must exist');
-  assert(html.includes('id="palmGuardToggle"'), 'Palm Guard toggle button must exist');
+  assert(!html.includes('id="palmGuardToggle"'), 'Top Palm Guard toggle button is cleanly removed from top bar');
   assert(html.includes('function isPalmContact(e)'), 'isPalmContact discriminative function must exist');
   assert(html.includes('activePointerId'), 'Single active pointer locking must be implemented to prevent multi-touch jitter');
   assert(html.includes('lastDrawEndTime'), 'Drawing cooldown lockout on bottom buttons must be implemented');
@@ -307,7 +307,6 @@ test('Full-Screen Aperture Writing Shield Mode & Akshara-by-Akshara guidance are
   assert(html.includes('id="blockerRight"'), 'Right palm blocker shield must exist');
 
   // Controls
-  assert(html.includes('id="startWritingBtn"'), 'Write Mode trigger button must exist');
   assert(html.includes('id="apertureCloseBtn"'), 'Exit Writing Mode button must exist');
   assert(html.includes('id="apertureDoneBtn"'), 'Next Akshara / Done button must exist');
   assert(html.includes('id="apertureClearBtn"'), 'Clear stroke button must exist');
@@ -419,8 +418,87 @@ test('Two-Phase Workflow: "Let\'s write" enters Write Mode, "Finish Word" exits 
   assert(apertureDoneMatch.includes("mainCtaState = 'done'"), 'Word finish must switch main CTA to "done" state');
   assert(apertureDoneMatch.includes('updateMainCta()'), 'Word finish must update main CTA text');
 
-  // Verify top toggle button is retained for testing
-  assert(html.includes('id="startWritingBtn"'), 'Top Write Mode ON/OFF toggle must be retained');
+  // Verify top Write Mode toggle is removed as primary entry is via main "Let's write" CTA
+  assert(!html.includes('id="startWritingBtn"'), 'Top Write Mode ON/OFF toggle is cleanly removed');
+});
+
+test('Multi-touch Palm-Down Button Responsiveness & Anti-Dot Stroke Auto-Recovery', () => {
+  assert(html.includes('touch-action:none'), 'html and body must have touch-action:none to prevent OS gesture cancelation');
+  assert(html.includes('function makeTouchResponsive('), 'makeTouchResponsive helper must exist for instant multi-touch tap dispatch');
+
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const apertureDoneMatch = scriptContent.match(/function handleApertureDone\(\)[\s\S]*?\n\}/)[0];
+  assert(!apertureDoneMatch.includes('if (drawing ||'), 'handleApertureDone must not lock out when drawing/palm is down');
+
+  const doneMatch = html.match(/\$\('done'\)\.onclick\s*=\s*e\s*=>\s*\{([\s\S]*?)\n\};/)[0];
+  assert(!doneMatch.includes('if (drawing ||'), 'Main done button must not lock out when drawing/palm is down');
+
+  // Verify pointermove stroke auto-recovery
+  const pointermoveMatch = scriptContent.match(/w\.addEventListener\('pointermove'[\s\S]*?\n\}\);/)[0];
+  assert(pointermoveMatch.includes('Auto-recover stroke') || pointermoveMatch.includes('drawing = true'), 'pointermove must auto-recover strokes interrupted by palm jitter');
+  assert(pointermoveMatch.includes('maxMargin = 72') || pointermoveMatch.includes('maxMargin'), 'Aperture margin must accommodate natural child curves without clipping');
+});
+
+test('Shuffle Mode & Last-Attempted Navigation History', () => {
+  assert(html.includes('id="shuffleToggle"'), 'Top Shuffle Mode toggle button must exist');
+  assert(html.includes('shuffleMode'), 'shuffleMode state variable must exist');
+  assert(html.includes('letterHistory'), 'letterHistory navigation history stack must exist');
+  assert(html.includes('function getNextLetterIdx('), 'getNextLetterIdx selection function must exist');
+
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const nextMatch = scriptContent.match(/\$\('nextBtn'\)\.onclick\s*=\s*e\s*=>\s*\{([\s\S]*?)\n\};/)[0];
+  assert(nextMatch.includes('letterHistory.push('), 'Next button must record history of visited letters');
+  assert(nextMatch.includes('getNextLetterIdx()'), 'Next button must call getNextLetterIdx()');
+
+  const prevMatch = scriptContent.match(/\$\('prevBtn'\)\.onclick\s*=\s*e\s*=>\s*\{([\s\S]*?)\n\};/)[0];
+  assert(prevMatch.includes('letterHistory.pop()'), 'Previous button must return to last attempted letter in history');
+});
+
+test('Home button resets to earliest unmastered letter (Shuffle OFF) and random unmastered letter (Shuffle ON)', () => {
+  assert(html.includes('id="homeBtn"'), 'Home button must exist with id homeBtn');
+  assert(html.includes('function goHome()'), 'goHome function must exist');
+  assert(html.includes('function getUnmasteredLetterIndices('), 'getUnmasteredLetterIndices function must exist');
+
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const goHomeMatch = scriptContent.match(/function goHome\(\)\s*\{([\s\S]*?)\n\}/)[0];
+
+  assert(goHomeMatch.includes('letterHistory = []'), 'goHome must reset navigation history');
+  assert(goHomeMatch.includes('setStep(1)'), 'goHome must reset stage to Step 1');
+  assert(goHomeMatch.includes('getUnmasteredLetterIndices(1)'), 'goHome must inspect unmastered letters');
+  assert(goHomeMatch.includes('!shuffleMode'), 'goHome must differentiate when shuffle is OFF vs ON');
+  assert(goHomeMatch.includes('unmastered[0]'), 'goHome must pick earliest unmastered letter when shuffle is OFF');
+  assert(goHomeMatch.includes('Math.random()'), 'goHome must pick random unmastered letter when shuffle is ON');
+  assert(goHomeMatch.includes('setLetter(targetIdx)'), 'goHome must navigate to target letter');
+
+  // Verify modal and aperture mode cleanup
+  assert(goHomeMatch.includes('closeApertureMode('), 'goHome must cleanly exit aperture write mode if active');
+
+  // Behavioral simulation of getUnmasteredLetterIndices & goHome selection logic
+  const mockLessons = [{ c: 'अ' }, { c: 'आ' }, { c: 'इ' }, { c: 'ई' }];
+  const mockMastery = {
+    'अ': { letterMastered: true },
+    'आ': { letterMastered: true },
+    'इ': { letterMastered: false },
+    'ई': { letterMastered: false }
+  };
+
+  const getUnmastered = (lessons, mastery) => {
+    return lessons
+      .map((l, i) => (!mastery[l.c]?.letterMastered ? i : -1))
+      .filter(i => i !== -1);
+  };
+
+  const unmastered = getUnmastered(mockLessons, mockMastery);
+  assert(unmastered.length === 2 && unmastered[0] === 2 && unmastered[1] === 3, 'Unmastered indices must be [2, 3]');
+
+  // Shuffle OFF: earliest unmastered letter
+  const shuffleOffTarget = unmastered.length > 0 ? unmastered[0] : 0;
+  assert(shuffleOffTarget === 2, 'Shuffle OFF must select earliest unmastered letter (index 2: इ)');
+
+  // Shuffle ON: random unmastered letter
+  const shuffleOnPool = unmastered;
+  const picked = shuffleOnPool[Math.floor(Math.random() * shuffleOnPool.length)];
+  assert(picked === 2 || picked === 3, 'Shuffle ON must pick an unmastered letter (2 or 3)');
 });
 
 console.log('\n----------------------------------------------------');

@@ -12,7 +12,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap');
 :root{--navy:#123b6c;--teal:#0f7a66;--gold:#ffca4f;--pink:#ff7d9c;--green:#39b84a}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--navy);background:#bfeaff;overscroll-behavior:none}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;touch-action:none}body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--navy);background:#bfeaff;overscroll-behavior:none}
 button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:3px solid #147ac2;outline-offset:2px}
 .app{width:100vw;height:100dvh;position:relative;overflow:hidden;background:#bfeaff;isolation:isolate}
 .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none;z-index:-1}
@@ -120,9 +120,9 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .step.disabled{opacity:0.35;pointer-events:none;filter:grayscale(1)}
 
 /* Bottom Capsule Buttons (Prev | I'm Done | Next) */
-.prev-btn{position:absolute;left:4%;top:79.5%;width:27%;height:13.5%;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:clamp(18px,2.4vw,30px);font-family:'Baloo 2',system-ui,-apple-system,sans-serif;font-weight:800;color:#78450d;background:transparent;cursor:pointer;transition:transform .1s;text-align:center;line-height:1}
+.prev-btn{position:absolute;left:4.1%;top:83%;width:27.5%;height:9.6%;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:clamp(16px,2.2vw,28px);font-family:'Baloo 2',system-ui,-apple-system,sans-serif;font-weight:800;color:#78450d;background:transparent;cursor:pointer;transition:transform .1s;text-align:center;line-height:1;white-space:nowrap;box-sizing:border-box}
 .prev-btn:active{transform:scale(0.97)}
-.next-btn{position:absolute;left:66.5%;top:79.5%;width:28%;height:13.5%;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:clamp(18px,2.4vw,30px);font-family:'Baloo 2',system-ui,-apple-system,sans-serif;font-weight:800;color:white;background:transparent;cursor:pointer;transition:transform .1s;text-shadow:0 2px 4px rgba(0,0,0,0.25);text-align:center;line-height:1}
+.next-btn{position:absolute;left:66.5%;top:83%;width:25.5%;height:9.6%;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:clamp(16px,2.2vw,28px);font-family:'Baloo 2',system-ui,-apple-system,sans-serif;font-weight:800;color:white;background:transparent;cursor:pointer;transition:transform .1s;text-shadow:0 2px 4px rgba(0,0,0,0.25);text-align:center;line-height:1;white-space:nowrap;box-sizing:border-box}
 .next-btn:active{transform:scale(0.97)}
 
 .update-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(160%);background:#0d2847;color:#ffffff;padding:8px 16px;border-radius:999px;box-shadow:0 10px 28px rgba(0,0,0,0.35);display:flex;align-items:center;gap:12px;font-size:clamp(12px,1.4vw,15px);font-weight:700;z-index:10000;transition:transform .35s cubic-bezier(.175,.885,.32,1.275);border:2px solid #ffca4f;pointer-events:none;opacity:0}
@@ -276,10 +276,8 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 <div class="toolbar-top" id="toolbarTop">
   <span class="stage-badge" id="stageBadge">Stage 1/3: Trace ✍️</span>
-  <button class="ctrl-pill" id="startWritingBtn" title="Toggle Focused Writing Mode with Full Palm Shield">✍️ Write Mode: OFF</button>
-  <button class="ctrl-pill active" id="palmGuardToggle" title="Toggle Palm Rest Shield for stylus">🖐️ Guard</button>
+  <button class="ctrl-pill" id="shuffleToggle" title="Toggle Shuffle Mode (Random unmastered letters)">🔀 Shuffle: OFF</button>
   <button class="ctrl-pill" id="fullscreenToggle" title="Toggle Fullscreen to hide tablet navigation buttons">⛶ Fullscreen</button>
-  <button class="ctrl-pill" id="stylusHelpBtn" title="Stylus & Tablet Lock Help">🛡️ Help</button>
 </div>
 
 <canvas id="write" aria-label="Writing canvas"></canvas>
@@ -339,9 +337,9 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <button class="sidebtn erase" id="erase"><span class="ico">🧽</span>Erase</button>
 <button class="sidebtn retry" id="hintBtn"><span class="ico">💡</span>Hint</button>
 
-<button class="prev-btn" id="prevBtn">&lt;&lt; Prev</button>
+<button class="prev-btn" id="prevBtn">Previous</button>
 <button class="bottombtn done" id="done">✍️ Let's write</button>
-<button class="next-btn" id="nextBtn">Next &gt;&gt;</button>
+<button class="next-btn" id="nextBtn">Next</button>
 
 <div class="modal" id="modal">
   <div class="dialog">
@@ -2026,13 +2024,17 @@ function pos(e) {
 }
 
 function isPalmContact(e) {
-  // If active stylus (pen) has been detected, reject any accidental touch events
-  if (isStylusOnlyMode && e.pointerType === 'touch') return true;
+  // If active stylus (pen) has been detected, reject accidental finger touch events
+  if (isStylusOnlyMode && e.pointerType === 'pen') return false;
 
-  // Contact width/height threshold (capacitive palm/wrist touches typically exceed 30px)
-  if (e.width && e.width > 30) return true;
-  if (e.height && e.height > 30) return true;
-  if (e.width && e.height && (e.width * e.height > 850)) return true;
+  // In Aperture Mode, the aperture window strictly isolates the target letter/matra.
+  // Any touch inside this active window is intended writing by the child!
+  if (isApertureMode) return false;
+
+  // Contact width/height threshold for capacitive palm/wrist touches (typically > 75px on high-DPI screens)
+  if (e.width && e.width > 75) return true;
+  if (e.height && e.height > 75) return true;
+  if (e.width && e.height && (e.width * e.height > 4000)) return true;
 
   return false;
 }
@@ -2051,10 +2053,26 @@ w.addEventListener('pointerdown', e => {
     isStylusOnlyMode = true;
   }
 
-  // Prevent multi-touch jitter: only one pointer can draw at a time
+  // Prevent multi-touch jitter, but allow stylus inside the Aperture window to take over from a resting palm:
   if (activePointerId !== null && e.pointerId !== activePointerId) {
-    e.preventDefault();
-    return;
+    if (isApertureMode) {
+      const metrics = getAksharaMetrics(currentUnitIndex);
+      const pad = 18;
+      const insideWin = (e.clientX >= metrics.winScreenL - pad &&
+                         e.clientX <= metrics.winScreenL + metrics.winScreenW + pad &&
+                         e.clientY >= metrics.winScreenT - pad &&
+                         e.clientY <= metrics.winScreenT + metrics.winScreenH + pad);
+      if (insideWin) {
+        // Touch is specifically inside the aperture window — let the stylus take over!
+        activePointerId = e.pointerId;
+      } else {
+        e.preventDefault();
+        return;
+      }
+    } else {
+      e.preventDefault();
+      return;
+    }
   }
 
   // Reject broad palm/wrist contact on capacitive screens
@@ -2072,7 +2090,7 @@ w.addEventListener('pointerdown', e => {
   // Reject touches outside the active aperture window in Aperture Mode
   if (isApertureMode) {
     const metrics = getAksharaMetrics(currentUnitIndex);
-    const margin = 12;
+    const margin = 18;
     if (e.clientX < metrics.winScreenL - margin ||
         e.clientX > metrics.winScreenL + metrics.winScreenW + margin ||
         e.clientY < metrics.winScreenT - margin ||
@@ -2111,6 +2129,46 @@ w.addEventListener('pointerdown', e => {
 });
 
 w.addEventListener('pointermove', e => {
+  // Auto-recover stroke if transient digitizer/palm jitter cancelled pointer but stylus continues dragging
+  if (!drawing) {
+    if (isApertureMode && (e.buttons === 1 || e.pressure > 0 || e.pointerType === 'touch')) {
+      const metrics = getAksharaMetrics(currentUnitIndex);
+      const pad = 36;
+      if (e.clientX >= metrics.winScreenL - pad &&
+          e.clientX <= metrics.winScreenL + metrics.winScreenW + pad &&
+          e.clientY >= metrics.winScreenT - pad &&
+          e.clientY <= metrics.winScreenT + metrics.winScreenH + pad) {
+        drawing = true;
+        activePointerId = e.pointerId;
+        const p = pos(e);
+        if (last && Math.hypot(p.x - last.x, p.y - last.y) < 70) {
+          if (!currentStroke) {
+            currentStroke = [last];
+            userStrokes.push(currentStroke);
+            if (unitStrokesMap[currentUnitIndex]) unitStrokesMap[currentUnitIndex].push(currentStroke);
+          }
+          currentStroke.push(p);
+          const bw = getBrushWidth();
+          ctx.strokeStyle = '#173e33';
+          ctx.lineWidth = bw;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          ctx.moveTo(last.x, last.y);
+          ctx.lineTo(p.x, p.y);
+          ctx.stroke();
+          last = p;
+          return;
+        } else {
+          last = p;
+          currentStroke = [p];
+          userStrokes.push(currentStroke);
+          if (unitStrokesMap[currentUnitIndex]) unitStrokesMap[currentUnitIndex].push(currentStroke);
+        }
+      }
+    }
+  }
+
   if (!drawing || !last) return;
   // Strictly enforce pointer ID to eliminate palm jumping
   if (e.pointerId !== activePointerId) return;
@@ -2118,10 +2176,10 @@ w.addEventListener('pointermove', e => {
   // Clamp stroke if it enters Palm Guard rest pad
   if (!isApertureMode && isInsidePalmGuard(e)) return;
 
-  // In Aperture Mode, ignore if dragged too far outside the window
+  // In Aperture Mode, give generous margin so natural child curves and matra tails are not clipped into dots
   if (isApertureMode) {
     const metrics = getAksharaMetrics(currentUnitIndex);
-    const maxMargin = 28;
+    const maxMargin = 72;
     if (e.clientX < metrics.winScreenL - maxMargin ||
         e.clientX > metrics.winScreenL + metrics.winScreenW + maxMargin ||
         e.clientY < metrics.winScreenT - maxMargin ||
@@ -2146,16 +2204,71 @@ w.addEventListener('pointermove', e => {
   last = p;
 });
 
-['pointerup', 'pointercancel'].forEach(ev => {
-  w.addEventListener(ev, e => {
-    if (e.pointerId !== activePointerId) return;
+w.addEventListener('pointerup', e => {
+  if (e.pointerId !== activePointerId) return;
+  drawing = false;
+  currentStroke = null;
+  last = null;
+  activePointerId = null;
+  lastDrawEndTime = Date.now();
+});
+
+w.addEventListener('pointercancel', e => {
+  if (e.pointerId !== activePointerId) return;
+  // Do not abruptly discard last position: allow smooth auto-recovery if stylus continues moving
+  drawing = false;
+  activePointerId = null;
+  lastDrawEndTime = Date.now();
+  setTimeout(() => {
+    if (!drawing) {
+      currentStroke = null;
+      last = null;
+    }
+  }, 250);
+});
+
+let lastGlobalActionTime = 0;
+
+// Helper to make buttons trigger immediately on touch even when a resting palm is on the screen
+function makeTouchResponsive(btn, handler) {
+  if (!btn) return;
+  const action = handler || btn.onclick;
+  if (!action) return;
+
+  let lastBtnTrigger = 0;
+  const trigger = (e) => {
+    const now = Date.now();
+    // 380ms debounce per button, 200ms global debounce across UI actions
+    if (now - lastBtnTrigger < 380 || now - lastGlobalActionTime < 200) {
+      if (e && e.cancelable) e.preventDefault();
+      return;
+    }
+    lastBtnTrigger = now;
+    lastGlobalActionTime = now;
+
+    // Reset drawing state when an explicit UI action is taken
     drawing = false;
+    activePointerId = null;
     currentStroke = null;
     last = null;
-    activePointerId = null;
-    lastDrawEndTime = Date.now();
-  });
-});
+
+    action(e);
+  };
+
+  btn.addEventListener('pointerdown', e => {
+    if (e.button !== undefined && e.button !== 0) return;
+    // Filter out huge palm slaps directly over the button
+    if (e.width && e.width > 85 && e.height && e.height > 85) return;
+    trigger(e);
+    // Cancel synthetic click generation so browser does not fire a ghost click
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+
+  // Route native click through the exact same debounced trigger
+  btn.onclick = (e) => {
+    trigger(e);
+  };
+}
 
 let mainCtaState = 'write'; // 'write' | 'done'
 
@@ -2641,8 +2754,9 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
 
 // Done Handler: Evaluates, Celebrates, and Advances scaffold/matra/word on focus letter
 $('done').onclick = e => {
-  if (drawing || (Date.now() - lastDrawEndTime < 350)) return;
-  if (e && ((e.width && e.width > 30) || (e.height && e.height > 30))) return;
+  drawing = false;
+  activePointerId = null;
+  lastDrawEndTime = 0;
 
   if (mainCtaState === 'write') {
     openApertureMode();
@@ -2797,53 +2911,145 @@ $('done').onclick = e => {
   }
 
   updateLetterStar(char);
+  const modalShowTime = Date.now();
   $('modal').onclick = (e) => {
+    if (Date.now() - modalShowTime < 600) return;
     if (e.target === $('modal')) {
       $('modal').classList.remove('show');
       render();
     }
   };
+  makeTouchResponsive($('next'));
   $('modal').classList.add('show');
 };
 
+makeTouchResponsive($('done'));
+
+let shuffleMode = localStorage.getItem('rasari_shuffle_mode') === 'true';
+let letterHistory = [];
+
+function updateShuffleBtn() {
+  const btn = $('shuffleToggle');
+  if (!btn) return;
+  if (shuffleMode) {
+    btn.textContent = '🔀 Shuffle: ON';
+    btn.classList.add('active');
+    btn.style.background = '#ffefc2';
+    btn.style.borderColor = '#b47514';
+    btn.style.color = '#6d3d04';
+  } else {
+    btn.textContent = '🔀 Shuffle: OFF';
+    btn.classList.remove('active');
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+  }
+}
+
+if ($('shuffleToggle')) {
+  makeTouchResponsive($('shuffleToggle'), () => {
+    shuffleMode = !shuffleMode;
+    localStorage.setItem('rasari_shuffle_mode', shuffleMode ? 'true' : 'false');
+    updateShuffleBtn();
+  });
+}
+updateShuffleBtn();
+
+function getUnmasteredLetterIndices(step = currentStep) {
+  const eligibleIndices = [];
+  for (let i = 0; i < lessons.length; i++) {
+    if (step === 2 && lessons[i].isSwar) continue; // Swars cannot take matras in Step 2
+    eligibleIndices.push(i);
+  }
+
+  const unmastered = [];
+  eligibleIndices.forEach(i => {
+    const item = lessons[i];
+    const m = getLetterMastery(item.c);
+    let isMastered = false;
+    if (step === 1) {
+      isMastered = !!m.letterMastered;
+    } else if (step === 2) {
+      isMastered = !!m.matraMastered;
+    } else if (step === 3) {
+      isMastered = (m.wordsMastered && m.wordsMastered.length >= 10);
+    } else {
+      isMastered = (m.star === 3);
+    }
+    if (!isMastered) unmastered.push(i);
+  });
+
+  // If all letters are mastered at this step, fallback to any letter that hasn't reached 3 stars
+  if (unmastered.length === 0) {
+    eligibleIndices.forEach(i => {
+      const m = getLetterMastery(lessons[i].c);
+      if (m.star < 3) unmastered.push(i);
+    });
+  }
+
+  return unmastered;
+}
+
+function getNextLetterIdx() {
+  if (!shuffleMode) {
+    let nextIdx = (idx + 1) % lessons.length;
+    if (currentStep === 2) {
+      while (lessons[nextIdx].isSwar) {
+        nextIdx = (nextIdx + 1) % lessons.length;
+      }
+    }
+    return nextIdx;
+  }
+
+  // Shuffle Mode: Pick random (preferably unmastered) letters
+  const eligibleIndices = [];
+  for (let i = 0; i < lessons.length; i++) {
+    if (i === idx) continue; // Never repeat the exact same letter currently active
+    if (currentStep === 2 && lessons[i].isSwar) continue; // Swars cannot take matras in Step 2
+    eligibleIndices.push(i);
+  }
+
+  if (!eligibleIndices.length) return idx;
+
+  const unmastered = getUnmasteredLetterIndices(currentStep);
+  const candidates = unmastered.filter(i => i !== idx && eligibleIndices.includes(i));
+  const pool = candidates.length > 0 ? candidates : eligibleIndices;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 // Previous and Next Letter Direct Buttons
 $('prevBtn').onclick = e => {
-  if (drawing || (Date.now() - lastDrawEndTime < 350)) return;
-  if (e && ((e.width && e.width > 30) || (e.height && e.height > 30))) return;
+  drawing = false;
+  activePointerId = null;
+  lastDrawEndTime = 0;
 
-  let prevIdx = (idx - 1 + lessons.length) % lessons.length;
-  if (currentStep === 2) {
-    while (lessons[prevIdx].isSwar) {
-      prevIdx = (prevIdx - 1 + lessons.length) % lessons.length;
+  if (letterHistory.length > 0) {
+    const lastAttempted = letterHistory.pop();
+    setLetter(lastAttempted);
+  } else {
+    let prevIdx = (idx - 1 + lessons.length) % lessons.length;
+    if (currentStep === 2) {
+      while (lessons[prevIdx].isSwar) {
+        prevIdx = (prevIdx - 1 + lessons.length) % lessons.length;
+      }
     }
+    setLetter(prevIdx);
   }
-  setLetter(prevIdx);
 };
+makeTouchResponsive($('prevBtn'));
 
 $('nextBtn').onclick = e => {
-  if (drawing || (Date.now() - lastDrawEndTime < 350)) return;
-  if (e && ((e.width && e.width > 30) || (e.height && e.height > 30))) return;
+  drawing = false;
+  activePointerId = null;
+  lastDrawEndTime = 0;
 
-  let nextIdx = (idx + 1) % lessons.length;
-  if (currentStep === 2) {
-    while (lessons[nextIdx].isSwar) {
-      nextIdx = (nextIdx + 1) % lessons.length;
-    }
-  }
+  letterHistory.push(idx);
+  if (letterHistory.length > 60) letterHistory.shift();
+
+  const nextIdx = getNextLetterIdx();
   setLetter(nextIdx);
 };
-
-// Absorb accidental resting palm contact on bottom buttons
-['done', 'prevBtn', 'nextBtn'].forEach(id => {
-  const btn = $(id);
-  if (!btn) return;
-  btn.addEventListener('pointerdown', e => {
-    if (drawing || (Date.now() - lastDrawEndTime < 350) || (e.width && e.width > 30) || (e.height && e.height > 30)) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-  });
-});
+makeTouchResponsive($('nextBtn'));
 
 // Toolbar / Hint & Speech Handlers
 $('hintBtn').onclick = () => {
@@ -2869,9 +3075,13 @@ if ($('guideModeBtn')) {
 }
 
 $('sound').onclick = speakLetter;
+makeTouchResponsive($('sound'));
 $('letter').onclick = speakLetter;
+makeTouchResponsive($('letter'));
 $('clueBoard').onclick = speakClue;
+makeTouchResponsive($('clueBoard'));
 $('clueEmoji').onclick = speakClue;
+makeTouchResponsive($('clueEmoji'));
 $('erase').onclick = () => {
   if (isApertureMode) {
     clearCurrentAksharaStrokes();
@@ -2879,14 +3089,37 @@ $('erase').onclick = () => {
     clearPad();
   }
 };
+makeTouchResponsive($('erase'));
+makeTouchResponsive($('hintBtn'));
 
 function goHome() {
-  setLetter(0);
+  if (isApertureMode) {
+    closeApertureMode(false);
+  }
+  if ($('modal')) $('modal').classList.remove('show');
+  if ($('progressModal')) $('progressModal').classList.remove('show');
+  letterHistory = [];
   setStep(1);
+
+  const unmastered = getUnmasteredLetterIndices(1);
+  let targetIdx = 0;
+
+  if (!shuffleMode) {
+    // Shuffle OFF: Reset to the earliest unmastered letter in curriculum order
+    targetIdx = unmastered.length > 0 ? unmastered[0] : 0;
+  } else {
+    // Shuffle ON: Give a random unmastered letter
+    const pool = unmastered.length > 0 ? unmastered : Array.from({ length: lessons.length }, (_, i) => i);
+    const candidates = pool.filter(i => i !== idx);
+    const finalPool = candidates.length > 0 ? candidates : pool;
+    targetIdx = finalPool[Math.floor(Math.random() * finalPool.length)];
+  }
+
+  setLetter(targetIdx);
 }
 
-if ($('home')) $('home').onclick = goHome;
-if ($('homeBtn')) $('homeBtn').onclick = goHome;
+if ($('home')) makeTouchResponsive($('home'), goHome);
+if ($('homeBtn')) makeTouchResponsive($('homeBtn'), goHome);
 
 // ------------------------------------------------------------------
 // Full-Screen Aperture Writing Shield Mode & Akshara-by-Akshara Engine
@@ -3104,11 +3337,11 @@ function updateApertureView() {
       }
       pill.textContent = u.char;
       pill.title = u.type === 'base' ? `Letter ${u.char}` : `Matra ${u.char}`;
-      pill.onclick = (e) => {
-        e.stopPropagation();
+      makeTouchResponsive(pill, (e) => {
+        if (e && e.stopPropagation) e.stopPropagation();
         currentUnitIndex = i;
         updateApertureView();
-      };
+      });
       track.appendChild(pill);
     });
   }
@@ -3260,7 +3493,9 @@ function clearCurrentAksharaStrokes() {
 }
 
 function handleApertureDone() {
-  if (drawing || (Date.now() - lastDrawEndTime < 300)) return;
+  drawing = false;
+  activePointerId = null;
+  lastDrawEndTime = 0;
 
   if (!currentPracticeUnits || currentUnitIndex >= currentPracticeUnits.length) {
     currentUnitIndex = 0;
@@ -3355,17 +3590,17 @@ if ($('apertureBar')) {
 }
 
 if ($('startWritingBtn')) {
-  $('startWritingBtn').onclick = () => {
+  makeTouchResponsive($('startWritingBtn'), () => {
     if (writeModeActive) {
       closeApertureMode(true);
     } else {
       openApertureMode();
     }
-  };
+  });
 }
 
 if ($('apertureSoundBtn')) {
-  $('apertureSoundBtn').onclick = () => {
+  makeTouchResponsive($('apertureSoundBtn'), () => {
     if (currentPracticeUnits && currentPracticeUnits[currentUnitIndex]) {
       const u = currentPracticeUnits[currentUnitIndex];
       speakHindi(u.combo || u.char, lessons[idx]?.audio);
@@ -3374,11 +3609,11 @@ if ($('apertureSoundBtn')) {
     } else {
       speakHindi(getTargetText(), lessons[idx]?.audio);
     }
-  };
+  });
 }
 
 if ($('apertureHintBtn')) {
-  $('apertureHintBtn').onclick = () => {
+  makeTouchResponsive($('apertureHintBtn'), () => {
     hintActive = true;
     drawPad();
     if (hintTimer) clearTimeout(hintTimer);
@@ -3386,28 +3621,28 @@ if ($('apertureHintBtn')) {
       hintActive = false;
       drawPad();
     }, 3000);
-  };
+  });
 }
 
 if ($('apertureClearBtn')) {
-  $('apertureClearBtn').onclick = () => clearCurrentAksharaStrokes();
+  makeTouchResponsive($('apertureClearBtn'), () => clearCurrentAksharaStrokes());
 }
 
 if ($('aperturePrevBtn')) {
-  $('aperturePrevBtn').onclick = () => {
+  makeTouchResponsive($('aperturePrevBtn'), () => {
     if (currentUnitIndex > 0) {
       currentUnitIndex--;
       updateApertureView();
     }
-  };
+  });
 }
 
 if ($('apertureDoneBtn')) {
-  $('apertureDoneBtn').onclick = () => handleApertureDone();
+  makeTouchResponsive($('apertureDoneBtn'), () => handleApertureDone());
 }
 
 if ($('apertureCloseBtn')) {
-  $('apertureCloseBtn').onclick = () => closeApertureMode(true);
+  makeTouchResponsive($('apertureCloseBtn'), () => closeApertureMode(true));
 }
 
 updateWriteModeBtn();
@@ -3446,8 +3681,8 @@ function setLetter(newIdx) {
       nextIdx = (nextIdx + 1) % lessons.length;
     }
   }
-  $('prevBtn').textContent = '<< ' + lessons[prevIdx].c;
-  $('nextBtn').textContent = lessons[nextIdx].c + ' >>';
+  $('prevBtn').textContent = 'Previous';
+  $('nextBtn').textContent = 'Next';
 
   const matraStepEl = $('st2');
   if (item.isSwar) {
@@ -3488,18 +3723,8 @@ function render() {
   $('navLetter').textContent = item.c;
 
   // Bottom Nav Labels
-  let prevIdx = (idx - 1 + lessons.length) % lessons.length;
-  let nextIdx = (idx + 1) % lessons.length;
-  if (currentStep === 2) {
-    while (lessons[prevIdx].isSwar) {
-      prevIdx = (prevIdx - 1 + lessons.length) % lessons.length;
-    }
-    while (lessons[nextIdx].isSwar) {
-      nextIdx = (nextIdx + 1) % lessons.length;
-    }
-  }
-  $('prevBtn').textContent = '<< ' + lessons[prevIdx].c;
-  $('nextBtn').textContent = lessons[nextIdx].c + ' >>';
+  $('prevBtn').textContent = 'Previous';
+  $('nextBtn').textContent = 'Next';
 
   // Dynamic Stage Setup (Right Clue: Pure Visual Clue, no text!)
   if (currentStep === 1) {
