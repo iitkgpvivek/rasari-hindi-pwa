@@ -52,11 +52,16 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 /* Full-Screen Aperture Writing Shield (Palm Protected Mode) */
 .aperture-overlay{position:fixed;inset:0;z-index:1000;pointer-events:none;user-select:none}
 .aperture-bar{position:fixed;top:10px;left:50%;transform:translateX(-50%);width:94%;max-width:920px;height:52px;background:rgba(13,37,30,0.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:2px solid #ffca4f;border-radius:999px;display:flex;align-items:center;justify-content:space-between;padding:6px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.45);z-index:1003;pointer-events:auto}
-.aperture-bar-left{display:flex;align-items:center;gap:10px}
+.aperture-bar-left{display:flex;align-items:center;gap:8px;min-width:0}
+.aperture-units-track{display:inline-flex;align-items:center;gap:4px;overflow-x:auto;max-width:240px;padding:2px 0}
+.aperture-unit-pill{background:rgba(255,255,255,0.14);color:#ffffff;border:1.5px solid rgba(255,202,79,0.45);border-radius:999px;min-width:28px;height:28px;padding:0 6px;font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.aperture-unit-pill:active{transform:scale(0.92)}
+.aperture-unit-pill.active{background:#ffcf50;color:#533303;border-color:#ffffff;font-weight:900;transform:scale(1.06);box-shadow:0 0 10px rgba(255,207,80,0.75)}
+.aperture-unit-pill.has-ink{border-color:#55d667;color:#d7ffd9}
 .aperture-badge{background:#ffcf50;color:#533303;padding:4px 12px;border-radius:999px;font-weight:800;font-size:clamp(12px,1.4vw,15px)}
-.aperture-prompt{color:#fff9e6;font-weight:800;font-size:clamp(12px,1.4vw,16px)}
-.aperture-bar-right{display:flex;align-items:center;gap:7px}
-.aperture-btn{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,202,79,0.5);color:#ffffff;border-radius:999px;padding:5px 12px;font-size:clamp(11px,1.2vw,14px);font-weight:800;cursor:pointer;transition:transform .12s}
+.aperture-prompt{color:#fff9e6;font-weight:800;font-size:clamp(12px,1.4vw,16px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aperture-bar-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.aperture-btn{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,202,79,0.5);color:#ffffff;border-radius:999px;padding:5px 11px;font-size:clamp(11px,1.2vw,14px);font-weight:800;cursor:pointer;transition:transform .12s}
 .aperture-btn:active{transform:scale(0.95)}
 .aperture-btn.done-pill{background:#37b949;border-color:#55d667;color:white;padding:6px 16px;box-shadow:0 2px 8px rgba(55,185,73,0.4)}
 .aperture-close-btn{background:rgba(239,68,68,0.9);border:2px solid #ffffff;color:white;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;font-size:18px;font-weight:900;cursor:pointer;transition:transform .12s;box-shadow:0 2px 6px rgba(0,0,0,0.3)}
@@ -289,13 +294,15 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
   <!-- Top Control Bar -->
   <div class="aperture-bar" id="apertureBar">
     <div class="aperture-bar-left">
-      <span class="aperture-badge" id="apertureBadge">Letter: अ</span>
+      <div class="aperture-units-track" id="apertureUnitsTrack"></div>
+      <span class="aperture-badge" id="apertureBadge" style="display:none">Letter: अ</span>
       <span class="aperture-prompt" id="aperturePrompt">Write 'अ' ✍️ (Rest hand anywhere)</span>
     </div>
     <div class="aperture-bar-right">
       <button class="aperture-btn" id="apertureSoundBtn" title="Hear sound">🔊 Sound</button>
       <button class="aperture-btn" id="apertureHintBtn" title="Show guide">💡 Hint</button>
       <button class="aperture-btn" id="apertureClearBtn" title="Clear letter stroke">🧽 Clear</button>
+      <button class="aperture-btn" id="aperturePrevBtn" title="Previous letter/matra">◀ Prev</button>
       <button class="aperture-btn done-pill" id="apertureDoneBtn">✓ Next</button>
       <button class="aperture-close-btn" id="apertureCloseBtn" title="Exit Writing Mode" aria-label="Exit Writing Mode">✕</button>
     </div>
@@ -2836,7 +2843,13 @@ $('sound').onclick = speakLetter;
 $('letter').onclick = speakLetter;
 $('clueBoard').onclick = speakClue;
 $('clueEmoji').onclick = speakClue;
-$('erase').onclick = clearPad;
+$('erase').onclick = () => {
+  if (isApertureMode) {
+    clearCurrentAksharaStrokes();
+  } else {
+    clearPad();
+  }
+};
 
 function goHome() {
   setLetter(0);
@@ -2906,6 +2919,14 @@ function decomposeWordToUnits(word) {
         charLength: basePart.length
       });
 
+      let matraInfo = MATRA_NAMES[matraChar] || { name: matraChar, zone: 'top' };
+      if (basePart === 'र' && (matraChar === '\u0941' || matraChar === '\u0942')) {
+        matraInfo = {
+          name: matraChar === '\u0941' ? 'उ की मात्रा (ु)' : 'ऊ की मात्रा (ू)',
+          zone: 'ra-waist'
+        };
+      }
+
       // 2. Matra
       units.push({
         type: 'matra',
@@ -2914,7 +2935,7 @@ function decomposeWordToUnits(word) {
         baseUnitIdx: baseUnitIdx,
         combo: s,
         cluster: s,
-        matraInfo: MATRA_NAMES[matraChar] || { name: matraChar, zone: 'top' },
+        matraInfo: matraInfo,
         charIndex: cl.index + basePart.length,
         charLength: matraChar.length
       });
@@ -2982,7 +3003,14 @@ function getAksharaMetrics(unitIdx) {
     // Matra: Positioned and sized based on where the matra sits!
     // -------------------------------------------------------------
     const zone = unit.matraInfo ? unit.matraInfo.zone : 'top';
-    if (zone === 'top') {
+    if (zone === 'ra-waist') {
+      // 'u' and 'oo' matras on 'र' (रु / रू): attached to the right waist of 'र' between Line 2 and Line 4!
+      winT = ruling.line2 - 3;
+      const winB = ruling.line4 + 3;
+      winH = winB - winT;
+      winW = Math.max(Math.round(ruling.bodyHeight * 0.55), baseWidth * 0.75 + 16);
+      winL = baseCenterX - 4;
+    } else if (zone === 'top') {
       // Top matra (Line 1 to Line 2): sits right on top of the letter
       winT = ruling.line1 - 3;
       const winB = ruling.line2 + 3;
@@ -3051,6 +3079,10 @@ function getAksharaMetrics(unitIdx) {
     baseCenterX,
     aksharaCenterX: baseCenterX,
     aksharaWidth: baseWidth,
+    canvasWinL: winL,
+    canvasWinT: winT,
+    canvasWinW: finalWinW,
+    canvasWinH: winH,
     winScreenL: screenWinL,
     winScreenT: screenWinT,
     winScreenW: screenWinW,
@@ -3122,6 +3154,28 @@ function updateApertureView() {
     bRight.style.height = metrics.winScreenH + 'px';
   }
 
+  // Update interactive unit track pills
+  const track = $('apertureUnitsTrack');
+  if (track && currentPracticeUnits) {
+    track.innerHTML = '';
+    currentPracticeUnits.forEach((u, i) => {
+      const pill = document.createElement('button');
+      pill.className = 'aperture-unit-pill' + (i === currentUnitIndex ? ' active' : '');
+      const hasStrokes = unitStrokesMap[i] && unitStrokesMap[i].length > 0;
+      if (hasStrokes && i !== currentUnitIndex) {
+        pill.classList.add('has-ink');
+      }
+      pill.textContent = u.char;
+      pill.title = u.type === 'base' ? `Letter ${u.char}` : `Matra ${u.char}`;
+      pill.onclick = (e) => {
+        e.stopPropagation();
+        currentUnitIndex = i;
+        updateApertureView();
+      };
+      track.appendChild(pill);
+    });
+  }
+
   // Update top bar labels
   const badge = $('apertureBadge');
   if (badge) {
@@ -3142,7 +3196,22 @@ function updateApertureView() {
       }
     } else {
       const mName = unit.matraInfo ? unit.matraInfo.name : unit.char;
-      prompt.textContent = `Add matra '${unit.char}' (${mName}) to '${unit.baseChar}' 🌿`;
+      if (unit.matraInfo && unit.matraInfo.zone === 'ra-waist') {
+        prompt.textContent = `Add matra '${unit.char}' (${mName}) to middle of '${unit.baseChar}' (रू) 🌿`;
+      } else {
+        prompt.textContent = `Add matra '${unit.char}' (${mName}) to '${unit.baseChar}' 🌿`;
+      }
+    }
+  }
+
+  const prevBtn = $('aperturePrevBtn');
+  if (prevBtn) {
+    if (currentUnitIndex > 0) {
+      prevBtn.style.opacity = '1';
+      prevBtn.style.pointerEvents = 'auto';
+    } else {
+      prevBtn.style.opacity = '0.35';
+      prevBtn.style.pointerEvents = 'none';
     }
   }
 
@@ -3214,17 +3283,52 @@ function closeApertureMode() {
 }
 
 function clearCurrentAksharaStrokes() {
-  const curStrokes = unitStrokesMap[currentUnitIndex] || [];
-  if (curStrokes.length > 0) {
-    const strokeSet = new Set(curStrokes);
-    userStrokes = userStrokes.filter(s => !strokeSet.has(s));
+  const metrics = getAksharaMetrics(currentUnitIndex);
+  const boxL = metrics.canvasWinL !== undefined ? metrics.canvasWinL : (metrics.winScreenL - w.getBoundingClientRect().left);
+  const boxT = metrics.canvasWinT !== undefined ? metrics.canvasWinT : (metrics.winScreenT - w.getBoundingClientRect().top);
+  const boxR = boxL + (metrics.canvasWinW || metrics.winScreenW);
+  const boxB = boxT + (metrics.canvasWinH || metrics.winScreenH);
+  const pad = 12;
+
+  const curTrackedStrokes = new Set(unitStrokesMap[currentUnitIndex] || []);
+  const strokesToRemove = new Set();
+  curTrackedStrokes.forEach(s => strokesToRemove.add(s));
+
+  userStrokes.forEach(stroke => {
+    if (!stroke || !stroke.length) return;
+    if (strokesToRemove.has(stroke)) return;
+
+    // Check how many points of this stroke lie inside the selected writing box
+    let insideCount = 0;
+    for (const pt of stroke) {
+      if (pt.x >= boxL - pad && pt.x <= boxR + pad && pt.y >= boxT - pad && pt.y <= boxB + pad) {
+        insideCount++;
+      }
+    }
+    // If stroke was primarily drawn inside this box (>= 30% points or >= 2 points for short strokes)
+    if (insideCount >= Math.max(2, Math.round(stroke.length * 0.3))) {
+      strokesToRemove.add(stroke);
+    }
+  });
+
+  if (strokesToRemove.size > 0 || (unitStrokesMap[currentUnitIndex] && unitStrokesMap[currentUnitIndex].length > 0)) {
+    userStrokes = userStrokes.filter(s => !strokesToRemove.has(s));
     unitStrokesMap[currentUnitIndex] = [];
-    drawing = false;
-    currentStroke = null;
-    last = null;
-    activePointerId = null;
-    drawPad();
+
+    // Also remove cleared strokes from other units in map to maintain sync
+    for (let i = 0; i < unitStrokesMap.length; i++) {
+      if (unitStrokesMap[i]) {
+        unitStrokesMap[i] = unitStrokesMap[i].filter(s => !strokesToRemove.has(s));
+      }
+    }
   }
+
+  drawing = false;
+  currentStroke = null;
+  last = null;
+  activePointerId = null;
+  drawPad();
+  if (isApertureMode) updateApertureView();
 }
 
 function handleApertureDone() {
@@ -3369,6 +3473,15 @@ if ($('apertureHintBtn')) {
 
 if ($('apertureClearBtn')) {
   $('apertureClearBtn').onclick = () => clearCurrentAksharaStrokes();
+}
+
+if ($('aperturePrevBtn')) {
+  $('aperturePrevBtn').onclick = () => {
+    if (currentUnitIndex > 0) {
+      currentUnitIndex--;
+      updateApertureView();
+    }
+  };
 }
 
 if ($('apertureDoneBtn')) {

@@ -358,6 +358,41 @@ test('Exact Letter/Matra box sizing, separate matra progression, and Write Mode 
   assert.strictEqual(kitabUnits[4].char, 'ब');
 });
 
+test('ra-waist aperture zone for "र" with u/oo matras (amarood), Prev navigation, and selective box clearing', () => {
+  assert(html.includes('id="aperturePrevBtn"'), 'Must have aperturePrevBtn in DOM for backward box navigation');
+  assert(html.includes('id="apertureUnitsTrack"'), 'Must have apertureUnitsTrack in DOM for interactive unit selection');
+  assert(html.includes('ra-waist'), 'Must handle ra-waist aperture zone');
+
+  // Verify ra-waist zone assignment in decomposeWordToUnits
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const matraNamesMatch = scriptContent.match(/const MATRA_NAMES = \{[\s\S]*?\};/);
+  const evalFn = new Function(`${matraNamesMatch[0]};
+    function isMatraChar(ch) {
+      const code = ch.charCodeAt(0);
+      return (code >= 0x093e && code <= 0x094c) || code === 0x0902 || code === 0x0901 || code === 0x0903;
+    }
+    return ${scriptContent.match(/function decomposeWordToUnits\(word\)[\s\S]*?\n\}/)[0]};
+  `);
+  const decompose = evalFn();
+
+  // Test amarood (अमरूद): ू on र must have zone: 'ra-waist'
+  const amaroodUnits = decompose('अमरूद');
+  assert.strictEqual(amaroodUnits.length, 5, 'अमरूद must have 5 units: अ, म, र, ू, द');
+  assert.strictEqual(amaroodUnits[2].char, 'र');
+  assert.strictEqual(amaroodUnits[3].char, 'ू');
+  assert.strictEqual(amaroodUnits[3].matraInfo.zone, 'ra-waist', 'ू on र must have zone "ra-waist"');
+
+  // Contrast with non-ra letter (काजू): ू on ज must have zone: 'bottom'
+  const kajuUnits = decompose('काजू');
+  assert.strictEqual(kajuUnits[3].char, 'ू');
+  assert.strictEqual(kajuUnits[3].matraInfo.zone, 'bottom', 'ू on ज must retain zone "bottom"');
+
+  // Verify selective clearing includes spatial stroke checking
+  const clearFnMatch = scriptContent.match(/function clearCurrentAksharaStrokes\(\)[\s\S]*?\n\}/)[0];
+  assert(clearFnMatch.includes('canvasWinL') || clearFnMatch.includes('boxL'), 'Must calculate bounding box of selected box');
+  assert(clearFnMatch.includes('insideCount') || clearFnMatch.includes('insidePoints') || clearFnMatch.includes('pt.x'), 'Must check stroke points spatially inside selected box');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');
