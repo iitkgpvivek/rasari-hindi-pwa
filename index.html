@@ -90,8 +90,13 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 /* Bottom CTA buttons mapped transparently over green and orange artwork buttons */
 .praise{position:absolute;left:4%;top:80%;width:27%;height:12.5%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(13px,1.7vw,22px);font-weight:800;color:#81501a;background:transparent;pointer-events:none}
-.bottombtn{position:absolute;top:79.5%;height:13.5%;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:10px;color:white;font-size:clamp(16px,2.2vw,27px);font-weight:800;background:transparent;cursor:pointer;transition:transform .1s;text-shadow:0 2px 4px rgba(0,0,0,0.25)}
+.bottombtn{position:absolute;top:79.5%;height:13.5%;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:10px;color:white;font-size:clamp(16px,2.2vw,27px);font-weight:800;background:transparent;cursor:pointer;transition:transform .1s, filter .2s;text-shadow:0 2px 4px rgba(0,0,0,0.25)}
 .bottombtn:active{transform:scale(0.97)}
+.bottombtn.ready-done{animation:ctaPulse 1.8s infinite ease-in-out}
+@keyframes ctaPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(255,255,255,0.7)); }
+  50% { transform: scale(1.03); filter: drop-shadow(0 0 14px rgba(255,215,0,0.95)); }
+}
 .done{left:36.5%;width:28%}
 .hear{left:66.5%;width:28%}
 
@@ -335,7 +340,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <button class="sidebtn retry" id="hintBtn"><span class="ico">💡</span>Hint</button>
 
 <button class="prev-btn" id="prevBtn">&lt;&lt; Prev</button>
-<button class="bottombtn done" id="done">✓ I'm done!</button>
+<button class="bottombtn done" id="done">✍️ Let's write</button>
 <button class="next-btn" id="nextBtn">Next &gt;&gt;</button>
 
 <div class="modal" id="modal">
@@ -2091,6 +2096,9 @@ w.addEventListener('pointerdown', e => {
       unitStrokesMap[currentUnitIndex] = [];
     }
     unitStrokesMap[currentUnitIndex].push(currentStroke);
+  } else if (mainCtaState !== 'done') {
+    mainCtaState = 'done';
+    updateMainCta();
   }
 
   const bw = getBrushWidth();
@@ -2149,6 +2157,20 @@ w.addEventListener('pointermove', e => {
   });
 });
 
+let mainCtaState = 'write'; // 'write' | 'done'
+
+function updateMainCta() {
+  const btn = $('done');
+  if (!btn) return;
+  if (mainCtaState === 'write') {
+    btn.textContent = "✍️ Let's write";
+    btn.classList.remove('ready-done');
+  } else {
+    btn.textContent = "✓ I'm done!";
+    btn.classList.add('ready-done');
+  }
+}
+
 function clearPad() {
   userStrokes = [];
   drawing = false;
@@ -2158,6 +2180,8 @@ function clearPad() {
   if (isApertureMode && currentPracticeUnits && currentPracticeUnits.length) {
     unitStrokesMap = currentPracticeUnits.map(() => []);
   }
+  mainCtaState = 'write';
+  updateMainCta();
   drawPad();
 }
 
@@ -2619,6 +2643,11 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
 $('done').onclick = e => {
   if (drawing || (Date.now() - lastDrawEndTime < 350)) return;
   if (e && ((e.width && e.width > 30) || (e.height && e.height > 30))) return;
+
+  if (mainCtaState === 'write') {
+    openApertureMode();
+    return;
+  }
 
   if (!userStrokes.length) {
     w.classList.add('shake');
@@ -3166,6 +3195,12 @@ function closeApertureMode() {
   if (isExplicitClose) {
     writeModeActive = false;
     localStorage.setItem('rasari_write_mode', 'false');
+    if (userStrokes.length > 0) {
+      mainCtaState = 'done';
+    } else {
+      mainCtaState = 'write';
+    }
+    updateMainCta();
   }
   isApertureMode = false;
   updateWriteModeBtn();
@@ -3293,9 +3328,15 @@ function handleApertureDone() {
     }
   } else {
     // All units of this word complete!
-    closeApertureMode(false); // keep writeModeActive true for continuous palm protection
+    // Exit Write Mode and bring child back to the main page to see and read their complete writing!
+    closeApertureMode(false);
     window._forcePassDone = true;
-    $('done').click();
+    mainCtaState = 'done';
+    updateMainCta();
+    const prompt = $('prompt');
+    if (prompt) {
+      prompt.textContent = 'Awesome! Read your writing 📖 and tap "I\'m done!" ⭐';
+    }
   }
 }
 

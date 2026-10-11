@@ -404,6 +404,25 @@ test('Akshara aperture sizing, matra ruling bounds (hasTop / hasBottom), Prev na
   assert(clearFnMatch.includes('insideCount') || clearFnMatch.includes('insidePoints') || clearFnMatch.includes('pt.x'), 'Must check stroke points spatially inside selected box');
 });
 
+test('Two-Phase Workflow: "Let\'s write" enters Write Mode, "Finish Word" exits to review, and "I\'m done" celebrates', () => {
+  assert(html.includes("✍️ Let's write"), 'Default main CTA must be "Let\'s write"');
+  assert(html.includes('mainCtaState'), 'mainCtaState tracker must exist');
+  assert(html.includes('updateMainCta'), 'updateMainCta function must exist');
+
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const doneMatch = html.match(/\$\('done'\)\.onclick\s*=\s*e\s*=>\s*\{([\s\S]*?)\n\};/);
+  assert(doneMatch, 'Done click handler must exist');
+  assert(doneMatch[0].includes('openApertureMode()'), 'Clicking "Let\'s write" must open Write Mode');
+
+  const apertureDoneMatch = scriptContent.match(/function handleApertureDone\(\)[\s\S]*?\n\}/)[0];
+  assert(apertureDoneMatch.includes('closeApertureMode(false)'), 'Word finish must exit Write Mode to return to main page');
+  assert(apertureDoneMatch.includes("mainCtaState = 'done'"), 'Word finish must switch main CTA to "done" state');
+  assert(apertureDoneMatch.includes('updateMainCta()'), 'Word finish must update main CTA text');
+
+  // Verify top toggle button is retained for testing
+  assert(html.includes('id="startWritingBtn"'), 'Top Write Mode ON/OFF toggle must be retained');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');
