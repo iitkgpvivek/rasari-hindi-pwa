@@ -2635,11 +2635,10 @@ function speakLetter() {
   }
 
   if (currentStep === 1) {
-    if (item.audio) {
-      playSnd(item.audio);
-    } else {
-      speakWordOrPhrase(item.c);
-    }
+    const letterPhrase = ['ङ', 'ञ', 'अः', 'ण'].includes(item.c)
+      ? (item.c + ' खाली')
+      : (item.word + ' वाला ' + item.c);
+    speakWordOrPhrase(letterPhrase, item.audio);
   } else if (currentStep === 2 && !item.isSwar) {
     const m = getLetterMastery(item.c);
     const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
