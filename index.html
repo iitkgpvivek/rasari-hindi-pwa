@@ -2778,29 +2778,71 @@ function triggerConfetti() {
 function captureSubmittedWriting() {
   if (!userStrokes || !userStrokes.length) return null;
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  let totalPts = 0;
   userStrokes.forEach(str => {
+    if (!str || !str.length) return;
     str.forEach(pt => {
+      totalPts++;
       if (pt.x < minX) minX = pt.x;
       if (pt.y < minY) minY = pt.y;
       if (pt.x > maxX) maxX = pt.x;
       if (pt.y > maxY) maxY = pt.y;
     });
   });
-  if (!isFinite(minX) || maxX <= minX || maxY <= minY) return null;
+  if (totalPts < 2 || !isFinite(minX) || maxX <= minX || maxY <= minY) return null;
 
-  const pad = 16;
-  minX = Math.max(0, minX - pad);
-  minY = Math.max(0, minY - pad);
-  maxX = Math.min(w.width, maxX + pad);
-  maxY = Math.min(w.height, maxY + pad);
-  const bw = Math.max(1, maxX - minX);
-  const bh = Math.max(1, maxY - minY);
+  const pad = 14;
+  const strokeW = maxX - minX;
+  const strokeH = maxY - minY;
+  const bw = Math.round(strokeW + pad * 2);
+  const bh = Math.round(strokeH + pad * 2);
 
   const cap = document.createElement('canvas');
-  cap.width = bw;
-  cap.height = bh;
+  cap.width = Math.max(80, bw);
+  cap.height = Math.max(50, bh);
   const cx = cap.getContext('2d');
-  cx.drawImage(w, minX, minY, bw, bh, 0, 0, bw, bh);
+
+  // Crisp white card background
+  cx.fillStyle = '#ffffff';
+  cx.fillRect(0, 0, cap.width, cap.height);
+
+  // Subtle notebook guidelines
+  cx.strokeStyle = '#e2e8f0';
+  cx.lineWidth = 1.2;
+  cx.beginPath();
+  cx.moveTo(4, Math.round(cap.height * 0.35));
+  cx.lineTo(cap.width - 4, Math.round(cap.height * 0.35));
+  cx.moveTo(4, Math.round(cap.height * 0.72));
+  cx.lineTo(cap.width - 4, Math.round(cap.height * 0.72));
+  cx.stroke();
+
+  // Draw user's actual ink strokes in bold dark blue
+  cx.strokeStyle = '#124170';
+  cx.fillStyle = '#124170';
+  const inkWidth = Math.max(3.5, Math.min(8, Math.round(bh * 0.08)));
+  cx.lineWidth = inkWidth;
+  cx.lineCap = 'round';
+  cx.lineJoin = 'round';
+
+  const offsetX = minX - (cap.width - strokeW) / 2;
+  const offsetY = minY - (cap.height - strokeH) / 2;
+
+  userStrokes.forEach(str => {
+    if (!str || !str.length) return;
+    if (str.length === 1) {
+      cx.beginPath();
+      cx.arc(str[0].x - offsetX, str[0].y - offsetY, inkWidth / 2, 0, Math.PI * 2);
+      cx.fill();
+    } else {
+      cx.beginPath();
+      cx.moveTo(str[0].x - offsetX, str[0].y - offsetY);
+      for (let i = 1; i < str.length; i++) {
+        cx.lineTo(str[i].x - offsetX, str[i].y - offsetY);
+      }
+      cx.stroke();
+    }
+  });
+
   return cap.toDataURL('image/png');
 }
 
@@ -3047,9 +3089,41 @@ $('done').onclick = e => {
   const scoreCard = $('scoreBadge');
   if (scoreCard) {
     let stars = result.score >= 85 ? '⭐⭐⭐' : (result.score >= 70 ? '⭐⭐' : '⭐');
+
+    // Retrieve active word illustration and emoji
+    let wordPicSrc = '';
+    let wordEmoji = item.emoji || '📖';
+    let wordLabel = targetText;
+    if (currentStep === 1) {
+      wordPicSrc = IMAGES[item.word] || '';
+      wordEmoji = item.emoji;
+      wordLabel = item.word || char;
+    } else if (currentStep === 2) {
+      const exWord = (item.matra && item.matra.exWord) ? item.matra.exWord : item.word;
+      wordPicSrc = IMAGES[exWord] || '';
+      wordEmoji = (item.matra && item.matra.exEmoji) ? item.matra.exEmoji : item.emoji;
+      wordLabel = exWord || targetText;
+    } else if (currentStep === 3) {
+      const wObj = getWordForLetter(char, m.wordIndex || 0);
+      wordPicSrc = IMAGES[wObj.word] || '';
+      wordEmoji = wObj.emoji || item.emoji;
+      wordLabel = wObj.word || targetText;
+    }
+
     scoreCard.innerHTML = `
-      <div style="display:flex; flex-direction:column; align-items:center; gap:5px;">
-        ${capturedThumb ? `<div style="background:#fff; border:1.5px solid #cbd5e1; border-radius:10px; padding:4px 8px; box-shadow:0 2px 6px rgba(0,0,0,0.06); margin-bottom:4px;"><img src="${capturedThumb}" style="max-height:50px; max-width:180px; display:block;" alt="My Writing"></div>` : ''}
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:4px;">
+          <!-- Word's 3D Picture / Clue -->
+          <div style="width:62px; height:62px; border-radius:14px; background:#fff; border:1.5px solid #cbd5e1; box-shadow:0 2px 6px rgba(0,0,0,0.06); display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+            ${wordPicSrc ? `<img src="${wordPicSrc}" style="width:100%; height:100%; object-fit:contain;" alt="${wordLabel}">` : `<span style="font-size:32px;">${wordEmoji}</span>`}
+          </div>
+
+          <!-- Child's Captured Writing Snapshot -->
+          ${capturedThumb ? `
+          <div style="background:#fff; border:1.5px solid #cbd5e1; border-radius:14px; padding:4px 8px; box-shadow:0 2px 6px rgba(0,0,0,0.06); display:flex; align-items:center; justify-content:center; min-width:96px; height:62px; box-sizing:border-box;">
+            <img src="${capturedThumb}" style="max-height:52px; max-width:150px; display:block;" alt="${targetText}">
+          </div>` : ''}
+        </div>
         <div style="font-size:16px; font-weight:800; color:#78450d;">AI Score: ${result.score}% ${stars}</div>
         <div style="font-size:11px; font-weight:600; color:#5c431d; display:flex; gap:8px;">
           <span>🎯 Form: ${result.form}%</span>
