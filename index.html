@@ -23,7 +23,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .badge{position:absolute;right:1.7%;top:1.5%;background:#fff8df;border:2px solid white;border-radius:99px;padding:5px 12px;font-size:clamp(10px,1.1vw,14px);font-weight:800;color:#80531a;box-shadow:0 2px 4px rgba(0,0,0,0.06)}
 
 /* Top nav steps inside the light blue sky banner */
-.nav{position:absolute;left:24%;right:14%;top:5.2%;height:9.2%;display:flex;align-items:center;justify-content:space-between}.step{display:flex;flex-direction:column;align-items:center;gap:0;font-size:clamp(10px,1.3vw,16px);font-weight:800;white-space:nowrap;color:#143e70}.circ{width:clamp(34px,5.2vw,58px);height:clamp(34px,5.2vw,58px);display:grid;place-items:center;border-radius:50%;background:#f7f8fc;border:4px solid white;box-shadow:0 3px 0 #c8dce3;font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(17px,2.2vw,28px)}.step.active .circ{background:#ffcf50;border-color:#fff4c6;box-shadow:0 0 0 3px #ffbd32}
+.nav{position:absolute;left:24%;right:14%;top:5.2%;height:9.2%;display:flex;align-items:center;justify-content:space-between}.step{display:flex;flex-direction:column;align-items:center;gap:0;font-size:clamp(10px,1.3vw,16px);font-weight:800;white-space:nowrap;color:#143e70}.step:not(#st4){cursor:default;pointer-events:none}#st4{cursor:pointer;pointer-events:auto}.circ{width:clamp(34px,5.2vw,58px);height:clamp(34px,5.2vw,58px);display:grid;place-items:center;border-radius:50%;background:#f7f8fc;border:4px solid white;box-shadow:0 3px 0 #c8dce3;font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(17px,2.2vw,28px)}.step.active .circ{background:#ffcf50;border-color:#fff4c6;box-shadow:0 0 0 3px #ffbd32}
 
 /* Left Speech Bubble */
 .prompt{position:absolute;left:4%;top:18.2%;width:20%;height:4.2%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.5vw,20px);font-weight:800;color:#123b6c;white-space:nowrap;pointer-events:none}
@@ -276,6 +276,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 <div class="toolbar-top" id="toolbarTop">
   <span class="stage-badge" id="stageBadge">Stage 1/3: Trace ✍️</span>
+  <button class="ctrl-pill" id="voiceToggle" title="Toggle AI Voice Persona (Teacher / Excited Monkey)">👩‍🏫 Voice: Teacher</button>
   <button class="ctrl-pill" id="shuffleToggle" title="Toggle Shuffle Mode (Random unmastered letters)">🔀 Shuffle: OFF</button>
   <button class="ctrl-pill" id="fullscreenToggle" title="Toggle Fullscreen to hide tablet navigation buttons">⛶ Fullscreen</button>
 </div>
@@ -1272,51 +1273,51 @@ const IMAGES = {
   "त्रिशूल": "images/trishul.png",
   "ज्ञानी": "images/gyani.png",
 
-  // High Frequency Grade 1 Words & Animals
+  // High Frequency Grade 1 Words & Animals (AI Illustrated Assets)
   "कबूतर": "images/kabootar.png",
-  "केला": "images/kela.svg",
-  "कार": "images/car.svg",
-  "किताब": "images/kitab.svg",
-  "कुत्ता": "images/kutta.svg",
+  "केला": "images/kela.png",
+  "कार": "images/car.png",
+  "किताब": "images/kitab.png",
+  "कुत्ता": "images/kutta.png",
   "तोता": "images/tota.png",
   "शेर": "images/sher.png",
   "मोर": "images/mor.png",
   "बंदर": "images/bandar.png",
   "सूरज": "images/sooraj.png",
-  "चूहा": "images/chuha.svg",
+  "चूहा": "images/chuha.png",
   "चांद": "images/chand.png",
   "चाँद": "images/chand.png",
-  "ताला": "images/taala.svg",
-  "चाबी": "images/chabi.svg",
+  "ताला": "images/taala.png",
+  "चाबी": "images/chabi.png",
   "पेड़": "images/ped.png",
   "वृक्ष": "images/ped.png",
-  "फूल": "images/phool.svg",
-  "बादल": "images/baadal.svg",
-  "नाव": "images/naav.svg",
+  "फूल": "images/phool.png",
+  "बादल": "images/baadal.png",
+  "नाव": "images/naav.png",
   "साइकिल": "images/cycle.png",
   "समोसा": "images/samosa.png",
   "दूध": "images/doodh.png",
-  "रोटी": "images/roti.svg",
+  "रोटी": "images/roti.png",
   "दीपक": "images/deepak.png",
-  "गेंद": "images/gend.svg",
-  "तारा": "images/tara.svg",
+  "गेंद": "images/gend.png",
+  "तारा": "images/tara.png",
   "गाय": "images/gaay.png",
-  "घोड़ा": "images/ghoda.svg",
-  "बिल्ली": "images/billi.svg",
-  "पेंसिल": "images/pencil.svg",
-  "ऊंट": "images/oont.svg",
-  "पानी": "images/paani.svg",
-  "जल": "images/paani.svg",
-  "गुलाब": "images/gulab.svg",
-  "तरबूज": "images/tarbooj.svg",
-  "आग": "images/aag.svg",
-  "आलू": "images/aalu.svg",
-  "टोपी": "images/topi.svg",
-  "जूता": "images/joota.svg",
-  "घड़ी": "images/ghadi.svg",
+  "घोड़ा": "images/ghoda.png",
+  "बिल्ली": "images/billi.png",
+  "पेंसिल": "images/pencil.png",
+  "ऊंट": "images/oont.png",
+  "पानी": "images/paani.png",
+  "जल": "images/paani.png",
+  "गुलाब": "images/gulab.png",
+  "तरबूज": "images/tarbooj.png",
+  "आग": "images/aag.png",
+  "आलू": "images/aalu.png",
+  "टोपी": "images/topi.png",
+  "जूता": "images/joota.png",
+  "घड़ी": "images/ghadi.png",
   "दांत": "images/daant.svg",
-  "हाथ": "images/haath.svg",
-  "पैर": "images/pair.svg"
+  "हाथ": "images/haath.png",
+  "पैर": "images/pair.png"
 };
 
 // Grade 1 Hindi Barakhadi Matras (13 combinations: क, का, कि, की, कु, कू, कृ, के, कै, को, कौ, कं, कः)
@@ -1694,6 +1695,8 @@ function getStorybookCardSvg(key, fallbackEmoji) {
   </svg>`;
 }
 
+let currentActiveClueWord = '';
+
 function renderClue(item, step) {
   const clueEl = $('clueEmoji');
   if (!clueEl) return;
@@ -1723,9 +1726,16 @@ function renderClue(item, step) {
     fallback = wordObj.emoji || item.emoji;
   }
 
+  currentActiveClueWord = key;
+
   const soundBadge = '<span class="clue-sound-pill">🔊 सुनो</span>';
-  if (IMAGES[key]) {
-    clueEl.innerHTML = '<img src="' + IMAGES[key] + '" class="clue-img" alt="' + key + '">' + soundBadge;
+  let imgSrc = IMAGES[key];
+  if (!imgSrc && item.word && IMAGES[item.word]) {
+    imgSrc = IMAGES[item.word];
+  }
+
+  if (imgSrc) {
+    clueEl.innerHTML = '<img src="' + imgSrc + '" class="clue-img" alt="' + key + '">' + soundBadge;
   } else {
     clueEl.innerHTML = getStorybookCardSvg(key, fallback) + soundBadge;
   }
@@ -2473,35 +2483,165 @@ function playSnd(src) {
   } catch(e){}
 }
 
-let hiVoiceCached = null;
-function getHindiVoice() {
+// ---------------------------------------------------------
+// Multi-Language Architecture & Indian Language Configs
+// ---------------------------------------------------------
+const LANGUAGE_CONFIGS = {
+  'hi': {
+    id: 'hi',
+    name: 'हिंदी',
+    langCode: 'hi-IN',
+    hasShirorekha: true,
+    fontFamily: "'Noto Sans Devanagari', 'Baloo 2', system-ui, sans-serif",
+    ui: {
+      stepLetter: "Today's letter",
+      stepMatra: 'Matra',
+      stepWord: 'Word',
+      stepProgress: 'Progress',
+      promptLetter: 'Write letter ',
+      promptWord: 'Write the word ✍️',
+      letsWrite: "✍️ Let's write",
+      imDone: "✓ I'm done!",
+      previous: 'Previous',
+      next: 'Next',
+      listen: '🔊 सुनो'
+    },
+    voice: {
+      teacherNames: ['lekha', 'swara', 'kavya', 'neerja', 'google हिन्दी', 'google hindi', 'hi-in-x-hie', 'hi-in-x-hia', 'siri', 'hi-in'],
+      teacherPitch: 1.05,
+      teacherRate: 0.84,
+      monkeyPitch: 1.25,
+      monkeyRate: 0.95
+    }
+  },
+  'kn': {
+    id: 'kn',
+    name: 'ಕನ್ನಡ',
+    langCode: 'kn-IN',
+    hasShirorekha: false,
+    fontFamily: "'Noto Sans Kannada', system-ui, sans-serif",
+    ui: {
+      stepLetter: 'ಅಕ್ಷರ',
+      stepMatra: 'ಕಾಗುಣಿತ',
+      stepWord: 'ಪದ',
+      stepProgress: 'ಪ್ರಗತಿ',
+      promptLetter: 'ಅಕ್ಷರ ಬರೆಯಿರಿ ',
+      promptWord: 'ಪದ ಬರೆಯಿರಿ ✍️',
+      letsWrite: "✍️ ಬರೆಯೋಣ",
+      imDone: "✓ ಆಯಿತು!",
+      previous: 'ಹಿಂದಿನದು',
+      next: 'ಮುಂದಿನದು',
+      listen: '🔊 ಕೇಳಿ'
+    },
+    voice: {
+      teacherNames: ['kannada', 'google ಕನ್ನಡ', 'google kannada', 'kn-in'],
+      teacherPitch: 1.05,
+      teacherRate: 0.84,
+      monkeyPitch: 1.25,
+      monkeyRate: 0.95
+    }
+  }
+};
+
+let currentLanguage = localStorage.getItem('rasari_lang') || 'hi';
+let voicePersona = localStorage.getItem('rasari_voice_persona') || 'teacher'; // 'teacher' | 'monkey'
+
+function updateVoiceBtn() {
+  const btn = $('voiceToggle');
+  if (!btn) return;
+  if (voicePersona === 'monkey') {
+    btn.textContent = '🐒 Voice: Monkey';
+    btn.style.background = '#ffe5d0';
+    btn.style.borderColor = '#d97706';
+    btn.style.color = '#78350f';
+  } else {
+    btn.textContent = '👩‍🏫 Voice: Teacher';
+    btn.style.background = '#e0f2fe';
+    btn.style.borderColor = '#0284c7';
+    btn.style.color = '#0369a1';
+  }
+}
+
+if ($('voiceToggle')) {
+  makeTouchResponsive($('voiceToggle'), () => {
+    voicePersona = voicePersona === 'teacher' ? 'monkey' : 'teacher';
+    localStorage.setItem('rasari_voice_persona', voicePersona);
+    updateVoiceBtn();
+    speakWordOrPhrase(voicePersona === 'monkey' ? 'शाबाश!' : 'नमस्ते!');
+  });
+}
+updateVoiceBtn();
+
+let cachedVoicesMap = {};
+function getBestVoiceForLang(langCode = 'hi-IN') {
   if (!('speechSynthesis' in window)) return null;
-  if (hiVoiceCached) return hiVoiceCached;
+  const key = `${langCode}_${voicePersona}`;
+  if (cachedVoicesMap[key]) return cachedVoicesMap[key];
+
   const voices = window.speechSynthesis.getVoices();
-  hiVoiceCached = voices.find(v => v.lang === 'hi-IN' || v.lang === 'hi_IN' || v.lang.startsWith('hi')) || null;
-  return hiVoiceCached;
+  if (!voices.length) return null;
+
+  const currentLangConfig = LANGUAGE_CONFIGS[currentLanguage] || LANGUAGE_CONFIGS['hi'];
+  const preferredNames = currentLangConfig.voice.teacherNames;
+  const prefix = langCode.split('-')[0].toLowerCase();
+
+  const langVoices = voices.filter(v => {
+    const l = (v.lang || '').toLowerCase().replace('_', '-');
+    return l === langCode.toLowerCase() || l.startsWith(prefix);
+  });
+
+  if (!langVoices.length) return null;
+
+  for (const name of preferredNames) {
+    const match = langVoices.find(v => (v.name || '').toLowerCase().includes(name));
+    if (match) {
+      cachedVoicesMap[key] = match;
+      return match;
+    }
+  }
+
+  const female = langVoices.find(v => (v.name || '').toLowerCase().includes('female'));
+  if (female) {
+    cachedVoicesMap[key] = female;
+    return female;
+  }
+
+  cachedVoicesMap[key] = langVoices[0];
+  return langVoices[0];
 }
 
 if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => {
-    hiVoiceCached = null;
-    getHindiVoice();
+    cachedVoicesMap = {};
+    getBestVoiceForLang((LANGUAGE_CONFIGS[currentLanguage] || LANGUAGE_CONFIGS['hi']).langCode);
   };
 }
 
-function speakHindi(phrase, fallbackAudio) {
+function speakWordOrPhrase(text, fallbackAudio = null) {
+  if (!text) return;
+  const langConfig = LANGUAGE_CONFIGS[currentLanguage] || LANGUAGE_CONFIGS['hi'];
+
   if ('speechSynthesis' in window && window.SpeechSynthesisUtterance) {
     try {
-      const u = new SpeechSynthesisUtterance(phrase);
-      u.lang = 'hi-IN';
-      u.rate = 0.88;
-      u.pitch = 1.0; // Clear, warm, natural Indian voice
-      const v = getHindiVoice();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = langConfig.langCode;
+
+      if (voicePersona === 'monkey') {
+        u.pitch = langConfig.voice.monkeyPitch;
+        u.rate = langConfig.voice.monkeyRate;
+      } else {
+        u.pitch = langConfig.voice.teacherPitch;
+        u.rate = langConfig.voice.teacherRate;
+      }
+
+      const v = getBestVoiceForLang(langConfig.langCode);
       if (v) u.voice = v;
+
       u.onerror = (e) => {
         if (e && (e.error === 'canceled' || e.error === 'interrupted')) return;
         if (fallbackAudio) playSnd(fallbackAudio);
       };
+
       if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
         setTimeout(() => {
@@ -2515,7 +2655,12 @@ function speakHindi(phrase, fallbackAudio) {
       return;
     } catch(e) {}
   }
+
   if (fallbackAudio) playSnd(fallbackAudio);
+}
+
+function speakHindi(phrase, fallbackAudio) {
+  speakWordOrPhrase(phrase, fallbackAudio);
 }
 
 function speakLetter() {
@@ -2532,8 +2677,22 @@ function speakLetter() {
     }, 400);
   }
 
-  // Play authentic native studio audio (eliminates OS dollar bugs)
-  playSnd(item.audio);
+  if (currentStep === 1) {
+    if (item.audio) {
+      playSnd(item.audio);
+    } else {
+      speakWordOrPhrase(item.c);
+    }
+  } else if (currentStep === 2 && !item.isSwar) {
+    const m = getLetterMastery(item.c);
+    const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+    const combo = getMatraCombo(item.c, matraObj.sym);
+    speakWordOrPhrase(combo);
+  } else if (currentStep === 3) {
+    const m = getLetterMastery(item.c);
+    const wordObj = getWordForLetter(item.c, m.wordIndex || 0);
+    speakWordOrPhrase(wordObj.word);
+  }
 }
 
 function speakClue() {
@@ -2546,8 +2705,8 @@ function speakClue() {
     setTimeout(() => clueEmoji.style.transform = 'scale(1)', 350);
   }
 
-  const wordAudio = item.audio ? item.audio.replace('audio/', 'audio/word_') : null;
-  playSnd(wordAudio || item.audio);
+  const wordToSpeak = currentActiveClueWord || item.word || item.c;
+  speakWordOrPhrase(wordToSpeak, item.audio);
 }
 
 // High-Energy Confetti Particle System
@@ -3652,13 +3811,23 @@ window.addEventListener('resize', () => {
   if (isApertureMode) updateApertureView();
 });
 
-// Step Navigation Handlers
-$('st1').onclick = () => setStep(1);
-$('st2').onclick = () => {
-  if (!lessons[idx].isSwar) setStep(2);
-};
-$('st3').onclick = () => setStep(3);
+// Step Navigation Handlers: progression is auto-driven (st1-st3 non-clickable); st4 opens non-destructive progress book
 $('st4').onclick = () => openProgressStickers();
+makeTouchResponsive($('st4'));
+
+function getAutoStepForLetter(item) {
+  const m = getLetterMastery(item.c);
+  if (!m.letterMastered) {
+    return 1; // Stage 1: Letter mastery required first
+  }
+  if (!item.isSwar) {
+    if (!m.matraMastered) {
+      return 2; // Stage 2: Barakhadi matras
+    }
+    return 3; // Stage 3: Word practice
+  }
+  return 3; // Swars skip matras
+}
 
 function setLetter(newIdx) {
   clearPad();
@@ -3667,20 +3836,9 @@ function setLetter(newIdx) {
   unitStrokesMap = [];
   const item = lessons[idx];
 
-  if (item.isSwar && currentStep === 2) {
-    currentStep = 1;
-  }
+  const autoStep = getAutoStepForLetter(item);
+  setStep(autoStep);
 
-  let prevIdx = (idx - 1 + lessons.length) % lessons.length;
-  let nextIdx = (idx + 1) % lessons.length;
-  if (currentStep === 2) {
-    while (lessons[prevIdx].isSwar) {
-      prevIdx = (prevIdx - 1 + lessons.length) % lessons.length;
-    }
-    while (lessons[nextIdx].isSwar) {
-      nextIdx = (nextIdx + 1) % lessons.length;
-    }
-  }
   $('prevBtn').textContent = 'Previous';
   $('nextBtn').textContent = 'Next';
 

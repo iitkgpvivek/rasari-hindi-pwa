@@ -501,6 +501,63 @@ test('Home button resets to earliest unmastered letter (Shuffle OFF) and random 
   assert(picked === 2 || picked === 3, 'Shuffle ON must pick an unmastered letter (2 or 3)');
 });
 
+test('AI Voice Personas (Teacher / Monkey) & Multi-Language Architecture (Hindi & Kannada)', () => {
+  assert(html.includes('id="voiceToggle"'), 'Voice persona toggle button must exist in top toolbar');
+  assert(html.includes('LANGUAGE_CONFIGS'), 'LANGUAGE_CONFIGS registry must exist');
+  assert(html.includes("'hi':"), 'Hindi language configuration must exist');
+  assert(html.includes("'kn':"), 'Kannada language configuration must exist');
+
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  assert(scriptContent.includes('function getBestVoiceForLang('), 'getBestVoiceForLang function must exist');
+  assert(scriptContent.includes('lekha') && scriptContent.includes('swara'), 'Must prioritize native female teacher voices (Lekha, Swara, etc.)');
+  assert(scriptContent.includes('voicePersona === \'monkey\''), 'Must support Monkey persona pitch and rate adjustments');
+  assert(scriptContent.includes('function speakWordOrPhrase('), 'speakWordOrPhrase engine function must exist');
+});
+
+test('Semantic Word Pronunciation on Clue Tap & 3D AI Illustrated Library (No block SVGs)', () => {
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  assert(scriptContent.includes('currentActiveClueWord'), 'Must track currentActiveClueWord in renderClue');
+
+  const speakClueMatch = scriptContent.match(/function speakClue\(\)\s*\{([\s\S]*?)\n\}/)[0];
+  assert(speakClueMatch.includes('currentActiveClueWord'), 'speakClue must pronounce the specific word depicted, not hardcoded letter audio');
+
+  // Verify that core secondary vocabulary words now map to 3D PNG illustrations, not block SVGs
+  const coreAiWords = ['किताब', 'कुत्ता', 'केला', 'कार', 'फूल', 'रोटी', 'घोड़ा', 'बिल्ली', 'पेंसिल', 'ऊंट', 'गुलाब', 'तरबूज', 'टोपी', 'जूता', 'घड़ी', 'ताला', 'चाबी', 'चूहा', 'नाव', 'बादल', 'तारा', 'गेंद', 'आग', 'आलू', 'हाथ', 'पैर', 'पानी'];
+  const imagesMatch = scriptContent.match(/const IMAGES = \{([\s\S]*?)\n\};/)[1];
+
+  coreAiWords.forEach(w => {
+    const reg = new RegExp(`"${w}":\\s*"images\\/([^"]+)"`);
+    const m = imagesMatch.match(reg);
+    assert(m, `Word "${w}" must be registered in IMAGES`);
+    assert(m[1].endsWith('.png') || m[1].endsWith('.webp'), `Word "${w}" image must be an AI raster image (.png/.webp), got: ${m[1]}`);
+
+    const fs = require('fs');
+    const path = require('path');
+    const assetPath = path.join(__dirname, '..', 'images', m[1]);
+    assert(fs.existsSync(assetPath), `Asset file ${m[1]} must exist on disk for word "${w}"`);
+  });
+});
+
+test('Automated Educational Progression (Stage auto-lock, Letter -> Matras -> Words, Infinite Word Rotation)', () => {
+  // Step pills must be non-clickable progression indicators
+  assert(html.includes('.step:not(#st4){cursor:default;pointer-events:none}'), 'CSS must prevent child from skipping stages');
+  assert(!html.includes("$('st1').onclick"), 'st1 must not have manual jump listener');
+  assert(!html.includes("$('st2').onclick"), 'st2 must not have manual jump listener');
+  assert(!html.includes("$('st3').onclick"), 'st3 must not have manual jump listener');
+
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  assert(scriptContent.includes('function getAutoStepForLetter('), 'getAutoStepForLetter function must exist');
+
+  const autoStepMatch = scriptContent.match(/function getAutoStepForLetter\(item\)\s*\{([\s\S]*?)\n\}/)[0];
+  assert(autoStepMatch.includes('!m.letterMastered') && autoStepMatch.includes('return 1'), 'Must auto-lock to Step 1 when letter is unmastered');
+  assert(autoStepMatch.includes('!m.matraMastered') && autoStepMatch.includes('return 2'), 'Must auto-lock to Step 2 when matras are unmastered');
+  assert(autoStepMatch.includes('return 3'), 'Must advance to Step 3 for words');
+
+  // Infinite word rotation in word bank
+  const getWordMatch = scriptContent.match(/function getWordForLetter\(char,\s*wordIdx\)\s*\{([\s\S]*?)\n\}/)[0];
+  assert(getWordMatch.includes('wordIdx % bank.length'), 'getWordForLetter must cycle words in bank infinitely');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');
