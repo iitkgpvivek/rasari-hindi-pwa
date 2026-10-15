@@ -41,14 +41,6 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .ctrl-pill:active{transform:scale(0.95)}
 .ctrl-pill.active{background:#ffefc2;border-color:#b47514;color:#6d3d04}
 
-/* Palm Guard Shield: Child Wrist & Hand Rest Band */
-.palm-guard-shield{position:absolute;left:27.5%;width:45.8%;bottom:24%;height:20%;background:rgba(14,43,36,0.82);border-top:2.5px dashed #ffca4f;border-radius:0 0 16px 16px;box-shadow:0 -4px 16px rgba(0,0,0,0.35);z-index:6;touch-action:none;display:flex;flex-direction:column;justify-content:flex-start;user-select:none;transition:background .15s ease;pointer-events:auto}
-.palm-guard-shield.active-touch{background:rgba(18,62,52,0.94);border-top-color:#ffe082}
-.palm-guard-handle{width:100%;height:26px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,202,79,0.25);color:#fff6da;font-size:clamp(9px,1.05vw,12px);font-weight:800;text-shadow:0 1px 2px rgba(0,0,0,0.5);cursor:ns-resize;touch-action:none}
-.palm-guard-title{display:flex;align-items:center;gap:5px}
-.palm-guard-drag{font-size:10px;color:#ffd276;background:rgba(0,0,0,0.25);padding:1px 6px;border-radius:999px;border:1px solid rgba(255,210,118,0.4)}
-.palm-guard-body{flex:1;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.65);font-size:clamp(10px,1.15vw,13px);font-weight:700;letter-spacing:0.5px}
-
 /* Full-Screen Aperture Writing Shield (Palm Protected Mode) */
 .aperture-overlay{position:fixed;inset:0;z-index:1000;pointer-events:none;user-select:none}
 .aperture-bar{position:fixed;top:10px;left:50%;transform:translateX(-50%);width:94%;max-width:920px;height:52px;background:rgba(13,37,30,0.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:2px solid #ffca4f;border-radius:999px;display:flex;align-items:center;justify-content:space-between;padding:6px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.45);z-index:1003;pointer-events:auto}
@@ -282,16 +274,6 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 </div>
 
 <canvas id="write" aria-label="Writing canvas"></canvas>
-
-<div class="palm-guard-shield" id="palmGuardShield" aria-label="Palm Rest Shield">
-  <div class="palm-guard-handle" id="palmGuardHandle">
-    <span class="palm-guard-title"><span>🖐️</span> Rest Hand Here</span>
-    <span class="palm-guard-drag" id="palmGuardDrag" title="Drag to adjust size">↕ Drag to size</span>
-  </div>
-  <div class="palm-guard-body" id="palmGuardBody">
-    <span>Palm Protected ✍️ Write above</span>
-  </div>
-</div>
 
 <!-- Full-Screen Writing Aperture Shield (Palm Protected Mode) -->
 <div class="aperture-overlay" id="apertureOverlay" style="display:none">
@@ -1750,8 +1732,6 @@ let drawing = false;
 let last = null;
 let activePointerId = null;
 let isStylusOnlyMode = false;
-let palmGuardEnabled = localStorage.getItem('rasari_palm_guard') !== 'false';
-let palmGuardHeightPct = parseFloat(localStorage.getItem('rasari_palm_guard_h') || '20');
 let lastDrawEndTime = 0;
 let isApertureMode = false;
 let writeModeActive = localStorage.getItem('rasari_write_mode') === 'true';
@@ -2049,14 +2029,6 @@ function isPalmContact(e) {
   return false;
 }
 
-function isInsidePalmGuard(e) {
-  if (!palmGuardEnabled) return false;
-  const guard = $('palmGuardShield');
-  if (!guard) return false;
-  const gr = guard.getBoundingClientRect();
-  return (e.clientX >= gr.left && e.clientX <= gr.right && e.clientY >= gr.top && e.clientY <= gr.bottom);
-}
-
 w.addEventListener('pointerdown', e => {
   // Auto-detect active stylus hardware (e.g. Apple Pencil, S-Pen, USI Pen)
   if (e.pointerType === 'pen') {
@@ -2087,12 +2059,6 @@ w.addEventListener('pointerdown', e => {
 
   // Reject broad palm/wrist contact on capacitive screens
   if (isPalmContact(e)) {
-    e.preventDefault();
-    return;
-  }
-
-  // Reject touches landing inside the Palm Guard rest pad
-  if (!isApertureMode && isInsidePalmGuard(e)) {
     e.preventDefault();
     return;
   }
@@ -2182,9 +2148,6 @@ w.addEventListener('pointermove', e => {
   if (!drawing || !last) return;
   // Strictly enforce pointer ID to eliminate palm jumping
   if (e.pointerId !== activePointerId) return;
-
-  // Clamp stroke if it enters Palm Guard rest pad
-  if (!isApertureMode && isInsidePalmGuard(e)) return;
 
   // In Aperture Mode, give generous margin so natural child curves and matra tails are not clipped into dots
   if (isApertureMode) {
@@ -2306,99 +2269,6 @@ function clearPad() {
   mainCtaState = 'write';
   updateMainCta();
   drawPad();
-}
-
-// ------------------------------------------------------------------
-// Palm Guard Shield & Interactive Rest Pad Management
-// ------------------------------------------------------------------
-function updatePalmGuardUI() {
-  const guard = $('palmGuardShield');
-  const toggleBtn = $('palmGuardToggle');
-  if (guard) {
-    guard.style.height = palmGuardHeightPct + '%';
-    guard.style.display = palmGuardEnabled ? 'flex' : 'none';
-  }
-  if (toggleBtn) {
-    toggleBtn.textContent = palmGuardEnabled ? '🖐️ Palm Guard: ON' : '🖐️ Palm Guard: OFF';
-    if (palmGuardEnabled) toggleBtn.classList.add('active');
-    else toggleBtn.classList.remove('active');
-  }
-}
-
-// Initialize Palm Guard UI
-updatePalmGuardUI();
-
-if ($('palmGuardToggle')) {
-  $('palmGuardToggle').onclick = () => {
-    palmGuardEnabled = !palmGuardEnabled;
-    localStorage.setItem('rasari_palm_guard', palmGuardEnabled ? 'true' : 'false');
-    updatePalmGuardUI();
-  };
-}
-
-// Drag handle to adjust Palm Guard height
-let isDraggingGuard = false;
-let dragStartY = 0;
-let dragStartHeight = 20;
-
-const guardHandle = $('palmGuardHandle');
-if (guardHandle) {
-  guardHandle.addEventListener('pointerdown', e => {
-    e.stopPropagation();
-    e.preventDefault();
-    isDraggingGuard = true;
-    dragStartY = e.clientY;
-    dragStartHeight = palmGuardHeightPct;
-    try { guardHandle.setPointerCapture(e.pointerId); } catch (_) {}
-  });
-
-  guardHandle.addEventListener('pointermove', e => {
-    if (!isDraggingGuard) return;
-    e.stopPropagation();
-    e.preventDefault();
-    const deltaY = dragStartY - e.clientY; // upward drag increases height
-    const slateH = w.clientHeight || 400;
-    const deltaPct = (deltaY / slateH) * 100;
-    let newH = Math.max(12, Math.min(38, dragStartHeight + deltaPct));
-    palmGuardHeightPct = Math.round(newH);
-    if ($('palmGuardShield')) {
-      $('palmGuardShield').style.height = palmGuardHeightPct + '%';
-    }
-  });
-
-  ['pointerup', 'pointercancel'].forEach(ev => {
-    guardHandle.addEventListener(ev, e => {
-      if (!isDraggingGuard) return;
-      isDraggingGuard = false;
-      e.stopPropagation();
-      localStorage.setItem('rasari_palm_guard_h', palmGuardHeightPct.toString());
-    });
-  });
-}
-
-// Absorb all palm and wrist contact on the Palm Guard Shield
-const guardShield = $('palmGuardShield');
-if (guardShield) {
-  guardShield.addEventListener('pointerdown', e => {
-    if (e.target.closest('#palmGuardHandle')) return;
-    e.stopPropagation();
-    e.preventDefault();
-    guardShield.classList.add('active-touch');
-  });
-
-  ['pointerup', 'pointercancel'].forEach(ev => {
-    guardShield.addEventListener(ev, () => {
-      guardShield.classList.remove('active-touch');
-    });
-  });
-
-  // Touch event fallback
-  ['touchstart', 'touchmove', 'touchend', 'touchcancel'].forEach(ev => {
-    guardShield.addEventListener(ev, e => {
-      if (e.target.closest('#palmGuardHandle')) return;
-      e.stopPropagation();
-    }, { passive: false });
-  });
 }
 
 // ------------------------------------------------------------------
@@ -3575,9 +3445,6 @@ function openApertureMode() {
 
   const overlay = $('apertureOverlay');
   if (overlay) overlay.style.display = 'block';
-
-  const bottomGuard = $('palmGuardShield');
-  if (bottomGuard) bottomGuard.style.display = 'none';
 
   updateApertureView();
 }
