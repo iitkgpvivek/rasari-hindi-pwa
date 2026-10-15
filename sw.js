@@ -1,8 +1,18 @@
-const APP_VERSION = '3.0.1';
+const APP_VERSION = '3.0.2';
 const CACHE = `rasari-hindi-v${APP_VERSION}`;
 const ASSETS = [
   './',
   './index.html',
+  './review.html',
+  './audio_samples/anaar_wala_a.m4a',
+  './audio_samples/anaar_wala_aa.m4a',
+  './audio_samples/a_se_anaar.m4a',
+  './audio_samples/damru_wala_d_half.m4a',
+  './audio_samples/damru_wala_da_full.m4a',
+  './audio_samples/da_se_damru.m4a',
+  './audio_samples/kamal_wala_k_half.m4a',
+  './audio_samples/kamal_wala_ka_full.m4a',
+  './audio_samples/ka_se_kamal.m4a',
   './manifest.webmanifest',
   './background.jpg',
   './icon-192.png',
