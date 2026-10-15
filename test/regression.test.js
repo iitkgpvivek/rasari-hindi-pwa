@@ -559,6 +559,42 @@ test('Automated Educational Progression (Stage auto-lock, Letter -> Matras -> Wo
   assert(getWordMatch.includes('wordIdx % bank.length'), 'getWordForLetter must cycle words in bank infinitely');
 });
 
+test('Small AI Handwriting Evaluator & Elimination of Fake 92% Pass Bug', () => {
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  // 1. Prohibit fake 92% pass overrides
+  assert(!html.includes('result.score = 92'), 'Hardcoded 92% score must be permanently removed');
+  assert(!html.includes('window._forcePassDone'), 'window._forcePassDone fake pass bypass must be permanently removed');
+
+  // 2. Stroke dynamics & Small AI features in evaluateHandwriting
+  const evalMatch = scriptContent.match(/function evaluateHandwriting\([\s\S]*?\n\}/)[0];
+  assert(evalMatch.includes('directionReversals'), 'evaluateHandwriting must track directional reversals for zigzag scribble detection');
+  assert(evalMatch.includes('strokeRedundancy'), 'evaluateHandwriting must track stroke redundancy for coloring fill detection');
+  assert(scriptContent.includes('captureSubmittedWriting'), 'captureSubmittedWriting must capture child writing thumbnail');
+});
+
+test('100% Word Bank Clue Alignment & AI 3D Picture Coverage (No Anaar fallback for Amrood/Adarak)', () => {
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  // 1. In renderClue, prohibit fallback to item.word
+  const renderClueMatch = scriptContent.match(/function renderClue\([\s\S]*?\n\}/)[0];
+  assert(!renderClueMatch.includes('imgSrc = IMAGES[item.word]'), 'renderClue must NEVER fall back to item.word (preventing Anaar from showing for Amrood/Adarak)');
+
+  // 2. Secondary words for letter "अ" must all map to dedicated 3D images on disk
+  const aWords = ['अमरूद', 'अदरक', 'अचकन', 'अजगर', 'अखबार', 'अनाज'];
+  const imagesMatch = scriptContent.match(/const IMAGES = \{([\s\S]*?)\n\};/)[1];
+  const fs = require('fs');
+  const path = require('path');
+
+  aWords.forEach(w => {
+    const reg = new RegExp(`"${w}":\\s*"images\\/([^"]+)"`);
+    const m = imagesMatch.match(reg);
+    assert(m, `Word "${w}" must be registered in IMAGES with its own image`);
+    const assetPath = path.join(__dirname, '..', 'images', m[1]);
+    assert(fs.existsSync(assetPath), `Asset file ${m[1]} must exist on disk for word "${w}"`);
+  });
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');
