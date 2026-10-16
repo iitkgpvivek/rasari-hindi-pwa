@@ -2566,11 +2566,31 @@ function updateVoiceBtn() {
   }
 }
 
+function showNotice(msg) {
+  let notice = $('noticeToast');
+  if (!notice) {
+    notice = document.createElement('div');
+    notice.id = 'noticeToast';
+    notice.style.cssText = 'position:fixed;top:65px;left:50%;transform:translateX(-50%);background:#0d2847;color:#ffffff;padding:10px 18px;border-radius:12px;box-shadow:0 10px 28px rgba(0,0,0,0.4);font-size:13px;font-weight:700;z-index:99999;border:2px solid #38bdf8;transition:opacity .35s ease;text-align:center;max-width:92vw;pointer-events:none;opacity:0;';
+    document.body.appendChild(notice);
+  }
+  notice.textContent = msg;
+  notice.style.opacity = '1';
+  clearTimeout(notice._timer);
+  notice._timer = setTimeout(() => {
+    notice.style.opacity = '0';
+  }, 4200);
+}
+
 if ($('voiceToggle')) {
   makeTouchResponsive($('voiceToggle'), () => {
     voicePersona = voicePersona === 'teacher' ? 'monkey' : 'teacher';
     localStorage.setItem('rasari_voice_persona', voicePersona);
     updateVoiceBtn();
+    const hasHindi = Boolean(getBestVoiceForLang('hi-IN'));
+    if (!hasHindi && 'speechSynthesis' in window && window.speechSynthesis.getVoices().length > 0) {
+      showNotice('💡 To enable Live AI Voice: Open Android Settings > Text-to-speech > Install voice data > Hindi ⚙️');
+    }
     speakWordOrPhrase(voicePersona === 'monkey' ? 'शाबाश!' : 'नमस्ते!');
   });
 }
@@ -2627,6 +2647,13 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
 
   if ('speechSynthesis' in window && window.SpeechSynthesisUtterance) {
     try {
+      const v = getBestVoiceForLang(langConfig.langCode);
+      if (!v && fallbackAudio) {
+        // Fallback to high quality pre-recorded native audio if Android lacks Hindi voice data
+        playSnd(fallbackAudio);
+        return;
+      }
+
       const u = new SpeechSynthesisUtterance(text);
       u.lang = langConfig.langCode;
 
@@ -2638,7 +2665,6 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
         u.rate = langConfig.voice.teacherRate;
       }
 
-      const v = getBestVoiceForLang(langConfig.langCode);
       if (v) u.voice = v;
 
       u.onerror = (e) => {
@@ -2661,6 +2687,10 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
   }
 
   if (fallbackAudio) playSnd(fallbackAudio);
+}
+
+function speakRetryPrompt(text = 'फिर से कोशिश करो!') {
+  speakWordOrPhrase(text, 'audio/snd_tryagain.mp3');
 }
 
 function speakHindi(phrase, fallbackAudio) {
@@ -2690,11 +2720,11 @@ function speakLetter() {
     const m = getLetterMastery(item.c);
     const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
     const combo = getMatraCombo(item.c, matraObj.sym);
-    speakWordOrPhrase(combo);
+    speakWordOrPhrase(combo, item.audio);
   } else if (currentStep === 3) {
     const m = getLetterMastery(item.c);
     const wordObj = getWordForLetter(item.c, m.wordIndex || 0);
-    speakWordOrPhrase(wordObj.word);
+    speakWordOrPhrase(wordObj.word, item.audio);
   }
 }
 
@@ -2846,8 +2876,342 @@ function captureSubmittedWriting() {
   return cap.toDataURL('image/png');
 }
 
+// Grade 1 Devanagari Confusions & Lookalike Dictionary
+const DEVANAGARI_CONFUSIONS = {
+  'न': ['व', 'ब', 'म', 'त', 'ग', 'र'],
+  'व': ['ब', 'क', 'न', 'द', 'ट'],
+  'ब': ['व', 'क', 'न', 'म'],
+  'म': ['भ', 'न', 'ग', 'स', 'व'],
+  'भ': ['म', 'ग', 'श'],
+  'ग': ['न', 'म', 'ण', 'त'],
+  'त': ['न', 'ग', 'ल', 'र'],
+  'प': ['ष', 'य', 'ध', 'घ', 'फ'],
+  'ष': ['प', 'ध', 'ख', 'व'],
+  'फ': ['क', 'प', 'ध'],
+  'क': ['फ', 'व', 'ब', 'द'],
+  'र': ['स', 'श', 'ख', 'ट'],
+  'स': ['र', 'म', 'ख'],
+  'ट': ['ठ', 'ढ', 'द', 'ड', 'र'],
+  'ठ': ['ट', 'ढ', 'द', 'व'],
+  'ड': ['ङ', 'इ', 'ई', 'झ', 'ट', 'द'],
+  'ढ': ['ट', 'ठ', 'द', 'व'],
+  'द': ['ढ', 'ट', 'ठ', 'र', 'व'],
+  'घ': ['ध', 'छ', 'प'],
+  'ध': ['घ', 'छ', 'प', 'थ'],
+  'छ': ['घ', 'ध', 'ठ'],
+  'च': ['ज', 'त', 'न'],
+  'ज': ['च', 'ञ', 'त'],
+  'थ': ['य', 'ध', 'ख'],
+  'य': ['थ', 'प', 'घ'],
+  'ल': ['त', 'न', 'म'],
+  'श': ['र', 'भ', 'स'],
+  'ह': ['ड', 'द', 'ट'],
+  'अ': ['आ', 'उ', 'ऊ', 'ओ', 'औ'],
+  'आ': ['अ', 'ओ', 'औ'],
+  'इ': ['ई', 'ड', 'झ'],
+  'ई': ['इ', 'ड', 'झ'],
+  'उ': ['ऊ', 'अ', 'आ'],
+  'ऊ': ['उ', 'अ', 'आ'],
+  'ए': ['ऐ', 'र'],
+  'ऐ': ['ए', 'र'],
+  'ओ': ['अ', 'आ', 'औ'],
+  'औ': ['अ', 'आ', 'ओ']
+};
+
+const ocrCandidateCache = {};
+function getCandidateMask(char, S = 64) {
+  const key = `${char}_${S}`;
+  if (ocrCandidateCache[key]) return ocrCandidateCache[key];
+
+  const pad = 6;
+  const activeS = S - pad * 2;
+  const tc = document.createElement('canvas');
+  tc.width = S; tc.height = S;
+  const tx = tc.getContext('2d');
+  tx.fillStyle = '#000'; tx.fillRect(0, 0, S, S);
+  tx.fillStyle = '#fff';
+  tx.font = 'bold ' + Math.round(activeS * 0.95) + 'px sans-serif';
+  tx.textAlign = 'center';
+  tx.textBaseline = 'alphabetic';
+
+  const metrics = tx.measureText(char);
+  const ascent = metrics.actualBoundingBoxAscent || (activeS * 0.7);
+  const descent = metrics.actualBoundingBoxDescent || (activeS * 0.2);
+  const charH = ascent + descent;
+  const baselineY = pad + (activeS - charH) / 2 + ascent;
+  tx.fillText(char, S / 2, baselineY);
+
+  const tData = tx.getImageData(0, 0, S, S).data;
+  let tMinX = S, tMaxX = 0, tMinY = S, tMaxY = 0;
+  let count = 0;
+  for (let y = 0; y < S; y++) {
+    for (let x = 0; x < S; x++) {
+      if (tData[(y * S + x) * 4] > 80) {
+        count++;
+        if (x < tMinX) tMinX = x;
+        if (x > tMaxX) tMaxX = x;
+        if (y < tMinY) tMinY = y;
+        if (y > tMaxY) tMaxY = y;
+      }
+    }
+  }
+
+  let finalData = tData;
+  let finalCount = count;
+  if (tMaxX > tMinX && tMaxY > tMinY) {
+    const cW = tMaxX - tMinX;
+    const cH = tMaxY - tMinY;
+    const cScale = Math.min(activeS / cW, activeS / cH);
+    const nc = document.createElement('canvas');
+    nc.width = S; nc.height = S;
+    const nx = nc.getContext('2d');
+    nx.fillStyle = '#000'; nx.fillRect(0, 0, S, S);
+    nx.drawImage(tc,
+      tMinX, tMinY, cW, cH,
+      pad + (activeS - cW * cScale) / 2, pad + (activeS - cH * cScale) / 2, cW * cScale, cH * cScale
+    );
+    finalData = nx.getImageData(0, 0, S, S).data;
+    finalCount = 0;
+    for (let i = 0; i < finalData.length; i += 4) {
+      if (finalData[i] > 80) finalCount++;
+    }
+  }
+
+  const res = { data: finalData, pixels: finalCount };
+  ocrCandidateCache[key] = res;
+  return res;
+}
+
+function renderUserStrokesNormalized(strokes, strokeOffset = 0, S = 64) {
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  let totalPts = 0;
+  strokes.forEach(str => {
+    if (!str) return;
+    str.forEach(pt => {
+      totalPts++;
+      const px = pt.x - strokeOffset;
+      const py = pt.y;
+      if (px < minX) minX = px;
+      if (px > maxX) maxX = px;
+      if (py < minY) minY = py;
+      if (py > maxY) maxY = py;
+    });
+  });
+
+  if (totalPts < 6 || maxX - minX < 12 || maxY - minY < 12) {
+    return null;
+  }
+
+  const pad = 6;
+  const activeS = S - pad * 2;
+  const uW = maxX - minX;
+  const uH = maxY - minY;
+  const uScale = Math.min(activeS / uW, activeS / uH);
+  const uOffX = pad + (activeS - uW * uScale) / 2 - minX * uScale;
+  const uOffY = pad + (activeS - uH * uScale) / 2 - minY * uScale;
+
+  const uc = document.createElement('canvas');
+  uc.width = S; uc.height = S;
+  const ux = uc.getContext('2d');
+  ux.fillStyle = '#000'; ux.fillRect(0, 0, S, S);
+  ux.strokeStyle = '#fff'; ux.fillStyle = '#fff';
+  ux.lineWidth = 5;
+  ux.lineCap = 'round'; ux.lineJoin = 'round';
+
+  strokes.forEach(str => {
+    if (!str || !str.length) return;
+    if (str.length === 1) {
+      ux.beginPath();
+      ux.arc((str[0].x - strokeOffset) * uScale + uOffX, str[0].y * uScale + uOffY, 2.5, 0, Math.PI * 2);
+      ux.fill();
+    } else {
+      ux.beginPath();
+      ux.moveTo((str[0].x - strokeOffset) * uScale + uOffX, str[0].y * uScale + uOffY);
+      for (let i = 1; i < str.length; i++) {
+        ux.lineTo((str[i].x - strokeOffset) * uScale + uOffX, str[i].y * uScale + uOffY);
+      }
+      ux.stroke();
+    }
+  });
+
+  const uData = ux.getImageData(0, 0, S, S).data;
+  let uPixels = 0;
+  for (let i = 0; i < uData.length; i += 4) {
+    if (uData[i] > 80) uPixels++;
+  }
+
+  return { data: uData, pixels: uPixels, uW, uH, minX, maxX, minY, maxY };
+}
+
+function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0) {
+  const normUser = renderUserStrokesNormalized(strokes, strokeOffset, 64);
+  if (!normUser || normUser.pixels < 30) {
+    return { recognized: null, isMatch: false, reason: 'empty', score: 0 };
+  }
+
+  const S = 64;
+  const uData = normUser.data;
+  const uPixels = normUser.pixels;
+
+  const candidates = [expectedChar];
+  const confusions = DEVANAGARI_CONFUSIONS[expectedChar] || [];
+  confusions.forEach(c => {
+    if (!candidates.includes(c)) candidates.push(c);
+  });
+
+  let bestCand = null;
+  let bestSim = -1;
+  let expectedSim = 0;
+  let expectedIoU = 0;
+  let expectedCov = 0;
+  let expectedPrec = 0;
+
+  const simScores = {};
+
+  candidates.forEach(cand => {
+    const cMask = getCandidateMask(cand, S);
+    const cData = cMask.data;
+    const cPixels = cMask.pixels;
+
+    let matched = 0;
+    let uOnly = 0;
+    let cOnly = 0;
+
+    for (let i = 0; i < S * S; i++) {
+      const u = uData[i * 4] > 80;
+      const c = cData[i * 4] > 80;
+      if (u && c) matched++;
+      else if (u && !c) uOnly++;
+      else if (!u && c) cOnly++;
+    }
+
+    const union = matched + uOnly + cOnly;
+    const iou = union > 0 ? (matched / union) : 0;
+    const coverage = cPixels > 0 ? (matched / cPixels) : 0;
+    const precision = uPixels > 0 ? (matched / uPixels) : 0;
+
+    const sim = (iou * 0.45) + (coverage * 0.35) + (precision * 0.20);
+    simScores[cand] = { sim, iou, coverage, precision };
+
+    if (cand === expectedChar) {
+      expectedSim = sim;
+      expectedIoU = iou;
+      expectedCov = coverage;
+      expectedPrec = precision;
+    }
+    if (sim > bestSim) {
+      bestSim = sim;
+      bestCand = cand;
+    }
+  });
+
+  // Structural topological rules for Grade 1 confusions
+  if (expectedChar === 'न') {
+    let waistInk = 0;
+    for (let y = 26; y <= 42; y++) {
+      for (let x = 20; x <= 44; x++) {
+        if (uData[(y * S + x) * 4] > 80) waistInk++;
+      }
+    }
+    let upperLeftInk = 0;
+    for (let y = 14; y <= 28; y++) {
+      for (let x = 12; x <= 34; x++) {
+        if (uData[(y * S + x) * 4] > 80) upperLeftInk++;
+      }
+    }
+    if (upperLeftInk > 35 && waistInk < 18) {
+      bestCand = 'व';
+    } else if (simScores['व'] && simScores['व'].sim > expectedSim + 0.05) {
+      bestCand = 'व';
+    }
+  }
+
+  if (expectedChar === 'व') {
+    let upperLeftInk = 0;
+    for (let y = 14; y <= 28; y++) {
+      for (let x = 12; x <= 34; x++) {
+        if (uData[(y * S + x) * 4] > 80) upperLeftInk++;
+      }
+    }
+    if (upperLeftInk < 12 && simScores['न'] && simScores['न'].sim > expectedSim) {
+      bestCand = 'न';
+    }
+  }
+
+  if (expectedChar === 'क') {
+    let rightSideInk = 0;
+    for (let y = 18; y <= 50; y++) {
+      for (let x = 40; x <= 58; x++) {
+        if (uData[(y * S + x) * 4] > 80) rightSideInk++;
+      }
+    }
+    if (rightSideInk < 15) {
+      bestCand = 'व';
+    }
+  }
+
+  if (expectedChar === 'र') {
+    let rightStemInk = 0;
+    for (let y = 12; y <= 56; y++) {
+      for (let x = 44; x <= 60; x++) {
+        if (uData[(y * S + x) * 4] > 80) rightStemInk++;
+      }
+    }
+    if (rightStemInk > 40) {
+      bestCand = 'स';
+    }
+  } else if (expectedChar === 'स') {
+    let rightStemInk = 0;
+    for (let y = 12; y <= 56; y++) {
+      for (let x = 44; x <= 60; x++) {
+        if (uData[(y * S + x) * 4] > 80) rightStemInk++;
+      }
+    }
+    if (rightStemInk < 18) {
+      bestCand = 'र';
+    }
+  }
+
+  if (expectedChar === 'ट' || expectedChar === 'ठ') {
+    let leftLoopInk = 0;
+    for (let y = 24; y <= 44; y++) {
+      for (let x = 10; x <= 22; x++) {
+        if (uData[(y * S + x) * 4] > 80) leftLoopInk++;
+      }
+    }
+    if (expectedChar === 'ट' && leftLoopInk > 45 && simScores['ठ'] && simScores['ठ'].sim > expectedSim) {
+      bestCand = 'ठ';
+    } else if (expectedChar === 'ठ' && leftLoopInk < 15) {
+      bestCand = 'ट';
+    }
+  }
+
+  let topBarInk = 0;
+  for (let y = 6; y <= 16; y++) {
+    for (let x = 8; x <= 56; x++) {
+      if (uData[(y * S + x) * 4] > 80) topBarInk++;
+    }
+  }
+  const hasShirorekha = (topBarInk / uPixels) > 0.10;
+  const isMatch = (bestCand === expectedChar);
+
+  return {
+    recognized: bestCand,
+    expected: expectedChar,
+    isMatch,
+    bestSim,
+    expectedSim,
+    expectedIoU,
+    expectedCov,
+    expectedPrec,
+    hasShirorekha,
+    uW: normUser.uW,
+    uH: normUser.uH
+  };
+}
+
 // Discriminative Handwriting Auto-Evaluator with Small AI Perceptron & Anti-Scribble Barrier
-function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 0) {
+function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 0, forcedTier = null) {
   const S = 140;
   const ww = w.clientWidth, h = w.clientHeight;
   const strokesToEval = customStrokes || userStrokes;
@@ -2855,6 +3219,25 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
 
   if (!strokesToEval.length || totalPoints < 8) {
     return { score: 0, pass: false, reason: 'empty' };
+  }
+
+  // Determine active scaffolding tier (0: Trace, 1: Ghost/Slight-Trace, 2: Freehand)
+  let activeTier = 0;
+  if (forcedTier !== null && forcedTier !== undefined) {
+    activeTier = forcedTier;
+  } else if (guideMode === 'off') {
+    activeTier = 2;
+  } else if (guideMode === 'on') {
+    activeTier = 0;
+  } else {
+    // guideMode === 'auto'
+    const item = lessons[idx];
+    const m = item ? getLetterMastery(item.c) : null;
+    if (m) {
+      if (currentStep === 1) activeTier = m.letterTier || 0;
+      else if (currentStep === 2) activeTier = m.matraTier || 0;
+      else if (currentStep === 3) activeTier = m.wordTier || 0;
+    }
   }
 
   // 1. Calculate Stroke Trajectory Dynamics (Length, Direction Reversals & Overlap Redundancy)
@@ -2967,43 +3350,141 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
   const precision = uPixels > 0 ? (matched / uPixels) : 0;
   const union = (tPixels + uPixels - matched);
   const iou = union > 0 ? (matched / union) : 0;
-
-  // Stroke Redundancy Ratio (detects coloring in the box / dense overwriting)
   const strokeRedundancy = (userLength * scaleX * offscreenBw) / Math.max(1, uPixels);
 
-  // DISCRIMINATIVE ANTI-SCRIBBLE BARRIER
-  // 1) Excessive ink volume
+  // Common Anti-Scribble Checks
   if (uPixels > tPixels * 1.65) {
     return { score: 10, pass: false, reason: 'scribble', coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
   }
-  // 2) Insufficient negative space precision
-  if (precision < 0.35) {
+  if (precision < 0.35 && activeTier < 2) {
     return { score: Math.round(precision * 35), pass: false, reason: 'scribble', coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
   }
-  // 3) Back-and-forth zigzag scribbling
   if (directionReversals > 10) {
     return { score: 15, pass: false, reason: 'scribble', coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
   }
-  // 4) High overlap coloring redundancy
   if (strokeRedundancy > 2.2) {
     return { score: 18, pass: false, reason: 'scribble', coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
   }
 
-  // Devanagari Top Bar (Shirorekha) check
   const targetHasTopBar = (tZones[0] + tZones[1] + tZones[2]) / tPixels > 0.16;
   const userHasTopBar = uPixels > 0 ? ((uZones[0] + uZones[1] + uZones[2]) / uPixels > 0.12) : false;
+  const spillRatio = spill / tPixels;
+
+  // ========================================================
+  // TIER 2: FREEHAND MODE - DEVANAGARI OCR EVALUATION
+  // ========================================================
+  if (activeTier === 2) {
+    const aksharas = decomposeWordToUnits(targetString);
+    const isSingleAkshara = aksharas.length <= 1;
+
+    if (isSingleAkshara) {
+      const ocr = recognizeDevanagariOCR(strokesToEval, targetString, strokeOffset);
+      if (!ocr || !ocr.recognized) {
+        return { score: 15, pass: false, reason: 'empty' };
+      }
+
+      if (!ocr.isMatch) {
+        // Child wrote a different character (e.g. wrote 'व' when expected 'न')
+        const wrongScore = Math.max(15, Math.min(36, Math.round(ocr.expectedSim * 60)));
+        return {
+          score: wrongScore,
+          pass: false,
+          reason: 'wrong_letter',
+          detected: ocr.recognized,
+          expected: targetString,
+          iou: Math.round(ocr.expectedIoU * 100),
+          coverage: Math.round(ocr.expectedCov * 100),
+          precision: Math.round(ocr.expectedPrec * 100)
+        };
+      }
+
+      // OCR matched target character! Grade on Form (35), Completeness (35), Neatness (30)
+      let formScore = Math.min(25, Math.round((ocr.expectedIoU / 0.50) * 25));
+      if (targetHasTopBar) {
+        formScore += ocr.hasShirorekha ? 10 : 0;
+      } else {
+        formScore += 10;
+      }
+
+      let completenessScore = Math.min(35, Math.round((ocr.expectedCov / 0.70) * 35));
+      let neatnessScore = Math.min(30, Math.round((ocr.expectedPrec / 0.70) * 30));
+      if (strokeRedundancy > 1.6) {
+        neatnessScore -= Math.min(15, Math.round((strokeRedundancy - 1.6) * 20));
+      }
+
+      const freeScore = Math.max(0, Math.min(100, formScore + completenessScore + neatnessScore));
+      const freePass = freeScore >= 55 && ocr.expectedSim >= 0.38 && (!targetHasTopBar || ocr.hasShirorekha);
+
+      return {
+        score: freeScore,
+        pass: freePass,
+        reason: freePass ? 'ok' : 'sloppy',
+        detected: ocr.recognized,
+        expected: targetString,
+        iou: Math.round(ocr.expectedIoU * 100),
+        coverage: Math.round(ocr.expectedCov * 100),
+        precision: Math.round(ocr.expectedPrec * 100),
+        form: Math.max(0, Math.min(100, Math.round((formScore / 35) * 100))),
+        neatness: Math.max(0, Math.min(100, Math.round((neatnessScore / 30) * 100)))
+      };
+    } else {
+      // Multi-akshara word in Freehand mode on open canvas
+      const numUnits = aksharas.length;
+      let minX = Infinity, maxX = -Infinity;
+      strokesToEval.forEach(s => s.forEach(pt => {
+        if (pt.x < minX) minX = pt.x;
+        if (pt.x > maxX) maxX = pt.x;
+      }));
+      const totalSpan = maxX - minX;
+
+      if (totalSpan < 30) {
+        return { score: 20, pass: false, reason: 'incomplete', expected: targetString };
+      }
+
+      const unitWidth = totalSpan / numUnits;
+      for (let u = 0; u < numUnits; u++) {
+        const uStart = minX + u * unitWidth - 10;
+        const uEnd = minX + (u + 1) * unitWidth + 10;
+        const uStrokes = strokesToEval.filter(s => {
+          const midX = s.reduce((sum, pt) => sum + pt.x, 0) / Math.max(1, s.length);
+          return midX >= uStart && midX <= uEnd;
+        });
+
+        if (uStrokes.length > 0) {
+          const uOcr = recognizeDevanagariOCR(uStrokes, aksharas[u].char, strokeOffset);
+          if (uOcr && uOcr.recognized && !uOcr.isMatch) {
+            return {
+              score: 28,
+              pass: false,
+              reason: 'wrong_letter',
+              detected: uOcr.recognized,
+              expected: aksharas[u].char
+            };
+          }
+        }
+      }
+    }
+  }
+
+  // ========================================================
+  // TIER 0 & TIER 1: STRICT SCAFFOLD TRACE LINE-FOLLOWING
+  // ========================================================
+  const isTier0 = activeTier === 0;
+  const minCoverage = isTier0 ? 0.54 : 0.44;
+  const minPrecision = isTier0 ? 0.46 : 0.38;
+  const minIoU = isTier0 ? 0.28 : 0.24;
+  const maxSpillRatio = isTier0 ? 0.52 : 0.65;
+
   let structurePenalty = 0;
   if (targetHasTopBar && !userHasTopBar) {
-    structurePenalty = 20;
+    structurePenalty = isTier0 ? 25 : 18;
   }
 
-  const spillRatio = spill / tPixels;
   let spillPenalty = 0;
-  if (spillRatio > 0.50) {
-    spillPenalty = Math.min(25, Math.round((spillRatio - 0.50) * 35));
+  if (spillRatio > 0.45) {
+    spillPenalty = Math.min(25, Math.round((spillRatio - 0.45) * 40));
   }
 
-  // Honest, Discriminative Graded Scoring Curve (Form: 35pts, Coverage: 35pts, Neatness: 30pts)
   let formScore = Math.min(20, Math.round((iou / 0.60) * 20));
   if (targetHasTopBar) {
     formScore += userHasTopBar ? 15 : -structurePenalty;
@@ -3018,12 +3499,29 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
   }
 
   let score = Math.max(0, Math.min(100, formScore + coverageScore + neatnessScore));
-  const pass = score >= 55 && coverage >= 0.38 && precision >= 0.34 && iou >= 0.22 && (uPixels <= tPixels * 1.65);
+
+  const tracePass = score >= 55 &&
+                    coverage >= minCoverage &&
+                    precision >= minPrecision &&
+                    iou >= minIoU &&
+                    spillRatio <= maxSpillRatio &&
+                    (!targetHasTopBar || userHasTopBar);
+
+  let failReason = 'ok';
+  if (!tracePass) {
+    if (precision < 0.35 || uPixels > tPixels * 1.65 || directionReversals > 10 || strokeRedundancy > 2.2) {
+      failReason = 'scribble';
+    } else if (precision < minPrecision || spillRatio > maxSpillRatio) {
+      failReason = 'inaccurate_trace';
+    } else {
+      failReason = 'sloppy';
+    }
+  }
 
   return {
     score,
-    pass,
-    reason: pass ? 'ok' : (precision < 0.35 || uPixels > tPixels * 1.65 || directionReversals > 10 || strokeRedundancy > 2.2 ? 'scribble' : 'sloppy'),
+    pass: tracePass,
+    reason: failReason,
     iou: Math.round(iou * 100),
     coverage: Math.round(coverage * 100),
     precision: Math.round(precision * 100),
@@ -3055,12 +3553,16 @@ $('done').onclick = e => {
   if (!result.pass) {
     w.classList.add('shake');
     setTimeout(() => w.classList.remove('shake'), 450);
-    playSnd('audio/snd_tryagain.mp3');
+    speakRetryPrompt(result.reason === 'wrong_letter' ? `यह '${result.detected}' लग रहा है!` : 'फिर से कोशिश करो!');
     clearPad();
     const prompt = $('prompt');
     if (prompt) {
       if (result.reason === 'scribble') {
         prompt.textContent = `Don't scribble! Follow the letter strokes ✍️`;
+      } else if (result.reason === 'wrong_letter') {
+        prompt.textContent = `That looks like '${result.detected}', not '${result.expected || targetText}'! ✍️`;
+      } else if (result.reason === 'inaccurate_trace') {
+        prompt.textContent = `Trace carefully along the lines ✍️`;
       } else {
         prompt.textContent = `Almost there! Keep your lines neat and steady ✍️`;
       }
@@ -3853,13 +4355,17 @@ function handleApertureDone() {
       win.classList.add('shake');
       setTimeout(() => win.classList.remove('shake'), 450);
     }
-    playSnd('audio/snd_tryagain.mp3');
+    speakRetryPrompt(result.reason === 'wrong_letter' ? `यह '${result.detected}' लग रहा है!` : 'फिर से कोशिश करो!');
     clearCurrentAksharaStrokes();
 
     const prompt = $('aperturePrompt');
     if (prompt) {
       if (result.reason === 'scribble') {
         prompt.textContent = `Don't scribble! Follow the lines for '${unit.char}' ✍️`;
+      } else if (result.reason === 'wrong_letter') {
+        prompt.textContent = `That looks like '${result.detected}', not '${unit.char}'! ✍️`;
+      } else if (result.reason === 'inaccurate_trace') {
+        prompt.textContent = `Trace carefully along the lines for '${unit.char}' ✍️`;
       } else {
         prompt.textContent = `Try again! Follow the lines for '${unit.char}' ✍️`;
       }

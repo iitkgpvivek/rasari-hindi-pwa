@@ -595,6 +595,34 @@ test('100% Word Bank Clue Alignment & AI 3D Picture Coverage (No Anaar fallback 
   });
 });
 
+test('Scaffold-Aware Strictness & Discriminative Devanagari OCR (Rejects na as va, strict trace line-following)', () => {
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  // 1. Confusions dictionary & Devanagari OCR recognition
+  assert(scriptContent.includes('const DEVANAGARI_CONFUSIONS = {'), 'DEVANAGARI_CONFUSIONS dictionary must exist');
+  assert(scriptContent.includes('function recognizeDevanagariOCR('), 'recognizeDevanagariOCR function must exist');
+  assert(scriptContent.includes("'न': ['व', 'ब'"), "'न' must map to lookalike confusion candidates including 'व'");
+
+  // 2. Strict trace line-following in Tier 0 and Tier 1
+  const evalMatch = scriptContent.match(/function evaluateHandwriting\([\s\S]*?\n\}/)[0];
+  assert(evalMatch.includes('minCoverage = isTier0 ? 0.54 : 0.44'), 'Strict line-following coverage threshold must be enforced for Trace tier');
+  assert(evalMatch.includes('minPrecision = isTier0 ? 0.46 : 0.38'), 'Strict line-following precision threshold must be enforced for Trace tier');
+  assert(evalMatch.includes('inaccurate_trace'), 'Inaccurate traces must be explicitly flagged with reason inaccurate_trace');
+
+  // 3. Freehand Tier 2 OCR discrimination
+  assert(evalMatch.includes('activeTier === 2'), 'evaluateHandwriting must identify activeTier === 2 for Freehand mode');
+  assert(evalMatch.includes('recognizeDevanagariOCR(strokesToEval, targetString'), 'Freehand mode must invoke recognizeDevanagariOCR');
+  assert(evalMatch.includes("reason: 'wrong_letter'"), 'Freehand OCR must flag wrong_letter when detected character differs from target');
+
+  // 4. Pedagogical child prompts on wrong_letter and inaccurate_trace
+  assert(html.includes("prompt.textContent = `That looks like '${result.detected}', not '"), 'Prompts must inform child of exact detected vs expected character');
+  assert(html.includes("prompt.textContent = `Trace carefully along the lines"), 'Prompts must guide child to follow lines on trace inaccuracies');
+
+  // 5. Audio fallback resilience for tablets lacking Hindi TTS engine
+  assert(scriptContent.includes('function speakRetryPrompt('), 'speakRetryPrompt function must exist');
+  assert(scriptContent.includes('if (!v && fallbackAudio)'), 'speakWordOrPhrase must fall back to clean native audio when device lacks Hindi TTS voice');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');
