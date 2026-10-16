@@ -243,6 +243,28 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
   box-shadow: 0 0 0 1px #f1c40f;
 }
 
+.app-version-badge {
+  position: fixed;
+  bottom: 4px;
+  right: 6px;
+  font-size: 10px;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  color: #0f3256;
+  opacity: 0.32;
+  background: rgba(255, 255, 255, 0.45);
+  padding: 1px 6px;
+  border-radius: 4px;
+  z-index: 99999;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.app-version-badge:hover, .app-version-badge:active {
+  opacity: 0.95;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
 @media(max-width:680px){.nav{left:22%;right:4%;top:6%}.step{font-size:9px}.circ{width:31px;height:31px;font-size:17px;border-width:3px}.prompt{font-size:11px}.letter{font-size:42px}.toolbar-top{left:28%;gap:4px}.stage-badge,.ctrl-pill{font-size:9px;padding:2px 6px}.guideheading{font-size:10px}.sidebtn{font-size:10px}.praise{font-size:10px}.bottombtn{font-size:14px}}
 @media(max-aspect-ratio:1/1){.bg{object-fit:cover;object-position:center}}
 </style>
@@ -323,6 +345,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <button class="prev-btn" id="prevBtn">Previous</button>
 <button class="bottombtn done" id="done">✍️ Let's write</button>
 <button class="next-btn" id="nextBtn">Next</button>
+<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.0</div>
 
 <div class="modal" id="modal">
   <div class="dialog">
@@ -2717,16 +2740,7 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
         window.speechSynthesis.resume();
       }
 
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        setTimeout(() => {
-          try { window.speechSynthesis.speak(u); } catch(err) {
-            if (fallbackAudio) playSnd(fallbackAudio);
-          }
-        }, 30);
-      } else {
-        window.speechSynthesis.speak(u);
-      }
+      window.speechSynthesis.speak(u);
       return;
     } catch(e) {
       if (fallbackAudio) playSnd(fallbackAudio);
@@ -4802,7 +4816,8 @@ function setupPWAUpdate() {
           });
         }
       });
-      setInterval(() => reg.update().catch(() => {}), 60000);
+      try { reg.update(); } catch(e) {}
+      setInterval(() => reg.update().catch(() => {}), 45000);
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') reg.update().catch(() => {});
       });
@@ -4810,6 +4825,28 @@ function setupPWAUpdate() {
       console.warn('SW register error', e);
     }
   });
+}
+
+const verBadge = $('appVersionBadge');
+if (verBadge) {
+  verBadge.onclick = async () => {
+    verBadge.textContent = 'Updating...';
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const r of regs) {
+          try { await r.update(); } catch(e){}
+          if (r.waiting) r.waiting.postMessage({ type: 'SKIP_WAITING' });
+          if (r.installing) r.installing.postMessage({ type: 'SKIP_WAITING' });
+        }
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
+    } catch(e) {}
+    window.location.reload(true);
+  };
 }
 
 setupPWAUpdate();
