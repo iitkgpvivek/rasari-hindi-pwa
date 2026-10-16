@@ -2682,13 +2682,20 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
         u.rate = langConfig.voice.teacherRate || 0.88;
       }
 
+      let started = false;
+      u.onstart = () => {
+        started = true;
+      };
+
       u.onend = () => {
         if (activeUtterance === u) activeUtterance = null;
       };
 
       u.onerror = (e) => {
         if (activeUtterance === u) activeUtterance = null;
-        if (fallbackAudio) playSnd(fallbackAudio);
+        if (!started && fallbackAudio) {
+          playSnd(fallbackAudio);
+        }
       };
 
       activeUtterance = u;
@@ -2733,14 +2740,10 @@ function speakLetter() {
   }
 
   if (currentStep === 1) {
-    if (item.audio) {
-      playSnd(item.audio);
-    } else {
-      const letterPhrase = ['ङ', 'ञ', 'अः', 'ण'].includes(item.c)
-        ? (item.c + ' खाली')
-        : (item.word + ' वाला ' + item.c);
-      speakWordOrPhrase(letterPhrase, item.audio);
-    }
+    const letterPhrase = ['ङ', 'ञ', 'अः', 'ण'].includes(item.c)
+      ? (item.c + ' खाली')
+      : (item.word + ' वाला ' + item.c);
+    speakWordOrPhrase(letterPhrase, item.audio);
   } else if (currentStep === 2 && !item.isSwar) {
     const m = getLetterMastery(item.c);
     const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
@@ -3999,6 +4002,16 @@ $('sound').onclick = speakLetter;
 makeTouchResponsive($('sound'));
 $('letter').onclick = speakLetter;
 makeTouchResponsive($('letter'));
+if ($('charGlyph')) {
+  $('charGlyph').onclick = speakLetter;
+  makeTouchResponsive($('charGlyph'));
+}
+if ($('promptText')) {
+  $('promptText').style.cursor = 'pointer';
+  $('promptText').style.pointerEvents = 'auto';
+  $('promptText').onclick = speakLetter;
+  makeTouchResponsive($('promptText'));
+}
 $('clueBoard').onclick = speakClue;
 makeTouchResponsive($('clueBoard'));
 $('clueEmoji').onclick = speakClue;
