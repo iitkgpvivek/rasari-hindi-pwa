@@ -1,4 +1,4 @@
-const APP_VERSION = '3.2.5';
+const APP_VERSION = '3.2.6';
 const CACHE = `rasari-hindi-v${APP_VERSION}`;
 const ASSETS = [
   './',
@@ -547,8 +547,9 @@ const ASSETS = [
   './audio/word_vy_ya.m4a'
 ];
 
-// Install: Cache all core assets
+// Install: Cache all core assets and activate immediately
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE).then((cache) => cache.addAll(ASSETS))
   );

@@ -2636,6 +2636,8 @@ function getBestVoiceForLang(langCode = 'hi-IN') {
       cachedVoicesMap[key] = male;
       return male;
     }
+    // Do not bind to female voice for monkey persona so Android applies pitch shift
+    return null;
   } else {
     const female = langVoices.find(v => (v.name || '').toLowerCase().includes('female'));
     if (female) {
@@ -2684,11 +2686,11 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
       u.lang = langConfig.langCode;
 
       if (voicePersona === 'monkey') {
-        u.pitch = langConfig.voice.monkeyPitch || 1.25;
-        u.rate = langConfig.voice.monkeyRate || 0.95;
+        u.pitch = langConfig.voice.monkeyPitch || 1.35;
+        u.rate = langConfig.voice.monkeyRate || 1.15;
       } else {
-        u.pitch = langConfig.voice.teacherPitch || 1.05;
-        u.rate = langConfig.voice.teacherRate || 0.84;
+        u.pitch = langConfig.voice.teacherPitch || 1.0;
+        u.rate = langConfig.voice.teacherRate || 0.80;
       }
 
       const v = getBestVoiceForLang(langConfig.langCode);
@@ -2738,7 +2740,7 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
 }
 
 function speakRetryPrompt(text = null) {
-  const defaultPhrase = (voicePersona === 'monkey') ? 'अरे, फिर से कोशिश करो!' : 'फिर से कोशिश करो!';
+  const defaultPhrase = (voicePersona === 'monkey') ? 'अरे नहीं, फिर से कोशिश करो!' : 'फिर से कोशिश करो!';
   const phrase = text || defaultPhrase;
   speakWordOrPhrase(phrase, null);
 }
@@ -2766,9 +2768,9 @@ function speakLetter() {
       ? (item.c + ' खाली')
       : (item.word + ' वाला ' + item.c);
     const letterPhrase = (voicePersona === 'monkey')
-      ? ('अरे, ' + basePhrase + '!')
+      ? ('अरे वाह! ' + basePhrase + '!')
       : basePhrase;
-    speakWordOrPhrase(letterPhrase, item.audio);
+    speakWordOrPhrase(letterPhrase, null);
   } else if (currentStep === 2 && !item.isSwar) {
     const m = getLetterMastery(item.c);
     const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
