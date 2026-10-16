@@ -511,7 +511,9 @@ test('AI Voice Personas (Teacher / Monkey) & Multi-Language Architecture (Hindi 
   const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
   assert(scriptContent.includes('function getBestVoiceForLang('), 'getBestVoiceForLang function must exist');
   assert(scriptContent.includes('lekha') && scriptContent.includes('swara'), 'Must prioritize native female teacher voices (Lekha, Swara, etc.)');
+  assert(scriptContent.includes('monkeyNames'), 'Must configure distinct monkey voice selection');
   assert(scriptContent.includes('voicePersona === \'monkey\''), 'Must support Monkey persona pitch and rate adjustments');
+  assert(scriptContent.includes('activeUtterance = u;'), 'Must preserve activeUtterance reference to prevent GC drops on Android');
   assert(scriptContent.includes('function speakWordOrPhrase('), 'speakWordOrPhrase engine function must exist');
 });
 
@@ -521,6 +523,12 @@ test('Semantic Word Pronunciation on Clue Tap & 3D AI Illustrated Library (No bl
 
   const speakClueMatch = scriptContent.match(/function speakClue\(\)\s*\{([\s\S]*?)\n\}/)[0];
   assert(speakClueMatch.includes('currentActiveClueWord'), 'speakClue must pronounce the specific word depicted, not hardcoded letter audio');
+  assert(speakClueMatch.includes('speakWordOrPhrase(wordToSpeak, null)'), 'speakClue must NEVER pass item.audio as fallback (avoids saying "Anaar wala a" for words like "Ajgar")');
+
+  // Verify speakLetter does not pass item.audio in Step 2 or Step 3
+  const speakLetterMatch = scriptContent.match(/function speakLetter\(\)\s*\{([\s\S]*?)\n\}/)[0];
+  assert(speakLetterMatch.includes('speakWordOrPhrase(combo, null)'), 'Step 2 matra speech must not fall back to letter audio');
+  assert(speakLetterMatch.includes('speakWordOrPhrase(wordObj.word, null)'), 'Step 3 word speech must not fall back to letter audio');
 
   // Verify that core secondary vocabulary words now map to 3D PNG illustrations, not block SVGs
   const coreAiWords = ['किताब', 'कुत्ता', 'केला', 'कार', 'फूल', 'रोटी', 'घोड़ा', 'बिल्ली', 'पेंसिल', 'ऊंट', 'गुलाब', 'तरबूज', 'टोपी', 'जूता', 'घड़ी', 'ताला', 'चाबी', 'चूहा', 'नाव', 'बादल', 'तारा', 'गेंद', 'आग', 'आलू', 'हाथ', 'पैर', 'पानी'];

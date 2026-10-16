@@ -2514,11 +2514,12 @@ const LANGUAGE_CONFIGS = {
       listen: '🔊 सुनो'
     },
     voice: {
-      teacherNames: ['lekha', 'swara', 'kavya', 'neerja', 'google हिन्दी', 'google hindi', 'hi-in-x-hie', 'hi-in-x-hia', 'siri', 'hi-in'],
+      teacherNames: ['swara', 'lekha', 'kavya', 'neerja', 'kalpana', 'hia', 'hid', 'female', 'google हिन्दी', 'google hindi', 'hindi'],
+      monkeyNames: ['hie', 'hic', 'madhur', 'hemant', 'male', 'boy', 'google हिन्दी', 'hindi'],
       teacherPitch: 1.05,
-      teacherRate: 0.84,
-      monkeyPitch: 1.25,
-      monkeyRate: 0.95
+      teacherRate: 0.88,
+      monkeyPitch: 1.45,
+      monkeyRate: 1.10
     }
   },
   'kn': {
@@ -2541,11 +2542,12 @@ const LANGUAGE_CONFIGS = {
       listen: '🔊 ಕೇಳಿ'
     },
     voice: {
-      teacherNames: ['kannada', 'google ಕನ್ನಡ', 'google kannada', 'kn-in'],
+      teacherNames: ['kannada', 'google ಕನ್ನಡ', 'google kannada', 'kn-in', 'female'],
+      monkeyNames: ['kannada', 'google ಕನ್ನಡ', 'google kannada', 'kn-in', 'male'],
       teacherPitch: 1.05,
-      teacherRate: 0.84,
-      monkeyPitch: 1.25,
-      monkeyRate: 0.95
+      teacherRate: 0.88,
+      monkeyPitch: 1.45,
+      monkeyRate: 1.10
     }
   }
 };
@@ -2590,11 +2592,12 @@ if ($('voiceToggle')) {
     voicePersona = voicePersona === 'teacher' ? 'monkey' : 'teacher';
     localStorage.setItem('rasari_voice_persona', voicePersona);
     updateVoiceBtn();
+    cachedVoicesMap = {};
     const hasHindi = Boolean(getBestVoiceForLang('hi-IN'));
     if (!hasHindi && 'speechSynthesis' in window && window.speechSynthesis.getVoices().length > 0) {
       showNotice('💡 To enable Live AI Voice: Open Android Settings > Text-to-speech > Install voice data > Hindi ⚙️');
     }
-    speakWordOrPhrase(voicePersona === 'monkey' ? 'शाबाश!' : 'नमस्ते!');
+    speakWordOrPhrase(voicePersona === 'monkey' ? 'शाबाश, चलो लिखते हैं!' : 'नमस्ते, चलो अभ्यास करें!');
   });
 }
 updateVoiceBtn();
@@ -2606,15 +2609,18 @@ function getBestVoiceForLang(langCode = 'hi-IN') {
   if (cachedVoicesMap[key]) return cachedVoicesMap[key];
 
   const voices = window.speechSynthesis.getVoices();
-  if (!voices.length) return null;
+  if (!voices || !voices.length) return null;
 
   const currentLangConfig = LANGUAGE_CONFIGS[currentLanguage] || LANGUAGE_CONFIGS['hi'];
-  const preferredNames = currentLangConfig.voice.teacherNames;
+  const preferredNames = (voicePersona === 'monkey')
+    ? (currentLangConfig.voice.monkeyNames || ['hie', 'hic', 'madhur', 'hemant', 'male', 'google हिन्दी', 'hindi'])
+    : (currentLangConfig.voice.teacherNames || ['swara', 'lekha', 'kavya', 'neerja', 'kalpana', 'hia', 'hid', 'female', 'google हिन्दी', 'hindi']);
   const prefix = langCode.split('-')[0].toLowerCase();
 
   const langVoices = voices.filter(v => {
     const l = (v.lang || '').toLowerCase().replace('_', '-');
-    return l === langCode.toLowerCase() || l.startsWith(prefix);
+    const n = (v.name || '').toLowerCase();
+    return l === langCode.toLowerCase() || l.startsWith(prefix) || l.startsWith('hin') || n.includes('hindi') || n.includes('हिन्दी');
   });
 
   if (!langVoices.length) return null;
@@ -2627,10 +2633,18 @@ function getBestVoiceForLang(langCode = 'hi-IN') {
     }
   }
 
-  const female = langVoices.find(v => (v.name || '').toLowerCase().includes('female'));
-  if (female) {
-    cachedVoicesMap[key] = female;
-    return female;
+  if (voicePersona === 'monkey') {
+    const male = langVoices.find(v => (v.name || '').toLowerCase().includes('male'));
+    if (male) {
+      cachedVoicesMap[key] = male;
+      return male;
+    }
+  } else {
+    const female = langVoices.find(v => (v.name || '').toLowerCase().includes('female'));
+    if (female) {
+      cachedVoicesMap[key] = female;
+      return female;
+    }
   }
 
   cachedVoicesMap[key] = langVoices[0];
@@ -2644,36 +2658,47 @@ if ('speechSynthesis' in window) {
   };
 }
 
+let activeUtterance = null;
 function speakWordOrPhrase(text, fallbackAudio = null) {
   if (!text) return;
   const langConfig = LANGUAGE_CONFIGS[currentLanguage] || LANGUAGE_CONFIGS['hi'];
 
   if ('speechSynthesis' in window && window.SpeechSynthesisUtterance) {
     try {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = langConfig.langCode;
+
       const v = getBestVoiceForLang(langConfig.langCode);
       if (!v && fallbackAudio) {
         // Fallback to high quality pre-recorded native audio if Android lacks Hindi voice data
         playSnd(fallbackAudio);
         return;
       }
-
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = langConfig.langCode;
-
-      if (voicePersona === 'monkey') {
-        u.pitch = langConfig.voice.monkeyPitch;
-        u.rate = langConfig.voice.monkeyRate;
-      } else {
-        u.pitch = langConfig.voice.teacherPitch;
-        u.rate = langConfig.voice.teacherRate;
-      }
-
       if (v) u.voice = v;
 
+      if (voicePersona === 'monkey') {
+        u.pitch = langConfig.voice.monkeyPitch || 1.45;
+        u.rate = langConfig.voice.monkeyRate || 1.10;
+      } else {
+        u.pitch = langConfig.voice.teacherPitch || 1.05;
+        u.rate = langConfig.voice.teacherRate || 0.88;
+      }
+
+      u.onend = () => {
+        if (activeUtterance === u) activeUtterance = null;
+      };
+
       u.onerror = (e) => {
+        if (activeUtterance === u) activeUtterance = null;
         if (e && (e.error === 'canceled' || e.error === 'interrupted')) return;
         if (fallbackAudio) playSnd(fallbackAudio);
       };
+
+      activeUtterance = u;
+
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
 
       if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
@@ -2681,15 +2706,17 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
           try { window.speechSynthesis.speak(u); } catch(err) {
             if (fallbackAudio) playSnd(fallbackAudio);
           }
-        }, 30);
+        }, 40);
       } else {
         window.speechSynthesis.speak(u);
       }
       return;
-    } catch(e) {}
+    } catch(e) {
+      if (fallbackAudio) playSnd(fallbackAudio);
+    }
+  } else if (fallbackAudio) {
+    playSnd(fallbackAudio);
   }
-
-  if (fallbackAudio) playSnd(fallbackAudio);
 }
 
 function speakRetryPrompt(text = null) {
@@ -2698,7 +2725,7 @@ function speakRetryPrompt(text = null) {
   speakWordOrPhrase(phrase);
 }
 
-function speakHindi(phrase, fallbackAudio) {
+function speakHindi(phrase, fallbackAudio = null) {
   speakWordOrPhrase(phrase, fallbackAudio);
 }
 
@@ -2725,11 +2752,11 @@ function speakLetter() {
     const m = getLetterMastery(item.c);
     const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
     const combo = getMatraCombo(item.c, matraObj.sym);
-    speakWordOrPhrase(combo, item.audio);
+    speakWordOrPhrase(combo, null);
   } else if (currentStep === 3) {
     const m = getLetterMastery(item.c);
     const wordObj = getWordForLetter(item.c, m.wordIndex || 0);
-    speakWordOrPhrase(wordObj.word, item.audio);
+    speakWordOrPhrase(wordObj.word, null);
   }
 }
 
@@ -2743,8 +2770,24 @@ function speakClue() {
     setTimeout(() => clueEmoji.style.transform = 'scale(1)', 350);
   }
 
-  const wordToSpeak = currentActiveClueWord || item.word || item.c;
-  speakWordOrPhrase(wordToSpeak, item.audio);
+  let wordToSpeak = currentActiveClueWord;
+  if (!wordToSpeak) {
+    const m = getLetterMastery(item.c);
+    if (currentStep === 3) {
+      const wordObj = getWordForLetter(item.c, m.wordIndex || 0);
+      wordToSpeak = wordObj.word;
+    } else if (currentStep === 2 && !item.isSwar) {
+      const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+      const combo = getMatraCombo(item.c, matraObj.sym);
+      const wordObj = (WORD_BANKS[item.c] || []).find(w => w.word.startsWith(combo));
+      wordToSpeak = wordObj ? wordObj.word : (item.matra?.exWord || combo);
+    } else {
+      wordToSpeak = item.word || item.c;
+    }
+  }
+
+  // Never fall back to item.audio (which says "अनार वाला अ" for all words)
+  speakWordOrPhrase(wordToSpeak, null);
 }
 
 // High-Energy Confetti Particle System
@@ -4481,11 +4524,11 @@ if ($('apertureSoundBtn')) {
   makeTouchResponsive($('apertureSoundBtn'), () => {
     if (currentPracticeUnits && currentPracticeUnits[currentUnitIndex]) {
       const u = currentPracticeUnits[currentUnitIndex];
-      speakHindi(u.combo || u.char, lessons[idx]?.audio);
+      speakHindi(u.combo || u.char, null);
     } else if (currentStep === 1) {
       speakLetter();
     } else {
-      speakHindi(getTargetText(), lessons[idx]?.audio);
+      speakHindi(getTargetText(), null);
     }
   });
 }
