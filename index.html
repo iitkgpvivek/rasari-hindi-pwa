@@ -2391,7 +2391,10 @@ function updateMainCta() {
   }
 }
 
+let apertureCompletedTarget = null;
+
 function clearPad() {
+  apertureCompletedTarget = null;
   userStrokes = [];
   drawing = false;
   currentStroke = null;
@@ -2689,8 +2692,10 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
   if (fallbackAudio) playSnd(fallbackAudio);
 }
 
-function speakRetryPrompt(text = 'फिर से कोशिश करो!') {
-  speakWordOrPhrase(text, 'audio/snd_tryagain.mp3');
+function speakRetryPrompt(text = null) {
+  const defaultPhrase = (voicePersona === 'monkey') ? 'अरे, फिर से कोशिश करो!' : 'फिर से कोशिश करो!';
+  const phrase = text || defaultPhrase;
+  speakWordOrPhrase(phrase);
 }
 
 function speakHindi(phrase, fallbackAudio) {
@@ -3186,6 +3191,21 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0) {
     }
   }
 
+  // 6. Expected 'ग' vs 'म' (horizontal bridge connecting left loop to right stem)
+  if (expectedChar === 'ग' || expectedChar === 'म') {
+    let bridgeInk = 0;
+    for (let y = 33; y <= 46; y++) {
+      for (let x = 24; x <= 43; x++) {
+        if (uData[(y * S + x) * 4] > 80) bridgeInk++;
+      }
+    }
+    if (expectedChar === 'ग' && bridgeInk > 16) {
+      bestCand = 'म'; // Connected bar touches right stem (that is 'म', not 'ग'!)
+    } else if (expectedChar === 'म' && bridgeInk < 8) {
+      bestCand = 'ग'; // Missing connector bar (that is 'ग', not 'म'!)
+    }
+  }
+
   let topBarInk = 0;
   for (let y = 6; y <= 16; y++) {
     for (let x = 8; x <= 56; x++) {
@@ -3399,21 +3419,21 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
       }
 
       // OCR matched target character! Grade on Form (35), Completeness (35), Neatness (30)
-      let formScore = Math.min(25, Math.round((ocr.expectedIoU / 0.50) * 25));
+      let formScore = Math.min(25, Math.round((ocr.expectedIoU / 0.30) * 25));
       if (targetHasTopBar) {
         formScore += ocr.hasShirorekha ? 10 : 0;
       } else {
         formScore += 10;
       }
 
-      let completenessScore = Math.min(35, Math.round((ocr.expectedCov / 0.70) * 35));
-      let neatnessScore = Math.min(30, Math.round((ocr.expectedPrec / 0.70) * 30));
+      let completenessScore = Math.min(35, Math.round((ocr.expectedCov / 0.45) * 35));
+      let neatnessScore = Math.min(30, Math.round((ocr.expectedPrec / 0.45) * 30));
       if (strokeRedundancy > 1.6) {
         neatnessScore -= Math.min(15, Math.round((strokeRedundancy - 1.6) * 20));
       }
 
       const freeScore = Math.max(0, Math.min(100, formScore + completenessScore + neatnessScore));
-      const freePass = freeScore >= 55 && ocr.expectedSim >= 0.38 && (!targetHasTopBar || ocr.hasShirorekha);
+      const freePass = freeScore >= 45 && ocr.expectedSim >= 0.22 && (!targetHasTopBar || ocr.hasShirorekha || ocr.expectedSim >= 0.32);
 
       return {
         score: freeScore,
@@ -3437,32 +3457,57 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
       }));
       const totalSpan = maxX - minX;
 
-      if (totalSpan < 30) {
+      if (totalSpan < 40) {
         return { score: 20, pass: false, reason: 'incomplete', expected: targetString };
       }
 
       const unitWidth = totalSpan / numUnits;
+      let allMatch = true;
+      let wrongUnit = null;
+      let sumSim = 0;
+
       for (let u = 0; u < numUnits; u++) {
-        const uStart = minX + u * unitWidth - 10;
-        const uEnd = minX + (u + 1) * unitWidth + 10;
+        const uStart = minX + u * unitWidth - 14;
+        const uEnd = minX + (u + 1) * unitWidth + 14;
         const uStrokes = strokesToEval.filter(s => {
-          const midX = s.reduce((sum, pt) => sum + pt.x, 0) / Math.max(1, s.length);
-          return midX >= uStart && midX <= uEnd;
+          const sMinX = Math.min(...s.map(pt => pt.x));
+          const sMaxX = Math.max(...s.map(pt => pt.x));
+          return !(sMaxX < uStart || sMinX > uEnd);
         });
 
         if (uStrokes.length > 0) {
           const uOcr = recognizeDevanagariOCR(uStrokes, aksharas[u].char, strokeOffset);
-          if (uOcr && uOcr.recognized && !uOcr.isMatch) {
-            return {
-              score: 28,
-              pass: false,
-              reason: 'wrong_letter',
-              detected: uOcr.recognized,
-              expected: aksharas[u].char
-            };
+          if (uOcr && !uOcr.isMatch && uOcr.recognized) {
+            allMatch = false;
+            wrongUnit = { detected: uOcr.recognized, expected: aksharas[u].char };
+            break;
           }
+          sumSim += (uOcr ? uOcr.expectedSim : 0.35);
+        } else {
+          allMatch = false;
+          wrongUnit = { detected: '?', expected: aksharas[u].char };
+          break;
         }
       }
+
+      if (!allMatch && wrongUnit) {
+        return {
+          score: 28,
+          pass: false,
+          reason: 'wrong_letter',
+          detected: wrongUnit.detected,
+          expected: wrongUnit.expected
+        };
+      }
+
+      const avgSim = sumSim / numUnits;
+      const wordScore = Math.max(55, Math.min(95, Math.round(avgSim * 125)));
+      return {
+        score: wordScore,
+        pass: true,
+        reason: 'ok',
+        expected: targetString
+      };
     }
   }
 
@@ -3548,7 +3593,9 @@ $('done').onclick = e => {
   }
 
   const targetText = getTargetText();
-  let result = evaluateHandwriting(targetText);
+  const isApertureDone = (apertureCompletedTarget === targetText);
+  if (isApertureDone) apertureCompletedTarget = null;
+  const result = isApertureDone ? { score: 90, pass: true, reason: 'ok' } : evaluateHandwriting(targetText);
 
   if (!result.pass) {
     w.classList.add('shake');
@@ -4393,6 +4440,7 @@ function handleApertureDone() {
   } else {
     // All units of this word complete!
     // Exit Write Mode and bring child back to the main page to see and read their complete writing!
+    apertureCompletedTarget = getTargetText();
     closeApertureMode(false);
     mainCtaState = 'done';
     updateMainCta();

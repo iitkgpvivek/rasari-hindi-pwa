@@ -618,9 +618,14 @@ test('Scaffold-Aware Strictness & Discriminative Devanagari OCR (Rejects na as v
   assert(html.includes("prompt.textContent = `That looks like '${result.detected}', not '"), 'Prompts must inform child of exact detected vs expected character');
   assert(html.includes("prompt.textContent = `Trace carefully along the lines"), 'Prompts must guide child to follow lines on trace inaccuracies');
 
-  // 5. Audio fallback resilience for tablets lacking Hindi TTS engine
+  // 5. Audio fallback resilience and Live AI retry prompt
   assert(scriptContent.includes('function speakRetryPrompt('), 'speakRetryPrompt function must exist');
   assert(scriptContent.includes('if (!v && fallbackAudio)'), 'speakWordOrPhrase must fall back to clean native audio when device lacks Hindi TTS voice');
+  assert(scriptContent.includes("const defaultPhrase = (voicePersona === 'monkey')"), 'speakRetryPrompt must synthesize live audio persona');
+
+  // 6. 'ग' vs 'म' discrimination and aperture completion preservation
+  assert(scriptContent.includes("expectedChar === 'ग' || expectedChar === 'म'"), "recognizeDevanagariOCR must discriminate 'ग' vs 'म' by bridge continuity");
+  assert(html.includes("apertureCompletedTarget"), "Must preserve apertureCompletedTarget on submission to prevent wiping bounding-box writing");
 });
 
 console.log('\n----------------------------------------------------');
