@@ -2481,8 +2481,7 @@ function playSnd(src) {
       activeAudio.pause();
       activeAudio.currentTime = 0;
     }
-    const a = audioMap[src] || new Audio(src);
-    a.currentTime = 0;
+    const a = new Audio(src);
     activeAudio = a;
     a.play().catch(() => {});
   } catch(e){}
@@ -2515,9 +2514,9 @@ const LANGUAGE_CONFIGS = {
       teacherNames: ['swara', 'lekha', 'kavya', 'neerja', 'kalpana', 'hia', 'hid', 'female', 'google हिन्दी', 'google hindi', 'hindi'],
       monkeyNames: ['hie', 'hic', 'madhur', 'hemant', 'male', 'boy', 'google हिन्दी', 'hindi'],
       teacherPitch: 1.05,
-      teacherRate: 0.88,
-      monkeyPitch: 1.45,
-      monkeyRate: 1.10
+      teacherRate: 0.84,
+      monkeyPitch: 1.25,
+      monkeyRate: 0.95
     }
   },
   'kn': {
@@ -2543,9 +2542,9 @@ const LANGUAGE_CONFIGS = {
       teacherNames: ['kannada', 'google ಕನ್ನಡ', 'google kannada', 'kn-in', 'female'],
       monkeyNames: ['kannada', 'google ಕನ್ನಡ', 'google kannada', 'kn-in', 'male'],
       teacherPitch: 1.05,
-      teacherRate: 0.88,
-      monkeyPitch: 1.45,
-      monkeyRate: 1.10
+      teacherRate: 0.84,
+      monkeyPitch: 1.25,
+      monkeyRate: 0.95
     }
   }
 };
@@ -2650,11 +2649,27 @@ function getBestVoiceForLang(langCode = 'hi-IN') {
 }
 
 if ('speechSynthesis' in window) {
+  try {
+    window.speechSynthesis.getVoices();
+  } catch(e) {}
   window.speechSynthesis.onvoiceschanged = () => {
     cachedVoicesMap = {};
     getBestVoiceForLang((LANGUAGE_CONFIGS[currentLanguage] || LANGUAGE_CONFIGS['hi']).langCode);
   };
 }
+
+let speechWarmedUp = false;
+function warmUpSpeech() {
+  if (speechWarmedUp) return;
+  speechWarmedUp = true;
+  if ('speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.getVoices();
+    } catch(e) {}
+  }
+}
+window.addEventListener('pointerdown', warmUpSpeech, { passive: true });
+window.addEventListener('touchstart', warmUpSpeech, { passive: true });
 
 let activeUtterance = null;
 function speakWordOrPhrase(text, fallbackAudio = null) {
@@ -2663,24 +2678,31 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
 
   if ('speechSynthesis' in window && window.SpeechSynthesisUtterance) {
     try {
+      window.speechSynthesis.cancel();
+
       const u = new SpeechSynthesisUtterance(text);
       u.lang = langConfig.langCode;
 
-      const v = getBestVoiceForLang(langConfig.langCode);
-      if (!v && fallbackAudio) {
-        // Fallback to high quality pre-recorded native audio if Android lacks Hindi voice data
-        playSnd(fallbackAudio);
-        return;
-      }
-      if (v) u.voice = v;
-
       if (voicePersona === 'monkey') {
-        u.pitch = langConfig.voice.monkeyPitch || 1.45;
-        u.rate = langConfig.voice.monkeyRate || 1.10;
+        u.pitch = langConfig.voice.monkeyPitch || 1.25;
+        u.rate = langConfig.voice.monkeyRate || 0.95;
       } else {
         u.pitch = langConfig.voice.teacherPitch || 1.05;
-        u.rate = langConfig.voice.teacherRate || 0.88;
+        u.rate = langConfig.voice.teacherRate || 0.84;
       }
+
+      const v = getBestVoiceForLang(langConfig.langCode);
+      const allVoices = window.speechSynthesis.getVoices();
+      const voicesLoaded = allVoices && allVoices.length > 0;
+
+      // Fallback only if voices have actually loaded from OS and NO Hindi voice exists on device
+      if (!v && fallbackAudio) {
+        if (voicesLoaded) {
+          playSnd(fallbackAudio);
+          return;
+        }
+      }
+      if (v) u.voice = v;
 
       let started = false;
       u.onstart = () => {
@@ -2693,7 +2715,7 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
 
       u.onerror = (e) => {
         if (activeUtterance === u) activeUtterance = null;
-        if (!started && fallbackAudio) {
+        if (!started && fallbackAudio && voicesLoaded) {
           playSnd(fallbackAudio);
         }
       };
@@ -2718,7 +2740,7 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
 function speakRetryPrompt(text = null) {
   const defaultPhrase = (voicePersona === 'monkey') ? 'अरे, फिर से कोशिश करो!' : 'फिर से कोशिश करो!';
   const phrase = text || defaultPhrase;
-  speakWordOrPhrase(phrase);
+  speakWordOrPhrase(phrase, null);
 }
 
 function speakHindi(phrase, fallbackAudio = null) {
@@ -2740,9 +2762,12 @@ function speakLetter() {
   }
 
   if (currentStep === 1) {
-    const letterPhrase = ['ङ', 'ञ', 'अः', 'ण'].includes(item.c)
+    const basePhrase = ['ङ', 'ञ', 'अः', 'ण'].includes(item.c)
       ? (item.c + ' खाली')
       : (item.word + ' वाला ' + item.c);
+    const letterPhrase = (voicePersona === 'monkey')
+      ? ('अरे, ' + basePhrase + '!')
+      : basePhrase;
     speakWordOrPhrase(letterPhrase, item.audio);
   } else if (currentStep === 2 && !item.isSwar) {
     const m = getLetterMastery(item.c);
@@ -2766,13 +2791,6 @@ function speakClue() {
     setTimeout(() => clueEmoji.style.transform = 'scale(1)', 350);
   }
 
-  const wordAudio = item.audio ? item.audio.replace('audio/', 'audio/word_') : null;
-  if (currentStep === 1 && wordAudio) {
-    // In Step 1, the clue picture is the primary exemplar word (e.g. अनार for अ, कमल for क)
-    playSnd(wordAudio);
-    return;
-  }
-
   let wordToSpeak = currentActiveClueWord;
   if (!wordToSpeak) {
     const m = getLetterMastery(item.c);
@@ -2789,7 +2807,7 @@ function speakClue() {
     }
   }
 
-  // Never fall back to item.audio (which says "अनार वाला अ" for all words)
+  // Pure Live AI word pronunciation on clue tap - never falls back to item.audio (which says "अनार वाला अ" for all words)
   speakWordOrPhrase(wordToSpeak, null);
 }
 
