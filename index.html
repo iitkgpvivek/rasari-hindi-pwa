@@ -2367,9 +2367,7 @@ function makeTouchResponsive(btn, handler) {
     // Filter out huge palm slaps directly over the button
     if (e.width && e.width > 85 && e.height && e.height > 85) return;
     trigger(e);
-    // Cancel synthetic click generation so browser does not fire a ghost click
-    if (e.cancelable) e.preventDefault();
-  }, { passive: false });
+  }, { passive: true });
 
   // Route native click through the exact same debounced trigger
   btn.onclick = (e) => {
@@ -2690,7 +2688,6 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
 
       u.onerror = (e) => {
         if (activeUtterance === u) activeUtterance = null;
-        if (e && (e.error === 'canceled' || e.error === 'interrupted')) return;
         if (fallbackAudio) playSnd(fallbackAudio);
       };
 
@@ -2700,23 +2697,15 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
         window.speechSynthesis.resume();
       }
 
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        setTimeout(() => {
-          try { window.speechSynthesis.speak(u); } catch(err) {
-            if (fallbackAudio) playSnd(fallbackAudio);
-          }
-        }, 40);
-      } else {
-        window.speechSynthesis.speak(u);
-      }
+      window.speechSynthesis.speak(u);
       return;
     } catch(e) {
       if (fallbackAudio) playSnd(fallbackAudio);
+      return;
     }
-  } else if (fallbackAudio) {
-    playSnd(fallbackAudio);
   }
+
+  if (fallbackAudio) playSnd(fallbackAudio);
 }
 
 function speakRetryPrompt(text = null) {
@@ -2744,10 +2733,14 @@ function speakLetter() {
   }
 
   if (currentStep === 1) {
-    const letterPhrase = ['ङ', 'ञ', 'अः', 'ण'].includes(item.c)
-      ? (item.c + ' खाली')
-      : (item.word + ' वाला ' + item.c);
-    speakWordOrPhrase(letterPhrase, item.audio);
+    if (item.audio) {
+      playSnd(item.audio);
+    } else {
+      const letterPhrase = ['ङ', 'ञ', 'अः', 'ण'].includes(item.c)
+        ? (item.c + ' खाली')
+        : (item.word + ' वाला ' + item.c);
+      speakWordOrPhrase(letterPhrase, item.audio);
+    }
   } else if (currentStep === 2 && !item.isSwar) {
     const m = getLetterMastery(item.c);
     const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
@@ -2768,6 +2761,13 @@ function speakClue() {
   if (clueEmoji) {
     clueEmoji.style.transform = 'scale(1.08)';
     setTimeout(() => clueEmoji.style.transform = 'scale(1)', 350);
+  }
+
+  const wordAudio = item.audio ? item.audio.replace('audio/', 'audio/word_') : null;
+  if (currentStep === 1 && wordAudio) {
+    // In Step 1, the clue picture is the primary exemplar word (e.g. अनार for अ, कमल for क)
+    playSnd(wordAudio);
+    return;
   }
 
   let wordToSpeak = currentActiveClueWord;
