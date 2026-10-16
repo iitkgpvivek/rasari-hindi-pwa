@@ -2636,8 +2636,6 @@ function getBestVoiceForLang(langCode = 'hi-IN') {
       cachedVoicesMap[key] = male;
       return male;
     }
-    // Do not bind to female voice for monkey persona so Android applies pitch shift
-    return null;
   } else {
     const female = langVoices.find(v => (v.name || '').toLowerCase().includes('female'));
     if (female) {
@@ -2680,17 +2678,15 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
 
   if ('speechSynthesis' in window && window.SpeechSynthesisUtterance) {
     try {
-      window.speechSynthesis.cancel();
-
       const u = new SpeechSynthesisUtterance(text);
       u.lang = langConfig.langCode;
 
       if (voicePersona === 'monkey') {
-        u.pitch = langConfig.voice.monkeyPitch || 1.35;
+        u.pitch = langConfig.voice.monkeyPitch || 1.30;
         u.rate = langConfig.voice.monkeyRate || 1.15;
       } else {
         u.pitch = langConfig.voice.teacherPitch || 1.0;
-        u.rate = langConfig.voice.teacherRate || 0.80;
+        u.rate = langConfig.voice.teacherRate || 0.82;
       }
 
       const v = getBestVoiceForLang(langConfig.langCode);
@@ -2706,29 +2702,31 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
       }
       if (v) u.voice = v;
 
-      let started = false;
-      u.onstart = () => {
-        started = true;
-      };
-
+      activeUtterance = u;
       u.onend = () => {
         if (activeUtterance === u) activeUtterance = null;
       };
 
       u.onerror = (e) => {
         if (activeUtterance === u) activeUtterance = null;
-        if (!started && fallbackAudio && voicesLoaded) {
-          playSnd(fallbackAudio);
-        }
+        if (e && (e.error === 'canceled' || e.error === 'interrupted')) return;
+        if (fallbackAudio) playSnd(fallbackAudio);
       };
-
-      activeUtterance = u;
 
       if (window.speechSynthesis.paused) {
         window.speechSynthesis.resume();
       }
 
-      window.speechSynthesis.speak(u);
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        setTimeout(() => {
+          try { window.speechSynthesis.speak(u); } catch(err) {
+            if (fallbackAudio) playSnd(fallbackAudio);
+          }
+        }, 30);
+      } else {
+        window.speechSynthesis.speak(u);
+      }
       return;
     } catch(e) {
       if (fallbackAudio) playSnd(fallbackAudio);
