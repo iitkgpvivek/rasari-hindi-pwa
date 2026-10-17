@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Rasari Live AI Speech Diagnostic Lab (First Principles)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --surface: #0f172a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 16px; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+    
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; }
+    .card-title { font-size: 15px; font-weight: 700; color: var(--primary); display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid var(--card-border); padding-bottom: 8px; }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    @media(max-width: 640px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    .stat-pill { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; text-align: center; }
+    .stat-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px; }
+    .stat-val { font-size: 16px; font-weight: 800; margin-top: 4px; }
+
+    .btn { background: #3b82f6; color: #fff; border: 0; border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; touch-action: manipulation; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #0284c7; }
+    .btn-primary:hover { background: #0369a1; }
+    .btn-success { background: #059669; }
+    .btn-success:hover { background: #047857; }
+    .btn-warning { background: #d97706; }
+    .btn-warning:hover { background: #b45309; }
+    .btn-danger { background: #dc2626; }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-purple { background: #7c3aed; }
+    .btn-purple:hover { background: #6d28d9; }
+    .btn-outline { background: transparent; border: 1px solid var(--card-border); color: var(--text); }
+    .btn-outline:hover { background: rgba(255,255,255,0.06); }
+    .btn-sm { padding: 6px 10px; font-size: 11px; border-radius: 6px; }
+
+    .voice-item { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+    .voice-meta { font-size: 13px; font-weight: 600; }
+    .voice-sub { font-size: 11px; color: var(--text-muted); font-family: ui-monospace, monospace; margin-top: 2px; }
+
+    .control-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .control-label { font-size: 12px; font-weight: 600; color: var(--text-muted); min-width: 80px; }
+    
+    input[type="text"], select { background: #0f172a; border: 1px solid var(--card-border); color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 13px; outline: none; }
+    input[type="text"]:focus, select:focus { border-color: var(--primary); }
+    
+    .chip { background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #7dd3fc; border-radius: 16px; padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer; }
+    .chip:hover { background: rgba(56, 189, 248, 0.25); }
+
+    .log-box { background: #020617; border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; font-family: ui-monospace, monospace; font-size: 11px; height: 260px; overflow-y: auto; line-height: 1.5; color: #cbd5e1; }
+    .log-entry { margin-bottom: 4px; word-break: break-all; }
+    .log-info { color: #38bdf8; }
+    .log-success { color: #34d399; font-weight: 700; }
+    .log-warn { color: #fbbf24; }
+    .log-error { color: #f87171; font-weight: 700; }
+
+    .alert { padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; margin-bottom: 12px; line-height: 1.4; }
+    .alert-warn { background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; color: #fde68a; }
+    .alert-info { background: rgba(14, 165, 233, 0.15); border: 1px solid #0ea5e9; color: #bae6fd; }
+
+    .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .badge-green { background: rgba(52, 211, 153, 0.2); color: #34d399; border: 1px solid #34d399; }
+    .badge-amber { background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid #fbbf24; }
+    .badge-red { background: rgba(248, 113, 113, 0.2); color: #f87171; border: 1px solid #f87171; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      <div>
+        <h1 style="font-size:20px; font-weight:900; color:#fff;">🔬 Live AI Speech Diagnostic Lab</h1>
+        <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Built from first principles to isolate browser, OS daemon, audio hardware &amp; speech synthesis.</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="clearLogs()">🧹 Clear Logs</button>
+        <button class="btn btn-outline btn-sm" onclick="scanVoices()">🔄 Re-Scan Voices</button>
+        <a href="index.html" class="btn btn-primary btn-sm" style="text-decoration:none;">📱 Back to App</a>
+      </div>
+    </div>
+
+    <!-- Alert Banner (Origin / Protocol Check) -->
+    <div id="originBanner" class="alert alert-info">
+      Checking connection security...
+    </div>
+
+    <!-- Diagnostics Snapshot Cards -->
+    <div class="grid-4">
+      <div class="stat-pill">
+        <div class="stat-label">Web Speech API</div>
+        <div id="statSupport" class="stat-val text-primary">Checking...</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-label">Voices Detected</div>
+        <div id="statTotalVoices" class="stat-val">0</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-label">Hindi Voices</div>
+        <div id="statHindiVoices" class="stat-val text-warning">0</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-label">Engine Status</div>
+        <div id="statTtsState" class="stat-val" style="color:#a78bfa;">Idle</div>
+      </div>
+    </div>
+
+    <!-- Section 1: Physical Hardware & Audio Subsystem Health Check -->
+    <div class="card">
+      <div class="card-title">
+        <span>Step 1: Physical Speaker &amp; Browser Audio Subsystem Check</span>
+        <span class="badge badge-green">Hardware Verification</span>
+      </div>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
+        Before testing speech synthesis, test whether this tablet's speaker, media volume, and browser audio engine can output sound at all.
+      </p>
+      <div style="display:flex; flex-wrap:wrap; gap:10px;">
+        <button class="btn btn-success" onclick="testAudioContextBeep()">
+          <span>🔊 1. Hardware Beep (Web Audio 440Hz Tone)</span>
+        </button>
+        <button class="btn btn-outline" onclick="testPreRecordedAudio()">
+          <span>🎵 2. Pre-recorded Star MP3 (HTML5 Audio)</span>
+        </button>
+        <button class="btn btn-outline" onclick="testSilentUnlock()">
+          <span>🔓 3. Audio Context Unlock Touch</span>
+        </button>
+      </div>
+      <div id="audioHardwareStatus" style="font-size:11px; color:#94a3b8; margin-top:8px;">AudioContext: not initialized yet.</div>
+    </div>
+
+    <!-- Section 2: First-Principles Speech Synthesis Tests -->
+    <div class="card">
+      <div class="card-title">
+        <span>Step 2: Speech Synthesis Pipeline Matrix (First Principles)</span>
+        <span class="badge badge-amber">Isolate Failure Variable</span>
+      </div>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
+        Tap each test in order. Watch the real-time event log below to see exact OS callbacks (onstart, onend, onerror).
+      </p>
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        
+        <!-- Test 1: Absolute Bare Minimum -->
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px;">
+          <div>
+            <div style="font-size:13px; font-weight:700;">Test A: Pure Raw Utterance (Zero overrides)</div>
+            <div style="font-size:11px; color:var(--text-muted);">new SpeechSynthesisUtterance("Testing speech") with no lang, no voice, direct speak().</div>
+          </div>
+          <button class="btn btn-purple btn-sm" onclick="runTestA()">Run Test A ⚡</button>
+        </div>
+
+        <!-- Test 2: English with Auto-detected Voice -->
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px;">
+          <div>
+            <div style="font-size:13px; font-weight:700;">Test B: English Text with Matched System Voice</div>
+            <div style="font-size:11px; color:var(--text-muted);">Finds first 'en' voice from device, synchronizes lang &amp; voiceURI, speaks "Hello tablet".</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="runTestB()">Run Test B 🇬🇧</button>
+        </div>
+
+        <!-- Test 3: Hindi Text with lang='hi-IN' (No Voice Object) -->
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px;">
+          <div>
+            <div style="font-size:13px; font-weight:700;">Test C: Hindi Text (lang='hi-IN', OS Engine Routing)</div>
+            <div style="font-size:11px; color:var(--text-muted);">new SpeechSynthesisUtterance("नमस्ते") with u.lang='hi-IN' only (delegates voice selection to Android).</div>
+          </div>
+          <button class="btn btn-warning btn-sm" onclick="runTestC()">Run Test C 🇮🇳</button>
+        </div>
+
+        <!-- Test 4: Hindi Text with lang='hi_IN' (Android Native Tag) -->
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px;">
+          <div>
+            <div style="font-size:13px; font-weight:700;">Test D: Hindi Text (lang='hi_IN' Underscore Format)</div>
+            <div style="font-size:11px; color:var(--text-muted);">Android's internal Google TTS locale tag is often hi_IN instead of BCP-47 hi-IN.</div>
+          </div>
+          <button class="btn btn-warning btn-sm" onclick="runTestD()">Run Test D 🇮🇳</button>
+        </div>
+
+        <!-- Test 5: Hindi Text with Explicit Voice Object -->
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px;">
+          <div>
+            <div style="font-size:13px; font-weight:700;">Test E: Hindi Text with Explicit Hindi Voice Binding</div>
+            <div style="font-size:11px; color:var(--text-muted);">Assigns u.voice = first Hindi voice, syncs u.lang = voice.lang, speaks "नमस्ते, मैं हिंदी बोल सकता हूँ".</div>
+          </div>
+          <button class="btn btn-success btn-sm" onclick="runTestE()">Run Test E 🌟</button>
+        </div>
+
+        <!-- Test 6: Teacher vs Monkey Persona Modulation -->
+        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px;">
+          <div>
+            <div style="font-size:13px; font-weight:700;">Test F: Rasari Persona Presets (Teacher &amp; Monkey)</div>
+            <div style="font-size:11px; color:var(--text-muted);">Teacher: pitch 1.05, rate 0.84 | Monkey: pitch 1.25, rate 0.95.</div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-primary btn-sm" onclick="runTestF('teacher')">👩‍🏫 Teacher</button>
+            <button class="btn btn-warning btn-sm" onclick="runTestF('monkey')">🐒 Monkey</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Section 3: Installed Hindi Voices Deep Inspection -->
+    <div class="card">
+      <div class="card-title">
+        <span>Step 3: Installed Hindi Voices on this Device</span>
+        <button class="btn btn-outline btn-sm" onclick="scanVoices()">Scan Again</button>
+      </div>
+      <div id="hindiVoiceContainer">
+        <div style="font-size:12px; color:var(--text-muted); font-style:italic;">Scanning voices...</div>
+      </div>
+    </div>
+
+    <!-- Section 4: Live Speech Playground & Tuning Studio -->
+    <div class="card">
+      <div class="card-title">
+        <span>Step 4: Interactive Speech Playground &amp; Parameter Tuning</span>
+        <span class="badge badge-green">Live Custom</span>
+      </div>
+
+      <div class="control-row">
+        <div class="control-label">Target Voice:</div>
+        <select id="playgroundVoiceSelect" style="flex:1; min-width:200px;">
+          <option value="auto">Auto (Best Hindi Voice)</option>
+          <option value="none">None (OS Engine Default)</option>
+        </select>
+      </div>
+
+      <div class="control-row">
+        <div class="control-label">Text to speak:</div>
+        <input type="text" id="playgroundTextInput" value="कमल वाला का" style="flex:1; min-width:200px;" />
+        <button class="btn btn-primary" onclick="speakPlayground()">🗣 Speak Text</button>
+      </div>
+
+      <div class="control-row" style="margin-bottom:8px;">
+        <div class="control-label">Quick Phrases:</div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+          <span class="chip" onclick="setPlaygroundText('क')">क</span>
+          <span class="chip" onclick="setPlaygroundText('कमल वाला का')">कमल वाला का</span>
+          <span class="chip" onclick="setPlaygroundText('अनार वाला अ')">अनार वाला अ</span>
+          <span class="chip" onclick="setPlaygroundText('डमरू वाला डा')">डमरू वाला डा</span>
+          <span class="chip" onclick="setPlaygroundText('शाबाश, बहुत अच्छा!')">शाबाश, बहुत अच्छा!</span>
+          <span class="chip" onclick="setPlaygroundText('नमस्ते, चलो अभ्यास करें!')">नमस्ते, चलो अभ्यास करें!</span>
+          <span class="chip" onclick="setPlaygroundText('अरे वाह, शाबाश!')">अरे वाह, शाबाश!</span>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-top:12px;">
+        <div>
+          <label style="font-size:11px; font-weight:700; color:var(--text-muted);">Pitch: <span id="pitchVal">1.05</span></label>
+          <input type="range" id="pitchSlider" min="0.5" max="2.0" step="0.05" value="1.05" style="width:100%; margin-top:4px;" oninput="document.getElementById('pitchVal').textContent = this.value" />
+        </div>
+        <div>
+          <label style="font-size:11px; font-weight:700; color:var(--text-muted);">Rate (Speed): <span id="rateVal">0.84</span></label>
+          <input type="range" id="rateSlider" min="0.5" max="2.0" step="0.05" value="0.84" style="width:100%; margin-top:4px;" oninput="document.getElementById('rateVal').textContent = this.value" />
+        </div>
+        <div>
+          <label style="font-size:11px; font-weight:700; color:var(--text-muted);">Cancel Queue Strategy:</label>
+          <select id="queueStrategy" style="width:100%; margin-top:4px;">
+            <option value="safe" selected>Safe (Speak directly, no cancel)</option>
+            <option value="debounce">Debounced (Cancel + 60ms delay)</option>
+            <option value="immediate">Immediate (Cancel + Synchronous speak)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="forceCancel()">🛑 Force Cancel Synthesis</button>
+        <button class="btn btn-outline btn-sm" onclick="forceResume()">▶ Force Resume Synthesis</button>
+      </div>
+    </div>
+
+    <!-- Section 5: Real-time Event Logger Console -->
+    <div class="card">
+      <div class="card-title">
+        <span>Real-Time Event &amp; Diagnostics Logger</span>
+        <span id="logCounter" style="font-size:11px; color:var(--text-muted);">0 events</span>
+      </div>
+      <div id="diagLogBox" class="log-box"></div>
+    </div>
+
+    <!-- Section 6: Android System Troubleshooting Guide -->
+    <div class="card" style="border-color:#475569;">
+      <div class="card-title" style="color:#cbd5e1;">
+        <span>Android System Settings Quick Guide</span>
+      </div>
+      <div style="font-size:12px; line-height:1.6; color:#94a3b8;">
+        <p>If all speech synthesis throws <code>synthesis-failed</code> within 10ms on an Android tablet:</p>
+        <ol style="margin-left:18px; margin-top:6px;">
+          <li>Open tablet <strong>Settings ⚙️ &gt; Accessibility &gt; Text-to-speech output</strong>.</li>
+          <li>Tap <strong>"Listen to an example"</strong>. If it is silent, Android's speech service is stopped.</li>
+          <li>Tap ⚙️ next to Preferred Engine (Speech Services by Google) &gt; <strong>Install voice data &gt; Hindi</strong>. Make sure it is downloaded.</li>
+          <li>If it still fails, go to <strong>Settings &gt; Apps &gt; Speech Services by Google &gt; Storage &gt; Clear Cache</strong>, then restart Chrome.</li>
+        </ol>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- Global State ---
+    let systemVoices = [];
+    let hindiVoices = [];
+    let logCount = 0;
+    let activeUtterance = null;
+    window._retainedUtterances = [];
+
+    // --- Logging Utility ---
+    function log(msg, type = 'info') {
+      const box = document.getElementById('diagLogBox');
+      if (!box) return;
+      logCount++;
+      const counter = document.getElementById('logCounter');
+      if (counter) counter.textContent = `${logCount} events`;
+
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}.${String(now.getMilliseconds()).padStart(3,'0')}`;
+      
+      const div = document.createElement('div');
+      div.className = `log-entry log-${type}`;
+      div.textContent = `[${timeStr}] ${msg}`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function clearLogs() {
+      const box = document.getElementById('diagLogBox');
+      if (box) box.innerHTML = '';
+      logCount = 0;
+      const counter = document.getElementById('logCounter');
+      if (counter) counter.textContent = '0 events';
+      log('Diagnostic console cleared.');
+    }
+
+    // --- Origin & Protocol Inspector ---
+    function inspectOrigin() {
+      const banner = document.getElementById('originBanner');
+      const isHttps = window.location.protocol === 'https:';
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
+      if (isHttps) {
+        banner.className = 'alert alert-info';
+        banner.innerHTML = `🔒 <strong>Secure HTTPS Origin (${window.location.origin})</strong>: Android Web Speech API has full access permissions.`;
+      } else if (isLocalhost) {
+        banner.className = 'alert alert-info';
+        banner.innerHTML = `💻 <strong>Localhost Origin (${window.location.host})</strong>: Chromium treats localhost as secure.`;
+      } else {
+        banner.className = 'alert alert-warn';
+        banner.innerHTML = `⚠️ <strong>Insecure LAN HTTP (${window.location.host})</strong>: Android Chrome blocks Web Speech on non-localhost HTTP.<br />If speech fails, test over HTTPS on GitHub Pages: <a href="https://iitkgpvivek.github.io/rasari-hindi-pwa/review2.html" style="color:#38bdf8; font-weight:bold; text-decoration:underline;">Open HTTPS review2.html ↗</a>`;
+        log(`Warning: Accessing via non-localhost HTTP (${window.location.origin}). Chrome on Android often rejects SpeechSynthesis on insecure origins.`, 'warn');
+      }
+    }
+
+    // --- Audio Hardware Verification (AudioContext & HTML5 Audio) ---
+    let audioCtx = null;
+    function testAudioContextBeep() {
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+          log('❌ Web Audio API (AudioContext) not supported in this browser!', 'error');
+          return;
+        }
+        if (!audioCtx) audioCtx = new AudioContextClass();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        log(`🔊 Generating 440Hz Web Audio sine beep... (AudioContext state: ${audioCtx.state})`);
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime); // Concert A
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+
+        document.getElementById('audioHardwareStatus').textContent = `AudioContext: Running (${audioCtx.sampleRate}Hz). Did you hear the 440Hz beep? If not, check tablet media volume!`;
+        log('🟢 Web Audio beep triggered successfully.', 'success');
+      } catch(e) {
+        log(`❌ AudioContext error: ${e.message}`, 'error');
+      }
+    }
+
+    function testPreRecordedAudio() {
+      log('🎵 Playing pre-recorded star audio (audio/snd_star.mp3)...');
+      try {
+        const a = new Audio('audio/snd_star.mp3');
+        a.onplay = () => log('🟢 Pre-recorded audio playback started!', 'success');
+        a.onerror = (e) => log(`❌ Pre-recorded audio error: ${e.target.error ? e.target.error.code : 'unknown'}`, 'error');
+        a.play().catch(err => log(`⚠️ Audio.play() rejected (autoplay policy): ${err.message}`, 'warn'));
+      } catch(e) {
+        log(`❌ Audio creation error: ${e.message}`, 'error');
+      }
+    }
+
+    function testSilentUnlock() {
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!audioCtx && AudioContextClass) audioCtx = new AudioContextClass();
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().then(() => {
+            log(`🔓 AudioContext resumed on user gesture! State: ${audioCtx.state}`, 'success');
+            document.getElementById('audioHardwareStatus').textContent = `AudioContext state: ${audioCtx.state}`;
+          });
+        } else {
+          log(`ℹ️ AudioContext state: ${audioCtx ? audioCtx.state : 'none'}`);
+        }
+      } catch(e) {
+        log(`Unlock error: ${e.message}`, 'error');
+      }
+    }
+
+    // --- Voice Discovery & Inspection ---
+    function scanVoices() {
+      if (!('speechSynthesis' in window)) {
+        document.getElementById('statSupport').textContent = '❌ Unsupported';
+        document.getElementById('statSupport').className = 'stat-val text-danger';
+        log('❌ window.speechSynthesis NOT supported in this browser.', 'error');
+        return;
+      }
+      document.getElementById('statSupport').textContent = '✅ Supported';
+      document.getElementById('statSupport').className = 'stat-val text-success';
+
+      const voices = window.speechSynthesis.getVoices() || [];
+      systemVoices = voices;
+      document.getElementById('statTotalVoices').textContent = voices.length;
+
+      // Filter Hindi
+      hindiVoices = voices.filter(v => {
+        const l = (v.lang || '').toLowerCase().replace('_', '-');
+        const n = (v.name || '').toLowerCase();
+        return l.startsWith('hi') || l.startsWith('hin') || n.includes('hindi') || n.includes('हिन्दी');
+      });
+
+      document.getElementById('statHindiVoices').textContent = hindiVoices.length;
+      if (hindiVoices.length > 0) {
+        document.getElementById('statHindiVoices').className = 'stat-val text-success';
+      }
+
+      log(`🎙️ Voices Scanned: Total=${voices.length}, Hindi=${hindiVoices.length}`);
+
+      renderHindiVoicesList();
+      populatePlaygroundVoices();
+    }
+
+    function renderHindiVoicesList() {
+      const container = document.getElementById('hindiVoiceContainer');
+      if (!container) return;
+
+      if (hindiVoices.length === 0) {
+        container.innerHTML = `
+          <div class="alert alert-warn" style="margin-bottom:0;">
+            ⚠️ <strong>No Hindi voices detected yet!</strong><br />
+            To install Hindi speech on Android: Open <strong>Settings ⚙️ &gt; Accessibility &gt; Text-to-speech output &gt; Preferred engine ⚙️ &gt; Install voice data &gt; Hindi</strong>.
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      hindiVoices.forEach((v, idx) => {
+        html += `
+          <div class="voice-item">
+            <div>
+              <div class="voice-meta">🇮🇳 ${v.name} ${v.default ? '<span class="badge badge-green">Default</span>' : ''}</div>
+              <div class="voice-sub">Locale: <strong>${v.lang}</strong> | URI: ${v.voiceURI || 'N/A'} | Local: ${v.localService ? 'Yes' : 'Cloud'}</div>
+            </div>
+            <button class="btn btn-success btn-sm" onclick="speakWithExplicitVoice(${idx})">
+              🗣 Test This Voice
+            </button>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function populatePlaygroundVoices() {
+      const sel = document.getElementById('playgroundVoiceSelect');
+      if (!sel) return;
+      const currentVal = sel.value;
+
+      sel.innerHTML = `
+        <option value="auto">Auto (Best Hindi Voice)</option>
+        <option value="none">None (OS Engine Default)</option>
+      `;
+
+      if (hindiVoices.length > 0) {
+        const grpHi = document.createElement('optgroup');
+        grpHi.label = '🇮🇳 Detected Hindi Voices';
+        hindiVoices.forEach((v, i) => {
+          const opt = document.createElement('option');
+          opt.value = `hi_${i}`;
+          opt.textContent = `${v.name} (${v.lang})`;
+          grpHi.appendChild(opt);
+        });
+        sel.appendChild(grpHi);
+      }
+
+      if (systemVoices.length > 0) {
+        const grpAll = document.createElement('optgroup');
+        grpAll.label = `🌐 All Voices (${systemVoices.length})`;
+        systemVoices.forEach((v, i) => {
+          const opt = document.createElement('option');
+          opt.value = `all_${i}`;
+          opt.textContent = `${v.name} (${v.lang})`;
+          grpAll.appendChild(opt);
+        });
+        sel.appendChild(grpAll);
+      }
+
+      if (currentVal) sel.value = currentVal;
+    }
+
+    function speakWithExplicitVoice(idx) {
+      const v = hindiVoices[idx];
+      if (!v) return;
+      log(`🎯 Testing explicit Hindi voice: "${v.name}" (${v.lang})`);
+      dispatchSpeechUtterance("नमस्ते, मैं हिंदी बोल सकता हूँ", {
+        voice: v,
+        lang: v.lang,
+        pitch: 1.0,
+        rate: 0.9
+      });
+    }
+
+    // --- Core Utterance Execution Pipeline ---
+    function dispatchSpeechUtterance(text, options = {}) {
+      if (!('speechSynthesis' in window)) {
+        log('❌ SpeechSynthesis not supported!', 'error');
+        return;
+      }
+
+      if (window.speechSynthesis.paused) {
+        log('ℹ️ speechSynthesis was paused, calling resume()...');
+        window.speechSynthesis.resume();
+      }
+
+      const u = new SpeechSynthesisUtterance(text);
+      if (options.lang) u.lang = options.lang;
+      if (options.voice) {
+        u.voice = options.voice;
+        // Keep lang synchronized with voice locale on Android
+        if (!options.lang) u.lang = options.voice.lang;
+      }
+      u.pitch = options.pitch !== undefined ? options.pitch : 1.0;
+      u.rate = options.rate !== undefined ? options.rate : 1.0;
+      u.volume = options.volume !== undefined ? options.volume : 1.0;
+
+      // Keep strong reference in memory to protect against V8 garbage collection bug
+      activeUtterance = u;
+      window._retainedUtterances.push(u);
+
+      const startTime = performance.now();
+      log(`🚀 [Dispatch] "${text}" | lang="${u.lang || 'default'}" | voice="${u.voice ? u.voice.name : 'none'}" | pitch=${u.pitch} | rate=${u.rate}`);
+
+      u.onstart = () => {
+        const elapsed = (performance.now() - startTime).toFixed(1);
+        log(`🟢 [onstart] Audio playback STARTED! (${elapsed}ms elapsed)`, 'success');
+        document.getElementById('statTtsState').textContent = 'Speaking 🔊';
+        document.getElementById('statTtsState').style.color = '#34d399';
+      };
+
+      u.onend = () => {
+        const elapsed = (performance.now() - startTime).toFixed(1);
+        log(`🏁 [onend] Playback FINISHED successfully. (${elapsed}ms total)`, 'success');
+        document.getElementById('statTtsState').textContent = 'Idle';
+        document.getElementById('statTtsState').style.color = '#a78bfa';
+        cleanupUtterance(u);
+      };
+
+      u.onerror = (e) => {
+        const elapsed = (performance.now() - startTime).toFixed(1);
+        log(`❌ [onerror] FAILED with error="${e.error}" (${elapsed}ms elapsed)`, 'error');
+        document.getElementById('statTtsState').textContent = `Error: ${e.error}`;
+        document.getElementById('statTtsState').style.color = '#f87171';
+        cleanupUtterance(u);
+      };
+
+      u.onpause = () => log('⏸️ [onpause] Speech paused.');
+      u.onresume = () => log('▶️ [onresume] Speech resumed.');
+
+      // Queue strategy selection
+      const strategy = options.strategy || (document.getElementById('queueStrategy') ? document.getElementById('queueStrategy').value : 'safe');
+
+      if (strategy === 'immediate') {
+        log('⚡ Strategy: Immediate cancel() + speak()');
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+      } else if (strategy === 'debounce') {
+        log('⏱️ Strategy: Debounced (cancel() + 60ms delay + speak())');
+        window.speechSynthesis.cancel();
+        setTimeout(() => {
+          window.speechSynthesis.speak(u);
+        }, 60);
+      } else {
+        // Safe: Direct speak without cancel to avoid Android IPC queue freeze
+        if (window.speechSynthesis.speaking) {
+          log('ℹ️ Already speaking: canceling active utterance before queueing new...');
+          window.speechSynthesis.cancel();
+          setTimeout(() => { window.speechSynthesis.speak(u); }, 40);
+        } else {
+          window.speechSynthesis.speak(u);
+        }
+      }
+    }
+
+    function cleanupUtterance(u) {
+      if (activeUtterance === u) activeUtterance = null;
+      const idx = window._retainedUtterances.indexOf(u);
+      if (idx > -1) window._retainedUtterances.splice(idx, 1);
+    }
+
+    // --- First-Principles Test Suite ---
+    function runTestA() {
+      log('--- Running Test A: Pure Raw Utterance (Zero overrides) ---');
+      dispatchSpeechUtterance("Testing speech", { strategy: 'safe' });
+    }
+
+    function runTestB() {
+      log('--- Running Test B: English with Matched Voice ---');
+      const enVoice = systemVoices.find(v => (v.lang || '').toLowerCase().startsWith('en'));
+      if (enVoice) {
+        log(`Matched English Voice: "${enVoice.name}" (lang="${enVoice.lang}")`);
+        dispatchSpeechUtterance("Hello tablet, this is a speech test.", {
+          voice: enVoice,
+          lang: enVoice.lang
+        });
+      } else {
+        dispatchSpeechUtterance("Hello tablet, this is a speech test.", { lang: 'en-US' });
+      }
+    }
+
+    function runTestC() {
+      log('--- Running Test C: Hindi Text (lang="hi-IN", No Voice Object) ---');
+      dispatchSpeechUtterance("नमस्ते", { lang: 'hi-IN' });
+    }
+
+    function runTestD() {
+      log('--- Running Test D: Hindi Text (lang="hi_IN" Underscore) ---');
+      dispatchSpeechUtterance("नमस्ते", { lang: 'hi_IN' });
+    }
+
+    function runTestE() {
+      log('--- Running Test E: Hindi Text with Explicit Hindi Voice ---');
+      if (hindiVoices.length > 0) {
+        const v = hindiVoices[0];
+        log(`Using first detected Hindi voice: "${v.name}" (${v.lang})`);
+        dispatchSpeechUtterance("नमस्ते, मैं हिंदी बोल सकता हूँ", {
+          voice: v,
+          lang: v.lang
+        });
+      } else {
+        log('⚠️ No Hindi voice in array, running with lang="hi-IN"...', 'warn');
+        dispatchSpeechUtterance("नमस्ते, मैं हिंदी बोल सकता हूँ", { lang: 'hi-IN' });
+      }
+    }
+
+    function runTestF(persona) {
+      log(`--- Running Test F: Persona "${persona}" ---`);
+      const isMonkey = (persona === 'monkey');
+      const text = isMonkey ? "अरे वाह! शाबाश, चलो लिखते हैं!" : "नमस्ते, चलो अभ्यास करें!";
+      const pitch = isMonkey ? 1.25 : 1.05;
+      const rate = isMonkey ? 0.95 : 0.84;
+
+      let v = null;
+      if (hindiVoices.length > 0) {
+        const pref = isMonkey ? ['hie', 'hic', 'madhur', 'male'] : ['swara', 'lekha', 'kavya', 'female'];
+        for (const p of pref) {
+          v = hindiVoices.find(h => h.name.toLowerCase().includes(p));
+          if (v) break;
+        }
+        if (!v) v = hindiVoices[0];
+      }
+
+      dispatchSpeechUtterance(text, {
+        voice: v,
+        lang: v ? v.lang : 'hi-IN',
+        pitch: pitch,
+        rate: rate
+      });
+    }
+
+    // --- Playground Controls ---
+    function setPlaygroundText(t) {
+      const input = document.getElementById('playgroundTextInput');
+      if (input) input.value = t;
+    }
+
+    function speakPlayground() {
+      const text = (document.getElementById('playgroundTextInput').value || '').trim() || 'कमल वाला का';
+      const selVal = document.getElementById('playgroundVoiceSelect').value;
+      const pitch = parseFloat(document.getElementById('pitchSlider').value) || 1.0;
+      const rate = parseFloat(document.getElementById('rateSlider').value) || 1.0;
+
+      let selectedVoice = null;
+      let targetLang = 'hi-IN';
+
+      if (selVal === 'auto') {
+        selectedVoice = hindiVoices.length > 0 ? hindiVoices[0] : null;
+        if (selectedVoice) targetLang = selectedVoice.lang;
+      } else if (selVal.startsWith('hi_')) {
+        const idx = parseInt(selVal.split('_')[1], 10);
+        selectedVoice = hindiVoices[idx] || null;
+        if (selectedVoice) targetLang = selectedVoice.lang;
+      } else if (selVal.startsWith('all_')) {
+        const idx = parseInt(selVal.split('_')[1], 10);
+        selectedVoice = systemVoices[idx] || null;
+        if (selectedVoice) targetLang = selectedVoice.lang;
+      }
+
+      dispatchSpeechUtterance(text, {
+        voice: selectedVoice,
+        lang: targetLang,
+        pitch: pitch,
+        rate: rate
+      });
+    }
+
+    function forceCancel() {
+      log('🛑 Force calling window.speechSynthesis.cancel()...');
+      window.speechSynthesis.cancel();
+      document.getElementById('statTtsState').textContent = 'Canceled';
+      document.getElementById('statTtsState').style.color = '#f87171';
+    }
+
+    function forceResume() {
+      log('▶ Force calling window.speechSynthesis.resume()...');
+      window.speechSynthesis.resume();
+      document.getElementById('statTtsState').textContent = 'Resumed';
+    }
+
+    // --- Initialization ---
+    window.addEventListener('DOMContentLoaded', () => {
+      inspectOrigin();
+      log('🔬 Diagnostic Lab initialized.');
+      scanVoices();
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          log('📢 window.speechSynthesis.onvoiceschanged event received!');
+          scanVoices();
+        };
+      }
+    });
+
+    // Touch gesture unlock
+    window.addEventListener('pointerdown', () => {
+      if ('speechSynthesis' in window && window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    }, { passive: true });
+  </script>
+</body>
+</html>

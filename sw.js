@@ -1,9 +1,10 @@
-const APP_VERSION = '3.3.3';
+const APP_VERSION = '3.3.4';
 const CACHE = `rasari-hindi-v${APP_VERSION}`;
 const ASSETS = [
   './',
   './index.html',
   './review.html',
+  './review2.html',
   './audio_samples/anaar_wala_a.m4a',
   './audio_samples/anaar_wala_aa.m4a',
   './audio_samples/a_se_anaar.m4a',
