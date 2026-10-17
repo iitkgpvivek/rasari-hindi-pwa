@@ -346,7 +346,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <button class="prev-btn" id="prevBtn">Previous</button>
 <button class="bottombtn done" id="done">✍️ Let's write</button>
 <button class="next-btn" id="nextBtn">Next</button>
-<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.4</div>
+<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.5</div>
 
 <div class="modal" id="modal">
   <div class="dialog">
@@ -2474,9 +2474,13 @@ function updateMainCta() {
 }
 
 let apertureCompletedTarget = null;
+let apertureCompletedMetrics = null;
+let apertureUnitResults = [];
 
 function clearPad() {
   apertureCompletedTarget = null;
+  apertureCompletedMetrics = null;
+  apertureUnitResults = [];
   userStrokes = [];
   drawing = false;
   currentStroke = null;
@@ -3493,23 +3497,25 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
   const ux = uc.getContext('2d');
   ux.fillStyle = '#000'; ux.fillRect(0, 0, S, S);
   ux.strokeStyle = '#fff';
-  ux.fillStyle = '#fff';
-  const offscreenBw = Math.max(7, Math.round(tRuling.brushWidth * (S / h)));
+  const scale = S / h;
+  const offscreenBw = Math.max(6, Math.round(tRuling.brushWidth));
   ux.lineWidth = offscreenBw;
   ux.lineCap = 'round'; ux.lineJoin = 'round';
 
-  const scaleX = S / ww, scaleY = S / h;
+  const mapX = (x) => (S / 2) + ((x - strokeOffset) - (ww / 2)) * scale;
+  const mapY = (y) => y * scale;
+
   strokesToEval.forEach(str => {
     if (!str || !str.length) return;
     if (str.length === 1) {
       ux.beginPath();
-      ux.arc((str[0].x - strokeOffset) * scaleX, str[0].y * scaleY, offscreenBw / 2, 0, Math.PI * 2);
+      ux.arc(mapX(str[0].x), mapY(str[0].y), offscreenBw / 2, 0, Math.PI * 2);
       ux.fill();
     } else {
       ux.beginPath();
-      ux.moveTo((str[0].x - strokeOffset) * scaleX, str[0].y * scaleY);
+      ux.moveTo(mapX(str[0].x), mapY(str[0].y));
       for (let i = 1; i < str.length; i++) {
-        ux.lineTo((str[i].x - strokeOffset) * scaleX, str[i].y * scaleY);
+        ux.lineTo(mapX(str[i].x), mapY(str[i].y));
       }
       ux.stroke();
     }
@@ -3541,7 +3547,7 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
   const precision = uPixels > 0 ? (matched / uPixels) : 0;
   const union = (tPixels + uPixels - matched);
   const iou = union > 0 ? (matched / union) : 0;
-  const strokeRedundancy = (userLength * scaleX * offscreenBw) / Math.max(1, uPixels);
+  const strokeRedundancy = (userLength * scale * offscreenBw) / Math.max(1, uPixels);
 
   // Common Anti-Scribble Checks
   if (uPixels > tPixels * 1.65) {
@@ -3550,7 +3556,7 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
   if (precision < 0.35 && activeTier < 2) {
     return { score: Math.round(precision * 35), pass: false, reason: 'scribble', coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
   }
-  if (directionReversals > 10) {
+  if (directionReversals > 16) {
     return { score: 15, pass: false, reason: 'scribble', coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
   }
   if (strokeRedundancy > 2.2) {
@@ -3688,46 +3694,45 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
   const isTier0 = activeTier === 0;
   const minCoverage = isTier0 ? 0.54 : 0.44;
   const minPrecision = isTier0 ? 0.46 : 0.38;
-  const minIoU = isTier0 ? 0.28 : 0.24;
-  const maxSpillRatio = isTier0 ? 0.52 : 0.65;
+  const minIoU = isTier0 ? 0.24 : 0.20;
+  const maxSpillRatio = isTier0 ? 0.65 : 0.78;
 
   let structurePenalty = 0;
   if (targetHasTopBar && !userHasTopBar) {
-    structurePenalty = isTier0 ? 25 : 18;
+    structurePenalty = isTier0 ? 20 : 14;
   }
 
   let spillPenalty = 0;
-  if (spillRatio > 0.45) {
-    spillPenalty = Math.min(25, Math.round((spillRatio - 0.45) * 40));
+  if (spillRatio > 0.55) {
+    spillPenalty = Math.min(20, Math.round((spillRatio - 0.55) * 35));
   }
 
-  let formScore = Math.min(20, Math.round((iou / 0.60) * 20));
+  let formScore = Math.min(20, Math.round((iou / 0.50) * 20));
   if (targetHasTopBar) {
     formScore += userHasTopBar ? 15 : -structurePenalty;
   } else {
     formScore += 15;
   }
 
-  let coverageScore = Math.min(35, Math.round((coverage / 0.85) * 35));
-  let neatnessScore = Math.min(30, Math.round((precision / 0.85) * 30)) - spillPenalty;
-  if (strokeRedundancy > 1.6) {
-    neatnessScore -= Math.min(15, Math.round((strokeRedundancy - 1.6) * 20));
+  let coverageScore = Math.min(35, Math.round((coverage / 0.80) * 35));
+  let neatnessScore = Math.min(30, Math.round((precision / 0.80) * 30)) - spillPenalty;
+  if (strokeRedundancy > 1.8) {
+    neatnessScore -= Math.min(15, Math.round((strokeRedundancy - 1.8) * 20));
   }
 
   let score = Math.max(0, Math.min(100, formScore + coverageScore + neatnessScore));
 
-  const tracePass = score >= 55 &&
-                    coverage >= minCoverage &&
-                    precision >= minPrecision &&
+  const tracePass = score >= 50 &&
+                    coverage >= (minCoverage * 0.88) &&
+                    precision >= (minPrecision * 0.88) &&
                     iou >= minIoU &&
-                    spillRatio <= maxSpillRatio &&
-                    (!targetHasTopBar || userHasTopBar);
+                    spillRatio <= maxSpillRatio;
 
   let failReason = 'ok';
   if (!tracePass) {
-    if (precision < 0.35 || uPixels > tPixels * 1.65 || directionReversals > 10 || strokeRedundancy > 2.2) {
+    if (precision < 0.35 || uPixels > tPixels * 1.65 || directionReversals > 16 || strokeRedundancy > 2.2) {
       failReason = 'scribble';
-    } else if (precision < minPrecision || spillRatio > maxSpillRatio) {
+    } else if (precision < minPrecision * 0.88 || spillRatio > maxSpillRatio) {
       failReason = 'inaccurate_trace';
     } else {
       failReason = 'sloppy';
@@ -3764,9 +3769,12 @@ $('done').onclick = e => {
   }
 
   const targetText = getTargetText();
-  const isApertureDone = (apertureCompletedTarget === targetText);
-  if (isApertureDone) apertureCompletedTarget = null;
-  const result = isApertureDone ? { score: 90, pass: true, reason: 'ok' } : evaluateHandwriting(targetText);
+  const isApertureDone = (apertureCompletedTarget === targetText && apertureCompletedMetrics);
+  const result = isApertureDone ? apertureCompletedMetrics : evaluateHandwriting(targetText);
+  if (isApertureDone) {
+    apertureCompletedTarget = null;
+    apertureCompletedMetrics = null;
+  }
 
   if (!result.pass) {
     w.classList.add('shake');
@@ -4464,6 +4472,8 @@ function openApertureMode() {
   writeModeActive = true;
   isApertureMode = true;
   currentUnitIndex = 0; // ALWAYS starts at the FIRST letter!
+  apertureUnitResults = [];
+  apertureCompletedMetrics = null;
   localStorage.setItem('rasari_write_mode', 'true');
   updateWriteModeBtn();
 
@@ -4611,6 +4621,8 @@ function handleApertureDone() {
   }
 
   // Passed this unit!
+  apertureUnitResults.push(result);
+
   if (currentUnitIndex < currentPracticeUnits.length - 1) {
     currentUnitIndex++;
     updateApertureView();
@@ -4623,6 +4635,17 @@ function handleApertureDone() {
     // All units of this word complete!
     // Exit Write Mode and bring child back to the main page to see and read their complete writing!
     apertureCompletedTarget = getTargetText();
+    const count = Math.max(1, apertureUnitResults.length);
+    const avgScore = Math.round(apertureUnitResults.reduce((sum, r) => sum + (r.score || 85), 0) / count);
+    const avgForm = Math.round(apertureUnitResults.reduce((sum, r) => sum + (r.form !== undefined ? r.form : 85), 0) / count);
+    const avgNeatness = Math.round(apertureUnitResults.reduce((sum, r) => sum + (r.neatness !== undefined ? r.neatness : 85), 0) / count);
+    apertureCompletedMetrics = {
+      score: avgScore,
+      form: avgForm,
+      neatness: avgNeatness,
+      pass: true,
+      reason: 'ok'
+    };
     closeApertureMode(false);
     mainCtaState = 'done';
     updateMainCta();
