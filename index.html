@@ -3683,6 +3683,25 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
     }
   }
 
+  // Structural check: 'म' vs 'न' (presence of left vertical stem above the loop)
+  if (expectedChar === 'म' || expectedChar === 'न') {
+    let leftStemInk = 0;
+    const xMin = Math.round(normW * 0.20);
+    const xMax = Math.round(normW * 0.36);
+    const yMin = Math.round(normH * 0.18);
+    const yMax = Math.round(normH * 0.44);
+    for (let y = yMin; y <= yMax; y++) {
+      for (let x = xMin; x <= xMax; x++) {
+        if (uData[(y * normW + x) * 4] > 80) leftStemInk++;
+      }
+    }
+    if (expectedChar === 'म' && leftStemInk < 5) {
+      bestCand = 'न'; // Missing left vertical stem: child drew 'न', not 'म'!
+    } else if (expectedChar === 'न' && leftStemInk > 14) {
+      bestCand = 'म'; // Has left vertical stem: child drew 'म', not 'न'!
+    }
+  }
+
   let topBarInk = 0;
   const topBarYEnd = Math.round(normH * 0.25);
   for (let y = 0; y <= topBarYEnd; y++) {
@@ -3713,12 +3732,9 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
   if (bestCand === expectedChar) {
     isMatch = true;
   } else if (isConfusion) {
-    // For a lookalike confusion competitor (e.g. 'प' for 'ष', 'म' for 'न', 'अमार' for 'अनार')
-    // to beat the target word, it MUST be decisively better (by at least 6%).
-    // In human handwriting, sub-pixel font rasterization differences of 1-3% (e.g. 74% vs 71%)
-    // must NEVER reject a correctly written target word!
-    const isDecisivelyBetter = (bestSim > expectedSim * 1.06) && (bestSim - expectedSim > 0.035);
-    isMatch = !isDecisivelyBetter;
+    // If it is a known lookalike confusion (e.g. 'प' for 'ष', 'न' for 'म', 'म' for 'न', 'अमार' for 'अनार'):
+    // If it scored higher than expected, it's an immediate mismatch!
+    isMatch = (expectedSim > bestSim);
   } else {
     // If unrelated candidate, accept if expected is within 10% of best (tolerating font vs hand curves)
     isMatch = (expectedSim >= bestSim * 0.90);

@@ -677,6 +677,7 @@ test('Visual OCR Inspector UI & Topological Discriminators (\'ष\' vs \'प\', 
   // 3. Topological Discriminators
   assert(scriptContent.includes("expectedChar === 'ष' || expectedChar === 'प'"), "'ष' vs 'प' discriminator must exist");
   assert(scriptContent.includes("expectedChar === 'अ' || expectedChar === 'आ'"), "'अ' vs 'उ' discriminator must exist");
+  assert(scriptContent.includes("expectedChar === 'म' || expectedChar === 'न'"), "'म' vs 'न' discriminator must exist");
 });
 
 console.log('\n----------------------------------------------------');
