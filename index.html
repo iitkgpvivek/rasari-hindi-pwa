@@ -3212,7 +3212,8 @@ const DEVANAGARI_CONFUSIONS = {
   'स': ['र', 'म', 'ख'],
   'ट': ['ठ', 'ढ', 'द', 'ड', 'र'],
   'ठ': ['ट', 'ढ', 'द', 'व'],
-  'ड': ['ङ', 'इ', 'ई', 'झ', 'ट', 'द'],
+  'ड': ['ड़', 'ङ', 'इ', 'ई', 'झ', 'ट', 'द'],
+  'ड़': ['ड', 'ढ', 'र', 'द', 'ट'],
   'ढ': ['ट', 'ठ', 'द', 'व'],
   'द': ['ढ', 'ट', 'ठ', 'र', 'व'],
   'घ': ['ध', 'छ', 'प'],
@@ -3337,6 +3338,7 @@ function extractDevanagariFeatures(data, S = 64, H = null) {
 }
 
 function getOcrCandidates(expectedUnit) {
+  expectedUnit = (expectedUnit || '').normalize('NFC');
   const seg = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter('hi', { granularity: 'grapheme' }) : null;
   const units = seg ? Array.from(seg.segment(expectedUnit), s => s.segment) : [expectedUnit];
 
@@ -3345,7 +3347,8 @@ function getOcrCandidates(expectedUnit) {
   if (units.length <= 1) {
     const confusions = DEVANAGARI_CONFUSIONS[expectedUnit] || [];
     confusions.forEach(c => {
-      if (!candidates.includes(c)) candidates.push(c);
+      const normC = c.normalize('NFC');
+      if (!candidates.includes(normC)) candidates.push(normC);
     });
 
     const matras = expectedUnit.match(/[\u093e-\u094c\u0902\u0903\u094d]/g) || [];
@@ -3353,15 +3356,17 @@ function getOcrCandidates(expectedUnit) {
 
     if (matraSuffix) {
       DEVANAGARI_CONSONANTS.forEach(c => {
-        const combo = c + matraSuffix;
+        const combo = (c + matraSuffix).normalize('NFC');
         if (!candidates.includes(combo)) candidates.push(combo);
       });
     }
     DEVANAGARI_CONSONANTS.forEach(c => {
-      if (!candidates.includes(c)) candidates.push(c);
+      const normC = c.normalize('NFC');
+      if (!candidates.includes(normC)) candidates.push(normC);
     });
     DEVANAGARI_VOWELS.forEach(v => {
-      if (!candidates.includes(v)) candidates.push(v);
+      const normV = v.normalize('NFC');
+      if (!candidates.includes(normV)) candidates.push(normV);
     });
     return candidates;
   }
@@ -3369,24 +3374,30 @@ function getOcrCandidates(expectedUnit) {
   // Multi-Akshara Word Candidates:
   // 1. Single akshara confusion substitutions (e.g. 'अनार' -> 'अमार', 'अवार', 'अबार', 'अतार', etc.)
   units.forEach((u, i) => {
-    const base = u.replace(/[\u093e-\u094c\u0902\u0903\u094d]/g, '');
+    const base = u.replace(/[\u093e-\u094c\u0902\u0903\u094d]/g, '').normalize('NFC');
     const matra = u.slice(base.length);
     const confs = DEVANAGARI_CONFUSIONS[base] || [];
     confs.forEach(c => {
       // In multi-akshara words, avoid generating non-words with geometric sub-shapes (e.g. 'उ'/'ऊ' for 'अ')
       if ((base === 'अ' || base === 'आ') && (c === 'उ' || c === 'ऊ')) return;
       const altUnit = c + matra;
-      const altWord = units.slice(0, i).join('') + altUnit + units.slice(i + 1).join('');
+      const altWord = (units.slice(0, i).join('') + altUnit + units.slice(i + 1).join('')).normalize('NFC');
       if (!candidates.includes(altWord)) candidates.push(altWord);
     });
   });
 
-  // 2. Words from current letter's WORD_BANKS
+  // 2. Words from current letter's WORD_BANKS matching syllabic unit length (+- 1 unit)
   if (typeof idx !== 'undefined' && lessons && lessons[idx]) {
     const letter = lessons[idx].c;
     const bank = WORD_BANKS[letter] || [];
     bank.forEach(w => {
-      if (w && w.word && !candidates.includes(w.word)) candidates.push(w.word);
+      if (w && w.word) {
+        const normW = w.word.normalize('NFC');
+        const wUnits = seg ? Array.from(seg.segment(normW), s => s.segment).length : normW.length;
+        if (Math.abs(wUnits - units.length) <= 1 && !candidates.includes(normW)) {
+          candidates.push(normW);
+        }
+      }
     });
   }
 
@@ -3395,6 +3406,7 @@ function getOcrCandidates(expectedUnit) {
 
 const ocrCandidateCache = {};
 function getCandidateMask(char, W = 64, H = 64) {
+  char = (char || '').normalize('NFC');
   const S = (typeof W === 'number' && typeof H !== 'number') ? W : 64;
   const w = (typeof H === 'number') ? W : S;
   const h = (typeof H === 'number') ? H : S;
@@ -3553,6 +3565,7 @@ function renderUserStrokesNormalized(strokes, strokeOffset = 0, W = 64, H = 64) 
 }
 
 function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = null, H = null) {
+  expectedChar = (expectedChar || '').normalize('NFC');
   const seg = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter('hi', { granularity: 'grapheme' }) : null;
   const unitCount = seg ? Array.from(seg.segment(expectedChar), s => s.segment).length : expectedChar.length;
 
@@ -3657,7 +3670,7 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
   // Teacher Reading Rule:
   // Pure equality check: Did what the AI read match what was expected?
   // Evaluates Devanagari confusions: (expectedChar === 'ग' || expectedChar === 'म', expectedChar === 'ष' || expectedChar === 'प', expectedChar === 'अ' || expectedChar === 'आ', expectedChar === 'म' || expectedChar === 'न')
-  const isMatch = (bestCand === expectedChar);
+  const isMatch = (bestCand && expectedChar && bestCand.normalize('NFC') === expectedChar.normalize('NFC'));
   const finalRecognized = bestCand;
 
   // Top candidates strictly descending by score - no overrides, no unshifts!
