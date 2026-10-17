@@ -346,7 +346,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <button class="prev-btn" id="prevBtn">Previous</button>
 <button class="bottombtn done" id="done">✍️ Let's write</button>
 <button class="next-btn" id="nextBtn">Next</button>
-<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.7</div>
+<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.8</div>
 
 <div class="modal" id="modal">
   <div class="dialog">
@@ -3112,16 +3112,21 @@ const DEVANAGARI_VOWELS = [
   'अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ऋ', 'ए', 'ऐ', 'ओ', 'औ', 'अं', 'अः'
 ];
 
-function extractDevanagariFeatures(data, S = 64) {
+function extractDevanagariFeatures(data, S = 64, H = null) {
+  const w = (typeof H === 'number') ? S : (typeof S === 'number' ? S : 64);
+  const h = (typeof H === 'number') ? H : w;
+
   const zone = new Float32Array(16);
   let totalInk = 0;
-  const cellS = S / 4;
-  for (let y = 0; y < S; y++) {
-    const zy = Math.min(3, Math.floor(y / cellS));
-    for (let x = 0; x < S; x++) {
-      if (data[(y * S + x) * 4] > 80) {
+  const cellW = w / 4;
+  const cellH = h / 4;
+
+  for (let y = 0; y < h; y++) {
+    const zy = Math.min(3, Math.floor(y / cellH));
+    for (let x = 0; x < w; x++) {
+      if (data[(y * w + x) * 4] > 80) {
         totalInk++;
-        zone[zy * 4 + Math.min(3, Math.floor(x / cellS))]++;
+        zone[zy * 4 + Math.min(3, Math.floor(x / cellW))]++;
       }
     }
   }
@@ -3131,11 +3136,13 @@ function extractDevanagariFeatures(data, S = 64) {
 
   const projX = new Float32Array(8);
   const projY = new Float32Array(8);
-  const binW = S / 8;
-  for (let y = 0; y < S; y++) {
-    const py = Math.min(7, Math.floor(y / binW));
-    for (let x = 0; x < S; x++) {
-      if (data[(y * S + x) * 4] > 80) {
+  const binW = w / 8;
+  const binH = h / 8;
+
+  for (let y = 0; y < h; y++) {
+    const py = Math.min(7, Math.floor(y / binH));
+    for (let x = 0; x < w; x++) {
+      if (data[(y * w + x) * 4] > 80) {
         projX[Math.min(7, Math.floor(x / binW))]++;
         projY[py]++;
       }
@@ -3149,15 +3156,17 @@ function extractDevanagariFeatures(data, S = 64) {
   }
 
   const grad = new Float32Array(16);
-  const halfS = S / 2;
-  for (let y = 1; y < S - 1; y++) {
-    const qy = y < halfS ? 0 : 1;
-    for (let x = 1; x < S - 1; x++) {
-      if (data[(y * S + x) * 4] <= 80) continue;
-      const qx = x < halfS ? 0 : 1;
+  const halfW = w / 2;
+  const halfH = h / 2;
+
+  for (let y = 1; y < h - 1; y++) {
+    const qy = y < halfH ? 0 : 1;
+    for (let x = 1; x < w - 1; x++) {
+      if (data[(y * w + x) * 4] <= 80) continue;
+      const qx = x < halfW ? 0 : 1;
       const qIdx = (qy * 2 + qx) * 4;
-      const gx = (data[(y * S + x + 1) * 4] > 80 ? 1 : 0) - (data[(y * S + x - 1) * 4] > 80 ? 1 : 0);
-      const gy = (data[((y + 1) * S + x) * 4] > 80 ? 1 : 0) - (data[((y - 1) * S + x) * 4] > 80 ? 1 : 0);
+      const gx = (data[(y * w + x + 1) * 4] > 80 ? 1 : 0) - (data[(y * w + x - 1) * 4] > 80 ? 1 : 0);
+      const gy = (data[((y + 1) * w + x) * 4] > 80 ? 1 : 0) - (data[((y - 1) * w + x) * 4] > 80 ? 1 : 0);
       const mag = Math.hypot(gx, gy);
       if (mag > 0) {
         const angle = Math.abs(Math.atan2(gy, gx));
@@ -3189,60 +3198,89 @@ function extractDevanagariFeatures(data, S = 64) {
 }
 
 function getOcrCandidates(expectedUnit) {
+  const seg = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter('hi', { granularity: 'grapheme' }) : null;
+  const units = seg ? Array.from(seg.segment(expectedUnit), s => s.segment) : [expectedUnit];
+
   const candidates = [expectedUnit];
-  const confusions = DEVANAGARI_CONFUSIONS[expectedUnit] || [];
-  confusions.forEach(c => {
-    if (!candidates.includes(c)) candidates.push(c);
+
+  if (units.length <= 1) {
+    const confusions = DEVANAGARI_CONFUSIONS[expectedUnit] || [];
+    confusions.forEach(c => {
+      if (!candidates.includes(c)) candidates.push(c);
+    });
+
+    const matras = expectedUnit.match(/[\u093e-\u094c\u0902\u0903\u094d]/g) || [];
+    const matraSuffix = matras.join('');
+
+    if (matraSuffix) {
+      DEVANAGARI_CONSONANTS.forEach(c => {
+        const combo = c + matraSuffix;
+        if (!candidates.includes(combo)) candidates.push(combo);
+      });
+    }
+    DEVANAGARI_CONSONANTS.forEach(c => {
+      if (!candidates.includes(c)) candidates.push(c);
+    });
+    DEVANAGARI_VOWELS.forEach(v => {
+      if (!candidates.includes(v)) candidates.push(v);
+    });
+    return candidates;
+  }
+
+  // Multi-Akshara Word Candidates:
+  // 1. Single akshara confusion substitutions (e.g. 'अनार' -> 'अमार', 'अवार', 'अबार', 'अतार', etc.)
+  units.forEach((u, i) => {
+    const base = u.replace(/[\u093e-\u094c\u0902\u0903\u094d]/g, '');
+    const matra = u.slice(base.length);
+    const confs = DEVANAGARI_CONFUSIONS[base] || [];
+    confs.forEach(c => {
+      const altUnit = c + matra;
+      const altWord = units.slice(0, i).join('') + altUnit + units.slice(i + 1).join('');
+      if (!candidates.includes(altWord)) candidates.push(altWord);
+    });
   });
 
-  const matras = expectedUnit.match(/[\u093e-\u094c\u0902\u0903\u094d]/g) || [];
-  const matraSuffix = matras.join('');
-
-  if (matraSuffix) {
-    DEVANAGARI_CONSONANTS.forEach(c => {
-      const combo = c + matraSuffix;
-      if (!candidates.includes(combo)) candidates.push(combo);
+  // 2. Words from current letter's WORD_BANKS
+  if (typeof idx !== 'undefined' && lessons && lessons[idx]) {
+    const letter = lessons[idx].c;
+    const bank = WORD_BANKS[letter] || [];
+    bank.forEach(w => {
+      if (w && w.word && !candidates.includes(w.word)) candidates.push(w.word);
     });
   }
-  DEVANAGARI_CONSONANTS.forEach(c => {
-    if (!candidates.includes(c)) candidates.push(c);
-  });
-  DEVANAGARI_VOWELS.forEach(v => {
-    if (!candidates.includes(v)) candidates.push(v);
-  });
 
   return candidates;
 }
 
 const ocrCandidateCache = {};
-function getCandidateMask(char, S = 64) {
-  const key = `${char}_${S}`;
+function getCandidateMask(char, W = 64, H = 64) {
+  const S = (typeof W === 'number' && typeof H !== 'number') ? W : 64;
+  const w = (typeof H === 'number') ? W : S;
+  const h = (typeof H === 'number') ? H : S;
+  const key = `${char}_${w}x${h}`;
   if (ocrCandidateCache[key]) return ocrCandidateCache[key];
 
-  const pad = 6;
-  const activeS = S - pad * 2;
+  // Scratch canvas wide enough so text is never clipped
+  const scratchW = Math.max(320, w * 4);
+  const scratchH = Math.max(160, h * 3);
   const tc = document.createElement('canvas');
-  tc.width = S; tc.height = S;
+  tc.width = scratchW; tc.height = scratchH;
   const tx = tc.getContext('2d');
-  tx.fillStyle = '#000'; tx.fillRect(0, 0, S, S);
+  tx.fillStyle = '#000'; tx.fillRect(0, 0, scratchW, scratchH);
   tx.fillStyle = '#fff';
-  tx.font = '700 ' + Math.round(activeS * 0.90) + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif';
-  tx.textAlign = 'center';
+  const fontSize = 48;
+  tx.font = '700 ' + fontSize + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif';
+  tx.textAlign = 'left';
   tx.textBaseline = 'alphabetic';
+  const baselineY = Math.round(scratchH * 0.60);
+  tx.fillText(char, 20, baselineY);
 
-  const metrics = tx.measureText(char);
-  const ascent = metrics.actualBoundingBoxAscent || (activeS * 0.7);
-  const descent = metrics.actualBoundingBoxDescent || (activeS * 0.2);
-  const charH = ascent + descent;
-  const baselineY = pad + (activeS - charH) / 2 + ascent;
-  tx.fillText(char, S / 2, baselineY);
-
-  const tData = tx.getImageData(0, 0, S, S).data;
-  let tMinX = S, tMaxX = 0, tMinY = S, tMaxY = 0;
+  const tData = tx.getImageData(0, 0, scratchW, scratchH).data;
+  let tMinX = scratchW, tMaxX = 0, tMinY = scratchH, tMaxY = 0;
   let count = 0;
-  for (let y = 0; y < S; y++) {
-    for (let x = 0; x < S; x++) {
-      if (tData[(y * S + x) * 4] > 80) {
+  for (let y = 0; y < scratchH; y++) {
+    for (let x = 0; x < scratchW; x++) {
+      if (tData[(y * scratchW + x) * 4] > 80) {
         count++;
         if (x < tMinX) tMinX = x;
         if (x > tMaxX) tMaxX = x;
@@ -3252,34 +3290,42 @@ function getCandidateMask(char, S = 64) {
     }
   }
 
-  let finalData = tData;
-  let finalCount = count;
+  // Draw into normalized (w, h) canvas preserving aspect ratio
+  const pad = 6;
+  const activeW = w - pad * 2;
+  const activeH = h - pad * 2;
+  const nc = document.createElement('canvas');
+  nc.width = w; nc.height = h;
+  const nx = nc.getContext('2d');
+  nx.fillStyle = '#000'; nx.fillRect(0, 0, w, h);
+
+  let finalCount = 0;
   if (tMaxX > tMinX && tMaxY > tMinY) {
     const cW = tMaxX - tMinX;
     const cH = tMaxY - tMinY;
-    const cScale = Math.min(activeS / cW, activeS / cH);
-    const nc = document.createElement('canvas');
-    nc.width = S; nc.height = S;
-    const nx = nc.getContext('2d');
-    nx.fillStyle = '#000'; nx.fillRect(0, 0, S, S);
+    const cScale = Math.min(activeW / cW, activeH / cH);
     nx.drawImage(tc,
       tMinX, tMinY, cW, cH,
-      pad + (activeS - cW * cScale) / 2, pad + (activeS - cH * cScale) / 2, cW * cScale, cH * cScale
+      pad + (activeW - cW * cScale) / 2, pad + (activeH - cH * cScale) / 2, cW * cScale, cH * cScale
     );
-    finalData = nx.getImageData(0, 0, S, S).data;
-    finalCount = 0;
-    for (let i = 0; i < finalData.length; i += 4) {
-      if (finalData[i] > 80) finalCount++;
-    }
   }
 
-  const featObj = extractDevanagariFeatures(finalData, S);
-  const res = { data: finalData, pixels: finalCount, feat: featObj.feat };
+  const finalData = nx.getImageData(0, 0, w, h).data;
+  for (let i = 0; i < finalData.length; i += 4) {
+    if (finalData[i] > 80) finalCount++;
+  }
+
+  const featObj = extractDevanagariFeatures(finalData, w, h);
+  const res = { data: finalData, pixels: finalCount, feat: featObj.feat, w, h };
   ocrCandidateCache[key] = res;
   return res;
 }
 
-function renderUserStrokesNormalized(strokes, strokeOffset = 0, S = 64) {
+function renderUserStrokesNormalized(strokes, strokeOffset = 0, W = 64, H = 64) {
+  const S = (typeof W === 'number' && typeof H !== 'number') ? W : 64;
+  const w = (typeof H === 'number') ? W : S;
+  const h = (typeof H === 'number') ? H : S;
+
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
   let totalPts = 0;
   strokes.forEach(str => {
@@ -3300,19 +3346,20 @@ function renderUserStrokesNormalized(strokes, strokeOffset = 0, S = 64) {
   }
 
   const pad = 6;
-  const activeS = S - pad * 2;
+  const activeW = w - pad * 2;
+  const activeH = h - pad * 2;
   const uW = maxX - minX;
   const uH = maxY - minY;
-  const uScale = Math.min(activeS / uW, activeS / uH);
-  const uOffX = pad + (activeS - uW * uScale) / 2 - minX * uScale;
-  const uOffY = pad + (activeS - uH * uScale) / 2 - minY * uScale;
+  const uScale = Math.min(activeW / uW, activeH / uH);
+  const uOffX = pad + (activeW - uW * uScale) / 2 - minX * uScale;
+  const uOffY = pad + (activeH - uH * uScale) / 2 - minY * uScale;
 
   const uc = document.createElement('canvas');
-  uc.width = S; uc.height = S;
+  uc.width = w; uc.height = h;
   const ux = uc.getContext('2d');
-  ux.fillStyle = '#000'; ux.fillRect(0, 0, S, S);
+  ux.fillStyle = '#000'; ux.fillRect(0, 0, w, h);
   ux.strokeStyle = '#fff'; ux.fillStyle = '#fff';
-  ux.lineWidth = 5;
+  ux.lineWidth = Math.max(3, Math.min(7, Math.round(5 * uScale * (h / 64))));
   ux.lineCap = 'round'; ux.lineJoin = 'round';
 
   strokes.forEach(str => {
@@ -3331,25 +3378,30 @@ function renderUserStrokesNormalized(strokes, strokeOffset = 0, S = 64) {
     }
   });
 
-  const uData = ux.getImageData(0, 0, S, S).data;
+  const uData = ux.getImageData(0, 0, w, h).data;
   let uPixels = 0;
   for (let i = 0; i < uData.length; i += 4) {
     if (uData[i] > 80) uPixels++;
   }
 
-  return { data: uData, pixels: uPixels, uW, uH, minX, maxX, minY, maxY };
+  return { data: uData, pixels: uPixels, uW, uH, minX, maxX, minY, maxY, w, h };
 }
 
-function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0) {
-  const normUser = renderUserStrokesNormalized(strokes, strokeOffset, 64);
+function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = null, H = null) {
+  const seg = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter('hi', { granularity: 'grapheme' }) : null;
+  const unitCount = seg ? Array.from(seg.segment(expectedChar), s => s.segment).length : expectedChar.length;
+
+  const normH = H || 64;
+  const normW = W || (unitCount <= 1 ? 64 : Math.max(64, Math.min(192, Math.round(40 + unitCount * 30))));
+
+  const normUser = renderUserStrokesNormalized(strokes, strokeOffset, normW, normH);
   if (!normUser || normUser.pixels < 25) {
     return { recognized: null, isMatch: false, reason: 'empty', score: 0 };
   }
 
-  const S = 64;
   const uData = normUser.data;
   const uPixels = normUser.pixels;
-  const uFeatObj = extractDevanagariFeatures(uData, S);
+  const uFeatObj = extractDevanagariFeatures(uData, normW, normH);
   const uFeat = uFeatObj.feat;
 
   const candidates = getOcrCandidates(expectedChar);
@@ -3362,18 +3414,19 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0) {
   let expectedPrec = 0;
 
   const simScores = {};
+  const totalPixels = normW * normH;
 
   candidates.forEach(cand => {
-    const cMask = getCandidateMask(cand, S);
+    const cMask = getCandidateMask(cand, normW, normH);
     const cData = cMask.data;
     const cPixels = cMask.pixels;
-    const cFeat = cMask.feat || extractDevanagariFeatures(cData, S).feat;
+    const cFeat = cMask.feat || extractDevanagariFeatures(cData, normW, normH).feat;
 
     let matched = 0;
     let uOnly = 0;
     let cOnly = 0;
 
-    for (let i = 0; i < S * S; i++) {
+    for (let i = 0; i < totalPixels; i++) {
       const u = uData[i * 4] > 80;
       const c = cData[i * 4] > 80;
       if (u && c) matched++;
@@ -3393,8 +3446,8 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0) {
       cosSim = iou;
     }
 
-    // AI Multi-Modal Character Similarity (Feature Embedding + IoU + Precision)
-    const sim = (cosSim * 0.50) + (iou * 0.30) + (precision * 0.20);
+    // AI Multi-Modal Character/Word Similarity (Embedding + IoU + Coverage + Precision)
+    const sim = (cosSim * 0.45) + (iou * 0.25) + (coverage * 0.15) + (precision * 0.15);
     simScores[cand] = { sim, cosSim, iou, coverage, precision };
 
     if (cand === expectedChar) {
@@ -3412,9 +3465,13 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0) {
   // Preserve 'ग' vs 'म' topological check for regression test assertion
   if (expectedChar === 'ग' || expectedChar === 'म') {
     let bridgeInk = 0;
-    for (let y = 33; y <= 46; y++) {
-      for (let x = 24; x <= 43; x++) {
-        if (uData[(y * S + x) * 4] > 80) bridgeInk++;
+    const yStart = Math.round(normH * 0.50);
+    const yEnd = Math.round(normH * 0.70);
+    const xStart = Math.round(normW * 0.38);
+    const xEnd = Math.round(normW * 0.68);
+    for (let y = yStart; y <= yEnd; y++) {
+      for (let x = xStart; x <= xEnd; x++) {
+        if (uData[(y * normW + x) * 4] > 80) bridgeInk++;
       }
     }
     if (expectedChar === 'ग' && bridgeInk > 16) {
@@ -3425,16 +3482,19 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0) {
   }
 
   let topBarInk = 0;
-  for (let y = 6; y <= 16; y++) {
-    for (let x = 8; x <= 56; x++) {
-      if (uData[(y * S + x) * 4] > 80) topBarInk++;
+  const topBarYEnd = Math.round(normH * 0.25);
+  for (let y = 0; y <= topBarYEnd; y++) {
+    for (let x = 0; x < normW; x++) {
+      if (uData[(y * normW + x) * 4] > 80) topBarInk++;
     }
   }
-  const hasShirorekha = (topBarInk / uPixels) > 0.10;
+  const hasShirorekha = (topBarInk / uPixels) > 0.08;
 
-  // Grade 1 tolerance: if expected character is very close to top candidate (within 3%), accept it
-  const isMatch = (bestCand === expectedChar) || (expectedSim >= bestSim * 0.97 && expectedSim > 0.65);
-  const finalRecognized = isMatch ? expectedChar : bestCand;
+  // Grade 1 educational prior & competitor check:
+  // Did a confusion competitor decisively beat the intended target? (e.g. wrote 'अमार' instead of 'अनार')
+  const competitorIsDecisive = (bestCand !== expectedChar) && (bestSim > expectedSim + 0.10) && (bestSim >= 0.46);
+  const isMatch = !competitorIsDecisive && (expectedSim >= 0.28 || bestCand === expectedChar);
+  const finalRecognized = isMatch ? expectedChar : (bestCand || expectedChar);
 
   return {
     recognized: finalRecognized,
@@ -3447,99 +3507,69 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0) {
     expectedPrec,
     hasShirorekha,
     uW: normUser.uW,
-    uH: normUser.uH
+    uH: normUser.uH,
+    normW,
+    normH
   };
 }
 
-// Full-Word AI OCR Recognizer: reads the kid's whole written word and matches against target text
+// Full-Word AI OCR Recognizer: reads the kid's whole written word/letter and matches against target text
 function evaluateFullWordOCR(targetText, strokes) {
-  const units = decomposeWordToUnits(targetText);
   if (!strokes || !strokes.length) {
     return { pass: false, reason: 'empty', detectedWord: '', expectedWord: targetText };
   }
 
-  if (units.length <= 1) {
-    const ocr = recognizeDevanagariOCR(strokes, targetText);
-    const isMatch = ocr.isMatch;
-    return {
-      pass: isMatch,
-      reason: isMatch ? 'ok' : 'wrong_letter',
-      detectedWord: ocr.recognized || targetText,
-      expectedWord: targetText,
-      detected: ocr.recognized,
-      expected: targetText,
-      score: isMatch ? Math.max(88, Math.round((ocr.expectedSim || 0.8) * 100)) : 35,
-      form: Math.round((ocr.expectedIoU || 0.5) * 100),
-      neatness: Math.round((ocr.expectedPrec || 0.6) * 100)
-    };
+  const totalPoints = strokes.reduce((acc, s) => acc + s.length, 0);
+  if (totalPoints < 6) {
+    return { pass: false, reason: 'empty', detectedWord: '', expectedWord: targetText };
   }
 
-  let unitsStrokes = [];
-  if (unitStrokesMap && unitStrokesMap.length === units.length && unitStrokesMap.some(s => s && s.length)) {
-    unitsStrokes = units.map((u, i) => unitStrokesMap[i] || []);
-  } else {
-    let minX = Infinity, maxX = -Infinity;
-    strokes.forEach(s => s.forEach(pt => {
-      if (pt.x < minX) minX = pt.x;
-      if (pt.x > maxX) maxX = pt.x;
-    }));
-    const totalSpan = Math.max(1, maxX - minX);
-    const unitWidth = totalSpan / units.length;
-    unitsStrokes = units.map((u, i) => {
-      const uStart = minX + i * unitWidth - 14;
-      const uEnd = minX + (i + 1) * unitWidth + 14;
-      return strokes.filter(s => {
-        const sMinX = Math.min(...s.map(pt => pt.x));
-        const sMaxX = Math.max(...s.map(pt => pt.x));
-        return !(sMaxX < uStart || sMinX > uEnd);
-      });
-    });
+  // Anti-scribble loop reversal check across the whole written word
+  let directionReversals = 0;
+  strokes.forEach(str => {
+    if (!str || str.length < 3) return;
+    for (let i = 1; i < str.length - 1; i++) {
+      const dx1 = str[i].x - str[i-1].x, dy1 = str[i].y - str[i-1].y;
+      const dx2 = str[i+1].x - str[i].x, dy2 = str[i+1].y - str[i].y;
+      const len1 = Math.hypot(dx1, dy1), len2 = Math.hypot(dx2, dy2);
+      if (len1 > 8 && len2 > 8) {
+        const dot = dx1 * dx2 + dy1 * dy2;
+        if (dot / (len1 * len2) < -0.55) directionReversals++;
+      }
+    }
+  });
+
+  if (directionReversals > 28) {
+    return { pass: false, reason: 'scribble', detectedWord: '', expectedWord: targetText };
   }
 
-  const unitResults = [];
-  let sumScore = 0, sumForm = 0, sumNeat = 0, matchedCount = 0;
-
-  for (let i = 0; i < units.length; i++) {
-    const uStrokes = unitsStrokes[i] || [];
-    const expectedChar = units[i].char;
-    const ocr = recognizeDevanagariOCR(uStrokes, expectedChar);
-    const recChar = ocr.recognized || expectedChar;
-    const match = ocr.isMatch;
-    if (match) matchedCount++;
-
-    unitResults.push({
-      expected: expectedChar,
-      detected: recChar,
-      isMatch: match,
-      ocr
-    });
-
-    sumScore += match ? Math.max(85, Math.round((ocr.expectedSim || 0.8) * 100)) : 30;
-    sumForm += Math.round((ocr.expectedIoU || 0.4) * 100);
-    sumNeat += Math.round((ocr.expectedPrec || 0.5) * 100);
+  // Whole-word / letter level AI OCR: evaluated as a complete visual entity without splitting into letters
+  const ocr = recognizeDevanagariOCR(strokes, targetText);
+  if (!ocr || !ocr.recognized) {
+    return { pass: false, reason: 'empty', detectedWord: '', expectedWord: targetText };
   }
 
-  const recognizedWord = unitResults.map(r => r.detected).join('');
-  const isWordMatch = (recognizedWord === targetText);
-  const mismatches = unitResults.filter(r => !r.isMatch);
-  const firstMismatch = mismatches[0] || null;
+  const isWordMatch = ocr.isMatch;
+  const detectedWord = ocr.recognized;
+  const isSingleLetter = targetText.length <= 1;
 
-  const avgScore = Math.round(sumScore / units.length);
-  const avgForm = Math.round(sumForm / units.length);
-  const avgNeat = Math.round(sumNeat / units.length);
+  const score = isWordMatch
+    ? Math.max(88, Math.round(Math.min(99, (ocr.expectedSim || 0.65) * 125)))
+    : Math.max(25, Math.round((ocr.expectedSim || 0.3) * 60));
+  const form = Math.max(45, Math.min(98, Math.round((ocr.expectedIoU || 0.35) * 180)));
+  const neatness = Math.max(50, Math.min(99, Math.round((ocr.expectedPrec || 0.45) * 150)));
 
   return {
     pass: isWordMatch,
-    reason: isWordMatch ? 'ok' : 'wrong_word',
-    detectedWord: recognizedWord,
+    reason: isWordMatch ? 'ok' : (isSingleLetter ? 'wrong_letter' : 'wrong_word'),
+    detectedWord: detectedWord,
     expectedWord: targetText,
-    detected: firstMismatch ? firstMismatch.detected : null,
-    expected: firstMismatch ? firstMismatch.expected : null,
-    mismatches: mismatches,
-    unitResults: unitResults,
-    score: isWordMatch ? Math.max(88, avgScore) : Math.round((matchedCount / units.length) * 60),
-    form: avgForm,
-    neatness: avgNeat
+    detected: detectedWord,
+    expected: targetText,
+    score: score,
+    form: form,
+    neatness: neatness,
+    ocr: ocr
   };
 }
 
