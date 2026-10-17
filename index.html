@@ -3490,10 +3490,35 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
   }
   const hasShirorekha = (topBarInk / uPixels) > 0.08;
 
-  // Grade 1 educational prior & competitor check:
-  // Did a confusion competitor decisively beat the intended target? (e.g. wrote 'अमार' instead of 'अनार')
-  const competitorIsDecisive = (bestCand !== expectedChar) && (bestSim > expectedSim + 0.10) && (bestSim >= 0.46);
-  const isMatch = !competitorIsDecisive && (expectedSim >= 0.28 || bestCand === expectedChar);
+  // Teacher Reading Rule:
+  // 1. Identify which letter/word was drawn -> bestCand
+  // 2. Pure equality check: Did the child write what was expected?
+  const confusions = DEVANAGARI_CONFUSIONS[expectedChar] || [];
+  let isConfusion = confusions.includes(bestCand);
+  if (!isConfusion && expectedChar.length > 1 && bestCand.length === expectedChar.length) {
+    for (let i = 0; i < expectedChar.length; i++) {
+      if (expectedChar[i] !== bestCand[i]) {
+        const cConf = DEVANAGARI_CONFUSIONS[expectedChar[i]] || [];
+        if (cConf.includes(bestCand[i])) {
+          isConfusion = true;
+          break;
+        }
+      }
+    }
+  }
+
+  let isMatch = false;
+  if (bestCand === expectedChar) {
+    isMatch = true;
+  } else if (isConfusion) {
+    // If it is a known lookalike confusion (e.g. 'प' for 'ष', 'म' for 'न', 'अमार' for 'अनार'):
+    // If it scored higher than expected, it's an immediate mismatch!
+    isMatch = (expectedSim > bestSim);
+  } else {
+    // If unrelated candidate, only accept if expected is within 1.5% of best
+    isMatch = (expectedSim >= bestSim * 0.985);
+  }
+
   const finalRecognized = isMatch ? expectedChar : (bestCand || expectedChar);
 
   return {
@@ -3910,6 +3935,23 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
     } else {
       failReason = 'sloppy';
     }
+  }
+
+  // Teacher Reading Check: Ensure child did not write a different letter (e.g. wrote 'प' instead of 'ष')
+  const ocrCheck = recognizeDevanagariOCR(strokesToEval, targetString, strokeOffset);
+  if (ocrCheck && !ocrCheck.isMatch && ocrCheck.recognized && ocrCheck.recognized !== targetString) {
+    return {
+      score: 30,
+      pass: false,
+      reason: 'wrong_letter',
+      detected: ocrCheck.recognized,
+      expected: targetString,
+      iou: Math.round((ocrCheck.expectedIoU || 0.4) * 100),
+      coverage: Math.round(coverage * 100),
+      precision: Math.round(precision * 100),
+      form: Math.round((ocrCheck.expectedIoU || 0.4) * 100),
+      neatness: Math.round((ocrCheck.expectedPrec || 0.5) * 100)
+    };
   }
 
   return {
