@@ -3608,23 +3608,29 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
   });
 
   candidateResults.sort((a, b) => b.sim - a.sim);
-  const topCandidates = candidateResults.slice(0, 5);
 
   // Preserve 'ग' vs 'म' topological check for regression test assertion
   if (expectedChar === 'ग' || expectedChar === 'म') {
-    let bridgeInk = 0;
-    const yStart = Math.round(normH * 0.50);
-    const yEnd = Math.round(normH * 0.70);
-    const xStart = Math.round(normW * 0.38);
-    const xEnd = Math.round(normW * 0.68);
-    for (let y = yStart; y <= yEnd; y++) {
-      for (let x = xStart; x <= xEnd; x++) {
-        if (uData[(y * normW + x) * 4] > 80) bridgeInk++;
+    const yStart = Math.round(normH * 0.48);
+    const yEnd = Math.round(normH * 0.72);
+    const xStart = Math.round(normW * 0.44);
+    const xEnd = Math.round(normW * 0.56);
+    let columnsWithInk = 0;
+    const totalCols = xEnd - xStart + 1;
+    for (let x = xStart; x <= xEnd; x++) {
+      let colHasInk = false;
+      for (let y = yStart; y <= yEnd; y++) {
+        if (uData[(y * normW + x) * 4] > 80) {
+          colHasInk = true;
+          break;
+        }
       }
+      if (colHasInk) columnsWithInk++;
     }
-    if (expectedChar === 'ग' && bridgeInk > 16) {
+    const hasBridge = (totalCols > 0 && columnsWithInk >= totalCols - 1);
+    if (expectedChar === 'ग' && hasBridge) {
       bestCand = 'म'; // Connected bar touches right stem (that is 'म', not 'ग'!)
-    } else if (expectedChar === 'म' && bridgeInk < 8) {
+    } else if (expectedChar === 'म' && !hasBridge) {
       bestCand = 'ग'; // Missing connector bar (that is 'ग', not 'म'!)
     }
   }
@@ -3741,6 +3747,20 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
   }
 
   const finalRecognized = isMatch ? expectedChar : (bestCand || expectedChar);
+
+  // Build top candidates list ensuring finalRecognized and expectedChar are always visible
+  const visibleCands = candidateResults.slice(0, 5);
+  if (finalRecognized && !visibleCands.some(c => c.cand === finalRecognized)) {
+    const rObj = candidateResults.find(c => c.cand === finalRecognized);
+    if (rObj) visibleCands.unshift(rObj);
+    else visibleCands.unshift({ cand: finalRecognized, sim: simScores[finalRecognized] ? simScores[finalRecognized].sim : bestSim });
+  }
+  if (expectedChar && !visibleCands.some(c => c.cand === expectedChar)) {
+    const eObj = candidateResults.find(c => c.cand === expectedChar);
+    if (eObj) visibleCands.push(eObj);
+    else visibleCands.push({ cand: expectedChar, sim: expectedSim });
+  }
+  const topCandidates = visibleCands.slice(0, 5);
 
   return {
     recognized: finalRecognized,
