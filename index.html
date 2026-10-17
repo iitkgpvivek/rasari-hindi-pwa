@@ -345,7 +345,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <button class="prev-btn" id="prevBtn">Previous</button>
 <button class="bottombtn done" id="done">✍️ Let's write</button>
 <button class="next-btn" id="nextBtn">Next</button>
-<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.0</div>
+<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.1</div>
 
 <div class="modal" id="modal">
   <div class="dialog">
@@ -2367,6 +2367,7 @@ function makeTouchResponsive(btn, handler) {
 
   let lastBtnTrigger = 0;
   const trigger = (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
     const now = Date.now();
     // 380ms debounce per button, 200ms global debounce across UI actions
     if (now - lastBtnTrigger < 380 || now - lastGlobalActionTime < 200) {
@@ -2385,12 +2386,13 @@ function makeTouchResponsive(btn, handler) {
     action(e);
   };
 
-  btn.addEventListener('pointerdown', e => {
+  // PointerUp grants valid transient user activation on touch/pen in Chrome, enabling SpeechSynthesis
+  btn.addEventListener('pointerup', e => {
     if (e.button !== undefined && e.button !== 0) return;
     // Filter out huge palm slaps directly over the button
     if (e.width && e.width > 85 && e.height && e.height > 85) return;
     trigger(e);
-  }, { passive: true });
+  });
 
   // Route native click through the exact same debounced trigger
   btn.onclick = (e) => {
@@ -2701,15 +2703,18 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
 
   if ('speechSynthesis' in window && window.SpeechSynthesisUtterance) {
     try {
+      // Flush any queued or stalled utterances in Android Chrome
+      window.speechSynthesis.cancel();
+
       const u = new SpeechSynthesisUtterance(text);
       u.lang = langConfig.langCode;
 
       if (voicePersona === 'monkey') {
-        u.pitch = langConfig.voice.monkeyPitch || 1.30;
-        u.rate = langConfig.voice.monkeyRate || 1.15;
+        u.pitch = langConfig.voice.monkeyPitch || 1.25;
+        u.rate = langConfig.voice.monkeyRate || 0.95;
       } else {
-        u.pitch = langConfig.voice.teacherPitch || 1.0;
-        u.rate = langConfig.voice.teacherRate || 0.82;
+        u.pitch = langConfig.voice.teacherPitch || 1.05;
+        u.rate = langConfig.voice.teacherRate || 0.84;
       }
 
       const v = getBestVoiceForLang(langConfig.langCode);
@@ -2726,13 +2731,18 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
       if (v) u.voice = v;
 
       activeUtterance = u;
+      window._activeUtterance = u;
+
       u.onend = () => {
         if (activeUtterance === u) activeUtterance = null;
+        if (window._activeUtterance === u) window._activeUtterance = null;
       };
 
       u.onerror = (e) => {
         if (activeUtterance === u) activeUtterance = null;
+        if (window._activeUtterance === u) window._activeUtterance = null;
         if (e && (e.error === 'canceled' || e.error === 'interrupted')) return;
+        console.warn('SpeechSynthesis error:', e);
         if (fallbackAudio) playSnd(fallbackAudio);
       };
 
@@ -4829,7 +4839,7 @@ function setupPWAUpdate() {
 
 const verBadge = $('appVersionBadge');
 if (verBadge) {
-  verBadge.onclick = async () => {
+  makeTouchResponsive(verBadge, async () => {
     verBadge.textContent = 'Updating...';
     try {
       if ('serviceWorker' in navigator) {
@@ -4846,7 +4856,7 @@ if (verBadge) {
       }
     } catch(e) {}
     window.location.reload(true);
-  };
+  });
 }
 
 setupPWAUpdate();
