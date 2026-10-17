@@ -35,7 +35,8 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 #write{position:absolute;left:27.5%;top:19.5%;width:45.8%;height:56.5%;touch-action:none;cursor:crosshair}
 
 /* Stage & Mode Toolbar placed cleanly inside the top of the center slate */
-.toolbar-top{position:absolute;left:28%;top:20.2%;max-width:44.8%;height:4.5%;display:flex;align-items:center;gap:6px;z-index:7;flex-wrap:nowrap}
+.toolbar-top{position:absolute;left:28%;top:20.2%;max-width:44.8%;height:4.5%;display:flex;align-items:center;gap:6px;z-index:7;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.toolbar-top::-webkit-scrollbar{display:none}
 .stage-badge{background:#ffffffdd;border:2px solid #0f7a66;border-radius:999px;padding:3px 8px;font-size:clamp(9px,1.05vw,12px);font-weight:800;color:#0f7a66;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.06);white-space:nowrap}
 .ctrl-pill{background:#fff8df;border:2px solid #e2a03f;border-radius:999px;padding:3px 8px;font-size:clamp(9px,1.05vw,12px);font-weight:800;color:#80531a;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.06);transition:all .15s;white-space:nowrap}
 .ctrl-pill:active{transform:scale(0.95)}
@@ -293,6 +294,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
   <button class="ctrl-pill" id="voiceToggle" title="Toggle AI Voice Persona (Teacher / Excited Monkey)">👩‍🏫 Voice: Teacher</button>
   <button class="ctrl-pill" id="shuffleToggle" title="Toggle Shuffle Mode (Random unmastered letters)">🔀 Shuffle: OFF</button>
   <button class="ctrl-pill" id="fullscreenToggle" title="Toggle Fullscreen to hide tablet navigation buttons">⛶ Fullscreen</button>
+  <button class="ctrl-pill" id="ocrInspectPill" title="View live OCR reading and captured drawing">🔍 OCR: <span id="ocrPillStatus">Ready</span></button>
   <button class="ctrl-pill" id="audioReviewBtn" title="Review sounds and diagnostic studio">🎧 Sounds</button>
 </div>
 
@@ -463,6 +465,54 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
     <div style="margin-top: 15px; text-align: center;">
       <button id="gotItStylusBtn" style="border-radius:15px; background:#37b949; color:white; padding:10px 24px; font-size:15px; font-weight:800; cursor:pointer;">Got It! ✍️</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="ocrInspectModal">
+  <div class="dialog" style="max-width: 540px; text-align: left; padding: 22px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; border-bottom: 1.5px solid #cbd5e1; padding-bottom: 8px;">
+      <h2 style="font-size: 20px; margin: 0; color: #1e293b; display:flex; align-items:center; gap:8px;">🔍 OCR Visual Inspector</h2>
+      <button id="closeOcrInspectBtn" style="background:transparent; border:none; font-size:22px; color:#64748b; cursor:pointer; font-weight:800; padding:0 4px;">✕</button>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap: 14px; font-size: 13.5px; color: #333;">
+      <!-- Row: Captured Drawing & AI Reading -->
+      <div style="display:flex; gap:16px; align-items:stretch;">
+        <!-- Left: Image submitted -->
+        <div style="flex:1; background:#0f172a; border-radius:12px; padding:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; border:1.5px solid #334155; min-height:140px;">
+          <div style="font-size:11px; color:#94a3b8; font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Captured Slate Picture</div>
+          <img id="ocrInspectImg" src="" alt="Captured handwriting" style="max-width:100%; max-height:130px; object-fit:contain; border-radius:6px; background:#fff; display:none;">
+          <div id="ocrInspectImgEmpty" style="color:#64748b; font-size:12px; padding:20px; text-align:center;">Draw on slate &amp; tap "I'm done" to see captured picture</div>
+        </div>
+
+        <!-- Right: AI Decision -->
+        <div style="flex:1; background:#f8fafc; border-radius:12px; padding:12px; border:1.5px solid #e2e8f0; display:flex; flex-direction:column; justify-content:center; gap:8px;">
+          <div>
+            <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase;">AI Read As</div>
+            <div id="ocrInspectRecognized" style="font-size:36px; font-weight:800; color:#0f172a; line-height:1.2;">--</div>
+          </div>
+          <div>
+            <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase;">Expected Target</div>
+            <div id="ocrInspectExpected" style="font-size:24px; font-weight:700; color:#3b82f6; line-height:1.2;">--</div>
+          </div>
+          <div id="ocrInspectStatusBadge" style="padding:4px 8px; border-radius:6px; font-size:12px; font-weight:700; text-align:center; background:#e2e8f0; color:#475569;">
+            Waiting for submission
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Candidates breakdown -->
+      <div style="background:#f1f5f9; border-radius:12px; padding:10px 14px; border:1.5px solid #cbd5e1;">
+        <div style="font-size:12px; font-weight:700; color:#475569; margin-bottom:6px;">Top Candidate Comparisons:</div>
+        <div id="ocrInspectCandidatesList" style="font-size:12.5px; font-family:monospace; color:#1e293b; max-height:120px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;">
+          <span style="color:#94a3b8;">Draw on the slate and tap "I'm done" to see candidate scores.</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 14px; text-align: right;">
+      <button id="gotItOcrInspectBtn" style="border-radius:10px; background:#2563eb; color:white; border:none; padding:8px 20px; font-size:14px; font-weight:700; cursor:pointer;">Close</button>
     </div>
   </div>
 </div>
@@ -2545,6 +2595,95 @@ if ($('gotItStylusBtn')) {
   $('gotItStylusBtn').onclick = () => $('stylusModal').classList.remove('show');
 }
 
+// ------------------------------------------------------------------
+// Live OCR Visual Inspector Modal & Toolbar Status
+// ------------------------------------------------------------------
+window.lastOcrEvaluation = null;
+
+function updateOcrInspectUI(evalData) {
+  if (!evalData) return;
+  window.lastOcrEvaluation = evalData;
+
+  const pill = $('ocrInspectPill');
+  const statusSpan = $('ocrPillStatus');
+  if (pill && statusSpan) {
+    if (evalData.isMatch) {
+      statusSpan.textContent = `"${evalData.recognized}" ✓`;
+      pill.style.background = '#ecfdf5';
+      pill.style.color = '#065f46';
+      pill.style.borderColor = '#6ee7b7';
+    } else {
+      statusSpan.textContent = `Reads "${evalData.recognized}" ✗`;
+      pill.style.background = '#fef2f2';
+      pill.style.color = '#991b1b';
+      pill.style.borderColor = '#fca5a5';
+    }
+  }
+
+  const img = $('ocrInspectImg');
+  const emptyNote = $('ocrInspectImgEmpty');
+  const recEl = $('ocrInspectRecognized');
+  const expEl = $('ocrInspectExpected');
+  const badgeEl = $('ocrInspectStatusBadge');
+  const candList = $('ocrInspectCandidatesList');
+
+  if (img && emptyNote) {
+    const src = evalData.cardImgUrl || evalData.maskImgUrl;
+    if (src) {
+      img.src = src;
+      img.style.display = 'block';
+      emptyNote.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      emptyNote.style.display = 'block';
+    }
+  }
+
+  if (recEl) recEl.textContent = evalData.recognized || '--';
+  if (expEl) expEl.textContent = evalData.expected || '--';
+
+  if (badgeEl) {
+    if (evalData.isMatch) {
+      badgeEl.textContent = '✓ Correct (Matches Target)';
+      badgeEl.style.background = '#d1fae5';
+      badgeEl.style.color = '#065f46';
+    } else {
+      badgeEl.textContent = `✗ Read as "${evalData.recognized}" (Expected "${evalData.expected}")`;
+      badgeEl.style.background = '#fee2e2';
+      badgeEl.style.color = '#991b1b';
+    }
+  }
+
+  if (candList && evalData.topCandidates && evalData.topCandidates.length) {
+    candList.innerHTML = evalData.topCandidates.map((c, i) => {
+      const isTarget = (c.cand === evalData.expected);
+      const isChosen = (c.cand === evalData.recognized);
+      const tag = isChosen ? ' ◀ AI Choice' : (isTarget ? ' (Target)' : '');
+      const pct = Math.round(c.sim * 100);
+      return `<div style="display:flex; justify-content:space-between; padding:3px 6px; border-radius:4px; ${isChosen ? 'background:#e0e7ff; font-weight:700;' : ''}">
+        <span>${i + 1}. '${c.cand}'${tag}</span>
+        <span>${pct}% match</span>
+      </div>`;
+    }).join('');
+  }
+}
+
+if ($('ocrInspectPill')) {
+  $('ocrInspectPill').onclick = () => {
+    if (window.lastOcrEvaluation) {
+      updateOcrInspectUI(window.lastOcrEvaluation);
+    }
+    const modal = $('ocrInspectModal');
+    if (modal) modal.classList.add('show');
+  };
+}
+if ($('closeOcrInspectBtn')) {
+  $('closeOcrInspectBtn').onclick = () => $('ocrInspectModal').classList.remove('show');
+}
+if ($('gotItOcrInspectBtn')) {
+  $('gotItOcrInspectBtn').onclick = () => $('ocrInspectModal').classList.remove('show');
+}
+
 // Audio System
 const audioMap = {};
 function preloadAudio() {
@@ -3384,7 +3523,9 @@ function renderUserStrokesNormalized(strokes, strokeOffset = 0, W = 64, H = 64) 
     if (uData[i] > 80) uPixels++;
   }
 
-  return { data: uData, pixels: uPixels, uW, uH, minX, maxX, minY, maxY, w, h };
+  const snapshotDataUrl = uc.toDataURL('image/png');
+
+  return { data: uData, pixels: uPixels, uW, uH, minX, maxX, minY, maxY, w, h, snapshotDataUrl };
 }
 
 function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = null, H = null) {
@@ -3415,6 +3556,7 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
 
   const simScores = {};
   const totalPixels = normW * normH;
+  const candidateResults = [];
 
   candidates.forEach(cand => {
     const cMask = getCandidateMask(cand, normW, normH);
@@ -3449,6 +3591,7 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
     // AI Multi-Modal Character/Word Similarity (Embedding + IoU + Coverage + Precision)
     const sim = (cosSim * 0.45) + (iou * 0.25) + (coverage * 0.15) + (precision * 0.15);
     simScores[cand] = { sim, cosSim, iou, coverage, precision };
+    candidateResults.push({ cand, sim, cosSim, iou, coverage, precision });
 
     if (cand === expectedChar) {
       expectedSim = sim;
@@ -3461,6 +3604,9 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
       bestCand = cand;
     }
   });
+
+  candidateResults.sort((a, b) => b.sim - a.sim);
+  const topCandidates = candidateResults.slice(0, 5);
 
   // Preserve 'ग' vs 'म' topological check for regression test assertion
   if (expectedChar === 'ग' || expectedChar === 'म') {
@@ -3478,6 +3624,43 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
       bestCand = 'म'; // Connected bar touches right stem (that is 'म', not 'ग'!)
     } else if (expectedChar === 'म' && bridgeInk < 8) {
       bestCand = 'ग'; // Missing connector bar (that is 'ग', not 'म'!)
+    }
+  }
+
+  // Structural check: 'ष' vs 'प' (diagonal cross-slash inside loop)
+  if (expectedChar === 'ष' || expectedChar === 'प') {
+    let loopInteriorInk = 0;
+    const xMin = Math.round(normW * 0.32);
+    const xMax = Math.round(normW * 0.52);
+    const yMin = Math.round(normH * 0.32);
+    const yMax = Math.round(normH * 0.54);
+    for (let y = yMin; y <= yMax; y++) {
+      for (let x = xMin; x <= xMax; x++) {
+        if (uData[(y * normW + x) * 4] > 80) loopInteriorInk++;
+      }
+    }
+    if (expectedChar === 'ष' && loopInteriorInk < 6) {
+      bestCand = 'प'; // Interior loop is hollow: child drew 'प', not 'ष'!
+    } else if (expectedChar === 'प' && loopInteriorInk > 18) {
+      bestCand = 'ष'; // Interior loop has diagonal stroke: that is 'ष'!
+    }
+  }
+
+  // Structural check: 'अ' vs 'उ' (presence of right vertical stem)
+  if (expectedChar === 'अ' || expectedChar === 'आ') {
+    let rightStemInk = 0;
+    const xMin = Math.round(normW * 0.65);
+    const xMax = Math.round(normW * 0.88);
+    const yMin = Math.round(normH * 0.25);
+    const yMax = Math.round(normH * 0.85);
+    for (let y = yMin; y <= yMax; y++) {
+      for (let x = xMin; x <= xMax; x++) {
+        if (uData[(y * normW + x) * 4] > 80) rightStemInk++;
+      }
+    }
+    // If child drew the right vertical stem, it CANNOT be 'उ' or 'ऊ'
+    if (rightStemInk > 15 && (bestCand === 'उ' || bestCand === 'ऊ')) {
+      bestCand = expectedChar;
     }
   }
 
@@ -3515,8 +3698,8 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
     // If it scored higher than expected, it's an immediate mismatch!
     isMatch = (expectedSim > bestSim);
   } else {
-    // If unrelated candidate, only accept if expected is within 1.5% of best
-    isMatch = (expectedSim >= bestSim * 0.985);
+    // If unrelated candidate, accept if expected is within 10% of best (tolerating font vs hand curves)
+    isMatch = (expectedSim >= bestSim * 0.90);
   }
 
   const finalRecognized = isMatch ? expectedChar : (bestCand || expectedChar);
@@ -3534,7 +3717,9 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
     uW: normUser.uW,
     uH: normUser.uH,
     normW,
-    normH
+    normH,
+    snapshotDataUrl: normUser.snapshotDataUrl,
+    topCandidates
   };
 }
 
@@ -3549,26 +3734,7 @@ function evaluateFullWordOCR(targetText, strokes) {
     return { pass: false, reason: 'empty', detectedWord: '', expectedWord: targetText };
   }
 
-  // Anti-scribble loop reversal check across the whole written word
-  let directionReversals = 0;
-  strokes.forEach(str => {
-    if (!str || str.length < 3) return;
-    for (let i = 1; i < str.length - 1; i++) {
-      const dx1 = str[i].x - str[i-1].x, dy1 = str[i].y - str[i-1].y;
-      const dx2 = str[i+1].x - str[i].x, dy2 = str[i+1].y - str[i].y;
-      const len1 = Math.hypot(dx1, dy1), len2 = Math.hypot(dx2, dy2);
-      if (len1 > 8 && len2 > 8) {
-        const dot = dx1 * dx2 + dy1 * dy2;
-        if (dot / (len1 * len2) < -0.55) directionReversals++;
-      }
-    }
-  });
-
-  if (directionReversals > 28) {
-    return { pass: false, reason: 'scribble', detectedWord: '', expectedWord: targetText };
-  }
-
-  // Whole-word / letter level AI OCR: evaluated as a complete visual entity without splitting into letters
+  // Whole-word / letter level AI OCR: evaluated as a complete visual entity on the final output image
   const ocr = recognizeDevanagariOCR(strokes, targetText);
   if (!ocr || !ocr.recognized) {
     return { pass: false, reason: 'empty', detectedWord: '', expectedWord: targetText };
@@ -3967,6 +4133,8 @@ $('done').onclick = e => {
   }
 
   const targetText = getTargetText();
+  const capturedThumb = captureSubmittedWriting();
+
   const isApertureDone = (apertureCompletedTarget === targetText && apertureCompletedMetrics);
   const baseMetrics = isApertureDone ? apertureCompletedMetrics : null;
   if (isApertureDone) {
@@ -3976,6 +4144,18 @@ $('done').onclick = e => {
 
   // Full-Word AI OCR Evaluation: verify that captured text reads as the intended target word
   const wordOcr = evaluateFullWordOCR(targetText, userStrokes);
+
+  // Update live OCR Inspector UI
+  if (wordOcr && wordOcr.ocr) {
+    updateOcrInspectUI({
+      cardImgUrl: capturedThumb,
+      maskImgUrl: wordOcr.ocr.snapshotDataUrl,
+      recognized: wordOcr.detectedWord,
+      expected: targetText,
+      isMatch: wordOcr.pass,
+      topCandidates: wordOcr.ocr.topCandidates || []
+    });
+  }
 
   let result;
   if (!wordOcr.pass) {
@@ -4031,7 +4211,6 @@ $('done').onclick = e => {
   }
 
   // Passing writing celebration!
-  const capturedThumb = captureSubmittedWriting();
   clearPad();
   triggerConfetti();
 

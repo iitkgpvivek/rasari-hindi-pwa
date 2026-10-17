@@ -659,6 +659,26 @@ test('Full-Word AI OCR Recognizer on final submission (48-dim feature embeddings
   assert(scriptContent.includes("Teacher Reading Rule"), "recognizeDevanagariOCR must use pure Teacher Reading equality check without similarity score buffers");
 });
 
+test('Visual OCR Inspector UI & Topological Discriminators (\'ष\' vs \'प\', \'अ\' vs \'उ\')', () => {
+  // 1. DOM Elements for Inspector Pill and Modal
+  assert(html.includes('id="ocrInspectPill"'), 'OCR Inspector button must exist in top toolbar');
+  assert(html.includes('id="ocrInspectModal"'), 'OCR Inspector modal dialog must exist');
+  assert(html.includes('id="ocrInspectImg"'), 'OCR Inspector must display captured slate handwriting picture');
+  assert(html.includes('id="ocrInspectRecognized"'), 'OCR Inspector must display AI recognized reading');
+  assert(html.includes('id="ocrInspectExpected"'), 'OCR Inspector must display expected target character');
+  assert(html.includes('id="ocrInspectCandidatesList"'), 'OCR Inspector must display top candidate comparisons');
+
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  // 2. OCR Inspector updater function and snapshot data
+  assert(scriptContent.includes('function updateOcrInspectUI('), 'updateOcrInspectUI function must exist');
+  assert(scriptContent.includes('snapshotDataUrl'), 'renderUserStrokesNormalized must export snapshotDataUrl for visual inspection');
+
+  // 3. Topological Discriminators
+  assert(scriptContent.includes("expectedChar === 'ष' || expectedChar === 'प'"), "'ष' vs 'प' discriminator must exist");
+  assert(scriptContent.includes("expectedChar === 'अ' || expectedChar === 'आ'"), "'अ' vs 'उ' discriminator must exist");
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');
