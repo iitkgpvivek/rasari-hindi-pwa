@@ -3373,6 +3373,8 @@ function getOcrCandidates(expectedUnit) {
     const matra = u.slice(base.length);
     const confs = DEVANAGARI_CONFUSIONS[base] || [];
     confs.forEach(c => {
+      // In multi-akshara words, avoid generating non-words with geometric sub-shapes (e.g. 'उ'/'ऊ' for 'अ')
+      if ((base === 'अ' || base === 'आ') && (c === 'उ' || c === 'ऊ')) return;
       const altUnit = c + matra;
       const altWord = units.slice(0, i).join('') + altUnit + units.slice(i + 1).join('');
       if (!candidates.includes(altWord)) candidates.push(altWord);
@@ -3662,6 +3664,23 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
     if (rightStemInk > 15 && (bestCand === 'उ' || bestCand === 'ऊ')) {
       bestCand = expectedChar;
     }
+  } else if ((expectedChar.startsWith('अ') || expectedChar.startsWith('आ')) && (bestCand.startsWith('उ') || bestCand.startsWith('ऊ'))) {
+    // Word starts with 'अ' or 'आ' (e.g. 'अखबार', 'अनार'): check if first letter has the vertical stem
+    const firstUnitW = normW / Math.max(1, unitCount);
+    let rightStemInk = 0;
+    const xMin = Math.round(firstUnitW * 0.55);
+    const xMax = Math.round(firstUnitW * 0.95);
+    const yMin = Math.round(normH * 0.25);
+    const yMax = Math.round(normH * 0.85);
+    for (let y = yMin; y <= yMax; y++) {
+      for (let x = xMin; x <= xMax; x++) {
+        if (uData[(y * normW + x) * 4] > 80) rightStemInk++;
+      }
+    }
+    // If child drew the vertical stem of 'अ', candidate starting with 'उ' is disqualified!
+    if (rightStemInk > 10) {
+      bestCand = expectedChar;
+    }
   }
 
   let topBarInk = 0;
@@ -3694,9 +3713,12 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
   if (bestCand === expectedChar) {
     isMatch = true;
   } else if (isConfusion) {
-    // If it is a known lookalike confusion (e.g. 'प' for 'ष', 'म' for 'न', 'अमार' for 'अनार'):
-    // If it scored higher than expected, it's an immediate mismatch!
-    isMatch = (expectedSim > bestSim);
+    // For a lookalike confusion competitor (e.g. 'प' for 'ष', 'म' for 'न', 'अमार' for 'अनार')
+    // to beat the target word, it MUST be decisively better (by at least 6%).
+    // In human handwriting, sub-pixel font rasterization differences of 1-3% (e.g. 74% vs 71%)
+    // must NEVER reject a correctly written target word!
+    const isDecisivelyBetter = (bestSim > expectedSim * 1.06) && (bestSim - expectedSim > 0.035);
+    isMatch = !isDecisivelyBetter;
   } else {
     // If unrelated candidate, accept if expected is within 10% of best (tolerating font vs hand curves)
     isMatch = (expectedSim >= bestSim * 0.90);
