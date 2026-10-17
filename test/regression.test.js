@@ -680,6 +680,27 @@ test('Visual OCR Inspector UI & Topological Discriminators (\'ष\' vs \'प\', 
   assert(scriptContent.includes("expectedChar === 'म' || expectedChar === 'न'"), "'म' vs 'न' discriminator must exist");
 });
 
+test('Multimodal Gemini AI Vision Evaluator & Offline Fallback Resilience', () => {
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  // 1. Gemini Vision Evaluator function and default key
+  assert(scriptContent.includes('async function evaluateWithGeminiVision('), 'evaluateWithGeminiVision function must exist');
+  assert(scriptContent.includes('gemini-flash-lite-latest') || scriptContent.includes('gemini-3.8-flash'), 'Must use fast multimodal free tier model');
+
+  // 2. Offline Resilience (AGENTS.md rule)
+  assert(scriptContent.includes('navigator.onLine === false'), 'Must verify online status to prevent stalling when offline');
+  assert(scriptContent.includes('AbortController'), 'Must use AbortController with timeout for flaky network resilience');
+
+  // 3. Integration in Done Click Handler
+  const doneMatch = html.match(/\$\('done'\)\.onclick[\s\S]*?\}\;/);
+  assert(doneMatch, 'Done click handler must exist');
+  assert(doneMatch[0].includes('evaluateWithGeminiVision(capturedThumb, targetText)'), 'Done handler must consult Gemini Vision');
+  assert(doneMatch[0].includes('evaluateFullWordOCR(targetText, userStrokes)'), 'Done handler must maintain local OCR baseline');
+
+  // 4. Unicode NFC Normalization
+  assert(scriptContent.includes(".normalize('NFC')"), 'Must use Unicode NFC normalization for Devanagari nuktas and ligatures');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');

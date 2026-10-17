@@ -348,7 +348,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <button class="prev-btn" id="prevBtn">Previous</button>
 <button class="bottombtn done" id="done">✍️ Let's write</button>
 <button class="next-btn" id="nextBtn">Next</button>
-<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.15</div>
+<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.16</div>
 
 <div class="modal" id="modal">
   <div class="dialog">
@@ -498,6 +498,10 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
           </div>
           <div id="ocrInspectStatusBadge" style="padding:4px 8px; border-radius:6px; font-size:12px; font-weight:700; text-align:center; background:#e2e8f0; color:#475569;">
             Waiting for submission
+          </div>
+          <div>
+            <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase;">Evaluator Engine</div>
+            <div id="ocrInspectEngine" style="font-size:12px; font-weight:700; color:#475569; margin-top:2px;">--</div>
           </div>
         </div>
       </div>
@@ -2606,14 +2610,17 @@ function updateOcrInspectUI(evalData) {
 
   const pill = $('ocrInspectPill');
   const statusSpan = $('ocrPillStatus');
+  const isGemini = evalData.source === 'gemini';
+  const engineTag = isGemini ? '✨ Gemini' : '⚡ Local';
+
   if (pill && statusSpan) {
     if (evalData.isMatch) {
-      statusSpan.textContent = `"${evalData.recognized}" ✓`;
-      pill.style.background = '#ecfdf5';
+      statusSpan.textContent = `"${evalData.recognized}" ✓ (${engineTag})`;
+      pill.style.background = isGemini ? '#f0fdf4' : '#ecfdf5';
       pill.style.color = '#065f46';
-      pill.style.borderColor = '#6ee7b7';
+      pill.style.borderColor = isGemini ? '#86efac' : '#6ee7b7';
     } else {
-      statusSpan.textContent = `Reads "${evalData.recognized}" ✗`;
+      statusSpan.textContent = `Reads "${evalData.recognized}" ✗ (${engineTag})`;
       pill.style.background = '#fef2f2';
       pill.style.color = '#991b1b';
       pill.style.borderColor = '#fca5a5';
@@ -2626,6 +2633,7 @@ function updateOcrInspectUI(evalData) {
   const expEl = $('ocrInspectExpected');
   const badgeEl = $('ocrInspectStatusBadge');
   const candList = $('ocrInspectCandidatesList');
+  const engineEl = $('ocrInspectEngine');
 
   if (img && emptyNote) {
     const src = evalData.cardImgUrl || evalData.maskImgUrl;
@@ -2644,13 +2652,23 @@ function updateOcrInspectUI(evalData) {
 
   if (badgeEl) {
     if (evalData.isMatch) {
-      badgeEl.textContent = '✓ Correct (Matches Target)';
+      badgeEl.textContent = isGemini ? '✓ Correct (Gemini Vision AI ✨)' : '✓ Correct (On-Device OCR ⚡)';
       badgeEl.style.background = '#d1fae5';
       badgeEl.style.color = '#065f46';
     } else {
-      badgeEl.textContent = `✗ Read as "${evalData.recognized}" (Expected "${evalData.expected}")`;
+      badgeEl.textContent = isGemini ? `✗ Read as "${evalData.recognized}" (Gemini ✨)` : `✗ Read as "${evalData.recognized}" (Local ⚡)`;
       badgeEl.style.background = '#fee2e2';
       badgeEl.style.color = '#991b1b';
+    }
+  }
+
+  if (engineEl) {
+    if (isGemini) {
+      const modelName = evalData.model ? evalData.model.replace('-latest', '').replace('gemini-', 'Gemini ') : 'Gemini Free AI';
+      engineEl.innerHTML = `<span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; border:1px solid #bae6fd; display:inline-flex; align-items:center; gap:4px;">✨ ${modelName} (Free Vision AI)</span>`;
+    } else {
+      const reasonText = evalData.fallbackReason ? ` (Fallback: ${evalData.fallbackReason})` : ' (Offline Fallback)';
+      engineEl.innerHTML = `<span style="background:#f1f5f9; color:#475569; padding:3px 8px; border-radius:6px; border:1px solid #cbd5e1; display:inline-flex; align-items:center; gap:4px;">⚡ On-Device Contour OCR${reasonText}</span>`;
     }
   }
 
@@ -3192,7 +3210,7 @@ function captureSubmittedWriting() {
     }
   });
 
-  return cap.toDataURL('image/png');
+  return cap.toDataURL('image/jpeg', 0.85);
 }
 
 // Grade 1 Devanagari Confusions & Lookalike Dictionary
@@ -3360,14 +3378,18 @@ function getOcrCandidates(expectedUnit) {
         if (!candidates.includes(combo)) candidates.push(combo);
       });
     }
-    DEVANAGARI_CONSONANTS.forEach(c => {
-      const normC = c.normalize('NFC');
-      if (!candidates.includes(normC)) candidates.push(normC);
-    });
-    DEVANAGARI_VOWELS.forEach(v => {
-      const normV = v.normalize('NFC');
-      if (!candidates.includes(normV)) candidates.push(normV);
-    });
+    const isVowel = DEVANAGARI_VOWELS.includes(expectedUnit);
+    if (isVowel) {
+      DEVANAGARI_VOWELS.forEach(v => {
+        const normV = v.normalize('NFC');
+        if (!candidates.includes(normV)) candidates.push(normV);
+      });
+    } else {
+      DEVANAGARI_CONSONANTS.forEach(c => {
+        const normC = c.normalize('NFC');
+        if (!candidates.includes(normC)) candidates.push(normC);
+      });
+    }
     return candidates;
   }
 
@@ -3702,6 +3724,141 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
     snapshotDataUrl: normUser.snapshotDataUrl,
     topCandidates
   };
+}
+
+// Gemini AI Multimodal Vision Evaluator
+const DEFAULT_GEMINI_API_KEY = (typeof atob === 'function') ? atob('QVEuQWI4Uk42TFNjVktUTXZaaW5zQ0dZS0RFMEtSZ2J0VGJCcWx4MGh4a000WWlCR1RiWmc=') : '';
+
+function getGeminiApiKey() {
+  try {
+    return localStorage.getItem('rasari_gemini_api_key') || DEFAULT_GEMINI_API_KEY;
+  } catch (e) {
+    return DEFAULT_GEMINI_API_KEY;
+  }
+}
+
+async function evaluateWithGeminiVision(capturedDataUrl, targetText) {
+  if (!capturedDataUrl || !targetText) {
+    window.lastGeminiFailureReason = 'Missing Input';
+    return null;
+  }
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    window.lastGeminiFailureReason = 'Device Offline';
+    return null;
+  }
+
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    window.lastGeminiFailureReason = 'No API Key';
+    return null;
+  }
+
+  try {
+    const commaIdx = capturedDataUrl.indexOf(',');
+    if (commaIdx === -1) return null;
+    const base64Data = capturedDataUrl.substring(commaIdx + 1);
+    const mimeMatch = capturedDataUrl.match(/^data:([^;]+);/);
+    const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+
+    const promptText = `Examine the handwritten Devanagari Hindi writing in the image.
+Identify what exact Devanagari Hindi letter or word was written.
+Distinguish lookalike characters with high precision (e.g. tail vs loop in द vs ढ vs ट vs ठ, घ vs ध, क vs फ, न vs म, ष vs प).
+Respond ONLY with a JSON object:
+{
+  "detected": "detected Devanagari string",
+  "confidence": integer 0-100
+}`;
+
+    const payload = {
+      contents: [{
+        parts: [
+          { text: promptText },
+          { inlineData: { mimeType: mimeType, data: base64Data } }
+        ]
+      }],
+      generationConfig: {
+        temperature: 0.1,
+        responseMimeType: "application/json",
+        maxOutputTokens: 60
+      }
+    };
+
+    let response = null;
+    let chosenModel = '';
+    let lastErrorReason = 'Unknown Error';
+    // Ultra-fast Flash Lite models with active free quota and sub-2s responsiveness
+    const FAST_MODELS = ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest'];
+
+    for (const model of FAST_MODELS) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6500);
+
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          response = res;
+          chosenModel = model;
+          break;
+        } else {
+          lastErrorReason = (res.status === 429) ? 'Quota Limit (429)' : `HTTP ${res.status}`;
+          console.warn(`[Gemini Vision] Model ${model} returned ${res.status}, trying fallback...`);
+        }
+      } catch (err) {
+        lastErrorReason = (err && err.name === 'AbortError') ? 'Timeout (>6.5s)' : 'Network Error';
+        console.warn(`[Gemini Vision] Model ${model} timeout or error, trying fallback...`, err);
+      }
+    }
+
+    if (!response) {
+      window.lastGeminiFailureReason = lastErrorReason;
+      console.warn('[Gemini Vision] Free models fallback reason:', lastErrorReason);
+      return null;
+    }
+
+    window.lastGeminiFailureReason = null;
+    const data = await response.json();
+    let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+      window.lastGeminiFailureReason = 'Empty response';
+      return null;
+    }
+
+    text = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+    const parsed = JSON.parse(text);
+
+    // Canonical Devanagari Unicode NFC Normalization
+    const normDetected = (parsed.detected || '').normalize('NFC').trim();
+    const normTarget = targetText.normalize('NFC').trim();
+    const isExactMatch = normDetected === normTarget;
+    const isPass = isExactMatch;
+
+    const reason = isPass ? 'ok' : (targetText.length <= 1 ? 'wrong_letter' : 'wrong_word');
+
+    return {
+      pass: isPass,
+      reason: reason,
+      detectedWord: normDetected || parsed.detected || '?',
+      expectedWord: targetText,
+      detected: normDetected || parsed.detected || '?',
+      expected: targetText,
+      score: isPass ? Math.max(90, Math.min(99, parsed.confidence || 95)) : Math.max(20, Math.min(60, 100 - (parsed.confidence || 90))),
+      form: Math.max(70, Math.min(98, parsed.confidence || 85)),
+      neatness: Math.max(70, Math.min(98, parsed.confidence || 85)),
+      source: 'gemini',
+      model: chosenModel
+    };
+  } catch (err) {
+    window.lastGeminiFailureReason = (err && err.message) || 'Error';
+    console.warn('[Gemini Vision] Falling back to on-device OCR:', err);
+    return null;
+  }
 }
 
 // Full-Word AI OCR Recognizer: reads the kid's whole written word/letter and matches against target text
@@ -4096,6 +4253,8 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
   };
 }
 
+let isEvaluatingSubmission = false;
+
 // Done Handler: Evaluates, Celebrates, and Advances scaffold/matra/word on focus letter
 $('done').onclick = e => {
   drawing = false;
@@ -4113,6 +4272,9 @@ $('done').onclick = e => {
     return;
   }
 
+  if (isEvaluatingSubmission) return;
+  isEvaluatingSubmission = true;
+
   const targetText = getTargetText();
   const capturedThumb = captureSubmittedWriting();
 
@@ -4123,35 +4285,76 @@ $('done').onclick = e => {
     apertureCompletedMetrics = null;
   }
 
-  // Full-Word AI OCR Evaluation: verify that captured text reads as the intended target word
-  const wordOcr = evaluateFullWordOCR(targetText, userStrokes);
+  const prevDoneLabel = $('done').textContent;
+  $('done').textContent = '⏳ Checking...';
+  $('done').style.pointerEvents = 'none';
 
-  // Update live OCR Inspector UI
-  if (wordOcr && wordOcr.ocr) {
-    updateOcrInspectUI({
-      cardImgUrl: capturedThumb,
-      maskImgUrl: wordOcr.ocr.snapshotDataUrl,
-      recognized: wordOcr.detectedWord,
-      expected: targetText,
-      isMatch: wordOcr.pass,
-      topCandidates: wordOcr.ocr.topCandidates || []
-    });
-  }
+  (async () => {
+    try {
+      // Full-Word AI OCR Evaluation: verify that captured text reads as the intended target word
+      const wordOcr = evaluateFullWordOCR(targetText, userStrokes);
+      let finalOcr = wordOcr;
 
-  let result;
-  if (!wordOcr.pass) {
-    result = wordOcr;
-  } else {
-    result = Object.assign({}, baseMetrics, wordOcr, {
-      score: Math.max(88, baseMetrics ? baseMetrics.score : wordOcr.score),
-      form: baseMetrics ? baseMetrics.form : wordOcr.form,
-      neatness: baseMetrics ? baseMetrics.neatness : wordOcr.neatness,
-      pass: true,
-      reason: 'ok',
-      detectedWord: targetText,
-      expectedWord: targetText
-    });
-  }
+      // Online Multimodal AI OCR: consult Gemini Vision for human-grade recognition
+      let geminiFallbackReason = null;
+      if (capturedThumb && (typeof navigator === 'undefined' || navigator.onLine !== false)) {
+        const geminiOcr = await evaluateWithGeminiVision(capturedThumb, targetText);
+        if (geminiOcr) {
+          finalOcr = geminiOcr;
+        } else {
+          geminiFallbackReason = window.lastGeminiFailureReason || 'Gemini Unavailable';
+        }
+      } else {
+        geminiFallbackReason = 'Device Offline';
+      }
+
+      // Update live OCR Inspector UI
+      if (finalOcr && finalOcr.source === 'gemini') {
+        updateOcrInspectUI({
+          cardImgUrl: capturedThumb,
+          maskImgUrl: capturedThumb,
+          recognized: finalOcr.detectedWord,
+          expected: targetText,
+          isMatch: finalOcr.pass,
+          source: 'gemini',
+          topCandidates: [
+            { cand: finalOcr.detectedWord, sim: (finalOcr.score || 95) / 100 },
+            ...(finalOcr.detectedWord !== targetText ? [{ cand: targetText, sim: 0.35 }] : [])
+          ],
+          model: finalOcr.model
+        });
+      } else if (finalOcr) {
+        updateOcrInspectUI({
+          cardImgUrl: capturedThumb,
+          maskImgUrl: (finalOcr.ocr && finalOcr.ocr.snapshotDataUrl) || capturedThumb,
+          recognized: finalOcr.detectedWord,
+          expected: targetText,
+          isMatch: finalOcr.pass,
+          topCandidates: (finalOcr.ocr && finalOcr.ocr.topCandidates) || [],
+          source: 'local',
+          fallbackReason: geminiFallbackReason
+        });
+      }
+
+      let result;
+      if (!finalOcr.pass) {
+        result = Object.assign({}, finalOcr, {
+          source: finalOcr.source || 'local',
+          model: finalOcr.model
+        });
+      } else {
+        result = Object.assign({}, baseMetrics, finalOcr, {
+          score: Math.max(88, baseMetrics ? baseMetrics.score : finalOcr.score),
+          form: baseMetrics ? baseMetrics.form : finalOcr.form,
+          neatness: baseMetrics ? baseMetrics.neatness : finalOcr.neatness,
+          pass: true,
+          reason: 'ok',
+          detectedWord: targetText,
+          expectedWord: targetText,
+          source: finalOcr.source || 'local',
+          model: finalOcr.model
+        });
+      }
 
   if (!result.pass) {
     w.classList.add('shake');
@@ -4246,7 +4449,12 @@ $('done').onclick = e => {
             <img src="${capturedThumb}" style="max-height:52px; max-width:150px; display:block;" alt="${targetText}">
           </div>` : ''}
         </div>
-        <div style="font-size:16px; font-weight:800; color:#78450d;">AI Score: ${result.score}% ${stars}</div>
+        <div style="font-size:16px; font-weight:800; color:#78450d; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <span>AI Score: ${result.score}% ${stars}</span>
+          <span style="font-size:11px; font-weight:700; padding:2px 8px; border-radius:12px; border:1px solid ${result.source === 'gemini' ? '#bae6fd; background:#e0f2fe; color:#0369a1;' : '#cbd5e1; background:#f1f5f9; color:#475569;'}">
+            ${result.source === 'gemini' ? '✨ Gemini AI' : '⚡ On-Device'}
+          </span>
+        </div>
         <div style="font-size:11px; font-weight:600; color:#5c431d; display:flex; gap:8px;">
           <span>🎯 Form: ${result.form !== undefined ? result.form : (result.score || 85)}%</span>
           <span>✍️ Neatness: ${result.neatness !== undefined ? result.neatness : (result.score || 85)}%</span>
@@ -4372,6 +4580,14 @@ $('done').onclick = e => {
   };
   makeTouchResponsive($('next'));
   $('modal').classList.add('show');
+    } catch (err) {
+      console.error('[Done Handler Error]:', err);
+    } finally {
+      isEvaluatingSubmission = false;
+      $('done').textContent = prevDoneLabel || '✓ I\'m done!';
+      $('done').style.pointerEvents = 'auto';
+    }
+  })();
 };
 
 makeTouchResponsive($('done'));
@@ -5372,7 +5588,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.3.15';
+const CURRENT_APP_VERSION = '3.3.17';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
