@@ -3452,19 +3452,41 @@ function getCandidateMask(char, W = 64, H = 64) {
   }
 
   const finalData = nx.getImageData(0, 0, w, h).data;
+  const binary = new Uint8Array(w * h);
+  const dilated = new Uint8Array(w * h);
   for (let i = 0; i < finalData.length; i += 4) {
-    if (finalData[i] > 80) finalCount++;
+    if (finalData[i] > 80) {
+      finalCount++;
+      binary[i / 4] = 1;
+    }
+  }
+
+  const radius = 2;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (!binary[y * w + x]) continue;
+      const yMin = Math.max(0, y - radius);
+      const yMax = Math.min(h - 1, y + radius);
+      const xMin = Math.max(0, x - radius);
+      const xMax = Math.min(w - 1, x + radius);
+      for (let ny = yMin; ny <= yMax; ny++) {
+        const rowOff = ny * w;
+        for (let nx = xMin; nx <= xMax; nx++) {
+          dilated[rowOff + nx] = 1;
+        }
+      }
+    }
   }
 
   const featObj = extractDevanagariFeatures(finalData, w, h);
-  const res = { data: finalData, pixels: finalCount, feat: featObj.feat, w, h };
+  const res = { data: finalData, pixels: finalCount, feat: featObj.feat, binary, dilated, w, h };
   ocrCandidateCache[key] = res;
   return res;
 }
 
 function renderUserStrokesNormalized(strokes, strokeOffset = 0, W = 64, H = 64) {
   const S = (typeof W === 'number' && typeof H !== 'number') ? W : 64;
-  const w = (typeof H === 'number') ? W : S;
+  const w = (typeof H === 'number') ? H : S;
   const h = (typeof H === 'number') ? H : S;
 
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -3547,6 +3569,29 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
   const uFeatObj = extractDevanagariFeatures(uData, normW, normH);
   const uFeat = uFeatObj.feat;
 
+  const totalPixels = normW * normH;
+  const uBinary = new Uint8Array(totalPixels);
+  const uDilated = new Uint8Array(totalPixels);
+  for (let i = 0; i < totalPixels; i++) {
+    if (uData[i * 4] > 80) uBinary[i] = 1;
+  }
+  const uRad = 2;
+  for (let y = 0; y < normH; y++) {
+    for (let x = 0; x < normW; x++) {
+      if (!uBinary[y * normW + x]) continue;
+      const yMin = Math.max(0, y - uRad);
+      const yMax = Math.min(normH - 1, y + uRad);
+      const xMin = Math.max(0, x - uRad);
+      const xMax = Math.min(normW - 1, x + uRad);
+      for (let ny = yMin; ny <= yMax; ny++) {
+        const rowOff = ny * normW;
+        for (let nx = xMin; nx <= xMax; nx++) {
+          uDilated[rowOff + nx] = 1;
+        }
+      }
+    }
+  }
+
   const candidates = getOcrCandidates(expectedChar);
 
   let bestCand = null;
@@ -3557,7 +3602,6 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
   let expectedPrec = 0;
 
   const simScores = {};
-  const totalPixels = normW * normH;
   const candidateResults = [];
 
   candidates.forEach(cand => {
@@ -3565,23 +3609,23 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
     const cData = cMask.data;
     const cPixels = cMask.pixels;
     const cFeat = cMask.feat || extractDevanagariFeatures(cData, normW, normH).feat;
+    const cBin = cMask.binary;
+    const cDil = cMask.dilated;
 
-    let matched = 0;
-    let uOnly = 0;
-    let cOnly = 0;
+    let uMatched = 0;
+    let cMatched = 0;
 
     for (let i = 0; i < totalPixels; i++) {
-      const u = uData[i * 4] > 80;
-      const c = cData[i * 4] > 80;
-      if (u && c) matched++;
-      else if (u && !c) uOnly++;
-      else if (!u && c) cOnly++;
+      if (uBinary[i] && cDil[i]) uMatched++;
+      if (cBin[i] && uDilated[i]) cMatched++;
     }
 
-    const union = matched + uOnly + cOnly;
-    const iou = union > 0 ? (matched / union) : 0;
-    const coverage = cPixels > 0 ? (matched / cPixels) : 0;
-    const precision = uPixels > 0 ? (matched / uPixels) : 0;
+    const precision = uPixels > 0 ? (uMatched / uPixels) : 0;
+    const coverage = cPixels > 0 ? (cMatched / cPixels) : 0;
+    const f1 = (precision + coverage > 0) ? ((2 * precision * coverage) / (precision + coverage)) : 0;
+    const avgMatched = (uMatched + cMatched) / 2;
+    const union = uPixels + cPixels - avgMatched;
+    const iou = union > 0 ? (avgMatched / union) : 0;
 
     let cosSim = 0;
     if (uFeat && cFeat) {
@@ -3590,10 +3634,10 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
       cosSim = iou;
     }
 
-    // Pure Visual OCR Multi-Modal Similarity (Pixel IoU + Precision + Coverage + Feature CosSim)
-    const sim = (iou * 0.40) + (precision * 0.25) + (coverage * 0.20) + (cosSim * 0.15);
-    simScores[cand] = { sim, cosSim, iou, coverage, precision };
-    candidateResults.push({ cand, sim, cosSim, iou, coverage, precision });
+    // Pure Visual Distance-Tolerant OCR Similarity (Balanced F1 + Tolerance IoU + Precision + Coverage)
+    const sim = (f1 * 0.40) + (iou * 0.30) + (precision * 0.15) + (coverage * 0.10) + (cosSim * 0.05);
+    simScores[cand] = { sim, cosSim, iou, coverage, precision, f1 };
+    candidateResults.push({ cand, sim, cosSim, iou, coverage, precision, f1 });
 
     if (cand === expectedChar) {
       expectedSim = sim;
