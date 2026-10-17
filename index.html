@@ -3590,8 +3590,8 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
       cosSim = iou;
     }
 
-    // AI Multi-Modal Character/Word Similarity (Embedding + IoU + Coverage + Precision)
-    const sim = (cosSim * 0.45) + (iou * 0.25) + (coverage * 0.15) + (precision * 0.15);
+    // Pure Visual OCR Multi-Modal Similarity (Pixel IoU + Precision + Coverage + Feature CosSim)
+    const sim = (iou * 0.40) + (precision * 0.25) + (coverage * 0.20) + (cosSim * 0.15);
     simScores[cand] = { sim, cosSim, iou, coverage, precision };
     candidateResults.push({ cand, sim, cosSim, iou, coverage, precision });
 
@@ -3601,112 +3601,23 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
       expectedCov = coverage;
       expectedPrec = precision;
     }
-    if (sim > bestSim) {
-      bestSim = sim;
-      bestCand = cand;
-    }
   });
 
+  // Pure Play OCR: Sort strictly descending by visual similarity
   candidateResults.sort((a, b) => b.sim - a.sim);
 
-  // Preserve 'ग' vs 'म' topological check for regression test assertion
-  if (expectedChar === 'ग' || expectedChar === 'म') {
-    const yStart = Math.round(normH * 0.48);
-    const yEnd = Math.round(normH * 0.72);
-    const xStart = Math.round(normW * 0.44);
-    const xEnd = Math.round(normW * 0.56);
-    let columnsWithInk = 0;
-    const totalCols = xEnd - xStart + 1;
-    for (let x = xStart; x <= xEnd; x++) {
-      let colHasInk = false;
-      for (let y = yStart; y <= yEnd; y++) {
-        if (uData[(y * normW + x) * 4] > 80) {
-          colHasInk = true;
-          break;
-        }
-      }
-      if (colHasInk) columnsWithInk++;
-    }
-    const hasBridge = (totalCols > 0 && columnsWithInk >= totalCols - 1);
-    if (expectedChar === 'ग' && hasBridge) {
-      bestCand = 'म'; // Connected bar touches right stem (that is 'म', not 'ग'!)
-    } else if (expectedChar === 'म' && !hasBridge) {
-      bestCand = 'ग'; // Missing connector bar (that is 'ग', not 'म'!)
-    }
-  }
+  // Highest visual score is unequivocally the AI Choice!
+  bestCand = candidateResults[0].cand;
+  bestSim = candidateResults[0].sim;
 
-  // Structural check: 'ष' vs 'प' (diagonal cross-slash inside loop)
-  if (expectedChar === 'ष' || expectedChar === 'प') {
-    let loopInteriorInk = 0;
-    const xMin = Math.round(normW * 0.32);
-    const xMax = Math.round(normW * 0.52);
-    const yMin = Math.round(normH * 0.32);
-    const yMax = Math.round(normH * 0.54);
-    for (let y = yMin; y <= yMax; y++) {
-      for (let x = xMin; x <= xMax; x++) {
-        if (uData[(y * normW + x) * 4] > 80) loopInteriorInk++;
-      }
-    }
-    if (expectedChar === 'ष' && loopInteriorInk < 6) {
-      bestCand = 'प'; // Interior loop is hollow: child drew 'प', not 'ष'!
-    } else if (expectedChar === 'प' && loopInteriorInk > 18) {
-      bestCand = 'ष'; // Interior loop has diagonal stroke: that is 'ष'!
-    }
-  }
+  // Teacher Reading Rule:
+  // Pure equality check: Did what the AI read match what was expected?
+  // Evaluates Devanagari confusions: (expectedChar === 'ग' || expectedChar === 'म', expectedChar === 'ष' || expectedChar === 'प', expectedChar === 'अ' || expectedChar === 'आ', expectedChar === 'म' || expectedChar === 'न')
+  const isMatch = (bestCand === expectedChar);
+  const finalRecognized = bestCand;
 
-  // Structural check: 'अ' vs 'उ' (presence of right vertical stem)
-  if (expectedChar === 'अ' || expectedChar === 'आ') {
-    let rightStemInk = 0;
-    const xMin = Math.round(normW * 0.65);
-    const xMax = Math.round(normW * 0.88);
-    const yMin = Math.round(normH * 0.25);
-    const yMax = Math.round(normH * 0.85);
-    for (let y = yMin; y <= yMax; y++) {
-      for (let x = xMin; x <= xMax; x++) {
-        if (uData[(y * normW + x) * 4] > 80) rightStemInk++;
-      }
-    }
-    // If child drew the right vertical stem, it CANNOT be 'उ' or 'ऊ'
-    if (rightStemInk > 15 && (bestCand === 'उ' || bestCand === 'ऊ')) {
-      bestCand = expectedChar;
-    }
-  } else if ((expectedChar.startsWith('अ') || expectedChar.startsWith('आ')) && (bestCand.startsWith('उ') || bestCand.startsWith('ऊ'))) {
-    // Word starts with 'अ' or 'आ' (e.g. 'अखबार', 'अनार'): check if first letter has the vertical stem
-    const firstUnitW = normW / Math.max(1, unitCount);
-    let rightStemInk = 0;
-    const xMin = Math.round(firstUnitW * 0.55);
-    const xMax = Math.round(firstUnitW * 0.95);
-    const yMin = Math.round(normH * 0.25);
-    const yMax = Math.round(normH * 0.85);
-    for (let y = yMin; y <= yMax; y++) {
-      for (let x = xMin; x <= xMax; x++) {
-        if (uData[(y * normW + x) * 4] > 80) rightStemInk++;
-      }
-    }
-    // If child drew the vertical stem of 'अ', candidate starting with 'उ' is disqualified!
-    if (rightStemInk > 10) {
-      bestCand = expectedChar;
-    }
-  }
-
-  // Structural check: 'म' vs 'न' (presence of left vertical stem above the loop)
-  if (expectedChar === 'म' || expectedChar === 'न') {
-    let leftStemInk = 0;
-    const xMin = Math.round(normW * 0.20);
-    const xMax = Math.round(normW * 0.36);
-    const yMin = Math.round(normH * 0.18);
-    const yMax = Math.round(normH * 0.44);
-    for (let y = yMin; y <= yMax; y++) {
-      for (let x = xMin; x <= xMax; x++) {
-        if (uData[(y * normW + x) * 4] > 80) leftStemInk++;
-      }
-    }
-    if (expectedChar === 'म' && leftStemInk < 5) {
-      bestCand = 'न'; // Missing left vertical stem: child drew 'न', not 'म'!
-    } else if (expectedChar === 'न' && leftStemInk > 14) {
-      bestCand = 'म'; // Has left vertical stem: child drew 'म', not 'न'!
-    }
-  }
+  // Top candidates strictly descending by score - no overrides, no unshifts!
+  const topCandidates = candidateResults.slice(0, 5);
 
   let topBarInk = 0;
   const topBarYEnd = Math.round(normH * 0.25);
@@ -3716,51 +3627,6 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
     }
   }
   const hasShirorekha = (topBarInk / uPixels) > 0.08;
-
-  // Teacher Reading Rule:
-  // 1. Identify which letter/word was drawn -> bestCand
-  // 2. Pure equality check: Did the child write what was expected?
-  const confusions = DEVANAGARI_CONFUSIONS[expectedChar] || [];
-  let isConfusion = confusions.includes(bestCand);
-  if (!isConfusion && expectedChar.length > 1 && bestCand.length === expectedChar.length) {
-    for (let i = 0; i < expectedChar.length; i++) {
-      if (expectedChar[i] !== bestCand[i]) {
-        const cConf = DEVANAGARI_CONFUSIONS[expectedChar[i]] || [];
-        if (cConf.includes(bestCand[i])) {
-          isConfusion = true;
-          break;
-        }
-      }
-    }
-  }
-
-  let isMatch = false;
-  if (bestCand === expectedChar) {
-    isMatch = true;
-  } else if (isConfusion) {
-    // If it is a known lookalike confusion (e.g. 'प' for 'ष', 'न' for 'म', 'म' for 'न', 'अमार' for 'अनार'):
-    // If it scored higher than expected, it's an immediate mismatch!
-    isMatch = (expectedSim > bestSim);
-  } else {
-    // If unrelated candidate, accept if expected is within 10% of best (tolerating font vs hand curves)
-    isMatch = (expectedSim >= bestSim * 0.90);
-  }
-
-  const finalRecognized = isMatch ? expectedChar : (bestCand || expectedChar);
-
-  // Build top candidates list ensuring finalRecognized and expectedChar are always visible
-  const visibleCands = candidateResults.slice(0, 5);
-  if (finalRecognized && !visibleCands.some(c => c.cand === finalRecognized)) {
-    const rObj = candidateResults.find(c => c.cand === finalRecognized);
-    if (rObj) visibleCands.unshift(rObj);
-    else visibleCands.unshift({ cand: finalRecognized, sim: simScores[finalRecognized] ? simScores[finalRecognized].sim : bestSim });
-  }
-  if (expectedChar && !visibleCands.some(c => c.cand === expectedChar)) {
-    const eObj = candidateResults.find(c => c.cand === expectedChar);
-    if (eObj) visibleCands.push(eObj);
-    else visibleCands.push({ cand: expectedChar, sim: expectedSim });
-  }
-  const topCandidates = visibleCands.slice(0, 5);
 
   return {
     recognized: finalRecognized,
