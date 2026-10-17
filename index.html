@@ -348,7 +348,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <button class="prev-btn" id="prevBtn">Previous</button>
 <button class="bottombtn done" id="done">✍️ Let's write</button>
 <button class="next-btn" id="nextBtn">Next</button>
-<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.8</div>
+<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.15</div>
 
 <div class="modal" id="modal">
   <div class="dialog">
@@ -5372,8 +5372,10 @@ function setupPWAUpdate() {
   });
 }
 
+const CURRENT_APP_VERSION = '3.3.15';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
+  verBadge.textContent = 'v' + CURRENT_APP_VERSION;
   makeTouchResponsive(verBadge, async () => {
     verBadge.textContent = 'Updating...';
     try {
