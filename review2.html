@@ -401,9 +401,9 @@
     }
 
     function testPreRecordedAudio() {
-      log('🎵 Playing pre-recorded star audio (audio/snd_star.mp3)...');
+      log('🎵 Playing pre-recorded letter audio (audio/vy_ka.mp3)...');
       try {
-        const a = new Audio('audio/snd_star.mp3');
+        const a = new Audio('audio/vy_ka.mp3');
         a.onplay = () => log('🟢 Pre-recorded audio playback started!', 'success');
         a.onerror = (e) => log(`❌ Pre-recorded audio error: ${e.target.error ? e.target.error.code : 'unknown'}`, 'error');
         a.play().catch(err => log(`⚠️ Audio.play() rejected (autoplay policy): ${err.message}`, 'warn'));
