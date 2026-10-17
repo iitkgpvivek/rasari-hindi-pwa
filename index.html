@@ -293,6 +293,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
   <button class="ctrl-pill" id="voiceToggle" title="Toggle AI Voice Persona (Teacher / Excited Monkey)">👩‍🏫 Voice: Teacher</button>
   <button class="ctrl-pill" id="shuffleToggle" title="Toggle Shuffle Mode (Random unmastered letters)">🔀 Shuffle: OFF</button>
   <button class="ctrl-pill" id="fullscreenToggle" title="Toggle Fullscreen to hide tablet navigation buttons">⛶ Fullscreen</button>
+  <button class="ctrl-pill" id="audioReviewBtn" title="Review sounds and diagnostic studio">🎧 Sounds</button>
 </div>
 
 <canvas id="write" aria-label="Writing canvas"></canvas>
@@ -345,7 +346,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <button class="prev-btn" id="prevBtn">Previous</button>
 <button class="bottombtn done" id="done">✍️ Let's write</button>
 <button class="next-btn" id="nextBtn">Next</button>
-<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.1</div>
+<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.2</div>
 
 <div class="modal" id="modal">
   <div class="dialog">
@@ -368,6 +369,59 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
       <span class="stat-pill">🍌 <span id="treatCount">0</span> treats</span>
     </div>
     <div class="sticker-grid" id="stickerGrid"></div>
+  </div>
+</div>
+
+<div class="modal" id="audioReviewModal">
+  <div class="dialog" style="max-width: 520px; text-align: left; padding: 22px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; border-bottom: 1.5px solid #ebd9b8; padding-bottom: 8px;">
+      <h2 style="margin:0; font-size: 20px; color: #103d70; display:flex; align-items:center; gap:8px;">
+        <span>🎧</span> Voice &amp; Sound Review
+      </h2>
+      <button class="sticker-close" id="closeAudioReviewBtn" aria-label="Close" style="background:#f3f4f6; border:1px solid #d1d5db; width:30px; height:30px; border-radius:50%; font-size:16px; cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Quick Live Speech Testing -->
+    <div style="background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:12px; padding:12px; margin-bottom:12px;">
+      <div style="font-weight:800; font-size:13px; color:#1e3a8a; margin-bottom:6px;">
+        🗣 Live AI Speech Test:
+      </div>
+      <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
+        <button onclick="speakWordOrPhrase('नमस्ते')" style="padding:6px 12px; border-radius:8px; background:#2563eb; color:white; font-weight:700; font-size:12px; border:none; cursor:pointer;">
+          ▶ "नमस्ते"
+        </button>
+        <button onclick="speakWordOrPhrase('कमल वाला का')" style="padding:6px 12px; border-radius:8px; background:#059669; color:white; font-weight:700; font-size:12px; border:none; cursor:pointer;">
+          ▶ "कमल वाला का"
+        </button>
+        <button onclick="speakWordOrPhrase('डमरू वाला डा')" style="padding:6px 12px; border-radius:8px; background:#d97706; color:white; font-weight:700; font-size:12px; border:none; cursor:pointer;">
+          ▶ "डमरू वाला डा"
+        </button>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#1e40af;">
+        <span>Active Persona: <strong id="modalPersonaLabel">👩‍🏫 Teacher</strong></span>
+        <button onclick="toggleModalVoicePersona()" style="padding:4px 8px; border-radius:6px; background:#3b82f6; color:white; font-size:11px; font-weight:700; border:none; cursor:pointer;">
+          Switch Persona
+        </button>
+      </div>
+    </div>
+
+    <!-- Deep Diagnostic Studio Link -->
+    <div style="background:#f0fdf4; border:1.5px solid #bbf7d0; border-radius:12px; padding:12px; margin-bottom:12px;">
+      <div style="font-weight:800; font-size:13px; color:#166534; margin-bottom:4px;">
+        🔬 Deep Audio Diagnostics &amp; Testing
+      </div>
+      <p style="font-size:12px; color:#15803d; margin:0 0 8px 0; line-height:1.4;">
+        Inspect all installed Android TTS voices, test individual speech synthesis engines, and view real-time error logs.
+      </p>
+      <a href="./review.html" target="_blank" style="display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; background:#16a34a; color:white; text-decoration:none; font-weight:800; font-size:12.5px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+        <span>Open Diagnostic Studio (review.html) ↗</span>
+      </a>
+    </div>
+
+    <!-- Voice Info Notice -->
+    <div style="font-size:11.5px; color:#6b7280; line-height:1.4;">
+      💡 If you hear no sound: Open Android Settings &gt; Accessibility / System &gt; Text-to-speech output &gt; Google Speech Services &gt; Install voice data &gt; Hindi.
+    </div>
   </div>
 </div>
 
@@ -2697,14 +2751,16 @@ window.addEventListener('pointerdown', warmUpSpeech, { passive: true });
 window.addEventListener('touchstart', warmUpSpeech, { passive: true });
 
 let activeUtterance = null;
+window._activeUtterances = [];
 function speakWordOrPhrase(text, fallbackAudio = null) {
   if (!text) return;
   const langConfig = LANGUAGE_CONFIGS[currentLanguage] || LANGUAGE_CONFIGS['hi'];
 
   if ('speechSynthesis' in window && window.SpeechSynthesisUtterance) {
     try {
-      // Flush any queued or stalled utterances in Android Chrome
-      window.speechSynthesis.cancel();
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
 
       const u = new SpeechSynthesisUtterance(text);
       u.lang = langConfig.langCode;
@@ -2732,25 +2788,42 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
 
       activeUtterance = u;
       window._activeUtterance = u;
+      window._activeUtterances = window._activeUtterances || [];
+      window._activeUtterances.push(u);
 
       u.onend = () => {
         if (activeUtterance === u) activeUtterance = null;
         if (window._activeUtterance === u) window._activeUtterance = null;
+        const uIdx = (window._activeUtterances || []).indexOf(u);
+        if (uIdx > -1) window._activeUtterances.splice(uIdx, 1);
       };
 
       u.onerror = (e) => {
         if (activeUtterance === u) activeUtterance = null;
         if (window._activeUtterance === u) window._activeUtterance = null;
+        const uIdx = (window._activeUtterances || []).indexOf(u);
+        if (uIdx > -1) window._activeUtterances.splice(uIdx, 1);
         if (e && (e.error === 'canceled' || e.error === 'interrupted')) return;
         console.warn('SpeechSynthesis error:', e);
+        if (e && e.error === 'language-unavailable') {
+          showNotice('💡 Hindi voice not installed: Settings > Text-to-speech > Install voice > Hindi ⚙️');
+        }
         if (fallbackAudio) playSnd(fallbackAudio);
       };
 
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
+      // Fix Android Chrome queue freeze:
+      // If currently speaking, cancel first and wait 60ms for queue teardown.
+      // If idle, speak immediately without calling cancel() to avoid queue freeze.
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        setTimeout(() => {
+          if (activeUtterance === u) {
+            window.speechSynthesis.speak(u);
+          }
+        }, 60);
+      } else {
+        window.speechSynthesis.speak(u);
       }
-
-      window.speechSynthesis.speak(u);
       return;
     } catch(e) {
       if (fallbackAudio) playSnd(fallbackAudio);
@@ -4074,6 +4147,7 @@ function goHome() {
   }
   if ($('modal')) $('modal').classList.remove('show');
   if ($('progressModal')) $('progressModal').classList.remove('show');
+  if ($('audioReviewModal')) $('audioReviewModal').classList.remove('show');
   letterHistory = [];
   setStep(1);
 
@@ -4791,6 +4865,40 @@ function openProgressStickers() {
 $('closeProgressBtn').onclick = () => {
   $('progressModal').classList.remove('show');
 };
+
+function openAudioReviewModal() {
+  const modal = $('audioReviewModal');
+  if (modal) {
+    const lbl = $('modalPersonaLabel');
+    if (lbl) {
+      lbl.textContent = voicePersona === 'teacher' ? '👩‍🏫 Teacher' : '🐒 Excited Monkey';
+    }
+    modal.classList.add('show');
+  }
+}
+
+function closeAudioReviewModal() {
+  const modal = $('audioReviewModal');
+  if (modal) modal.classList.remove('show');
+}
+
+function toggleModalVoicePersona() {
+  voicePersona = voicePersona === 'teacher' ? 'monkey' : 'teacher';
+  localStorage.setItem('rasari_voice_persona', voicePersona);
+  updateVoiceBtn();
+  const lbl = $('modalPersonaLabel');
+  if (lbl) {
+    lbl.textContent = voicePersona === 'teacher' ? '👩‍🏫 Teacher' : '🐒 Excited Monkey';
+  }
+  speakWordOrPhrase(voicePersona === 'monkey' ? 'शाबाश, चलो लिखते हैं!' : 'नमस्ते, चलो अभ्यास करें!');
+}
+
+if ($('audioReviewBtn')) {
+  makeTouchResponsive($('audioReviewBtn'), openAudioReviewModal);
+}
+if ($('closeAudioReviewBtn')) {
+  makeTouchResponsive($('closeAudioReviewBtn'), closeAudioReviewModal);
+}
 
 // PWA Auto-Update Detection
 function setupPWAUpdate() {
