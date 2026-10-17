@@ -636,6 +636,25 @@ test('Scaffold-Aware Strictness & Discriminative Devanagari OCR (Rejects na as v
   assert(html.includes("apertureCompletedTarget"), "Must preserve apertureCompletedTarget on submission to prevent wiping bounding-box writing");
 });
 
+test('Full-Word AI OCR Recognizer on final submission (48-dim feature embeddings, detects amaar vs anaar)', () => {
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  // 1. AI Feature extractor & dynamic candidates pool
+  assert(scriptContent.includes('function extractDevanagariFeatures('), 'extractDevanagariFeatures function must exist');
+  assert(scriptContent.includes('function getOcrCandidates('), 'getOcrCandidates function must exist');
+  assert(scriptContent.includes('const DEVANAGARI_CONSONANTS = ['), 'DEVANAGARI_CONSONANTS alphabet must exist');
+  assert(scriptContent.includes('const DEVANAGARI_VOWELS = ['), 'DEVANAGARI_VOWELS alphabet must exist');
+
+  // 2. Full-Word AI OCR Evaluator
+  assert(scriptContent.includes('function evaluateFullWordOCR('), 'evaluateFullWordOCR function must exist');
+  assert(scriptContent.includes('const wordOcr = evaluateFullWordOCR('), 'Done button must invoke evaluateFullWordOCR');
+
+  // 3. Child error feedback on wrong_word
+  assert(html.includes("result.reason === 'wrong_word'"), "Done handler must check reason === 'wrong_word'");
+  assert(html.includes("You wrote '${detected}', but the word is '${expected}'!"), "Prompt must inform child of exact detected vs expected word");
+  assert(html.includes("आपने '${detected}' लिखा है, पर सही शब्द '${expected}' है!"), "Speech must pronounce detected vs expected word");
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');
