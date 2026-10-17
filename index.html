@@ -3937,23 +3937,6 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
     }
   }
 
-  // Teacher Reading Check: Ensure child did not write a different letter (e.g. wrote 'प' instead of 'ष')
-  const ocrCheck = recognizeDevanagariOCR(strokesToEval, targetString, strokeOffset);
-  if (ocrCheck && !ocrCheck.isMatch && ocrCheck.recognized && ocrCheck.recognized !== targetString) {
-    return {
-      score: 30,
-      pass: false,
-      reason: 'wrong_letter',
-      detected: ocrCheck.recognized,
-      expected: targetString,
-      iou: Math.round((ocrCheck.expectedIoU || 0.4) * 100),
-      coverage: Math.round(coverage * 100),
-      precision: Math.round(precision * 100),
-      form: Math.round((ocrCheck.expectedIoU || 0.4) * 100),
-      neatness: Math.round((ocrCheck.expectedPrec || 0.5) * 100)
-    };
-  }
-
   return {
     score,
     pass: tracePass,

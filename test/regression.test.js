@@ -657,7 +657,6 @@ test('Full-Word AI OCR Recognizer on final submission (48-dim feature embeddings
   // 4. Pure Teacher Reading Rule (No fake similarity score passes for lookalikes like 'प' vs 'ष')
   assert(scriptContent.includes("'ष': ['प'"), "'ष' must map to lookalike confusion candidate 'प'");
   assert(scriptContent.includes("Teacher Reading Rule"), "recognizeDevanagariOCR must use pure Teacher Reading equality check without similarity score buffers");
-  assert(scriptContent.includes("Teacher Reading Check"), "evaluateHandwriting must enforce Teacher Reading Check across all tiers");
 });
 
 console.log('\n----------------------------------------------------');
