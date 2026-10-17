@@ -100,6 +100,11 @@
           </div>
         </div>
 
+        <div id="insecureOriginAlert" class="hidden p-2.5 bg-amber-50 border-2 border-amber-400 rounded-lg text-xs text-amber-950 font-medium">
+          🔒 <strong>Notice: Running over local HTTP (<span id="insecureHost"></span>)</strong><br />
+          Android Chrome treats local IP HTTP as insecure. If speech fails with "synthesis-failed", test over <strong>HTTPS</strong> on GitHub Pages: <a href="https://iitkgpvivek.github.io/rasari-hindi-pwa/review.html" target="_blank" class="underline text-indigo-700 font-bold">Open HTTPS review.html ↗</a> or allow insecure origin in <code class="font-mono bg-white px-1 rounded">chrome://flags/#unsafely-treat-insecure-origin-as-secure</code>.
+        </div>
+
         <div id="hindiVoiceAlert" class="hidden p-2.5 bg-amber-50 border border-amber-300 rounded-lg text-xs text-amber-900">
           ⚠️ <strong>No Hindi Voice installed on this device yet!</strong><br />
           To enable natural Hindi speech on Android: Open <strong>Settings ⚙️ &gt; Accessibility / System &gt; Text-to-speech output &gt; Preferred engine ⚙️ &gt; Install voice data &gt; Hindi</strong>.
@@ -110,6 +115,9 @@
       <div class="space-y-1.5">
         <div class="text-xs font-bold text-indigo-950 uppercase tracking-wide">1-Tap Speech Synthesis Tests:</div>
         <div class="flex flex-wrap gap-2">
+          <button onclick="testSpeech('raw_default')" class="py-1.5 px-3 rounded-lg bg-purple-100 hover:bg-purple-200 border border-purple-300 text-purple-950 font-bold text-xs flex items-center gap-1 shadow-xs">
+            <span>⚡ 0. Test Raw Default (No config)</span>
+          </button>
           <button onclick="testSpeech('hello')" class="py-1.5 px-3 rounded-lg bg-indigo-100 hover:bg-indigo-200 border border-indigo-300 text-indigo-900 font-bold text-xs flex items-center gap-1 shadow-xs">
             <span>🇬🇧 1. Test English ("Hello")</span>
           </button>
@@ -430,8 +438,10 @@
     }
 
     function testSpeech(testKey) {
-      if (testKey === 'hello') {
-        speakSimpleText('Hello, this is a speech test.', 'en-US');
+      if (testKey === 'raw_default') {
+        speakRawDefault();
+      } else if (testKey === 'hello') {
+        speakSimpleText('Hello, this is a speech test.');
       } else if (testKey === 'namaste') {
         speakLive('नमस्ते');
       } else if (testKey === 'kamal_full') {
@@ -441,24 +451,67 @@
       }
     }
 
+    function speakRawDefault() {
+      if (!('speechSynthesis' in window)) {
+        log('❌ Web Speech API not supported!', 'error');
+        return;
+      }
+      log('🚀 speakRawDefault("Testing device speech") requested (Zero-config: no lang, no voice)');
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+
+      const u = new SpeechSynthesisUtterance("Testing device speech");
+      u.volume = 1.0;
+      activeUtterance = u;
+      window._activeUtterance = u;
+      window._activeUtterances.push(u);
+
+      u.onstart = () => {
+        log('🟢 Raw default onstart: Audio playback STARTED!', 'success');
+        updateDiagStatus('Speaking 🔊');
+      };
+      u.onend = () => {
+        log('🏁 Raw default onend: Finished successfully.', 'success');
+        updateDiagStatus('Idle');
+        cleanupUtterance(u);
+      };
+      u.onerror = (e) => {
+        log(`❌ Raw default onerror: [error="${e.error}"]`, 'error');
+        updateDiagStatus(`Error: ${e.error}`);
+        cleanupUtterance(u);
+      };
+
+      window.speechSynthesis.speak(u);
+    }
+
     function speakCustomText() {
       const input = document.getElementById('customTextInput');
       const txt = (input && input.value.trim()) ? input.value.trim() : 'कमल वाला का';
       speakLive(txt);
     }
 
-    function speakSimpleText(text, lang = 'en-US') {
+    function speakSimpleText(text, lang = null) {
       if (!('speechSynthesis' in window)) {
         log('❌ Web Speech API not supported!', 'error');
         return;
       }
-      log(`🚀 speakSimpleText("${text}", lang="${lang}") requested`);
+      log(`🚀 speakSimpleText("${text}") requested`);
       if (window.speechSynthesis.paused) window.speechSynthesis.resume();
 
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = lang;
+      u.volume = 1.0;
       u.rate = 1.0;
       u.pitch = 1.0;
+
+      const voices = window.speechSynthesis.getVoices() || [];
+      const enVoice = voices.find(v => (v.lang || '').toLowerCase().startsWith('en'));
+      if (enVoice) {
+        u.voice = enVoice;
+        u.lang = enVoice.lang;
+        if (enVoice.voiceURI) u.voiceURI = enVoice.voiceURI;
+        log(`🎙️ English voice matched: "${enVoice.name}" (lang="${enVoice.lang}")`);
+      } else if (lang) {
+        u.lang = lang;
+      }
 
       activeUtterance = u;
       window._activeUtterance = u;
@@ -517,6 +570,19 @@
           alertBox.classList.remove('hidden');
         } else {
           alertBox.classList.add('hidden');
+        }
+      }
+
+      const isHttpNonLocal = (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1');
+      const insecBox = document.getElementById('insecureOriginAlert');
+      const insecHost = document.getElementById('insecureHost');
+      if (insecBox) {
+        if (isHttpNonLocal) {
+          if (insecHost) insecHost.textContent = window.location.host;
+          insecBox.classList.remove('hidden');
+          log(`⚠️ Insecure Origin (${window.location.origin}): Android Chrome blocks Web Speech on non-localhost HTTP. Use HTTPS if speech fails.`, 'warn');
+        } else {
+          insecBox.classList.add('hidden');
         }
       }
 
@@ -637,6 +703,12 @@
           log(`ℹ️ No explicit Hindi voice found in ${voices.length} voices. Relying on OS speech engine for lang='hi-IN'.`);
         }
       }
+
+      if (u.voice) {
+        u.lang = u.voice.lang; // Crucial for Android to match voice locale (e.g. hi_IN)
+        if (u.voice.voiceURI) u.voiceURI = u.voice.voiceURI;
+      }
+      u.volume = 1.0;
 
       // 5. Retain in memory against V8 GC collection
       activeUtterance = u;

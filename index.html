@@ -346,7 +346,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <button class="prev-btn" id="prevBtn">Previous</button>
 <button class="bottombtn done" id="done">✍️ Let's write</button>
 <button class="next-btn" id="nextBtn">Next</button>
-<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.2</div>
+<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.3</div>
 
 <div class="modal" id="modal">
   <div class="dialog">
@@ -2784,7 +2784,12 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
           return;
         }
       }
-      if (v) u.voice = v;
+      if (v) {
+        u.voice = v;
+        u.lang = v.lang;
+        if (v.voiceURI) u.voiceURI = v.voiceURI;
+      }
+      u.volume = 1.0;
 
       activeUtterance = u;
       window._activeUtterance = u;
