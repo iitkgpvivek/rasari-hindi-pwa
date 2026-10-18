@@ -3763,6 +3763,7 @@ async function evaluateWithGeminiVision(capturedDataUrl, targetText) {
     const promptText = `Examine the handwritten Devanagari Hindi writing in the image.
 Identify what exact Devanagari Hindi letter or word was written.
 Distinguish lookalike characters with high precision (e.g. tail vs loop in द vs ढ vs ट vs ठ, घ vs ध, क vs फ, न vs म, ष vs प).
+Output ONLY the Devanagari characters in "detected" (no English, no transliteration, no punctuation).
 Respond ONLY with a JSON object:
 {
   "detected": "detected Devanagari string",
@@ -3833,24 +3834,29 @@ Respond ONLY with a JSON object:
     text = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
     const parsed = JSON.parse(text);
 
+    let cleanDetected = (parsed.detected || '').normalize('NFC').trim();
+    cleanDetected = cleanDetected.replace(/\s*\([^)]*\)/g, '').replace(/^['"‘“]+|['"’”\s.,;:!?-]+$/g, '').trim();
+
     // Canonical Devanagari Unicode NFC Normalization
-    const normDetected = (parsed.detected || '').normalize('NFC').trim();
+    const normDetected = cleanDetected.normalize('NFC');
     const normTarget = targetText.normalize('NFC').trim();
     const isExactMatch = normDetected === normTarget;
     const isPass = isExactMatch;
 
     const reason = isPass ? 'ok' : (targetText.length <= 1 ? 'wrong_letter' : 'wrong_word');
+    const confidenceVal = typeof parsed.confidence === 'number' ? parsed.confidence : 95;
 
     return {
       pass: isPass,
       reason: reason,
-      detectedWord: normDetected || parsed.detected || '?',
+      detectedWord: normDetected || '?',
       expectedWord: targetText,
-      detected: normDetected || parsed.detected || '?',
+      detected: normDetected || '?',
       expected: targetText,
-      score: isPass ? Math.max(90, Math.min(99, parsed.confidence || 95)) : Math.max(20, Math.min(60, 100 - (parsed.confidence || 90))),
-      form: Math.max(70, Math.min(98, parsed.confidence || 85)),
-      neatness: Math.max(70, Math.min(98, parsed.confidence || 85)),
+      confidence: confidenceVal,
+      score: isPass ? Math.max(90, Math.min(99, confidenceVal)) : Math.max(20, Math.min(60, 100 - confidenceVal)),
+      form: Math.max(70, Math.min(98, confidenceVal)),
+      neatness: Math.max(70, Math.min(98, confidenceVal)),
       source: 'gemini',
       model: chosenModel
     };
@@ -4318,8 +4324,8 @@ $('done').onclick = e => {
           isMatch: finalOcr.pass,
           source: 'gemini',
           topCandidates: [
-            { cand: finalOcr.detectedWord, sim: (finalOcr.score || 95) / 100 },
-            ...(finalOcr.detectedWord !== targetText ? [{ cand: targetText, sim: 0.35 }] : [])
+            { cand: finalOcr.detectedWord, sim: (finalOcr.confidence || 95) / 100 },
+            ...(finalOcr.detectedWord !== targetText ? [{ cand: targetText, sim: Math.max(0.05, Math.round((100 - (finalOcr.confidence || 95))) / 100) }] : [])
           ],
           model: finalOcr.model
         });
@@ -5588,7 +5594,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.3.17';
+const CURRENT_APP_VERSION = '3.3.18';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
