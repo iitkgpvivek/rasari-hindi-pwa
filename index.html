@@ -2204,100 +2204,203 @@ function getBrushWidth() {
   return r.brushWidth;
 }
 
-// Microscopic Anti-Jitter Stroke Smoother (Pediatric Motor Tremor Filter)
-// Filters high-frequency hand wobbles without shifting lines, rounding 90-deg junctions,
-// or collapsing Devanagari character features (preserves ga vs ma, na vs ma, ba vs va).
-function smoothStrokeMicroscopic(rawPoints) {
-  if (!rawPoints || rawPoints.length < 3) return rawPoints ? rawPoints.slice() : [];
+// Microscopic Anti-Jitter & Adaptive Stroke Filter
+// Smooths high-frequency child tremors (wobbles) while strictly preserving letter topology:
+// 1. Shirorekha / Danda Regularization: Identifies near-horizontal/vertical strokes and gently flattens tremor waves
+// 2. Decimates micro-jitter points (< 3.5px apart)
+// 3. Detects intentional sharp corners (>= 80 deg) so Devanagari joints (e.g. loops to stems, waist of 3) are not rounded
+// 4. Applies 7-point Gaussian-weighted smoothing clamped to max displacement <= 6.5px (eliminates 4-7px wobble without bridging character gaps)
+function smoothStrokeMicroscopic(pts, customBrushWidth = null) {
+  if (!pts || pts.length < 3) return pts ? pts.slice() : [];
 
-  // Step 1: Arc-length deduplication (remove zero-distance / micro-jitter clusters < 2px)
-  const deduped = [rawPoints[0]];
-  for (let i = 1; i < rawPoints.length - 1; i++) {
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  pts.forEach(p => {
+    if (p.x < minX) minX = p.x;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.y > maxY) maxY = p.y;
+  });
+
+  const spanX = maxX - minX;
+  const spanY = maxY - minY;
+  const pStart = pts[0];
+  const pEnd = pts[pts.length - 1];
+
+  // 1. Shirorekha / Horizontal Straight-Line Regularization
+  // If the stroke is substantially horizontal and monotonic, regularize along linear regression
+  // Toned down by ~20% (68% ideal line, 32% child ink) to encourage manual hand control
+  if (spanX > 28 && spanY < Math.max(18, spanX * 0.22) && Math.abs(pEnd.x - pStart.x) > spanX * 0.75) {
+    let sumX = 0, sumY = 0;
+    pts.forEach(p => { sumX += p.x; sumY += p.y; });
+    const meanX = sumX / pts.length;
+    const meanY = sumY / pts.length;
+    let num = 0, den = 0;
+    pts.forEach(p => {
+      num += (p.x - meanX) * (p.y - meanY);
+      den += (p.x - meanX) * (p.x - meanX);
+    });
+    const slope = den > 0.001 ? num / den : 0;
+    const intercept = meanY - slope * meanX;
+
+    // Regularize y towards regression line (68% ideal straight, 32% user ink)
+    return pts.map(p => {
+      const idealY = slope * p.x + intercept;
+      const smoothedY = idealY * 0.68 + p.y * 0.32;
+      return { x: p.x, y: smoothedY };
+    });
+  }
+
+  // 2. Vertical Stem / Danda Straight-Line Regularization (toned down by ~20%)
+  if (spanY > 28 && spanX < Math.max(18, spanY * 0.22) && Math.abs(pEnd.y - pStart.y) > spanY * 0.75) {
+    let sumX = 0, sumY = 0;
+    pts.forEach(p => { sumX += p.x; sumY += p.y; });
+    const meanX = sumX / pts.length;
+    const meanY = sumY / pts.length;
+    let num = 0, den = 0;
+    pts.forEach(p => {
+      num += (p.y - meanY) * (p.x - meanX);
+      den += (p.y - meanY) * (p.y - meanY);
+    });
+    const slope = den > 0.001 ? num / den : 0;
+    const intercept = meanX - slope * meanY;
+
+    return pts.map(p => {
+      const idealX = slope * p.y + intercept;
+      const smoothedX = idealX * 0.68 + p.x * 0.32;
+      return { x: smoothedX, y: p.y };
+    });
+  }
+
+  // 3. General Curved Stroke Smoothing (e.g. '3' body of उ/ऊ, loops of क, tail of ऊ)
+  // Toned down decimation (2.8px) to preserve more natural motor fidelity
+  const decimateDist = 2.8;
+  const deduped = [pts[0]];
+  for (let i = 1; i < pts.length; i++) {
     const prev = deduped[deduped.length - 1];
-    const curr = rawPoints[i];
-    const dx = curr.x - prev.x;
-    const dy = curr.y - prev.y;
-    if (dx * dx + dy * dy >= 4.0) {
-      deduped.push(curr);
+    const dx = pts[i].x - prev.x;
+    const dy = pts[i].y - prev.y;
+    if (dx * dx + dy * dy >= decimateDist * decimateDist || i === pts.length - 1) {
+      deduped.push({ x: pts[i].x, y: pts[i].y });
     }
   }
-  deduped.push(rawPoints[rawPoints.length - 1]);
   if (deduped.length < 3) return deduped;
 
-  // Step 2: Corner Identification & Feature Anchor Detection
-  // Structural corners in Devanagari (>= 75-deg turns) are strictly anchored
+  // Macro Corner Detection (chord >= 12px)
   const isCorner = new Uint8Array(deduped.length);
   isCorner[0] = 1;
   isCorner[deduped.length - 1] = 1;
 
+  const minChord = 12;
   for (let i = 1; i < deduped.length - 1; i++) {
-    const pPrev = deduped[i - 1];
-    const pCurr = deduped[i];
-    const pNext = deduped[i + 1];
+    let pIdx = i - 1;
+    while (pIdx > 0 && Math.hypot(deduped[i].x - deduped[pIdx].x, deduped[i].y - deduped[pIdx].y) < minChord) pIdx--;
+    let nIdx = i + 1;
+    while (nIdx < deduped.length - 1 && Math.hypot(deduped[nIdx].x - deduped[i].x, deduped[nIdx].y - deduped[i].y) < minChord) nIdx++;
 
-    const v1x = pCurr.x - pPrev.x;
-    const v1y = pCurr.y - pPrev.y;
-    const v2x = pNext.x - pCurr.x;
-    const v2y = pNext.y - pCurr.y;
-
-    const len1 = Math.hypot(v1x, v1y);
-    const len2 = Math.hypot(v2x, v2y);
-
-    if (len1 > 0.001 && len2 > 0.001) {
-      const dot = (v1x * v2x + v1y * v2y) / (len1 * len2);
-      if (dot < 0.26) { // Turning angle >= 75 degrees
+    const v1x = deduped[i].x - deduped[pIdx].x, v1y = deduped[i].y - deduped[pIdx].y;
+    const v2x = deduped[nIdx].x - deduped[i].x, v2y = deduped[nIdx].y - deduped[i].y;
+    const l1 = Math.hypot(v1x, v1y), l2 = Math.hypot(v2x, v2y);
+    if (l1 >= 6 && l2 >= 6) {
+      const cosA = (v1x * v2x + v1y * v2y) / (l1 * l2);
+      if (cosA <= 0.17) { // Turning angle >= ~80 deg
         isCorner[i] = 1;
       }
     }
   }
 
-  // Step 3: Gentle Microscopic Moving Average (0.15 - 0.70 - 0.15)
-  // Max displacement <= 1.5px: damps stylus/finger wobbles while preserving exact geometry
-  const smoothed = [];
-  for (let i = 0; i < deduped.length; i++) {
-    if (isCorner[i] || i === 0 || i === deduped.length - 1) {
-      smoothed.push({ x: deduped[i].x, y: deduped[i].y });
-    } else {
-      const pPrev = deduped[i - 1];
-      const pCurr = deduped[i];
-      const pNext = deduped[i + 1];
-      smoothed.push({
-        x: Math.round((pPrev.x * 0.15 + pCurr.x * 0.70 + pNext.x * 0.15) * 10) / 10,
-        y: Math.round((pPrev.y * 0.15 + pCurr.y * 0.70 + pNext.y * 0.15) * 10) / 10
-      });
+  // 2-pass 7-point Gaussian-like smoothing (toned down from 3 passes by ~20%)
+  const weights = [0.06, 0.14, 0.22, 0.36, 0.22, 0.14, 0.06];
+  const R = 3;
+  const bw = customBrushWidth || (typeof getBrushWidth === 'function' ? getBrushWidth() : 18);
+  // Max displacement toned down by ~20% (3.8px - 6.0px instead of 5.0px - 7.5px)
+  const maxDisp = Math.min(6.0, Math.max(3.8, bw * 0.27));
+
+  let current = deduped.map(p => ({ x: p.x, y: p.y }));
+  for (let pass = 0; pass < 2; pass++) {
+    const nextPass = current.map(p => ({ x: p.x, y: p.y }));
+    for (let i = 1; i < current.length - 1; i++) {
+      if (isCorner[i]) continue;
+
+      let sumX = 0, sumY = 0, totalW = 0;
+      for (let offset = -R; offset <= R; offset++) {
+        const j = i + offset;
+        if (j < 0 || j >= current.length) continue;
+        if (offset < 0) {
+          let hasC = false;
+          for (let c = j; c < i; c++) if (isCorner[c]) hasC = true;
+          if (hasC) continue;
+        } else if (offset > 0) {
+          let hasC = false;
+          for (let c = i + 1; c <= j; c++) if (isCorner[c]) hasC = true;
+          if (hasC) continue;
+        }
+        const w = weights[offset + R];
+        sumX += current[j].x * w;
+        sumY += current[j].y * w;
+        totalW += w;
+      }
+
+      if (totalW > 0) {
+        const targetX = sumX / totalW;
+        const targetY = sumY / totalW;
+        const origX = deduped[i].x;
+        const origY = deduped[i].y;
+        const dx = targetX - origX;
+        const dy = targetY - origY;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > maxDisp) {
+          nextPass[i].x = origX + (dx / dist) * maxDisp;
+          nextPass[i].y = origY + (dy / dist) * maxDisp;
+        } else {
+          nextPass[i].x = targetX;
+          nextPass[i].y = targetY;
+        }
+      }
     }
+    current = nextPass;
   }
 
-  return smoothed;
+  return current;
 }
 
-// Continuous Midpoint Quadratic Bezier Stroke Renderer
-function drawSmoothStroke(targetCtx, pts, inkWidth, offsetX = 0, offsetY = 0) {
-  if (!pts || !pts.length) return;
+// Draw smooth stroke using continuous midpoint quadratic Bezier curves
+function drawSmoothStroke(ctx, pts, width, offsetX = 0, offsetY = 0) {
+  if (!pts || pts.length === 0) return;
+  ctx.save();
+  ctx.lineWidth = width;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
   if (pts.length === 1) {
-    targetCtx.beginPath();
-    targetCtx.arc(pts[0].x - offsetX, pts[0].y - offsetY, inkWidth / 2, 0, Math.PI * 2);
-    targetCtx.fill();
-    return;
-  }
-  if (pts.length === 2) {
-    targetCtx.beginPath();
-    targetCtx.moveTo(pts[0].x - offsetX, pts[0].y - offsetY);
-    targetCtx.lineTo(pts[1].x - offsetX, pts[1].y - offsetY);
-    targetCtx.stroke();
+    ctx.beginPath();
+    ctx.arc(pts[0].x - offsetX, pts[0].y - offsetY, width / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
     return;
   }
 
-  targetCtx.beginPath();
-  targetCtx.moveTo(pts[0].x - offsetX, pts[0].y - offsetY);
+  if (pts.length === 2) {
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x - offsetX, pts[0].y - offsetY);
+    ctx.lineTo(pts[1].x - offsetX, pts[1].y - offsetY);
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
+
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x - offsetX, pts[0].y - offsetY);
+
   for (let i = 1; i < pts.length - 1; i++) {
     const midX = (pts[i].x + pts[i + 1].x) / 2 - offsetX;
     const midY = (pts[i].y + pts[i + 1].y) / 2 - offsetY;
-    targetCtx.quadraticCurveTo(pts[i].x - offsetX, pts[i].y - offsetY, midX, midY);
+    ctx.quadraticCurveTo(pts[i].x - offsetX, pts[i].y - offsetY, midX, midY);
   }
   const lastPt = pts[pts.length - 1];
-  targetCtx.lineTo(lastPt.x - offsetX, lastPt.y - offsetY);
-  targetCtx.stroke();
+  ctx.lineTo(lastPt.x - offsetX, lastPt.y - offsetY);
+  ctx.stroke();
+  ctx.restore();
 }
 
 function drawPad() {
@@ -2348,7 +2451,7 @@ function drawPad() {
     ctx.restore();
   }
 
-  // Draw User Strokes with Smooth Inking
+  // Draw User Strokes with Smooth Bezier Inking
   const bw = ruling.brushWidth;
   ctx.save();
   ctx.strokeStyle = '#173e33';
@@ -2483,10 +2586,25 @@ w.addEventListener('pointermove', e => {
           ctx.lineWidth = bw;
           ctx.lineCap = 'round';
           ctx.lineJoin = 'round';
-          ctx.beginPath();
-          ctx.moveTo(last.x, last.y);
-          ctx.lineTo(p.x, p.y);
-          ctx.stroke();
+          const pts = currentStroke;
+          const len = pts.length;
+          if (len === 2) {
+            const midX = (pts[0].x + pts[1].x) / 2;
+            const midY = (pts[0].y + pts[1].y) / 2;
+            ctx.beginPath();
+            ctx.moveTo(pts[0].x, pts[0].y);
+            ctx.lineTo(midX, midY);
+            ctx.stroke();
+          } else if (len >= 3) {
+            const prevMidX = (pts[len - 3].x + pts[len - 2].x) / 2;
+            const prevMidY = (pts[len - 3].y + pts[len - 2].y) / 2;
+            const newMidX = (pts[len - 2].x + pts[len - 1].x) / 2;
+            const newMidY = (pts[len - 2].y + pts[len - 1].y) / 2;
+            ctx.beginPath();
+            ctx.moveTo(prevMidX, prevMidY);
+            ctx.quadraticCurveTo(pts[len - 2].x, pts[len - 2].y, newMidX, newMidY);
+            ctx.stroke();
+          }
           last = p;
           return;
         } else {
@@ -2517,28 +2635,74 @@ w.addEventListener('pointermove', e => {
 
   e.preventDefault();
   const p = pos(e);
+
+  // Micro-filter: ignore micro-jitter movements < 1.5px to suppress stylus stationary tremor
+  if (last && Math.hypot(p.x - last.x, p.y - last.y) < 1.5) {
+    return;
+  }
+
   currentStroke.push(p);
+  const pts = currentStroke;
+  const len = pts.length;
 
   const bw = getBrushWidth();
   ctx.strokeStyle = '#173e33';
   ctx.lineWidth = bw;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.beginPath();
-  ctx.moveTo(last.x, last.y);
-  ctx.lineTo(p.x, p.y);
-  ctx.stroke();
+
+  if (len === 2) {
+    const midX = (pts[0].x + pts[1].x) / 2;
+    const midY = (pts[0].y + pts[1].y) / 2;
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    ctx.lineTo(midX, midY);
+    ctx.stroke();
+  } else if (len >= 3) {
+    const prevMidX = (pts[len - 3].x + pts[len - 2].x) / 2;
+    const prevMidY = (pts[len - 3].y + pts[len - 2].y) / 2;
+    const newMidX = (pts[len - 2].x + pts[len - 1].x) / 2;
+    const newMidY = (pts[len - 2].y + pts[len - 1].y) / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(prevMidX, prevMidY);
+    ctx.quadraticCurveTo(pts[len - 2].x, pts[len - 2].y, newMidX, newMidY);
+    ctx.stroke();
+  }
   last = p;
 });
 
 w.addEventListener('pointerup', e => {
   if (e.pointerId !== activePointerId) return;
-  if (currentStroke && currentStroke.length >= 3) {
-    const smoothed = smoothStrokeMicroscopic(currentStroke);
-    currentStroke.length = 0;
-    for (let i = 0; i < smoothed.length; i++) currentStroke.push(smoothed[i]);
-    drawPad();
+
+  if (currentStroke && currentStroke.length >= 2) {
+    const pts = currentStroke;
+    const len = pts.length;
+    // Finish final line segment to stroke tip if needed
+    if (len >= 3) {
+      const bw = getBrushWidth();
+      ctx.strokeStyle = '#173e33';
+      ctx.lineWidth = bw;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      const prevMidX = (pts[len - 2].x + pts[len - 1].x) / 2;
+      const prevMidY = (pts[len - 2].y + pts[len - 1].y) / 2;
+      ctx.beginPath();
+      ctx.moveTo(prevMidX, prevMidY);
+      ctx.lineTo(pts[len - 1].x, pts[len - 1].y);
+      ctx.stroke();
+    }
+
+    // Apply microscopic smoothing to the completed stroke in-place
+    if (len >= 3) {
+      const smoothed = smoothStrokeMicroscopic(currentStroke);
+      currentStroke.length = 0;
+      for (let i = 0; i < smoothed.length; i++) currentStroke.push(smoothed[i]);
+      // Repaint slate immediately with smooth Bezier curves
+      drawPad();
+    }
   }
+
   drawing = false;
   currentStroke = null;
   last = null;
@@ -2548,6 +2712,12 @@ w.addEventListener('pointerup', e => {
 
 w.addEventListener('pointercancel', e => {
   if (e.pointerId !== activePointerId) return;
+  if (currentStroke && currentStroke.length >= 3) {
+    const smoothed = smoothStrokeMicroscopic(currentStroke);
+    currentStroke.length = 0;
+    for (let i = 0; i < smoothed.length; i++) currentStroke.push(smoothed[i]);
+    drawPad();
+  }
   // Do not abruptly discard last position: allow smooth auto-recovery if stylus continues moving
   drawing = false;
   activePointerId = null;
@@ -3870,14 +4040,17 @@ async function evaluateWithGeminiVision(capturedDataUrl, targetText) {
     const mimeMatch = capturedDataUrl.match(/^data:([^;]+);/);
     const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
 
-    const promptText = `The student is practicing writing the Devanagari Hindi letter or word "${targetText}".
-Examine the handwritten Devanagari image.
-1. Determine if this handwriting legibly represents "${targetText}". Tolerate normal Grade-1 child hand motor tremor/wobble as long as the essential structural strokes of "${targetText}" are present.
-2. If you are confident that the letter/word written is absolutely reading something completely different, or missing critical structural strokes, mark pass as false and identify what it actually reads like so that the student can be corrected.
+    const promptText = `Examine the handwritten Devanagari Hindi writing in the image.
+Identify what exact Devanagari Hindi letter or word was written.
+Distinguish lookalike characters with high optical precision:
+- अ vs उ vs ऊ: 'अ' has a complete vertical stem on the right connected by a middle waist bar; 'ऊ' has a curved tail starting from the center waist and NO vertical stem on the right; 'उ' has NO tail and NO vertical stem.
+- व vs क: 'व' has a loop on the left and NO hook on the right; 'क' has a loop on the left AND a hanging hook on the right.
+- ग vs म vs न: 'ग' has a separate vertical stem with an open gap; 'म' connects with a crossbar; 'न' has no vertical stem above the loop.
+- tail vs loop in द vs ढ vs ट vs ठ, घ vs ध, क vs फ, ष vs प.
+Output ONLY the Devanagari characters in "detected" (no English, no transliteration, no punctuation).
 Respond ONLY with a JSON object:
 {
-  "pass": true or false,
-  "detected": "the Devanagari characters actually read from the image",
+  "detected": "detected Devanagari string",
   "confidence": integer 0-100
 }`;
 
@@ -3948,15 +4121,11 @@ Respond ONLY with a JSON object:
     let cleanDetected = (parsed.detected || '').normalize('NFC').trim();
     cleanDetected = cleanDetected.replace(/\s*\([^)]*\)/g, '').replace(/^['"‘“]+|['"’”\s.,;:!?-]+$/g, '').trim();
 
-    // Canonical Devanagari Unicode NFC Normalization
-    const normDetected = cleanDetected.normalize('NFC');
-    const normTarget = targetText.normalize('NFC').trim();
-    const modelDeclaredPass = (parsed.pass === true || parsed.pass === 'true');
+    // Canonical Devanagari Unicode NFC Normalization (stripping invisible zero-width chars)
+    const normDetected = cleanDetected.replace(/[\u200B-\u200D\uFEFF]/g, '').normalize('NFC');
+    const normTarget = targetText.replace(/[\u200B-\u200D\uFEFF]/g, '').normalize('NFC').trim();
     const isExactMatch = normDetected === normTarget;
-
-    // Pass if model explicitly verified the target and did not detect a conflicting letter,
-    // OR if the detected characters exact-match target
-    const isPass = (modelDeclaredPass && (isExactMatch || !normDetected || normDetected === normTarget)) || isExactMatch;
+    const isPass = isExactMatch;
 
     const reason = isPass ? 'ok' : (targetText.length <= 1 ? 'wrong_letter' : 'wrong_word');
     const confidenceVal = typeof parsed.confidence === 'number' ? parsed.confidence : 95;
@@ -5710,7 +5879,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.3.22';
+const CURRENT_APP_VERSION = '3.3.25';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
