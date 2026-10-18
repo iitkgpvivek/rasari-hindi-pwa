@@ -2484,7 +2484,6 @@ function makeTouchResponsive(btn, handler) {
     const now = Date.now();
     // 380ms debounce per button, 200ms global debounce across UI actions
     if (now - lastBtnTrigger < 380 || now - lastGlobalActionTime < 200) {
-      if (e && e.cancelable) e.preventDefault();
       return;
     }
     lastBtnTrigger = now;
@@ -2967,12 +2966,10 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
       const allVoices = window.speechSynthesis.getVoices();
       const voicesLoaded = allVoices && allVoices.length > 0;
 
-      // Fallback only if voices have actually loaded from OS and NO Hindi voice exists on device
+      // Fallback if NO Hindi voice exists on device
       if (!v && fallbackAudio) {
-        if (voicesLoaded) {
-          playSnd(fallbackAudio);
-          return;
-        }
+        playSnd(fallbackAudio);
+        return;
       }
       if (v) {
         u.voice = v;
@@ -3029,19 +3026,15 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
         }
       }, 750);
 
-      // Fix Android Chrome queue freeze:
-      // If currently speaking, cancel first and wait 60ms for queue teardown.
-      // If idle, speak immediately without calling cancel() to avoid queue freeze.
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        setTimeout(() => {
-          if (activeUtterance === u) {
-            window.speechSynthesis.speak(u);
-          }
-        }, 60);
-      } else {
-        window.speechSynthesis.speak(u);
+      // Fix Android Chrome queue freeze & preserve transient user activation:
+      // Clear any stalled or paused queue synchronously without async setTimeout
+      if (window.speechSynthesis.speaking || window.speechSynthesis.paused) {
+        try {
+          window.speechSynthesis.cancel();
+          if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+        } catch(e) {}
       }
+      window.speechSynthesis.speak(u);
       return;
     } catch(e) {
       if (fallbackAudio) playSnd(fallbackAudio);
@@ -3055,7 +3048,7 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
 function speakRetryPrompt(text = null) {
   const defaultPhrase = (voicePersona === 'monkey') ? 'अरे नहीं, फिर से कोशिश करो!' : 'फिर से कोशिश करो!';
   const phrase = text || defaultPhrase;
-  speakWordOrPhrase(phrase, null);
+  speakWordOrPhrase(phrase, 'audio/snd_tryagain.mp3');
 }
 
 function speakHindi(phrase, fallbackAudio = null) {
@@ -5641,7 +5634,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.3.19';
+const CURRENT_APP_VERSION = '3.3.20';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
