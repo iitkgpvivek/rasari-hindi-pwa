@@ -2204,6 +2204,102 @@ function getBrushWidth() {
   return r.brushWidth;
 }
 
+// Microscopic Anti-Jitter Stroke Smoother (Pediatric Motor Tremor Filter)
+// Filters high-frequency hand wobbles without shifting lines, rounding 90-deg junctions,
+// or collapsing Devanagari character features (preserves ga vs ma, na vs ma, ba vs va).
+function smoothStrokeMicroscopic(rawPoints) {
+  if (!rawPoints || rawPoints.length < 3) return rawPoints ? rawPoints.slice() : [];
+
+  // Step 1: Arc-length deduplication (remove zero-distance / micro-jitter clusters < 2px)
+  const deduped = [rawPoints[0]];
+  for (let i = 1; i < rawPoints.length - 1; i++) {
+    const prev = deduped[deduped.length - 1];
+    const curr = rawPoints[i];
+    const dx = curr.x - prev.x;
+    const dy = curr.y - prev.y;
+    if (dx * dx + dy * dy >= 4.0) {
+      deduped.push(curr);
+    }
+  }
+  deduped.push(rawPoints[rawPoints.length - 1]);
+  if (deduped.length < 3) return deduped;
+
+  // Step 2: Corner Identification & Feature Anchor Detection
+  // Structural corners in Devanagari (>= 75-deg turns) are strictly anchored
+  const isCorner = new Uint8Array(deduped.length);
+  isCorner[0] = 1;
+  isCorner[deduped.length - 1] = 1;
+
+  for (let i = 1; i < deduped.length - 1; i++) {
+    const pPrev = deduped[i - 1];
+    const pCurr = deduped[i];
+    const pNext = deduped[i + 1];
+
+    const v1x = pCurr.x - pPrev.x;
+    const v1y = pCurr.y - pPrev.y;
+    const v2x = pNext.x - pCurr.x;
+    const v2y = pNext.y - pCurr.y;
+
+    const len1 = Math.hypot(v1x, v1y);
+    const len2 = Math.hypot(v2x, v2y);
+
+    if (len1 > 0.001 && len2 > 0.001) {
+      const dot = (v1x * v2x + v1y * v2y) / (len1 * len2);
+      if (dot < 0.26) { // Turning angle >= 75 degrees
+        isCorner[i] = 1;
+      }
+    }
+  }
+
+  // Step 3: Gentle Microscopic Moving Average (0.15 - 0.70 - 0.15)
+  // Max displacement <= 1.5px: damps stylus/finger wobbles while preserving exact geometry
+  const smoothed = [];
+  for (let i = 0; i < deduped.length; i++) {
+    if (isCorner[i] || i === 0 || i === deduped.length - 1) {
+      smoothed.push({ x: deduped[i].x, y: deduped[i].y });
+    } else {
+      const pPrev = deduped[i - 1];
+      const pCurr = deduped[i];
+      const pNext = deduped[i + 1];
+      smoothed.push({
+        x: Math.round((pPrev.x * 0.15 + pCurr.x * 0.70 + pNext.x * 0.15) * 10) / 10,
+        y: Math.round((pPrev.y * 0.15 + pCurr.y * 0.70 + pNext.y * 0.15) * 10) / 10
+      });
+    }
+  }
+
+  return smoothed;
+}
+
+// Continuous Midpoint Quadratic Bezier Stroke Renderer
+function drawSmoothStroke(targetCtx, pts, inkWidth, offsetX = 0, offsetY = 0) {
+  if (!pts || !pts.length) return;
+  if (pts.length === 1) {
+    targetCtx.beginPath();
+    targetCtx.arc(pts[0].x - offsetX, pts[0].y - offsetY, inkWidth / 2, 0, Math.PI * 2);
+    targetCtx.fill();
+    return;
+  }
+  if (pts.length === 2) {
+    targetCtx.beginPath();
+    targetCtx.moveTo(pts[0].x - offsetX, pts[0].y - offsetY);
+    targetCtx.lineTo(pts[1].x - offsetX, pts[1].y - offsetY);
+    targetCtx.stroke();
+    return;
+  }
+
+  targetCtx.beginPath();
+  targetCtx.moveTo(pts[0].x - offsetX, pts[0].y - offsetY);
+  for (let i = 1; i < pts.length - 1; i++) {
+    const midX = (pts[i].x + pts[i + 1].x) / 2 - offsetX;
+    const midY = (pts[i].y + pts[i + 1].y) / 2 - offsetY;
+    targetCtx.quadraticCurveTo(pts[i].x - offsetX, pts[i].y - offsetY, midX, midY);
+  }
+  const lastPt = pts[pts.length - 1];
+  targetCtx.lineTo(lastPt.x - offsetX, lastPt.y - offsetY);
+  targetCtx.stroke();
+}
+
 function drawPad() {
   fit(w, ctx);
   const ww = w.clientWidth, h = w.clientHeight;
@@ -2252,7 +2348,7 @@ function drawPad() {
     ctx.restore();
   }
 
-  // Draw User Strokes
+  // Draw User Strokes with Smooth Inking
   const bw = ruling.brushWidth;
   ctx.save();
   ctx.strokeStyle = '#173e33';
@@ -2261,19 +2357,7 @@ function drawPad() {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   userStrokes.forEach(stroke => {
-    if (!stroke || stroke.length === 0) return;
-    if (stroke.length === 1) {
-      ctx.beginPath();
-      ctx.arc(stroke[0].x, stroke[0].y, bw / 2, 0, Math.PI * 2);
-      ctx.fill();
-    } else {
-      ctx.beginPath();
-      ctx.moveTo(stroke[0].x, stroke[0].y);
-      for (let i = 1; i < stroke.length; i++) {
-        ctx.lineTo(stroke[i].x, stroke[i].y);
-      }
-      ctx.stroke();
-    }
+    drawSmoothStroke(ctx, stroke, bw);
   });
   ctx.restore();
 }
@@ -2449,6 +2533,12 @@ w.addEventListener('pointermove', e => {
 
 w.addEventListener('pointerup', e => {
   if (e.pointerId !== activePointerId) return;
+  if (currentStroke && currentStroke.length >= 3) {
+    const smoothed = smoothStrokeMicroscopic(currentStroke);
+    currentStroke.length = 0;
+    for (let i = 0; i < smoothed.length; i++) currentStroke.push(smoothed[i]);
+    drawPad();
+  }
   drawing = false;
   currentStroke = null;
   last = null;
@@ -3209,24 +3299,14 @@ function captureSubmittedWriting() {
   cap.height = Math.max(50, bh);
   const cx = cap.getContext('2d');
 
-  // Crisp white card background
+  // Crisp white card background (pure high-contrast background without distracting false guidelines)
   cx.fillStyle = '#ffffff';
   cx.fillRect(0, 0, cap.width, cap.height);
 
-  // Subtle notebook guidelines
-  cx.strokeStyle = '#e2e8f0';
-  cx.lineWidth = 1.2;
-  cx.beginPath();
-  cx.moveTo(4, Math.round(cap.height * 0.35));
-  cx.lineTo(cap.width - 4, Math.round(cap.height * 0.35));
-  cx.moveTo(4, Math.round(cap.height * 0.72));
-  cx.lineTo(cap.width - 4, Math.round(cap.height * 0.72));
-  cx.stroke();
-
-  // Draw user's actual ink strokes in bold dark blue
+  // Draw user's actual ink strokes in bold dark blue with microscopic smoothing
   cx.strokeStyle = '#124170';
   cx.fillStyle = '#124170';
-  const inkWidth = Math.max(3.5, Math.min(8, Math.round(bh * 0.08)));
+  const inkWidth = Math.max(4, Math.min(8.5, Math.round(bh * 0.085)));
   cx.lineWidth = inkWidth;
   cx.lineCap = 'round';
   cx.lineJoin = 'round';
@@ -3236,21 +3316,11 @@ function captureSubmittedWriting() {
 
   userStrokes.forEach(str => {
     if (!str || !str.length) return;
-    if (str.length === 1) {
-      cx.beginPath();
-      cx.arc(str[0].x - offsetX, str[0].y - offsetY, inkWidth / 2, 0, Math.PI * 2);
-      cx.fill();
-    } else {
-      cx.beginPath();
-      cx.moveTo(str[0].x - offsetX, str[0].y - offsetY);
-      for (let i = 1; i < str.length; i++) {
-        cx.lineTo(str[i].x - offsetX, str[i].y - offsetY);
-      }
-      cx.stroke();
-    }
+    const smoothed = smoothStrokeMicroscopic(str);
+    drawSmoothStroke(cx, smoothed, inkWidth, offsetX, offsetY);
   });
 
-  return cap.toDataURL('image/jpeg', 0.85);
+  return cap.toDataURL('image/jpeg', 0.90);
 }
 
 // Grade 1 Devanagari Confusions & Lookalike Dictionary
@@ -3601,17 +3671,17 @@ function renderUserStrokesNormalized(strokes, strokeOffset = 0, W = 64, H = 64) 
 
   strokes.forEach(str => {
     if (!str || !str.length) return;
-    if (str.length === 1) {
+    const smoothed = smoothStrokeMicroscopic(str);
+    if (smoothed.length === 1) {
       ux.beginPath();
-      ux.arc((str[0].x - strokeOffset) * uScale + uOffX, str[0].y * uScale + uOffY, 2.5, 0, Math.PI * 2);
+      ux.arc((smoothed[0].x - strokeOffset) * uScale + uOffX, smoothed[0].y * uScale + uOffY, 2.5, 0, Math.PI * 2);
       ux.fill();
     } else {
-      ux.beginPath();
-      ux.moveTo((str[0].x - strokeOffset) * uScale + uOffX, str[0].y * uScale + uOffY);
-      for (let i = 1; i < str.length; i++) {
-        ux.lineTo((str[i].x - strokeOffset) * uScale + uOffX, str[i].y * uScale + uOffY);
-      }
-      ux.stroke();
+      const mapped = smoothed.map(pt => ({
+        x: (pt.x - strokeOffset) * uScale + uOffX,
+        y: pt.y * uScale + uOffY
+      }));
+      drawSmoothStroke(ux, mapped, ux.lineWidth);
     }
   });
 
@@ -5634,7 +5704,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.3.20';
+const CURRENT_APP_VERSION = '3.3.21';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
