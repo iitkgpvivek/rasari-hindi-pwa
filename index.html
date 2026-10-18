@@ -3870,13 +3870,14 @@ async function evaluateWithGeminiVision(capturedDataUrl, targetText) {
     const mimeMatch = capturedDataUrl.match(/^data:([^;]+);/);
     const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
 
-    const promptText = `Examine the handwritten Devanagari Hindi writing in the image.
-Identify what exact Devanagari Hindi letter or word was written.
-Distinguish lookalike characters with high precision (e.g. tail vs loop in द vs ढ vs ट vs ठ, घ vs ध, क vs फ, न vs म, ष vs प).
-Output ONLY the Devanagari characters in "detected" (no English, no transliteration, no punctuation).
+    const promptText = `The student is practicing writing the Devanagari Hindi letter or word "${targetText}".
+Examine the handwritten Devanagari image.
+1. Determine if this handwriting legibly represents "${targetText}". Tolerate normal Grade-1 child hand motor tremor/wobble as long as the essential structural strokes of "${targetText}" are present.
+2. If you are confident that the letter/word written is absolutely reading something completely different, or missing critical structural strokes, mark pass as false and identify what it actually reads like so that the student can be corrected.
 Respond ONLY with a JSON object:
 {
-  "detected": "detected Devanagari string",
+  "pass": true or false,
+  "detected": "the Devanagari characters actually read from the image",
   "confidence": integer 0-100
 }`;
 
@@ -3950,18 +3951,23 @@ Respond ONLY with a JSON object:
     // Canonical Devanagari Unicode NFC Normalization
     const normDetected = cleanDetected.normalize('NFC');
     const normTarget = targetText.normalize('NFC').trim();
+    const modelDeclaredPass = (parsed.pass === true || parsed.pass === 'true');
     const isExactMatch = normDetected === normTarget;
-    const isPass = isExactMatch;
+
+    // Pass if model explicitly verified the target and did not detect a conflicting letter,
+    // OR if the detected characters exact-match target
+    const isPass = (modelDeclaredPass && (isExactMatch || !normDetected || normDetected === normTarget)) || isExactMatch;
 
     const reason = isPass ? 'ok' : (targetText.length <= 1 ? 'wrong_letter' : 'wrong_word');
     const confidenceVal = typeof parsed.confidence === 'number' ? parsed.confidence : 95;
+    const finalDetected = isPass ? normTarget : (normDetected || '?');
 
     return {
       pass: isPass,
       reason: reason,
-      detectedWord: normDetected || '?',
+      detectedWord: finalDetected,
       expectedWord: targetText,
-      detected: normDetected || '?',
+      detected: finalDetected,
       expected: targetText,
       confidence: confidenceVal,
       score: isPass ? Math.max(90, Math.min(99, confidenceVal)) : Math.max(20, Math.min(60, 100 - confidenceVal)),
@@ -5704,7 +5710,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.3.21';
+const CURRENT_APP_VERSION = '3.3.22';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
