@@ -2726,9 +2726,17 @@ function playSnd(src) {
       activeAudio.pause();
       activeAudio.currentTime = 0;
     }
-    const a = new Audio(src);
+    let a = audioMap[src];
+    if (!a) {
+      a = new Audio(src);
+      audioMap[src] = a;
+    }
+    a.currentTime = 0;
     activeAudio = a;
-    a.play().catch(() => {});
+    const p = a.play();
+    if (p && p.catch) {
+      p.catch(() => {});
+    }
   } catch(e){}
 }
 
@@ -2916,6 +2924,22 @@ function warmUpSpeech() {
 window.addEventListener('pointerdown', warmUpSpeech, { passive: true });
 window.addEventListener('touchstart', warmUpSpeech, { passive: true });
 
+// Unwedge speech synthesis on device wake / app resume across sleep
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    speechWarmedUp = false;
+    try {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+      }
+    } catch(e) {}
+    cachedVoicesMap = {};
+  }
+});
+
 let activeUtterance = null;
 window._activeUtterances = [];
 function speakWordOrPhrase(text, fallbackAudio = null) {
@@ -2962,18 +2986,28 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
       window._activeUtterances = window._activeUtterances || [];
       window._activeUtterances.push(u);
 
-      u.onend = () => {
+      let started = false;
+      let watchdogTimer = null;
+
+      const cleanup = () => {
+        if (watchdogTimer) clearTimeout(watchdogTimer);
         if (activeUtterance === u) activeUtterance = null;
         if (window._activeUtterance === u) window._activeUtterance = null;
         const uIdx = (window._activeUtterances || []).indexOf(u);
         if (uIdx > -1) window._activeUtterances.splice(uIdx, 1);
       };
 
+      u.onstart = () => {
+        started = true;
+        if (watchdogTimer) clearTimeout(watchdogTimer);
+      };
+
+      u.onend = () => {
+        cleanup();
+      };
+
       u.onerror = (e) => {
-        if (activeUtterance === u) activeUtterance = null;
-        if (window._activeUtterance === u) window._activeUtterance = null;
-        const uIdx = (window._activeUtterances || []).indexOf(u);
-        if (uIdx > -1) window._activeUtterances.splice(uIdx, 1);
+        cleanup();
         if (e && (e.error === 'canceled' || e.error === 'interrupted')) return;
         console.warn('SpeechSynthesis error:', e);
         if (e && e.error === 'language-unavailable') {
@@ -2981,6 +3015,19 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
         }
         if (fallbackAudio) playSnd(fallbackAudio);
       };
+
+      // Watchdog: If TTS engine hung across sleep/wake, unwedge and trigger fallback
+      watchdogTimer = setTimeout(() => {
+        if (!started && activeUtterance === u) {
+          console.warn('[SpeechSynthesis] TTS engine stalled (sleep/wake hang). Unfreezing...');
+          try {
+            window.speechSynthesis.cancel();
+            if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+          } catch(e) {}
+          cleanup();
+          if (fallbackAudio) playSnd(fallbackAudio);
+        }
+      }, 750);
 
       // Fix Android Chrome queue freeze:
       // If currently speaking, cancel first and wait 60ms for queue teardown.
@@ -3036,7 +3083,7 @@ function speakLetter() {
     const letterPhrase = (voicePersona === 'monkey')
       ? ('अरे वाह! ' + basePhrase + '!')
       : basePhrase;
-    speakWordOrPhrase(letterPhrase, null);
+    speakWordOrPhrase(letterPhrase, item.audio);
   } else if (currentStep === 2 && !item.isSwar) {
     const m = getLetterMastery(item.c);
     const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
@@ -5594,7 +5641,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.3.18';
+const CURRENT_APP_VERSION = '3.3.19';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
