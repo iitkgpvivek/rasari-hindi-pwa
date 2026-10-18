@@ -5659,6 +5659,21 @@ function handleApertureDone() {
 
   const result = evaluateHandwriting(unit.char, curStrokes, strokeOffset);
 
+  const item = lessons[idx];
+  const m = item ? getLetterMastery(item.c) : null;
+  let currentTier = (currentStep === 1) ? (m ? m.letterTier : 0) : ((currentStep === 2) ? (m ? m.matraTier : 0) : (m ? m.wordTier : 0));
+  const isFreehand = (guideMode === 'auto') ? (currentTier === 2) : (guideMode === 'off');
+
+  // In Freehand mode, the palm-rejection writing view should NOT strictly block or erase the child's
+  // handwritten akshara with local OCR templates. The final pedagogical evaluation (with Gemini AI
+  // and full-word context) happens on the main slate upon clicking "I'm done!".
+  // Only flag obvious scribbles; otherwise let genuine child freehand strokes pass through cleanly!
+  if (isFreehand && result.reason !== 'scribble') {
+    result.pass = true;
+    result.reason = 'ok';
+    result.score = Math.max(result.score || 85, 85);
+  }
+
   if (!result.pass) {
     const win = $('apertureWindow');
     if (win) {
@@ -6052,7 +6067,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.3.30';
+const CURRENT_APP_VERSION = '3.3.31';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
