@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 <title>Rasari Hindi Writing Gym</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Noto+Sans+Kannada:wght@400;600;700;800;900&display=swap');
 :root{--navy:#123b6c;--teal:#0f7a66;--gold:#ffca4f;--pink:#ff7d9c;--green:#39b84a}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;touch-action:none;font-family:'Baloo 2',system-ui,sans-serif;user-select:none;-webkit-user-select:none}body{color:var(--navy);background:#8fd8ff;overscroll-behavior:none}
 button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:3px solid #147ac2;outline-offset:2px}
@@ -100,8 +100,16 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .nav-step-pill.active{background:#facc15;color:#451a03;font-weight:900;border-color:#eab308;box-shadow:0 1px 3px rgba(161,98,7,0.25)}
 .nav-step-pill.disabled{opacity:0.35;pointer-events:none;filter:grayscale(1)}
 .step:not(#st4){cursor:default;pointer-events:none}
-.progress-step-pill{cursor:pointer !important;pointer-events:auto !important;color:#92400e}
+.progress-step-pill{cursor:pointer !important;pointer-events:auto !important;color:#92400e;position:relative}
 .progress-step-pill:hover{background:#fef3c7}
+.lang-dropdown-trigger{display:inline-flex;align-items:center;gap:3px;margin-left:clamp(2px,0.4vw,5px);padding:1.5px clamp(4px,0.6vw,7px);border-radius:9999px;background:rgba(245,158,11,0.18);border:1px solid rgba(217,119,6,0.35);color:#78350f;font-size:10.5px;font-weight:800;cursor:pointer;pointer-events:auto !important;transition:all 0.15s ease;user-select:none}
+.lang-dropdown-trigger:hover{background:rgba(245,158,11,0.32)}
+.lang-dropdown-menu{position:fixed;top:54px;right:16px;background:#ffffff;border:1.5px solid #fcd34d;border-radius:12px;box-shadow:0 10px 28px rgba(0,0,0,0.22),0 2px 8px rgba(0,0,0,0.08);padding:5px;min-width:165px;z-index:99999;display:flex;flex-direction:column;gap:3px;animation:fadeInDown 0.15s ease-out;pointer-events:auto !important}
+.lang-dropdown-item{display:flex;align-items:center;gap:8px;padding:7px 11px;border-radius:8px;font-size:13px;font-weight:700;color:#1e293b;cursor:pointer;transition:background 0.12s ease;user-select:none}
+.lang-dropdown-item:hover{background:#fef3c7;color:#78350f}
+.lang-dropdown-item.active{background:#fde68a;color:#78350f;font-weight:900}
+.lang-dropdown-item .lang-check{margin-left:auto;font-size:12px;display:none;color:#059669;font-weight:900}
+.lang-dropdown-item.active .lang-check{display:inline}
 .step-circ-icon{width:17px;height:17px;border-radius:9999px;background:#f1f5f9;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;line-height:1}
 .nav-step-pill.active .step-circ-icon{background:#ffffff;color:#451a03}
 .nav-stage-badge{display:inline-flex;align-items:center;gap:3px;padding:3px clamp(6px,0.8vw,9px);border-radius:9999px;background:#fef3c7;border:1.2px solid #f59e0b;color:#78350f;font-size:11px;font-weight:900;box-shadow:0 1px 2px rgba(180,83,9,0.15);flex-shrink:0;transition:all 0.2s ease}
@@ -750,7 +758,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
     <div class="nav-steps-container">
       <div class="nav-step-pill active" id="st1" title="Step 1: Letter Recall">
         <span class="step-circ-icon" id="navLetter">अ</span>
-        <span class="tablet-pill-text">Letter</span>
+        <span class="tablet-pill-text" id="navStep1Label">Letter</span>
       </div>
 
       <!-- The dynamic stage badge (moves dynamically next to whichever stage is active) -->
@@ -761,18 +769,21 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
       </div>
 
       <div class="nav-step-pill" id="st2" title="Step 2: Matra Recall">
-        <span class="step-circ-icon">ा</span>
-        <span class="tablet-pill-text">Matra</span>
+        <span class="step-circ-icon" id="navMatraIcon">ा</span>
+        <span class="tablet-pill-text" id="navStep2Label">Matra</span>
       </div>
 
       <div class="nav-step-pill" id="st3" title="Step 3: Word Recall">
-        <span class="step-circ-icon">का</span>
-        <span class="tablet-pill-text">Word</span>
+        <span class="step-circ-icon" id="navWordIcon">का</span>
+        <span class="tablet-pill-text" id="navStep3Label">Word</span>
       </div>
 
       <div class="nav-step-pill progress-step-pill" id="st4" title="Progress & Stickers">
         <span class="step-circ-icon">★</span>
-        <span class="tablet-pill-text">Progress</span>
+        <span class="tablet-pill-text" id="navStep4Label">Progress</span>
+        <button type="button" class="lang-dropdown-trigger" id="langSelectorTrigger" title="Switch Language" aria-label="Switch Language">
+          <span id="currentLangBadge">हिन्दी</span> <span style="font-size:8px; opacity:0.8;">▼</span>
+        </button>
       </div>
     </div>
 
@@ -783,6 +794,20 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
       <span class="tablet-pill-text">treats</span>
     </div>
   </header>
+
+  <!-- Floating Language Selector Menu -->
+  <div id="langDropdownMenu" class="lang-dropdown-menu" style="display:none;">
+    <div class="lang-dropdown-item" data-lang="hi">
+      <span class="lang-flag">🇮🇳</span>
+      <span class="lang-name">हिन्दी (Hindi)</span>
+      <span class="lang-check" id="check_hi">✓</span>
+    </div>
+    <div class="lang-dropdown-item" data-lang="kn">
+      <span class="lang-flag">🟡</span>
+      <span class="lang-name">ಕನ್ನಡ (Kannada)</span>
+      <span class="lang-check" id="check_kn">✓</span>
+    </div>
+  </div>
 
   <!-- LAYER 3: Native App Interactive Interface (Scrollable Bottom Anchored) -->
   <div id="appContainer" class="app-container-layer">
@@ -2105,7 +2130,179 @@ const IMAGES = {
   "लीची": "images/leechi.png",
   "सुई": "images/sui.png",
   "सैनिक": "images/sainik.png",
-  "हथेली": "images/hatheli.png"
+  "हथेली": "images/hatheli.png",
+
+  // Kannada core mappings to existing 3D library
+  "ಕಮಲ": "images/kamal.webp",
+  "ಕಾಗೆ": "images/kauwa.png",
+  "ಕತ್ತರಿ": "images/kainchi.png",
+  "ಕುದುರೆ": "images/ghoda.png",
+  "ಕಲಂ": "images/kalam.png",
+  "ಕುರಿ": "images/bhed.png",
+  "ಕನ್ನಡಿ": "images/sheesha.png",
+  "ಖಗ": "images/chidiya.png",
+  "ಖರ್ಜೂರ": "images/khajoor.png",
+  "ಖುಷಿ": "images/khushi.png",
+  "ಖತಿ": "images/khat.png",
+  "ಗಡಿಯಾರ": "images/ghadi.png",
+  "ಗಾಳಿಪಟ": "images/patang.png",
+  "ಗುಲಾಬಿ": "images/gulab.png",
+  "ಗಿಳಿ": "images/tota.png",
+  "ಗಂಟೆ": "images/ghanti.png",
+  "ಗಜ": "images/haathi.png",
+  "ಘಂಟೆ": "images/ghanti.png",
+  "ಘಟ": "images/ghada.png",
+  "ಘರ್ಜನೆ": "images/sher.png",
+  "ಚಮಚ": "images/chammach.png",
+  "ಚಂದ್ರ": "images/chand.png",
+  "ಚಂಡು": "images/gend.png",
+  "ಚಿಟ್ಟೆ": "images/titli.png",
+  "ಚಪ್ಪಲಿ": "images/joota.png",
+  "ಚುಕ್ಕಿ": "images/tara.png",
+  "ಛತ್ರಿ": "images/chhatri.png",
+  "ಛಾವಣಿ": "images/chhat.png",
+  "ಜೇನು": "images/shahad.png",
+  "ಜಹಾಜು": "images/jahaz.png",
+  "ಜಲ": "images/paani.png",
+  "ಜಿಂಕೆ": "images/hiran.png",
+  "ಝರಿ": "images/jharna.png",
+  "ಝಂಡಾ": "images/jhanda.png",
+  "ಟೊಮೆಟೊ": "images/tamatar.png",
+  "ಟೊಪ್ಪಿ": "images/topi.png",
+  "ಟಬ್": "images/tab.png",
+  "ಡಮರು": "images/damru.png",
+  "ಡೋಲು": "images/dhol.png",
+  "ಢಕ್ಕೆ": "images/dhol.png",
+  "ಬಾಣ": "images/baan.png",
+  "ಹಣ": "images/rupaya.png",
+  "ಬಣ್ಣ": "images/rang.png",
+  "ಹಣ್ಣು": "images/phal.png",
+  "ತೃಣ": "images/ghaas.png",
+  "ತಾರಾ": "images/tara.png",
+  "ತೋಟ": "images/bageecha.png",
+  "ತಟ್ಟೆ": "images/thaali.png",
+  "ಥರ್ಮಸ್": "images/thermos.png",
+  "ರಥ": "images/rath.png",
+  "ಪಥ": "images/sadak.png",
+  "ದೀಪ": "images/deepak.png",
+  "ದನ": "images/gaay.png",
+  "ದೋಣಿ": "images/naav.png",
+  "ದ್ರಾಕ್ಷಿ": "images/angoor.png",
+  "ದಾಳಿಂಬೆ": "images/anaar.webp",
+  "ದಂತ": "images/daant.svg",
+  "ದಾರಿ": "images/sadak.png",
+  "ಧನುಸ್ಸು": "images/dhanush.png",
+  "ಧ್ವಜ": "images/jhanda.png",
+  "ಧಾನ್ಯ": "images/anaaj.png",
+  "ಧನ": "images/rupaya.png",
+  "ಧೂಪ": "images/dhoop.png",
+  "ನವಿಲು": "images/mor.png",
+  "ನಾಯಿ": "images/kutta.png",
+  "ನದಿ": "images/nadi.png",
+  "ನಕ್ಷತ್ರ": "images/tara.png",
+  "ನಳ": "images/nal.png",
+  "ನಸುಕು": "images/pratah.png",
+  "ನಾರಿವಾಳ": "images/nariyal.png",
+  "ಪತಂಗ": "images/patang.png",
+  "ಪುಸ್ತಕ": "images/kitab.png",
+  "ಪೆನ್ಸಿಲ್": "images/pencil.png",
+  "ಪಕ್ಷಿ": "images/chidiya.png",
+  "ಪಾರಿವಾಳ": "images/kabootar.png",
+  "ಪರ್ವತ": "images/pahaad.png",
+  "ಪಾದ": "images/pair.png",
+  "ಪಾನೀಯ": "images/juice.png",
+  "ಪಂಕಾ": "images/pankha.png",
+  "ಪಪ್ಪಾಯಿ": "images/papita.png",
+  "ಫಲ": "images/phal.png",
+  "ಫೌಂಟನ್": "images/fawwara.png",
+  "ಬೆಕ್ಕು": "images/billi.png",
+  "ಬಾಳೆಹಣ್ಣು": "images/kela.png",
+  "ಬೀಗ": "images/taala.png",
+  "ಬಸ್ಸು": "images/bus.png",
+  "ಬಂಡಿ": "images/rath.png",
+  "ಬೆಟ್ಟ": "images/pahaad.png",
+  "ಬಾತುಕೋಳಿ": "images/battakh.png",
+  "ಭಾರತ": "images/jhanda.png",
+  "ಭಾನು": "images/sooraj.png",
+  "ಭವನ": "images/bhavan.png",
+  "ಭೇರಿ": "images/dhol.png",
+  "ಭಕ್ಷ್ಯ": "images/mithai.png",
+  "ಭ್ರಮರ": "images/bhaunra.png",
+  "ಮನೆ": "images/ghar.png",
+  "ಮರ": "images/ped.png",
+  "ಮೀನು": "images/machhli.png",
+  "ಮೊಲ": "images/khargosh.png",
+  "ಮಾವಿನಹಣ್ಣು": "images/aam.webp",
+  "ಮಲ್ಲಿಗೆ": "images/phool.png",
+  "ಮಳೆ": "images/varsha.png",
+  "ಮುತ್ತು": "images/moonga.png",
+  "ಯಜ್ಞ": "images/yagya.png",
+  "ಯಾನ": "images/vimaan.png",
+  "ಯತಿ": "images/rishi.png",
+  "ಯಮುನಾ": "images/nadi.png",
+  "ಯೋಗ": "images/yog.png",
+  "ರೈಲು": "images/rail.png",
+  "ರಂಗೋಲಿ": "images/rang.png",
+  "ರೊಟ್ಟಿ": "images/roti.png",
+  "ರವಿ": "images/sooraj.png",
+  "ರಾತ್ರಿ": "images/chand.png",
+  "ರಾಖಿ": "images/raakhi.png",
+  "ರಸ್ತೆ": "images/sadak.png",
+  "ಲಡ್ಡು": "images/laddu.png",
+  "ಲಾಂದ್ರ": "images/laalten.png",
+  "ಲೀಚಿ": "images/leechi.png",
+  "ಲೇಖನಿ": "images/kalam.png",
+  "ವೃಕ್ಷ": "images/ped.png",
+  "ವಿಮಾನ": "images/vimaan.png",
+  "ವನ": "images/van.png",
+  "ವರ್ಷ": "images/varsha.png",
+  "ಶಂಖ": "images/shankh.png",
+  "ಶರಬತ್ತು": "images/juice.png",
+  "ಶುಂಠಿ": "images/adarak.png",
+  "ಶುಕ": "images/tota.png",
+  "ಶಶಿ": "images/chand.png",
+  "ಷಟ್ಕೋಣ": "images/shatkon.png",
+  "ಧನುಷ್": "images/dhanush.png",
+  "ಸೂರ್ಯ": "images/sooraj.png",
+  "ಸೇಬು": "images/seb.png",
+  "ಸಾಬೂನು": "images/sabun.png",
+  "ಸರ್ಪ": "images/saanp.png",
+  "ಸಿಂಹ": "images/sher.png",
+  "ಸೈಕಲ್": "images/cycle.png",
+  "ಸೈನಿಕ": "images/sainik.png",
+  "ಹಸು": "images/gaay.png",
+  "ಹಕ್ಕಿ": "images/chidiya.png",
+  "ಹಾವು": "images/saanp.png",
+  "ಹೂವು": "images/phool.png",
+  "ಹಲ್ಲು": "images/daant.svg",
+  "ಹಾಲು": "images/doodh.png",
+  "ಹಡಗು": "images/jahaz.png",
+  "ಹಂಸ": "images/hans.png",
+  "ಕೊಳ": "images/taalaab.png",
+  "ಬೆಳೆ": "images/hal.png",
+  "ಹೂಗಳು": "images/phool.png",
+  "ಹಣ್ಣುಗಳು": "images/phal.png",
+  "ಕ್ಷತ್ರಿಯ": "images/kshatriya.png",
+  "ಕ್ಷೀರ": "images/doodh.png",
+  "ಜ್ಞಾನಿ": "images/gyani.png",
+  "ಆನೆ": "images/haathi.png",
+  "ಆಲೂಗಡ್ಡೆ": "images/aalu.png",
+  "ಇಲಿ": "images/chuha.png",
+  "ಇಟ್ಟಿಗೆ": "images/eent.png",
+  "ಇನಾಮು": "images/inaam.png",
+  "ಉಂಗುರ": "images/angoothi.png",
+  "ಉಪಹಾರ": "images/uphaar.png",
+  "ಊಟ": "images/khaana.png",
+  "ಋಷಿ": "images/rishi.png",
+  "ಋತು": "images/ritu.png",
+  "ಎಲೆ": "images/patta.png",
+  "ಐರಾವತ": "images/airavat.png",
+  "ಒಂಟೆ": "images/oont.png",
+  "ಓದು": "images/kitab.png",
+  "ಔಷಧ": "images/dawa.png",
+  "ಅಂಗಡಿ": "images/bazaar.png",
+  "ಅಂಡಾಣು": "images/anda.png",
+  "ಉಷಃಕಾಲ": "images/pratah.png"
 };
 
 // Grade 1 Hindi Barakhadi Matras (13 combinations: क, का, कि, की, कु, कू, कृ, के, कै, को, कौ, कं, कः)
@@ -2428,8 +2625,2700 @@ const WORD_BANKS = {
   ]
 };
 
+// Grade 1 Kannada Kagunita Matras (15 Gunintagalu)
+const KANNADA_KAGUNITA_MATRAS = [
+  {
+    "sym": "",
+    "name": "ಅ (ತಲೆಕಟ್ಟು)",
+    "label": "ಅ"
+  },
+  {
+    "sym": "ಾ",
+    "name": "ಆ (ದೀರ್ಘ ಾ)",
+    "label": "ಾ"
+  },
+  {
+    "sym": "ಿ",
+    "name": "ಇ (ಗುಡಿಸು ಿ)",
+    "label": "ಿ"
+  },
+  {
+    "sym": "ೀ",
+    "name": "ಈ (ಗುಡಿಸು ದೀರ್ಘ ೀ)",
+    "label": "ೀ"
+  },
+  {
+    "sym": "ು",
+    "name": "ಉ (ಕೊಂಬು ು)",
+    "label": "ು"
+  },
+  {
+    "sym": "ೂ",
+    "name": "ಊ (ಕೊಂಬು ದೀರ್ಘ ೂ)",
+    "label": "ೂ"
+  },
+  {
+    "sym": "ೃ",
+    "name": "ಋ (ವಟ್ರಸುಳಿ ೃ)",
+    "label": "ೃ"
+  },
+  {
+    "sym": "ೆ",
+    "name": "ಎ (ಎತ್ವ ೆ)",
+    "label": "ೆ"
+  },
+  {
+    "sym": "ೇ",
+    "name": "ಏ (ಏತ್ವ ೇ)",
+    "label": "ೇ"
+  },
+  {
+    "sym": "ೈ",
+    "name": "ಐ (ಐತ್ವ ೈ)",
+    "label": "ೈ"
+  },
+  {
+    "sym": "ೊ",
+    "name": "ಒ (ಒತ್ವ ೊ)",
+    "label": "ೊ"
+  },
+  {
+    "sym": "ೋ",
+    "name": "ಓ (ಓತ್ವ ೋ)",
+    "label": "ೋ"
+  },
+  {
+    "sym": "ೌ",
+    "name": "ಔ (ಔತ್ವ ೌ)",
+    "label": "ೌ"
+  },
+  {
+    "sym": "ಂ",
+    "name": "ಅನುಸ್ವಾರ (ಂ)",
+    "label": "ಂ"
+  },
+  {
+    "sym": "ಃ",
+    "name": "ವಿಸರ್ಗ (ಃ)",
+    "label": "ಃ"
+  }
+];
+
+// Grade 1 Kannada Curriculum Lessons (51 Lessons: 15 Swaras/Yogavahas + 34 Vyanjanas + 2 Samyuktaksharas)
+const KANNADA_LESSONS = [
+  {
+    "c": "ಅ",
+    "isSwar": true,
+    "sound": "a",
+    "word": "ಅರಸ",
+    "emoji": "👑",
+    "phonic": "ಅ - ಅರಸ",
+    "audio": "audio/kn_sw_a.m4a"
+  },
+  {
+    "c": "ಆ",
+    "isSwar": true,
+    "sound": "aa",
+    "word": "ಆನೆ",
+    "emoji": "🐘",
+    "phonic": "ಆ - ಆನೆ",
+    "audio": "audio/kn_sw_aa.m4a"
+  },
+  {
+    "c": "ಇ",
+    "isSwar": true,
+    "sound": "i",
+    "word": "ಇಲಿ",
+    "emoji": "🐭",
+    "phonic": "ಇ - ಇಲಿ",
+    "audio": "audio/kn_sw_i.m4a"
+  },
+  {
+    "c": "ಈ",
+    "isSwar": true,
+    "sound": "ee",
+    "word": "ಈಜು",
+    "emoji": "🏊",
+    "phonic": "ಈ - ಈಜು",
+    "audio": "audio/kn_sw_ee.m4a"
+  },
+  {
+    "c": "ಉ",
+    "isSwar": true,
+    "sound": "u",
+    "word": "ಉಂಗುರ",
+    "emoji": "💍",
+    "phonic": "ಉ - ಉಂಗುರ",
+    "audio": "audio/kn_sw_u.m4a"
+  },
+  {
+    "c": "ಊ",
+    "isSwar": true,
+    "sound": "oo",
+    "word": "ಊಟ",
+    "emoji": "🍲",
+    "phonic": "ಊ - ಊಟ",
+    "audio": "audio/kn_sw_oo.m4a"
+  },
+  {
+    "c": "ಋ",
+    "isSwar": true,
+    "sound": "ru",
+    "word": "ಋಷಿ",
+    "emoji": "🧘",
+    "phonic": "ಋ - ಋಷಿ",
+    "audio": "audio/kn_sw_ri.m4a"
+  },
+  {
+    "c": "ಎ",
+    "isSwar": true,
+    "sound": "e",
+    "word": "ಎಲೆ",
+    "emoji": "🍃",
+    "phonic": "ಎ - ಎಲೆ",
+    "audio": "audio/kn_sw_e.m4a"
+  },
+  {
+    "c": "ಏ",
+    "isSwar": true,
+    "sound": "ee",
+    "word": "ಏಣಿ",
+    "emoji": "🪜",
+    "phonic": "ಏ - ಏಣಿ",
+    "audio": "audio/kn_sw_ee2.m4a"
+  },
+  {
+    "c": "ಐ",
+    "isSwar": true,
+    "sound": "ai",
+    "word": "ಐದು",
+    "emoji": "5️⃣",
+    "phonic": "ಐ - ಐದು",
+    "audio": "audio/kn_sw_ai.m4a"
+  },
+  {
+    "c": "ಒ",
+    "isSwar": true,
+    "sound": "o",
+    "word": "ಒಂಟೆ",
+    "emoji": "🐫",
+    "phonic": "ಒ - ಒಂಟೆ",
+    "audio": "audio/kn_sw_o.m4a"
+  },
+  {
+    "c": "ಓ",
+    "isSwar": true,
+    "sound": "oo",
+    "word": "ಓದು",
+    "emoji": "📖",
+    "phonic": "ಓ - ಓದು",
+    "audio": "audio/kn_sw_oo2.m4a"
+  },
+  {
+    "c": "ಔ",
+    "isSwar": true,
+    "sound": "au",
+    "word": "ಔಷಧ",
+    "emoji": "💊",
+    "phonic": "ಔ - ಔಷಧ",
+    "audio": "audio/kn_sw_au.m4a"
+  },
+  {
+    "c": "ಅಂ",
+    "isSwar": true,
+    "sound": "am",
+    "word": "ಅಂಗಿ",
+    "emoji": "👕",
+    "phonic": "ಅಂ - ಅಂಗಿ",
+    "audio": "audio/kn_sw_ang.m4a"
+  },
+  {
+    "c": "ಅಃ",
+    "isSwar": true,
+    "sound": "aha",
+    "word": "ಅಃ",
+    "emoji": "✨",
+    "phonic": "ಅಃ - ವಿಸರ್ಗ",
+    "audio": "audio/kn_sw_aha.m4a"
+  },
+  {
+    "c": "ಕ",
+    "isSwar": false,
+    "sound": "ka",
+    "word": "ಕಮಲ",
+    "emoji": "🪷",
+    "phonic": "ಕ - ಕಮಲ",
+    "audio": "audio/kn_vy_ka.m4a"
+  },
+  {
+    "c": "ಖ",
+    "isSwar": false,
+    "sound": "kha",
+    "word": "ಖಡ್ಗ",
+    "emoji": "🗡️",
+    "phonic": "ಖ - ಖಡ್ಗ",
+    "audio": "audio/kn_vy_kha.m4a"
+  },
+  {
+    "c": "ಗ",
+    "isSwar": false,
+    "sound": "ga",
+    "word": "ಗಡಿಯಾರ",
+    "emoji": "⏰",
+    "phonic": "ಗ - ಗಡಿಯಾರ",
+    "audio": "audio/kn_vy_ga.m4a"
+  },
+  {
+    "c": "ಘ",
+    "isSwar": false,
+    "sound": "gha",
+    "word": "ಘಂಟೆ",
+    "emoji": "🔔",
+    "phonic": "ಘ - ಘಂಟೆ",
+    "audio": "audio/kn_vy_gha.m4a"
+  },
+  {
+    "c": "ಙ",
+    "isSwar": false,
+    "sound": "nga",
+    "word": "ಙ",
+    "emoji": "✨",
+    "phonic": "ಙ - ಅಙ್ಕ",
+    "audio": "audio/kn_vy_nga.m4a"
+  },
+  {
+    "c": "ಚ",
+    "isSwar": false,
+    "sound": "cha",
+    "word": "ಚಮಚ",
+    "emoji": "🥄",
+    "phonic": "ಚ - ಚಮಚ",
+    "audio": "audio/kn_vy_cha.m4a"
+  },
+  {
+    "c": "ಛ",
+    "isSwar": false,
+    "sound": "chha",
+    "word": "ಛತ್ರಿ",
+    "emoji": "☂️",
+    "phonic": "ಛ - ಛತ್ರಿ",
+    "audio": "audio/kn_vy_chha.m4a"
+  },
+  {
+    "c": "ಜ",
+    "isSwar": false,
+    "sound": "ja",
+    "word": "ಜೇನು",
+    "emoji": "🍯",
+    "phonic": "ಜ - ಜೇನು",
+    "audio": "audio/kn_vy_ja.m4a"
+  },
+  {
+    "c": "ಝ",
+    "isSwar": false,
+    "sound": "jha",
+    "word": "ಝರಿ",
+    "emoji": "🌊",
+    "phonic": "ಝ - ಝರಿ",
+    "audio": "audio/kn_vy_jha.m4a"
+  },
+  {
+    "c": "ಞ",
+    "isSwar": false,
+    "sound": "nya",
+    "word": "ಞ",
+    "emoji": "✨",
+    "phonic": "ಞ - ವಿಜ್ಞಾನ",
+    "audio": "audio/kn_vy_nya.m4a"
+  },
+  {
+    "c": "ಟ",
+    "isSwar": false,
+    "sound": "ta",
+    "word": "ಟೊಮೆಟೊ",
+    "emoji": "🍅",
+    "phonic": "ಟ - ಟೊಮೆಟೊ",
+    "audio": "audio/kn_vy_ta1.m4a"
+  },
+  {
+    "c": "ಠ",
+    "isSwar": false,
+    "sound": "tha",
+    "word": "ಠಸ್ಸೆ",
+    "emoji": "📮",
+    "phonic": "ಠ - ಠಸ್ಸೆ",
+    "audio": "audio/kn_vy_tha1.m4a"
+  },
+  {
+    "c": "ಡ",
+    "isSwar": false,
+    "sound": "da",
+    "word": "ಡಮರು",
+    "emoji": "🪘",
+    "phonic": "ಡ - ಡಮರು",
+    "audio": "audio/kn_vy_da1.m4a"
+  },
+  {
+    "c": "ಢ",
+    "isSwar": false,
+    "sound": "dha",
+    "word": "ಢಕ್ಕೆ",
+    "emoji": "🥁",
+    "phonic": "ಢ - ಢಕ್ಕೆ",
+    "audio": "audio/kn_vy_dha1.m4a"
+  },
+  {
+    "c": "ಣ",
+    "isSwar": false,
+    "sound": "na",
+    "word": "ಬಾಣ",
+    "emoji": "🏹",
+    "phonic": "ಣ - ಬಾಣ",
+    "audio": "audio/kn_vy_na1.m4a"
+  },
+  {
+    "c": "ತ",
+    "isSwar": false,
+    "sound": "ta",
+    "word": "ತಾರಾ",
+    "emoji": "⭐",
+    "phonic": "ತ - ತಾರಾ",
+    "audio": "audio/kn_vy_ta2.m4a"
+  },
+  {
+    "c": "ಥ",
+    "isSwar": false,
+    "sound": "tha",
+    "word": "ಥರ್ಮಸ್",
+    "emoji": "🍶",
+    "phonic": "ಥ - ಥರ್ಮಸ್",
+    "audio": "audio/kn_vy_tha2.m4a"
+  },
+  {
+    "c": "ದ",
+    "isSwar": false,
+    "sound": "da",
+    "word": "ದೀಪ",
+    "emoji": "🪔",
+    "phonic": "ದ - ದೀಪ",
+    "audio": "audio/kn_vy_da2.m4a"
+  },
+  {
+    "c": "ಧ",
+    "isSwar": false,
+    "sound": "dha",
+    "word": "ಧನುಸ್ಸು",
+    "emoji": "🏹",
+    "phonic": "ಧ - ಧನುಸ್ಸು",
+    "audio": "audio/kn_vy_dha2.m4a"
+  },
+  {
+    "c": "ನ",
+    "isSwar": false,
+    "sound": "na",
+    "word": "ನವಿಲು",
+    "emoji": "🦚",
+    "phonic": "ನ - ನವಿಲು",
+    "audio": "audio/kn_vy_na2.m4a"
+  },
+  {
+    "c": "ಪ",
+    "isSwar": false,
+    "sound": "pa",
+    "word": "ಪತಂಗ",
+    "emoji": "🪁",
+    "phonic": "ಪ - ಪತಂಗ",
+    "audio": "audio/kn_vy_pa.m4a"
+  },
+  {
+    "c": "ಫ",
+    "isSwar": false,
+    "sound": "pha",
+    "word": "ಫಲ",
+    "emoji": "🍎",
+    "phonic": "ಫ - ಫಲ",
+    "audio": "audio/kn_vy_pha.m4a"
+  },
+  {
+    "c": "ಬ",
+    "isSwar": false,
+    "sound": "ba",
+    "word": "ಬೆಕ್ಕು",
+    "emoji": "🐱",
+    "phonic": "ಬ - ಬೆಕ್ಕು",
+    "audio": "audio/kn_vy_ba.m4a"
+  },
+  {
+    "c": "ಭ",
+    "isSwar": false,
+    "sound": "bha",
+    "word": "ಭಾರತ",
+    "emoji": "🇮🇳",
+    "phonic": "ಭ - ಭಾರತ",
+    "audio": "audio/kn_vy_bha.m4a"
+  },
+  {
+    "c": "ಮ",
+    "isSwar": false,
+    "sound": "ma",
+    "word": "ಮನೆ",
+    "emoji": "🏡",
+    "phonic": "ಮ - ಮನೆ",
+    "audio": "audio/kn_vy_ma.m4a"
+  },
+  {
+    "c": "ಯ",
+    "isSwar": false,
+    "sound": "ya",
+    "word": "ಯಜ್ಞ",
+    "emoji": "🔥",
+    "phonic": "ಯ - ಯಜ್ಞ",
+    "audio": "audio/kn_vy_ya.m4a"
+  },
+  {
+    "c": "ರ",
+    "isSwar": false,
+    "sound": "ra",
+    "word": "ರಥ",
+    "emoji": "🛞",
+    "phonic": "ರ - ರಥ",
+    "audio": "audio/kn_vy_ra.m4a"
+  },
+  {
+    "c": "ಲ",
+    "isSwar": false,
+    "sound": "la",
+    "word": "ಲಡ್ಡು",
+    "emoji": "🟡",
+    "phonic": "ಲ - ಲಡ್ಡು",
+    "audio": "audio/kn_vy_la.m4a"
+  },
+  {
+    "c": "ವ",
+    "isSwar": false,
+    "sound": "va",
+    "word": "ವೃಕ್ಷ",
+    "emoji": "🌳",
+    "phonic": "ವ - ವೃಕ್ಷ",
+    "audio": "audio/kn_vy_va.m4a"
+  },
+  {
+    "c": "ಶ",
+    "isSwar": false,
+    "sound": "sha",
+    "word": "ಶಂಖ",
+    "emoji": "🐚",
+    "phonic": "ಶ - ಶಂಖ",
+    "audio": "audio/kn_vy_sha1.m4a"
+  },
+  {
+    "c": "ಷ",
+    "isSwar": false,
+    "sound": "ssa",
+    "word": "ಷಟ್ಕೋಣ",
+    "emoji": "⬡",
+    "phonic": "ಷ - ಷಟ್ಕೋಣ",
+    "audio": "audio/kn_vy_sha2.m4a"
+  },
+  {
+    "c": "ಸ",
+    "isSwar": false,
+    "sound": "sa",
+    "word": "ಸೂರ್ಯ",
+    "emoji": "☀️",
+    "phonic": "ಸ - ಸೂರ್ಯ",
+    "audio": "audio/kn_vy_sa.m4a"
+  },
+  {
+    "c": "ಹ",
+    "isSwar": false,
+    "sound": "ha",
+    "word": "ಹಸು",
+    "emoji": "🐄",
+    "phonic": "ಹ - ಹಸು",
+    "audio": "audio/kn_vy_ha.m4a"
+  },
+  {
+    "c": "ಳ",
+    "isSwar": false,
+    "sound": "lla",
+    "word": "ಕೊಳ",
+    "emoji": "💧",
+    "phonic": "ಳ - ಕೊಳ",
+    "audio": "audio/kn_vy_lla.m4a"
+  },
+  {
+    "c": "ಕ್ಷ",
+    "isSwar": false,
+    "sound": "ksha",
+    "word": "ಕ್ಷತ್ರಿಯ",
+    "emoji": "⚔️",
+    "phonic": "ಕ್ಷ - ಕ್ಷತ್ರಿಯ",
+    "audio": "audio/kn_vy_ksha.m4a"
+  },
+  {
+    "c": "ಜ್ಞ",
+    "isSwar": false,
+    "sound": "gya",
+    "word": "ಜ್ಞಾನಿ",
+    "emoji": "🧑‍🏫",
+    "phonic": "ಜ್ಞ - ಜ್ಞಾನಿ",
+    "audio": "audio/kn_vy_gya.m4a"
+  }
+];
+
+// Extensible Grade 1 Kannada Word Banks for All 51 Letters (10+ vocabulary words per letter)
+const KANNADA_WORD_BANKS = {
+  "ಅ": [
+    {
+      "word": "ಅರಸ",
+      "emoji": "👑"
+    },
+    {
+      "word": "ಅಮ್ಮ",
+      "emoji": "👩"
+    },
+    {
+      "word": "ಅನಾಸ",
+      "emoji": "🍍"
+    },
+    {
+      "word": "ಅಕ್ಕ",
+      "emoji": "👧"
+    },
+    {
+      "word": "ಅಜ್ಜ",
+      "emoji": "👴"
+    },
+    {
+      "word": "ಅಳಿಲು",
+      "emoji": "🐿️"
+    },
+    {
+      "word": "ಅನ್ನ",
+      "emoji": "🍚"
+    },
+    {
+      "word": "ಅಪ್ಪ",
+      "emoji": "👨"
+    },
+    {
+      "word": "ಅರಿಶಿನ",
+      "emoji": "🟡"
+    },
+    {
+      "word": "ಅಡಿಕೆ",
+      "emoji": "🌰"
+    }
+  ],
+  "ಆ": [
+    {
+      "word": "ಆನೆ",
+      "emoji": "🐘"
+    },
+    {
+      "word": "ಆಟ",
+      "emoji": "⚽"
+    },
+    {
+      "word": "ಆಡು",
+      "emoji": "🐐"
+    },
+    {
+      "word": "ಆಮೆ",
+      "emoji": "🐢"
+    },
+    {
+      "word": "ಆಕಾಶ",
+      "emoji": "🌌"
+    },
+    {
+      "word": "ಆಲೂಗಡ್ಡೆ",
+      "emoji": "🥔"
+    },
+    {
+      "word": "ಆಸನ",
+      "emoji": "🧘"
+    },
+    {
+      "word": "ಆಲೆ",
+      "emoji": "🎋"
+    },
+    {
+      "word": "ಆರತಿ",
+      "emoji": "🪔"
+    },
+    {
+      "word": "ಆರು",
+      "emoji": "6️⃣"
+    }
+  ],
+  "ಇ": [
+    {
+      "word": "ಇಲಿ",
+      "emoji": "🐭"
+    },
+    {
+      "word": "ಇಬ್ಬನಿ",
+      "emoji": "💧"
+    },
+    {
+      "word": "ಇಟ್ಟಿಗೆ",
+      "emoji": "🧱"
+    },
+    {
+      "word": "ಇರುವೆ",
+      "emoji": "🐜"
+    },
+    {
+      "word": "ಇನಾಮು",
+      "emoji": "🏆"
+    },
+    {
+      "word": "ಇಲ್ಲಿ",
+      "emoji": "📍"
+    },
+    {
+      "word": "ಇಂಚರ",
+      "emoji": "🎵"
+    },
+    {
+      "word": "ಇಪ್ಪತ್ತು",
+      "emoji": "2️⃣"
+    },
+    {
+      "word": "ಇರಲಿ",
+      "emoji": "✨"
+    },
+    {
+      "word": "ಇಳಕಲ್",
+      "emoji": "🥻"
+    }
+  ],
+  "ಈ": [
+    {
+      "word": "ಈಜು",
+      "emoji": "🏊"
+    },
+    {
+      "word": "ಈಟಿ",
+      "emoji": "🗡️"
+    },
+    {
+      "word": "ಈಚಲು",
+      "emoji": "🌴"
+    },
+    {
+      "word": "ಈರುಳ್ಳಿ",
+      "emoji": "🧅"
+    },
+    {
+      "word": "ಈಗ",
+      "emoji": "⏰"
+    },
+    {
+      "word": "ಈಶ್ವರ",
+      "emoji": "🙏"
+    },
+    {
+      "word": "ಈಟಿಯ",
+      "emoji": "🔱"
+    },
+    {
+      "word": "ಈರಬಳ್ಳಿ",
+      "emoji": "🌿"
+    },
+    {
+      "word": "ಈಶ",
+      "emoji": "🕉️"
+    },
+    {
+      "word": "ಈದು",
+      "emoji": "👶"
+    }
+  ],
+  "ಉ": [
+    {
+      "word": "ಉಂಗುರ",
+      "emoji": "💍"
+    },
+    {
+      "word": "ಉಡುಪು",
+      "emoji": "👗"
+    },
+    {
+      "word": "ಉಪ್ಪು",
+      "emoji": "🧂"
+    },
+    {
+      "word": "ಉರುಳು",
+      "emoji": "⚽"
+    },
+    {
+      "word": "ಉಯ್ಯಾಲೆ",
+      "emoji": "🎠"
+    },
+    {
+      "word": "ಉತ್ಸವ",
+      "emoji": "🎉"
+    },
+    {
+      "word": "ಉಪಹಾರ",
+      "emoji": "🎁"
+    },
+    {
+      "word": "ಉಡುಗೆ",
+      "emoji": "👘"
+    },
+    {
+      "word": "ಉಸಿರು",
+      "emoji": "💨"
+    },
+    {
+      "word": "ಉದಯ",
+      "emoji": "🌅"
+    }
+  ],
+  "ಊ": [
+    {
+      "word": "ಊಟ",
+      "emoji": "🍲"
+    },
+    {
+      "word": "ಊರು",
+      "emoji": "🏘️"
+    },
+    {
+      "word": "ಊದು",
+      "emoji": "🪈"
+    },
+    {
+      "word": "ಊರುಗೋಲು",
+      "emoji": "🦯"
+    },
+    {
+      "word": "ಊಡು",
+      "emoji": "🥣"
+    },
+    {
+      "word": "ಊಹಿಸು",
+      "emoji": "🤔"
+    },
+    {
+      "word": "ಊದುಬತ್ತಿ",
+      "emoji": "🪔"
+    },
+    {
+      "word": "ಊರಮ್ಮ",
+      "emoji": "🏛️"
+    },
+    {
+      "word": "ಊರ್ಜಿತ",
+      "emoji": "📜"
+    },
+    {
+      "word": "ಊಹೆ",
+      "emoji": "💭"
+    }
+  ],
+  "ಋ": [
+    {
+      "word": "ಋಷಿ",
+      "emoji": "🧘"
+    },
+    {
+      "word": "ಋತು",
+      "emoji": "🌸"
+    },
+    {
+      "word": "ಋಣ",
+      "emoji": "🤝"
+    },
+    {
+      "word": "ಋಗ್ವೇದ",
+      "emoji": "📖"
+    },
+    {
+      "word": "ಋಷಭ",
+      "emoji": "🐂"
+    },
+    {
+      "word": "ಋತುಮಾನ",
+      "emoji": "⛅"
+    },
+    {
+      "word": "ಋಷಿಕುಲ",
+      "emoji": "🏡"
+    },
+    {
+      "word": "ಋತುಚಕ್ರ",
+      "emoji": "🔄"
+    },
+    {
+      "word": "ಋಣಮುಕ್ತ",
+      "emoji": "🕊️"
+    },
+    {
+      "word": "ಋತ",
+      "emoji": "⚖️"
+    }
+  ],
+  "ಎ": [
+    {
+      "word": "ಎಲೆ",
+      "emoji": "🍃"
+    },
+    {
+      "word": "ಎತ್ತು",
+      "emoji": "🐂"
+    },
+    {
+      "word": "ಎಣ್ಣೆ",
+      "emoji": "🫗"
+    },
+    {
+      "word": "ಎಂಟು",
+      "emoji": "8️⃣"
+    },
+    {
+      "word": "ಎಳ್ಳು",
+      "emoji": "🌾"
+    },
+    {
+      "word": "ಎದೆ",
+      "emoji": "💖"
+    },
+    {
+      "word": "ಎಡ",
+      "emoji": "👈"
+    },
+    {
+      "word": "ಎರಡು",
+      "emoji": "2️⃣"
+    },
+    {
+      "word": "ಎಮ್ಮೆ",
+      "emoji": "🐃"
+    },
+    {
+      "word": "ಎಸಳು",
+      "emoji": "🌸"
+    }
+  ],
+  "ಏ": [
+    {
+      "word": "ಏಣಿ",
+      "emoji": "🪜"
+    },
+    {
+      "word": "ಏಲಕ್ಕಿ",
+      "emoji": "🌿"
+    },
+    {
+      "word": "ಏಡಿ",
+      "emoji": "🦀"
+    },
+    {
+      "word": "ಏಟು",
+      "emoji": "💥"
+    },
+    {
+      "word": "ಏಳು",
+      "emoji": "7️⃣"
+    },
+    {
+      "word": "ಏಕಾಂಗಿ",
+      "emoji": "🚶"
+    },
+    {
+      "word": "ಏಪ್ರಿಲ್",
+      "emoji": "📅"
+    },
+    {
+      "word": "ಏರು",
+      "emoji": "🧗"
+    },
+    {
+      "word": "ಏಕಾಗ್ರತೆ",
+      "emoji": "🎯"
+    },
+    {
+      "word": "ಏಕತೆ",
+      "emoji": "🤝"
+    }
+  ],
+  "ಐ": [
+    {
+      "word": "ಐದು",
+      "emoji": "5️⃣"
+    },
+    {
+      "word": "ಐರಾವತ",
+      "emoji": "🐘"
+    },
+    {
+      "word": "ಐಕ್ಯ",
+      "emoji": "🤝"
+    },
+    {
+      "word": "ಐಶ್ವರ್ಯ",
+      "emoji": "💎"
+    },
+    {
+      "word": "ಐವತ್ತು",
+      "emoji": "5️⃣"
+    },
+    {
+      "word": "ಐದುನೂರು",
+      "emoji": "💯"
+    },
+    {
+      "word": "ಐಸಿರಿ",
+      "emoji": "✨"
+    },
+    {
+      "word": "ಐತಿಹಾಸಿಕ",
+      "emoji": "🏛️"
+    },
+    {
+      "word": "ಐಚ್ಛಿಕ",
+      "emoji": "🔘"
+    },
+    {
+      "word": "ಐತಿಹ್ಯ",
+      "emoji": "📜"
+    }
+  ],
+  "ಒ": [
+    {
+      "word": "ಒಂಟೆ",
+      "emoji": "🐫"
+    },
+    {
+      "word": "ಒಲೆ",
+      "emoji": "🍳"
+    },
+    {
+      "word": "ಒಡವೆ",
+      "emoji": "💍"
+    },
+    {
+      "word": "ಒಂದು",
+      "emoji": "1️⃣"
+    },
+    {
+      "word": "ಒರಳು",
+      "emoji": "🪨"
+    },
+    {
+      "word": "ಒಡಲು",
+      "emoji": "🧍"
+    },
+    {
+      "word": "ಒಗಟು",
+      "emoji": "🧩"
+    },
+    {
+      "word": "ಒಪ್ಪಿಗೆ",
+      "emoji": "👍"
+    },
+    {
+      "word": "ಒರಟು",
+      "emoji": "🪵"
+    },
+    {
+      "word": "ಒಗ್ಗಟ್ಟು",
+      "emoji": "🤝"
+    }
+  ],
+  "ಓ": [
+    {
+      "word": "ಓದು",
+      "emoji": "📖"
+    },
+    {
+      "word": "ಓಟ",
+      "emoji": "🏃"
+    },
+    {
+      "word": "ಓಲೆ",
+      "emoji": "📿"
+    },
+    {
+      "word": "ಓಣಿ",
+      "emoji": "🏘️"
+    },
+    {
+      "word": "ಓಂ",
+      "emoji": "🕉️"
+    },
+    {
+      "word": "ಓಣಂ",
+      "emoji": "🌼"
+    },
+    {
+      "word": "ಓಡಿಸು",
+      "emoji": "🚗"
+    },
+    {
+      "word": "ಓಡುವ",
+      "emoji": "👟"
+    },
+    {
+      "word": "ಓಡು",
+      "emoji": "🏠"
+    },
+    {
+      "word": "ಓತಪ್ರೋತ",
+      "emoji": "🌊"
+    }
+  ],
+  "ಔ": [
+    {
+      "word": "ಔಷಧ",
+      "emoji": "💊"
+    },
+    {
+      "word": "ಔತಣ",
+      "emoji": "🍽️"
+    },
+    {
+      "word": "ಔದಾರ್ಯ",
+      "emoji": "🎁"
+    },
+    {
+      "word": "ಔದ್ಯೋಗಿಕ",
+      "emoji": "🏭"
+    },
+    {
+      "word": "ಔಚಿತ್ಯ",
+      "emoji": "⚖️"
+    },
+    {
+      "word": "ಔಷಧಾಲಯ",
+      "emoji": "🏥"
+    },
+    {
+      "word": "ಔನ್ನತ್ಯ",
+      "emoji": "🏔️"
+    },
+    {
+      "word": "ಔರಸ",
+      "emoji": "👶"
+    },
+    {
+      "word": "ಔಪಚಾರಿಕ",
+      "emoji": "👔"
+    },
+    {
+      "word": "ಔಷಧಿ",
+      "emoji": "🌿"
+    }
+  ],
+  "ಅಂ": [
+    {
+      "word": "ಅಂಗಿ",
+      "emoji": "👕"
+    },
+    {
+      "word": "ಅಂಜೂರ",
+      "emoji": "🫒"
+    },
+    {
+      "word": "ಅಂಗಡಿ",
+      "emoji": "🏪"
+    },
+    {
+      "word": "ಅಂಕಣ",
+      "emoji": "📊"
+    },
+    {
+      "word": "ಅಂಚೆ",
+      "emoji": "✉️"
+    },
+    {
+      "word": "ಅಂಡಾಣು",
+      "emoji": "🥚"
+    },
+    {
+      "word": "ಅಂದ",
+      "emoji": "🌺"
+    },
+    {
+      "word": "ಅಂಕ",
+      "emoji": "💯"
+    },
+    {
+      "word": "ಅಂತರ",
+      "emoji": "📏"
+    },
+    {
+      "word": "ಅಂಬಾರ",
+      "emoji": "🐘"
+    }
+  ],
+  "ಅಃ": [
+    {
+      "word": "ಅಃ",
+      "emoji": "✨"
+    },
+    {
+      "word": "ದುಃಖ",
+      "emoji": "😢"
+    },
+    {
+      "word": "ಪುನಃ",
+      "emoji": "🔄"
+    },
+    {
+      "word": "ಅಂತಃಪುರ",
+      "emoji": "🏰"
+    },
+    {
+      "word": "ಉಷಃಕಾಲ",
+      "emoji": "🌅"
+    },
+    {
+      "word": "ನಮಃ",
+      "emoji": "🙏"
+    },
+    {
+      "word": "ಮನಃಶಾಂತಿ",
+      "emoji": "🧘"
+    },
+    {
+      "word": "ಪ್ರಾತಃಕಾಲ",
+      "emoji": "🌄"
+    },
+    {
+      "word": "ಅಂತಃಕರಣ",
+      "emoji": "💖"
+    },
+    {
+      "word": "ಶತಶಃ",
+      "emoji": "💯"
+    }
+  ],
+  "ಕ": [
+    {
+      "word": "ಕಮಲ",
+      "emoji": "🪷"
+    },
+    {
+      "word": "ಕಾಗೆ",
+      "emoji": "🐦‍⬛"
+    },
+    {
+      "word": "ಕತ್ತರಿ",
+      "emoji": "✂️"
+    },
+    {
+      "word": "ಕುದುರೆ",
+      "emoji": "🐎"
+    },
+    {
+      "word": "ಕಲಂ",
+      "emoji": "✒️"
+    },
+    {
+      "word": "ಕನ್ನಡಿ",
+      "emoji": "🪞"
+    },
+    {
+      "word": "ಕುರಿ",
+      "emoji": "🐑"
+    },
+    {
+      "word": "ಕಡಲೆ",
+      "emoji": "🥜"
+    },
+    {
+      "word": "ಕತ್ತಿ",
+      "emoji": "🗡️"
+    },
+    {
+      "word": "ಕಣ್ಣು",
+      "emoji": "👁️"
+    }
+  ],
+  "ಖ": [
+    {
+      "word": "ಖಡ್ಗ",
+      "emoji": "🗡️"
+    },
+    {
+      "word": "ಖಗ",
+      "emoji": "🐦"
+    },
+    {
+      "word": "ಖರ್ಜೂರ",
+      "emoji": "🌴"
+    },
+    {
+      "word": "ಖುಷಿ",
+      "emoji": "😊"
+    },
+    {
+      "word": "ಖಜಾನೆ",
+      "emoji": "🪙"
+    },
+    {
+      "word": "ಖನಿಜ",
+      "emoji": "💎"
+    },
+    {
+      "word": "ಖತಿ",
+      "emoji": "✉️"
+    },
+    {
+      "word": "ಖಂಡ",
+      "emoji": "🌍"
+    },
+    {
+      "word": "ಖರೆ",
+      "emoji": "📜"
+    },
+    {
+      "word": "ಖ್ಯಾತಿ",
+      "emoji": "🌟"
+    }
+  ],
+  "ಗ": [
+    {
+      "word": "ಗಡಿಯಾರ",
+      "emoji": "⏰"
+    },
+    {
+      "word": "ಗಾಳಿಪಟ",
+      "emoji": "🪁"
+    },
+    {
+      "word": "ಗುಲಾಬಿ",
+      "emoji": "🌹"
+    },
+    {
+      "word": "ಗಿಳಿ",
+      "emoji": "🦜"
+    },
+    {
+      "word": "ಗಂಧ",
+      "emoji": "🪵"
+    },
+    {
+      "word": "ಗಂಟೆ",
+      "emoji": "🔔"
+    },
+    {
+      "word": "ಗಜ",
+      "emoji": "🐘"
+    },
+    {
+      "word": "ಗೋಧಿ",
+      "emoji": "🌾"
+    },
+    {
+      "word": "ಗದ್ದೆ",
+      "emoji": "🌾"
+    },
+    {
+      "word": "ಗಾಜಿನ",
+      "emoji": "🪟"
+    }
+  ],
+  "ಘ": [
+    {
+      "word": "ಘಂಟೆ",
+      "emoji": "🔔"
+    },
+    {
+      "word": "ಘಟ",
+      "emoji": "🏺"
+    },
+    {
+      "word": "ಘನ",
+      "emoji": "🧊"
+    },
+    {
+      "word": "ಘನತೆ",
+      "emoji": "👑"
+    },
+    {
+      "word": "ಘರ್ಜನೆ",
+      "emoji": "🦁"
+    },
+    {
+      "word": "ಘಾಸಿ",
+      "emoji": "🩹"
+    },
+    {
+      "word": "ಘಟಿಕ",
+      "emoji": "⏳"
+    },
+    {
+      "word": "ಘಟನೆ",
+      "emoji": "📰"
+    },
+    {
+      "word": "ಘಟಕ",
+      "emoji": "🧱"
+    },
+    {
+      "word": "ಘಮಘಮ",
+      "emoji": "🌸"
+    }
+  ],
+  "ಙ": [
+    {
+      "word": "ವಾಙ್ಮಯ",
+      "emoji": "📚"
+    },
+    {
+      "word": "ಅಙ್ಕ",
+      "emoji": "✍️"
+    },
+    {
+      "word": "ಗಙ್ಗಾ",
+      "emoji": "🌊"
+    },
+    {
+      "word": "ಶಙ್ಖ",
+      "emoji": "🐚"
+    },
+    {
+      "word": "ಪಙ್ಕ್ತಿ",
+      "emoji": "📏"
+    },
+    {
+      "word": "ರಙ್ಗ",
+      "emoji": "🎨"
+    },
+    {
+      "word": "ಲಿಙ್ಗ",
+      "emoji": "🕉️"
+    },
+    {
+      "word": "ಅಙ್ಗುಲ",
+      "emoji": "📐"
+    },
+    {
+      "word": "ಮಙ್ಗಳ",
+      "emoji": "🪔"
+    },
+    {
+      "word": "ಸಙ್ಘ",
+      "emoji": "👥"
+    }
+  ],
+  "ಚ": [
+    {
+      "word": "ಚಮಚ",
+      "emoji": "🥄"
+    },
+    {
+      "word": "ಚಂದ್ರ",
+      "emoji": "🌙"
+    },
+    {
+      "word": "ಚಕ್ರ",
+      "emoji": "🛞"
+    },
+    {
+      "word": "ಚಂಡು",
+      "emoji": "⚽"
+    },
+    {
+      "word": "ಚಿಟ್ಟೆ",
+      "emoji": "🦋"
+    },
+    {
+      "word": "ಚಾಪೆ",
+      "emoji": "🪵"
+    },
+    {
+      "word": "ಚಪ್ಪಲಿ",
+      "emoji": "🩴"
+    },
+    {
+      "word": "ಚಿನ್ನ",
+      "emoji": "🪙"
+    },
+    {
+      "word": "ಚುಕ್ಕಿ",
+      "emoji": "⭐"
+    },
+    {
+      "word": "ಚಿಗುರು",
+      "emoji": "🌱"
+    }
+  ],
+  "ಛ": [
+    {
+      "word": "ಛತ್ರಿ",
+      "emoji": "☂️"
+    },
+    {
+      "word": "ಛಾವಣಿ",
+      "emoji": "🏠"
+    },
+    {
+      "word": "ಛಾಯೆ",
+      "emoji": "👥"
+    },
+    {
+      "word": "ಛಲ",
+      "emoji": "🎯"
+    },
+    {
+      "word": "ಛವಿ",
+      "emoji": "✨"
+    },
+    {
+      "word": "ಛಂದಸ್ಸು",
+      "emoji": "🎼"
+    },
+    {
+      "word": "ಛಾಪು",
+      "emoji": "🔖"
+    },
+    {
+      "word": "ಛೇದಕ",
+      "emoji": "✂️"
+    },
+    {
+      "word": "ಛಿದ್ರ",
+      "emoji": "🧩"
+    },
+    {
+      "word": "ಛೋಟಾ",
+      "emoji": "🤏"
+    }
+  ],
+  "ಜ": [
+    {
+      "word": "ಜೇನು",
+      "emoji": "🍯"
+    },
+    {
+      "word": "ಜಡೆ",
+      "emoji": "👧"
+    },
+    {
+      "word": "ಜಹಾಜು",
+      "emoji": "🚢"
+    },
+    {
+      "word": "ಜಲ",
+      "emoji": "💧"
+    },
+    {
+      "word": "ಜೋಕಾಲಿ",
+      "emoji": "🎠"
+    },
+    {
+      "word": "ಜಿಂಕೆ",
+      "emoji": "🦌"
+    },
+    {
+      "word": "ಜೀವನ",
+      "emoji": "🌱"
+    },
+    {
+      "word": "ಜಂಬೂ",
+      "emoji": "🫐"
+    },
+    {
+      "word": "ಜವಾನ",
+      "emoji": "👮"
+    },
+    {
+      "word": "ಜೋಗುಳ",
+      "emoji": "🎵"
+    }
+  ],
+  "ಝ": [
+    {
+      "word": "ಝರಿ",
+      "emoji": "🌊"
+    },
+    {
+      "word": "ಝಂಡಾ",
+      "emoji": "🚩"
+    },
+    {
+      "word": "ಝಂಕಾರ",
+      "emoji": "🔔"
+    },
+    {
+      "word": "ಝಳಝಳ",
+      "emoji": "💧"
+    },
+    {
+      "word": "ಝಗಮಗ",
+      "emoji": "✨"
+    },
+    {
+      "word": "ಝಲ್ಲರಿ",
+      "emoji": "🪢"
+    },
+    {
+      "word": "ಝೇಂಕಾರ",
+      "emoji": "🐝"
+    },
+    {
+      "word": "ಝುಳುಝುಳು",
+      "emoji": "🌊"
+    },
+    {
+      "word": "ಝಂಪ",
+      "emoji": "🥁"
+    },
+    {
+      "word": "ಝಾವಲಿ",
+      "emoji": "🌴"
+    }
+  ],
+  "ಞ": [
+    {
+      "word": "ವಿಜ್ಞಾನ",
+      "emoji": "🔬"
+    },
+    {
+      "word": "ಯಜ್ಞ",
+      "emoji": "🔥"
+    },
+    {
+      "word": "ಆಜ್ಞೆ",
+      "emoji": "📜"
+    },
+    {
+      "word": "ಸಂಜ್ಞೆ",
+      "emoji": "👆"
+    },
+    {
+      "word": "ಪ್ರತಿಜ್ಞೆ",
+      "emoji": "✋"
+    },
+    {
+      "word": "ಕೃತಜ್ಞತೆ",
+      "emoji": "🙏"
+    },
+    {
+      "word": "ಜ್ಞಾನ",
+      "emoji": "💡"
+    },
+    {
+      "word": "ಅಜ್ಞಾನ",
+      "emoji": "🌑"
+    },
+    {
+      "word": "ಸರ್ವಜ್ಞ",
+      "emoji": "🧙"
+    },
+    {
+      "word": "ತಜ್ಞ",
+      "emoji": "🧑‍🏫"
+    }
+  ],
+  "ಟ": [
+    {
+      "word": "ಟೊಮೆಟೊ",
+      "emoji": "🍅"
+    },
+    {
+      "word": "ಟೊಪ್ಪಿ",
+      "emoji": "🧢"
+    },
+    {
+      "word": "ಟಪಾಲ",
+      "emoji": "📮"
+    },
+    {
+      "word": "ಟೇಪು",
+      "emoji": "📏"
+    },
+    {
+      "word": "ಟಿಕೆಟ್",
+      "emoji": "🎟️"
+    },
+    {
+      "word": "ಟೆಂಟ್",
+      "emoji": "⛺"
+    },
+    {
+      "word": "ಟಬ್",
+      "emoji": "🛁"
+    },
+    {
+      "word": "ಟೈರು",
+      "emoji": "🛞"
+    },
+    {
+      "word": "ಟವಲು",
+      "emoji": "🧖"
+    },
+    {
+      "word": "ಟೂಟು",
+      "emoji": "📯"
+    }
+  ],
+  "ಠ": [
+    {
+      "word": "ಠಸ್ಸೆ",
+      "emoji": "📮"
+    },
+    {
+      "word": "ಠೀವಿ",
+      "emoji": "👑"
+    },
+    {
+      "word": "ಪಾಠ",
+      "emoji": "📖"
+    },
+    {
+      "word": "ಕಂಠ",
+      "emoji": "🗣️"
+    },
+    {
+      "word": "ಮಠ",
+      "emoji": "🏛️"
+    },
+    {
+      "word": "ಪಿಠ",
+      "emoji": "🪑"
+    },
+    {
+      "word": "ನಿಷ್ಠೆ",
+      "emoji": "🛡️"
+    },
+    {
+      "word": "ಶ್ರೇಷ್ಠ",
+      "emoji": "🥇"
+    },
+    {
+      "word": "ಜೇಷ್ಠ",
+      "emoji": "👤"
+    },
+    {
+      "word": "ಹಠ",
+      "emoji": "😤"
+    }
+  ],
+  "ಡ": [
+    {
+      "word": "ಡಮರು",
+      "emoji": "🪘"
+    },
+    {
+      "word": "ಡಬ್ಬಿ",
+      "emoji": "📦"
+    },
+    {
+      "word": "ಡಾಕ್ಟರ್",
+      "emoji": "🩺"
+    },
+    {
+      "word": "ಡ್ರೈವರ್",
+      "emoji": "🚗"
+    },
+    {
+      "word": "ಡೊಳ್ಳು",
+      "emoji": "🥁"
+    },
+    {
+      "word": "ಡೌಲು",
+      "emoji": "🎩"
+    },
+    {
+      "word": "ಡೋಲು",
+      "emoji": "🪘"
+    },
+    {
+      "word": "ಡಜನ್",
+      "emoji": "1️⃣2️⃣"
+    },
+    {
+      "word": "ಡಾಬು",
+      "emoji": "🎗️"
+    },
+    {
+      "word": "ಡಿಕ್ಕಿ",
+      "emoji": "💥"
+    }
+  ],
+  "ಢ": [
+    {
+      "word": "ಢಕ್ಕೆ",
+      "emoji": "🥁"
+    },
+    {
+      "word": "ಢಾಳಾಗಿ",
+      "emoji": "☀️"
+    },
+    {
+      "word": "ಢಾಬು",
+      "emoji": "🛡️"
+    },
+    {
+      "word": "ದೃಢ",
+      "emoji": "🪨"
+    },
+    {
+      "word": "ಪ್ರೌಢ",
+      "emoji": "🏫"
+    },
+    {
+      "word": "ಮೂಢ",
+      "emoji": "🙈"
+    },
+    {
+      "word": "ರೂಢಿ",
+      "emoji": "📜"
+    },
+    {
+      "word": "ಗಾಢ",
+      "emoji": "🌌"
+    },
+    {
+      "word": "ಆಷಾಢ",
+      "emoji": "🌧️"
+    },
+    {
+      "word": "ಢಣಢಣ",
+      "emoji": "🔔"
+    }
+  ],
+  "ಣ": [
+    {
+      "word": "ಬಾಣ",
+      "emoji": "🏹"
+    },
+    {
+      "word": "ವೀಣೆ",
+      "emoji": "🎻"
+    },
+    {
+      "word": "ಹಣ",
+      "emoji": "💰"
+    },
+    {
+      "word": "ಕರುಣೆ",
+      "emoji": "💖"
+    },
+    {
+      "word": "ಗುಣ",
+      "emoji": "⭐"
+    },
+    {
+      "word": "ಮಣಿ",
+      "emoji": "📿"
+    },
+    {
+      "word": "ಋಣ",
+      "emoji": "🤝"
+    },
+    {
+      "word": "ಬಣ್ಣ",
+      "emoji": "🎨"
+    },
+    {
+      "word": "ಹಣ್ಣು",
+      "emoji": "🍎"
+    },
+    {
+      "word": "ತೃಣ",
+      "emoji": "🌾"
+    }
+  ],
+  "ತ": [
+    {
+      "word": "ತಾರಾ",
+      "emoji": "⭐"
+    },
+    {
+      "word": "ತೋಟ",
+      "emoji": "🏡"
+    },
+    {
+      "word": "ತಲೆ",
+      "emoji": "👤"
+    },
+    {
+      "word": "ತಟ್ಟೆ",
+      "emoji": "🍽️"
+    },
+    {
+      "word": "ತೊಟ್ಟಿಲು",
+      "emoji": "👶"
+    },
+    {
+      "word": "ತಾಯಿ",
+      "emoji": "👩"
+    },
+    {
+      "word": "ತಂಗಿ",
+      "emoji": "👧"
+    },
+    {
+      "word": "ತಣ್ಣೀರು",
+      "emoji": "🧊"
+    },
+    {
+      "word": "ತಂಬೂರಿ",
+      "emoji": "🪕"
+    },
+    {
+      "word": "ತರಕಾರಿ",
+      "emoji": "🥕"
+    }
+  ],
+  "ಥ": [
+    {
+      "word": "ಥರ್ಮಸ್",
+      "emoji": "🍶"
+    },
+    {
+      "word": "ರಥ",
+      "emoji": "🛞"
+    },
+    {
+      "word": "ಕಥೆ",
+      "emoji": "📖"
+    },
+    {
+      "word": "ಪಥ",
+      "emoji": "🛣️"
+    },
+    {
+      "word": "ಸ್ಥಳ",
+      "emoji": "📍"
+    },
+    {
+      "word": "ಅತಿಥಿ",
+      "emoji": "🤝"
+    },
+    {
+      "word": "ಗ್ರಂಥ",
+      "emoji": "📚"
+    },
+    {
+      "word": "ಅರ್ಥ",
+      "emoji": "💡"
+    },
+    {
+      "word": "ತತ್ವ",
+      "emoji": "⚖️"
+    },
+    {
+      "word": "ಪ್ರಥಮ",
+      "emoji": "🥇"
+    }
+  ],
+  "ದ": [
+    {
+      "word": "ದೀಪ",
+      "emoji": "🪔"
+    },
+    {
+      "word": "ದನ",
+      "emoji": "🐄"
+    },
+    {
+      "word": "ದೋಣಿ",
+      "emoji": "⛵"
+    },
+    {
+      "word": "ದ್ರಾಕ್ಷಿ",
+      "emoji": "🍇"
+    },
+    {
+      "word": "ದಾಳಿಂಬೆ",
+      "emoji": "🍎"
+    },
+    {
+      "word": "ದಂತ",
+      "emoji": "🦷"
+    },
+    {
+      "word": "ದಾರಿ",
+      "emoji": "🛣️"
+    },
+    {
+      "word": "ದಿನ",
+      "emoji": "☀️"
+    },
+    {
+      "word": "ದೇವಸ್ಥಾನ",
+      "emoji": "🛕"
+    },
+    {
+      "word": "ದೋಸೆ",
+      "emoji": "🥞"
+    }
+  ],
+  "ಧ": [
+    {
+      "word": "ಧನುಸ್ಸು",
+      "emoji": "🏹"
+    },
+    {
+      "word": "ಧ್ವಜ",
+      "emoji": "🚩"
+    },
+    {
+      "word": "ಧರೆ",
+      "emoji": "🌍"
+    },
+    {
+      "word": "ಧಾನ್ಯ",
+      "emoji": "🌾"
+    },
+    {
+      "word": "ಧರ್ಮ",
+      "emoji": "⚖️"
+    },
+    {
+      "word": "ಧನ",
+      "emoji": "💰"
+    },
+    {
+      "word": "ಧಾರೆ",
+      "emoji": "💧"
+    },
+    {
+      "word": "ಧೂಪ",
+      "emoji": "🪔"
+    },
+    {
+      "word": "ಧೈರ್ಯ",
+      "emoji": "🦁"
+    },
+    {
+      "word": "ಧೂಳು",
+      "emoji": "💨"
+    }
+  ],
+  "ನ": [
+    {
+      "word": "ನವಿಲು",
+      "emoji": "🦚"
+    },
+    {
+      "word": "ನಾಯಿ",
+      "emoji": "🐕"
+    },
+    {
+      "word": "ನದಿ",
+      "emoji": "🌊"
+    },
+    {
+      "word": "ನಕ್ಷತ್ರ",
+      "emoji": "⭐"
+    },
+    {
+      "word": "ನಳ",
+      "emoji": "🚰"
+    },
+    {
+      "word": "ನಸುಕು",
+      "emoji": "🌅"
+    },
+    {
+      "word": "ನಗು",
+      "emoji": "😊"
+    },
+    {
+      "word": "ನೆರಳು",
+      "emoji": "🌳"
+    },
+    {
+      "word": "ನಾರಿವಾಳ",
+      "emoji": "🥥"
+    },
+    {
+      "word": "ನಾಲಿಗೆ",
+      "emoji": "👅"
+    }
+  ],
+  "ಪ": [
+    {
+      "word": "ಪತಂಗ",
+      "emoji": "🪁"
+    },
+    {
+      "word": "ಪುಸ್ತಕ",
+      "emoji": "📖"
+    },
+    {
+      "word": "ಪೆನ್ಸಿಲ್",
+      "emoji": "✏️"
+    },
+    {
+      "word": "ಪಕ್ಷಿ",
+      "emoji": "🐦"
+    },
+    {
+      "word": "ಪಾರಿವಾಳ",
+      "emoji": "🕊️"
+    },
+    {
+      "word": "ಪರ್ವತ",
+      "emoji": "⛰️"
+    },
+    {
+      "word": "ಪಾದ",
+      "emoji": "🦶"
+    },
+    {
+      "word": "ಪಾನೀಯ",
+      "emoji": "🥤"
+    },
+    {
+      "word": "ಪಂಕಾ",
+      "emoji": "🪭"
+    },
+    {
+      "word": "ಪಪ್ಪಾಯಿ",
+      "emoji": "🍈"
+    }
+  ],
+  "ಫ": [
+    {
+      "word": "ಫಲ",
+      "emoji": "🍎"
+    },
+    {
+      "word": "ಫಲಕ",
+      "emoji": "📋"
+    },
+    {
+      "word": "ಫಿರಂಗಿ",
+      "emoji": "💣"
+    },
+    {
+      "word": "ಫಲವತ್ತಾದ",
+      "emoji": "🌱"
+    },
+    {
+      "word": "ಫಸಲು",
+      "emoji": "🌾"
+    },
+    {
+      "word": "ಫಲಿತಾಂಶ",
+      "emoji": "📜"
+    },
+    {
+      "word": "ಫಳಫಳ",
+      "emoji": "✨"
+    },
+    {
+      "word": "ಫಲಹಾರ",
+      "emoji": "🍇"
+    },
+    {
+      "word": "ಫೌಂಟನ್",
+      "emoji": "⛲"
+    },
+    {
+      "word": "ಫೋಟೋ",
+      "emoji": "📷"
+    }
+  ],
+  "ಬ": [
+    {
+      "word": "ಬೆಕ್ಕು",
+      "emoji": "🐱"
+    },
+    {
+      "word": "ಬಾಳೆಹಣ್ಣು",
+      "emoji": "🍌"
+    },
+    {
+      "word": "ಬೀಗ",
+      "emoji": "🔒"
+    },
+    {
+      "word": "ಬಸ್ಸು",
+      "emoji": "🚌"
+    },
+    {
+      "word": "ಬಂಡಿ",
+      "emoji": "🛞"
+    },
+    {
+      "word": "ಬೆಟ್ಟ",
+      "emoji": "⛰️"
+    },
+    {
+      "word": "ಬಳೆ",
+      "emoji": "💍"
+    },
+    {
+      "word": "ಬಾಲ",
+      "emoji": "🐕"
+    },
+    {
+      "word": "ಬಾತುಕೋಳಿ",
+      "emoji": "🦆"
+    },
+    {
+      "word": "ಬೆಳ್ಳಿ",
+      "emoji": "🥈"
+    }
+  ],
+  "ಭ": [
+    {
+      "word": "ಭಾರತ",
+      "emoji": "🇮🇳"
+    },
+    {
+      "word": "ಭಾನು",
+      "emoji": "☀️"
+    },
+    {
+      "word": "ಭವನ",
+      "emoji": "🏛️"
+    },
+    {
+      "word": "ಭೇರಿ",
+      "emoji": "🥁"
+    },
+    {
+      "word": "ಭೂಮಿ",
+      "emoji": "🌍"
+    },
+    {
+      "word": "ಭಕ್ಷ್ಯ",
+      "emoji": "🍬"
+    },
+    {
+      "word": "ಭಜನೆ",
+      "emoji": "🎵"
+    },
+    {
+      "word": "ಭಕ್ತಿ",
+      "emoji": "🙏"
+    },
+    {
+      "word": "ಭ್ರಮರ",
+      "emoji": "🐝"
+    },
+    {
+      "word": "ಭುಜ",
+      "emoji": "💪"
+    }
+  ],
+  "ಮ": [
+    {
+      "word": "ಮನೆ",
+      "emoji": "🏡"
+    },
+    {
+      "word": "ಮರ",
+      "emoji": "🌳"
+    },
+    {
+      "word": "ಮೀನು",
+      "emoji": "🐟"
+    },
+    {
+      "word": "ಮೊಲ",
+      "emoji": "🐇"
+    },
+    {
+      "word": "ಮಾವಿನಹಣ್ಣು",
+      "emoji": "🥭"
+    },
+    {
+      "word": "ಮಲ್ಲಿಗೆ",
+      "emoji": "🌼"
+    },
+    {
+      "word": "ಮಳೆ",
+      "emoji": "🌧️"
+    },
+    {
+      "word": "ಮಜ್ಜಿಗೆ",
+      "emoji": "🥛"
+    },
+    {
+      "word": "ಮಣ್ಣು",
+      "emoji": "🪴"
+    },
+    {
+      "word": "ಮುತ್ತು",
+      "emoji": "⚪"
+    }
+  ],
+  "ಯ": [
+    {
+      "word": "ಯಜ್ಞ",
+      "emoji": "🔥"
+    },
+    {
+      "word": "ಯಾನ",
+      "emoji": "✈️"
+    },
+    {
+      "word": "ಯಕ್ಷಗಾನ",
+      "emoji": "🎭"
+    },
+    {
+      "word": "ಯತಿ",
+      "emoji": "🧘"
+    },
+    {
+      "word": "ಯಮುನಾ",
+      "emoji": "🌊"
+    },
+    {
+      "word": "ಯಂತ್ರ",
+      "emoji": "⚙️"
+    },
+    {
+      "word": "ಯೋಗ",
+      "emoji": "🧘"
+    },
+    {
+      "word": "ಯಶಸ್ಸು",
+      "emoji": "🏆"
+    },
+    {
+      "word": "ಯಜಮಾನ",
+      "emoji": "👨"
+    },
+    {
+      "word": "ಯೌವನ",
+      "emoji": "🏃"
+    }
+  ],
+  "ರ": [
+    {
+      "word": "ರಥ",
+      "emoji": "🛞"
+    },
+    {
+      "word": "ರೈಲು",
+      "emoji": "🚆"
+    },
+    {
+      "word": "ರಂಗೋಲಿ",
+      "emoji": "🎨"
+    },
+    {
+      "word": "ರೊಟ್ಟಿ",
+      "emoji": "🫓"
+    },
+    {
+      "word": "ರವಿ",
+      "emoji": "☀️"
+    },
+    {
+      "word": "ರಾತ್ರಿ",
+      "emoji": "🌙"
+    },
+    {
+      "word": "ರಾಖಿ",
+      "emoji": "🎗️"
+    },
+    {
+      "word": "ರೇಖೆ",
+      "emoji": "📏"
+    },
+    {
+      "word": "ರತ್ನ",
+      "emoji": "💎"
+    },
+    {
+      "word": "ರಸ್ತೆ",
+      "emoji": "🛣️"
+    }
+  ],
+  "ಲ": [
+    {
+      "word": "ಲಡ್ಡು",
+      "emoji": "🟡"
+    },
+    {
+      "word": "ಲತಾ",
+      "emoji": "🌿"
+    },
+    {
+      "word": "ಲವಂಗ",
+      "emoji": "🧄"
+    },
+    {
+      "word": "ಲಾಂದ್ರ",
+      "emoji": "🏮"
+    },
+    {
+      "word": "ಲೀಚಿ",
+      "emoji": "🍓"
+    },
+    {
+      "word": "ಲೇಖನಿ",
+      "emoji": "✒️"
+    },
+    {
+      "word": "ಲೋಟ",
+      "emoji": "🥛"
+    },
+    {
+      "word": "ಲಕ್ಷ್ಮಿ",
+      "emoji": "🪷"
+    },
+    {
+      "word": "ಲೋಹ",
+      "emoji": "🪙"
+    },
+    {
+      "word": "ಲವಣ",
+      "emoji": "🧂"
+    }
+  ],
+  "ವ": [
+    {
+      "word": "ವೃಕ್ಷ",
+      "emoji": "🌳"
+    },
+    {
+      "word": "ವಿಮಾನ",
+      "emoji": "✈️"
+    },
+    {
+      "word": "ವಜ್ರ",
+      "emoji": "💎"
+    },
+    {
+      "word": "ವೀಣೆ",
+      "emoji": "🎻"
+    },
+    {
+      "word": "ವನ",
+      "emoji": "🌲"
+    },
+    {
+      "word": "ವರ್ಷ",
+      "emoji": "🌧️"
+    },
+    {
+      "word": "ವ್ಯಾಯಾಮ",
+      "emoji": "🏋️"
+    },
+    {
+      "word": "ವರ್ಣ",
+      "emoji": "🎨"
+    },
+    {
+      "word": "ವಸ್ತ್ರ",
+      "emoji": "👘"
+    },
+    {
+      "word": "ವಾರ",
+      "emoji": "📅"
+    }
+  ],
+  "ಶ": [
+    {
+      "word": "ಶಂಖ",
+      "emoji": "🐚"
+    },
+    {
+      "word": "ಶತಮಾನ",
+      "emoji": "💯"
+    },
+    {
+      "word": "ಶರಬತ್ತು",
+      "emoji": "🥤"
+    },
+    {
+      "word": "ಶಾಲೆ",
+      "emoji": "🏫"
+    },
+    {
+      "word": "ಶಿಕ್ಷಕ",
+      "emoji": "🧑‍🏫"
+    },
+    {
+      "word": "ಶುಂಠಿ",
+      "emoji": "🫚"
+    },
+    {
+      "word": "ಶುಕ",
+      "emoji": "🦜"
+    },
+    {
+      "word": "ಶಾಂತಿ",
+      "emoji": "🕊️"
+    },
+    {
+      "word": "ಶಶಿ",
+      "emoji": "🌙"
+    },
+    {
+      "word": "ಶುದ್ಧ",
+      "emoji": "💧"
+    }
+  ],
+  "ಷ": [
+    {
+      "word": "ಷಟ್ಕೋಣ",
+      "emoji": "⬡"
+    },
+    {
+      "word": "ಷಣ್ಮುಖ",
+      "emoji": "🔱"
+    },
+    {
+      "word": "ಷಟ್ಪದಿ",
+      "emoji": "📜"
+    },
+    {
+      "word": "ಷೋಡಶ",
+      "emoji": "1️⃣6️⃣"
+    },
+    {
+      "word": "ಧನುಷ್",
+      "emoji": "🏹"
+    },
+    {
+      "word": "ಪುರುಷ",
+      "emoji": "👨"
+    },
+    {
+      "word": "ವರ್ಷ",
+      "emoji": "🌧️"
+    },
+    {
+      "word": "ಹರ್ಷ",
+      "emoji": "😊"
+    },
+    {
+      "word": "ವಿಷ",
+      "emoji": "🧪"
+    },
+    {
+      "word": "ಔಷಧ",
+      "emoji": "💊"
+    }
+  ],
+  "ಸ": [
+    {
+      "word": "ಸೂರ್ಯ",
+      "emoji": "☀️"
+    },
+    {
+      "word": "ಸೇಬು",
+      "emoji": "🍎"
+    },
+    {
+      "word": "ಸಂತೋಷ",
+      "emoji": "😊"
+    },
+    {
+      "word": "ಸಾಬೂನು",
+      "emoji": "🧼"
+    },
+    {
+      "word": "ಸರ್ಪ",
+      "emoji": "🐍"
+    },
+    {
+      "word": "ಸಕ್ಕರೆ",
+      "emoji": "🍬"
+    },
+    {
+      "word": "ಸಿಂಹ",
+      "emoji": "🦁"
+    },
+    {
+      "word": "ಸೈಕಲ್",
+      "emoji": "🚲"
+    },
+    {
+      "word": "ಸೈನಿಕ",
+      "emoji": "💂"
+    },
+    {
+      "word": "ಸೋರೆಕಾಯಿ",
+      "emoji": "🥒"
+    }
+  ],
+  "ಹ": [
+    {
+      "word": "ಹಸು",
+      "emoji": "🐄"
+    },
+    {
+      "word": "ಹಕ್ಕಿ",
+      "emoji": "🐦"
+    },
+    {
+      "word": "ಹಾವು",
+      "emoji": "🐍"
+    },
+    {
+      "word": "ಹೂವು",
+      "emoji": "🌸"
+    },
+    {
+      "word": "ಹಣ್ಣು",
+      "emoji": "🍎"
+    },
+    {
+      "word": "ಹಲ್ಲು",
+      "emoji": "🦷"
+    },
+    {
+      "word": "ಹಣೆ",
+      "emoji": "👤"
+    },
+    {
+      "word": "ಹಾಲು",
+      "emoji": "🥛"
+    },
+    {
+      "word": "ಹಡಗು",
+      "emoji": "🚢"
+    },
+    {
+      "word": "ಹಂಸ",
+      "emoji": "🦢"
+    }
+  ],
+  "ಳ": [
+    {
+      "word": "ಕೊಳ",
+      "emoji": "💧"
+    },
+    {
+      "word": "ತಾಳ",
+      "emoji": "🎶"
+    },
+    {
+      "word": "ಬಳೆ",
+      "emoji": "💍"
+    },
+    {
+      "word": "ಬೆಳೆ",
+      "emoji": "🌾"
+    },
+    {
+      "word": "ಮಳೆ",
+      "emoji": "🌧️"
+    },
+    {
+      "word": "ಕಾಗೆಹಾಳು",
+      "emoji": "🐦"
+    },
+    {
+      "word": "ಗಿಳಿಗಳು",
+      "emoji": "🦜"
+    },
+    {
+      "word": "ತೊರೆಗಳು",
+      "emoji": "🌊"
+    },
+    {
+      "word": "ಹೂಗಳು",
+      "emoji": "💐"
+    },
+    {
+      "word": "ಹಣ್ಣುಗಳು",
+      "emoji": "🍇"
+    }
+  ],
+  "ಕ್ಷ": [
+    {
+      "word": "ಕ್ಷತ್ರಿಯ",
+      "emoji": "⚔️"
+    },
+    {
+      "word": "ಕ್ಷೀರ",
+      "emoji": "🥛"
+    },
+    {
+      "word": "ವೃಕ್ಷ",
+      "emoji": "🌳"
+    },
+    {
+      "word": "ದ್ರಾಕ್ಷಿ",
+      "emoji": "🍇"
+    },
+    {
+      "word": "ಪಕ್ಷಿ",
+      "emoji": "🐦"
+    },
+    {
+      "word": "ಶಿಕ್ಷೆ",
+      "emoji": "⚖️"
+    },
+    {
+      "word": "ಲಕ್ಷ್ಮಿ",
+      "emoji": "🪷"
+    },
+    {
+      "word": "ರಕ್ಷಣೆ",
+      "emoji": "🛡️"
+    },
+    {
+      "word": "ಅಕ್ಷರ",
+      "emoji": "✍️"
+    },
+    {
+      "word": "ನಕ್ಷತ್ರ",
+      "emoji": "⭐"
+    }
+  ],
+  "ಜ್ಞ": [
+    {
+      "word": "ಜ್ಞಾನಿ",
+      "emoji": "🧑‍🏫"
+    },
+    {
+      "word": "ವಿಜ್ಞಾನ",
+      "emoji": "🔬"
+    },
+    {
+      "word": "ಯಜ್ಞ",
+      "emoji": "🔥"
+    },
+    {
+      "word": "ಆಜ್ಞೆ",
+      "emoji": "📜"
+    },
+    {
+      "word": "ಪ್ರತಿಜ್ಞೆ",
+      "emoji": "✋"
+    },
+    {
+      "word": "ಕೃತಜ್ಞತೆ",
+      "emoji": "🙏"
+    },
+    {
+      "word": "ಜ್ಞಾಪಕ",
+      "emoji": "💭"
+    },
+    {
+      "word": "ಸುಜ್ಞಾನ",
+      "emoji": "💡"
+    },
+    {
+      "word": "ಸರ್ವಜ್ಞ",
+      "emoji": "🧙"
+    },
+    {
+      "word": "ಸಂಜ್ಞೆ",
+      "emoji": "👆"
+    }
+  ]
+};
+
+const KANNADA_CONSONANTS = KANNADA_LESSONS.filter(l => !l.isSwar).map(l => l.c);
+
+
 function getWordForLetter(char, wordIdx) {
-  const bank = WORD_BANKS[char] || [];
+  const curBanks = (typeof getCurWordBanks === 'function') ? getCurWordBanks() : WORD_BANKS;
+  const bank = curBanks[char] || WORD_BANKS[char] || [];
   if (!bank.length) return { word: char, emoji: '✍️' };
   if (wordIdx < bank.length) return bank[wordIdx];
   const cycleIdx = wordIdx % bank.length;
@@ -2498,9 +5387,11 @@ function renderClue(item, step) {
     key = item.word || '';
     fallback = item.emoji;
   } else if (step === 2 && !item.isSwar) {
-    const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+    const matras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
+    const matraObj = matras[m.matraIndex || 0] || matras[0];
     const combo = getMatraCombo(char, matraObj.sym);
-    const wordObj = (WORD_BANKS[char] || []).find(w => w.word.startsWith(combo));
+    const curBanks = (typeof getCurWordBanks === 'function') ? getCurWordBanks() : WORD_BANKS;
+    const wordObj = (curBanks[char] || []).find(w => w.word.startsWith(combo));
     if (wordObj) {
       key = wordObj.word;
       fallback = wordObj.emoji || item.emoji;
@@ -2584,14 +5475,18 @@ function getLetterMastery(c) {
   if (m.matraMastered === undefined) m.matraMastered = false;
   if (m.wordIndex === undefined) m.wordIndex = 0;
   if (m.wordTier === undefined) m.wordTier = 0;
-  if (!m.wordsMastered) m.wordsMastered = m.word ? [lessons[idx]?.word || 'कमल'] : [];
+  if (!m.wordsMastered) {
+    const curWord = (typeof getCurItem === 'function') ? getCurItem()?.word : (lessons[idx]?.word || 'कमल');
+    m.wordsMastered = m.word ? [curWord || 'कमल'] : [];
+  }
   if (m.star === undefined) m.star = 0;
   return m;
 }
 
 function updateLetterStar(c) {
   const m = getLetterMastery(c);
-  const item = lessons.find(l => l.c === c) || lessons[idx];
+  const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+  const item = curL.find(l => l.c === c) || curL[idx] || curL[0] || lessons[idx];
 
   let stars = 0;
   if (m.letterMastered) {
@@ -2611,7 +5506,8 @@ function updateLetterStar(c) {
 }
 
 function getTargetText() {
-  const item = lessons[idx];
+  const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+  const item = curL[idx] || curL[0] || lessons[idx];
   if (!item) return '';
   const m = getLetterMastery(item.c);
 
@@ -2619,7 +5515,8 @@ function getTargetText() {
     return item.c;
   }
   if (currentStep === 2 && !item.isSwar) {
-    const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+    const matras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
+    const matraObj = matras[m.matraIndex || 0] || matras[0];
     return getMatraCombo(item.c, matraObj.sym);
   }
   if (currentStep === 3) {
@@ -2698,21 +5595,24 @@ function computeRuling(height, width) {
 // Exact Font Metrics: pins Shirorekha to Line 2 and foot to Line 4 with 0px gap
 function getTextLayout(context, text, ruling) {
   const targetH = ruling.bodyHeight;
+  const isKn = (typeof currentLanguage !== 'undefined' && currentLanguage === 'kn');
+  const fontName = isKn ? '"Noto Sans Kannada", sans-serif' : '"Noto Sans Devanagari", "Nirmala UI", sans-serif';
+  const refChar = isKn ? 'ಕ' : 'क';
 
   const testSize = 100;
-  context.font = '700 ' + testSize + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif';
+  context.font = '700 ' + testSize + 'px ' + fontName;
   context.textBaseline = 'alphabetic';
 
-  const mRef = context.measureText('क');
+  const mRef = context.measureText(refChar);
   const refAscent = mRef.actualBoundingBoxAscent || (testSize * 0.62);
   const refDescent = mRef.actualBoundingBoxDescent || 0;
   const refTotal = (refAscent + refDescent) > 20 ? (refAscent + refDescent) : (testSize * 0.62);
 
   const exactFontSize = Math.round(testSize * (targetH / refTotal));
-  const fontStr = '700 ' + exactFontSize + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif';
+  const fontStr = '700 ' + exactFontSize + 'px ' + fontName;
   context.font = fontStr;
 
-  const mExact = context.measureText('क');
+  const mExact = context.measureText(refChar);
   const exactAscent = mExact.actualBoundingBoxAscent || Math.round(exactFontSize * 0.62);
 
   const textBaselineY = ruling.line2 + exactAscent;
@@ -3747,10 +6647,24 @@ function playSnd(src) {
 const LANGUAGE_CONFIGS = {
   'hi': {
     id: 'hi',
-    name: 'हिंदी',
+    name: 'हिन्दी',
     langCode: 'hi-IN',
     hasShirorekha: true,
     fontFamily: "'Noto Sans Devanagari', 'Baloo 2', system-ui, sans-serif",
+    referenceChar: 'क',
+    lessons: lessons,
+    matras: BARAKHADI_MATRAS,
+    wordBanks: WORD_BANKS,
+    stepper: {
+      step1Icon: 'अ',
+      step1Label: 'Letter',
+      step2Icon: 'ा',
+      step2Label: 'Matra',
+      step3Icon: 'का',
+      step3Label: 'Word',
+      step4Label: 'Progress',
+      langBadge: 'हिन्दी'
+    },
     ui: {
       stepLetter: "Today's letter",
       stepMatra: 'Matra',
@@ -3760,7 +6674,7 @@ const LANGUAGE_CONFIGS = {
       promptWord: 'Write the word ✍️',
       letsWrite: "✍️ Let's write",
       imDone: "✓ I'm done!",
-      previous: 'Previous',
+      previous: 'Prev',
       next: 'Next',
       listen: '🔊 सुनो'
     },
@@ -3779,6 +6693,20 @@ const LANGUAGE_CONFIGS = {
     langCode: 'kn-IN',
     hasShirorekha: false,
     fontFamily: "'Noto Sans Kannada', system-ui, sans-serif",
+    referenceChar: 'ಕ',
+    lessons: KANNADA_LESSONS,
+    matras: KANNADA_KAGUNITA_MATRAS,
+    wordBanks: KANNADA_WORD_BANKS,
+    stepper: {
+      step1Icon: 'ಅ',
+      step1Label: 'ಅಕ್ಷರ',
+      step2Icon: 'ಾ',
+      step2Label: 'ಕಾಗುಣಿತ',
+      step3Icon: 'ಕಾ',
+      step3Label: 'ಪದ',
+      step4Label: 'ಪ್ರಗತಿ',
+      langBadge: 'ಕನ್ನಡ'
+    },
     ui: {
       stepLetter: 'ಅಕ್ಷರ',
       stepMatra: 'ಕಾಗುಣಿತ',
@@ -3788,8 +6716,8 @@ const LANGUAGE_CONFIGS = {
       promptWord: 'ಪದ ಬರೆಯಿರಿ ✍️',
       letsWrite: "✍️ ಬರೆಯೋಣ",
       imDone: "✓ ಆಯಿತು!",
-      previous: 'ಹಿಂದಿನದು',
-      next: 'ಮುಂದಿನದು',
+      previous: 'ಹಿಂದೆ',
+      next: 'ಮುಂದೆ',
       listen: '🔊 ಕೇಳಿ'
     },
     voice: {
@@ -3803,7 +6731,139 @@ const LANGUAGE_CONFIGS = {
   }
 };
 
+const LANGUAGE_PACKS = LANGUAGE_CONFIGS;
+
 let currentLanguage = localStorage.getItem('rasari_lang') || 'hi';
+if (!LANGUAGE_CONFIGS[currentLanguage]) currentLanguage = 'hi';
+
+function getCurLanguagePack() {
+  return LANGUAGE_CONFIGS[currentLanguage] || LANGUAGE_CONFIGS['hi'];
+}
+
+function getCurLessons() {
+  return getCurLanguagePack().lessons || lessons;
+}
+
+function getCurMatras() {
+  return getCurLanguagePack().matras || BARAKHADI_MATRAS;
+}
+
+function getCurWordBanks() {
+  return getCurLanguagePack().wordBanks || WORD_BANKS;
+}
+
+function getCurItem() {
+  const l = getCurLessons();
+  return l[idx] || l[0] || lessons[0];
+}
+
+function switchLanguage(newLang) {
+  if (!LANGUAGE_CONFIGS[newLang] || newLang === currentLanguage) return;
+
+  // Save current letter index for the current language
+  try {
+    const saved = JSON.parse(localStorage.getItem('rasari_lang_idx') || '{}');
+    saved[currentLanguage] = idx;
+    localStorage.setItem('rasari_lang_idx', JSON.stringify(saved));
+  } catch (_) {}
+
+  currentLanguage = newLang;
+  localStorage.setItem('rasari_lang', newLang);
+
+  // Restore letter index for new language
+  try {
+    const saved = JSON.parse(localStorage.getItem('rasari_lang_idx') || '{}');
+    const targetIdx = (typeof saved[newLang] === 'number') ? saved[newLang] : 0;
+    const l = getCurLessons();
+    idx = Math.max(0, Math.min(l.length - 1, targetIdx));
+  } catch (_) {
+    idx = 0;
+  }
+
+  // Clear canvas & navigation history
+  clearPad();
+  letterHistory = [];
+  currentStep = 1;
+
+  // Update stepper labels and dropdown items
+  updateLanguageUI();
+
+  // Reset cached voice mapping
+  cachedVoicesMap = {};
+
+  // Render current letter in new language
+  setLetter(idx);
+}
+
+function updateLanguageUI() {
+  const pack = getCurLanguagePack();
+  if (!pack) return;
+
+  // Stepper icons & labels
+  const st1Icon = $('navLetter');
+  if (st1Icon) {
+    const curItem = getCurItem();
+    st1Icon.textContent = curItem ? curItem.c : (pack.stepper?.step1Icon || 'ಅ');
+  }
+  const st1Label = $('navStep1Label');
+  if (st1Label) st1Label.textContent = pack.stepper?.step1Label || 'Letter';
+
+  const st2Icon = $('navMatraIcon');
+  if (st2Icon) st2Icon.textContent = pack.stepper?.step2Icon || 'ा';
+  const st2Label = $('navStep2Label');
+  if (st2Label) st2Label.textContent = pack.stepper?.step2Label || 'Matra';
+
+  const st3Icon = $('navWordIcon');
+  if (st3Icon) st3Icon.textContent = pack.stepper?.step3Icon || 'का';
+  const st3Label = $('navStep3Label');
+  if (st3Label) st3Label.textContent = pack.stepper?.step3Label || 'Word';
+
+  const st4Label = $('navStep4Label');
+  if (st4Label) st4Label.textContent = pack.stepper?.step4Label || 'Progress';
+
+  const badge = $('currentLangBadge');
+  if (badge) badge.textContent = pack.name;
+
+  // Dropdown active state & checkmarks
+  document.querySelectorAll('.lang-dropdown-item').forEach(item => {
+    const l = item.getAttribute('data-lang');
+    const isActive = (l === currentLanguage);
+    item.classList.toggle('active', isActive);
+    const chk = item.querySelector('.lang-check');
+    if (chk) chk.style.display = isActive ? 'inline' : 'none';
+  });
+
+  // Buttons
+  if ($('doneBtn') && pack.ui?.imDone) {
+    const doneSpan = $('doneBtn').querySelector('span');
+    if (doneSpan) doneSpan.textContent = pack.ui.imDone;
+    else $('doneBtn').innerHTML = '<span>' + pack.ui.imDone + '</span>';
+  }
+  if ($('prevBtn') && pack.ui?.previous) {
+    $('prevBtn').innerHTML = '<span>◀</span><span>' + pack.ui.previous + '</span>';
+  }
+  if ($('nextBtn') && pack.ui?.next) {
+    $('nextBtn').innerHTML = '<span>' + pack.ui.next + '</span><span>▶</span>';
+  }
+}
+
+function toggleLangDropdown(show) {
+  const menu = $('langDropdownMenu');
+  const trigger = $('langSelectorTrigger') || $('st4');
+  if (!menu || !trigger) return;
+  const isHidden = (menu.style.display === 'none');
+  const shouldShow = (typeof show === 'boolean') ? show : isHidden;
+  if (shouldShow) {
+    const rect = trigger.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 6) + 'px';
+    const rightOffset = Math.max(8, window.innerWidth - rect.right);
+    menu.style.right = rightOffset + 'px';
+    menu.style.left = 'auto';
+    menu.style.display = 'flex';
+  } else {
+    menu.style.display = 'none';
+  }
+}
 let voicePersona = 'monkey'; // Fixed default voice: Monkey persona
 
 // Detect environment: local development vs production deployment
@@ -4783,7 +7843,26 @@ async function evaluateWithGeminiVision(capturedDataUrl, targetText) {
     const mimeMatch = capturedDataUrl.match(/^data:([^;]+);/);
     const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
 
-    const promptText = `Examine the handwritten Devanagari Hindi writing in the image.
+    let promptText = '';
+    if (currentLanguage === 'kn') {
+      promptText = `Examine the handwritten Kannada writing in the image.
+Identify what exact Kannada letter or word was written.
+Distinguish lookalike characters with high optical precision:
+- ರ vs ದ: 'ರ' is a single rounded loop with top talekattu; 'ದ' has an inner curl/loop.
+- ಬ vs ಭ: 'ಬ' has no vertical center notch; 'ಭ' has a distinct vertical emphasis/slash.
+- ವ vs ಮ: 'ವ' is an open loop at bottom; 'ಮ' has a small circle/loop at bottom left and connects across.
+- ಪ vs ಫ: 'ಪ' has no center mark; 'ಫ' has a vertical slash or center stroke.
+- ಗ vs ಘ: 'ಗ' is open; 'ಘ' has a middle notch and downward stroke.
+- ಇ vs ಝ: 'ಇ' has two lower loops; 'ಝ' has talekattu and right stroke.
+- ನ vs ಸ: 'ನ' has no loop inside; 'ಸ' has an inner loop on the left.
+Output ONLY the Kannada characters in "detected" (no English, no transliteration, no punctuation).
+Respond ONLY with a JSON object:
+{
+  "detected": "detected Kannada string",
+  "confidence": integer 0-100
+}`;
+    } else {
+      promptText = `Examine the handwritten Devanagari Hindi writing in the image.
 Identify what exact Devanagari Hindi letter or word was written.
 Distinguish lookalike characters with high optical precision:
 - अ vs उ vs ऊ: 'अ' has a complete vertical stem on the right connected by a middle waist bar; 'ऊ' has a curved tail starting from the center waist and NO vertical stem on the right; 'उ' has NO tail and NO vertical stem.
@@ -4796,6 +7875,7 @@ Respond ONLY with a JSON object:
   "detected": "detected Devanagari string",
   "confidence": integer 0-100
 }`;
+    }
 
     const payload = {
       contents: [{
@@ -5670,15 +8750,16 @@ if ($('shuffleToggle')) {
 updateShuffleBtn();
 
 function getUnmasteredLetterIndices(step = currentStep) {
+  const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
   const eligibleIndices = [];
-  for (let i = 0; i < lessons.length; i++) {
-    if (step === 2 && lessons[i].isSwar) continue; // Swars cannot take matras in Step 2
+  for (let i = 0; i < curL.length; i++) {
+    if (step === 2 && curL[i].isSwar) continue; // Swars cannot take matras in Step 2
     eligibleIndices.push(i);
   }
 
   const unmastered = [];
   eligibleIndices.forEach(i => {
-    const item = lessons[i];
+    const item = curL[i];
     const m = getLetterMastery(item.c);
     let isMastered = false;
     if (step === 1) {
@@ -5696,7 +8777,7 @@ function getUnmasteredLetterIndices(step = currentStep) {
   // If all letters are mastered at this step, fallback to any letter that hasn't reached 3 stars
   if (unmastered.length === 0) {
     eligibleIndices.forEach(i => {
-      const m = getLetterMastery(lessons[i].c);
+      const m = getLetterMastery(curL[i].c);
       if (m.star < 3) unmastered.push(i);
     });
   }
@@ -5705,11 +8786,12 @@ function getUnmasteredLetterIndices(step = currentStep) {
 }
 
 function getNextLetterIdx() {
+  const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
   if (!shuffleMode) {
-    let nextIdx = (idx + 1) % lessons.length;
+    let nextIdx = (idx + 1) % curL.length;
     if (currentStep === 2) {
-      while (lessons[nextIdx].isSwar) {
-        nextIdx = (nextIdx + 1) % lessons.length;
+      while (curL[nextIdx].isSwar) {
+        nextIdx = (nextIdx + 1) % curL.length;
       }
     }
     return nextIdx;
@@ -5717,9 +8799,9 @@ function getNextLetterIdx() {
 
   // Shuffle Mode: Pick random (preferably unmastered) letters
   const eligibleIndices = [];
-  for (let i = 0; i < lessons.length; i++) {
+  for (let i = 0; i < curL.length; i++) {
     if (i === idx) continue; // Never repeat the exact same letter currently active
-    if (currentStep === 2 && lessons[i].isSwar) continue; // Swars cannot take matras in Step 2
+    if (currentStep === 2 && curL[i].isSwar) continue; // Swars cannot take matras in Step 2
     eligibleIndices.push(i);
   }
 
@@ -5741,10 +8823,11 @@ $('prevBtn').onclick = e => {
     const lastAttempted = letterHistory.pop();
     setLetter(lastAttempted);
   } else {
-    let prevIdx = (idx - 1 + lessons.length) % lessons.length;
+    const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+    let prevIdx = (idx - 1 + curL.length) % curL.length;
     if (currentStep === 2) {
-      while (lessons[prevIdx].isSwar) {
-        prevIdx = (prevIdx - 1 + lessons.length) % lessons.length;
+      while (curL[prevIdx].isSwar) {
+        prevIdx = (prevIdx - 1 + curL.length) % curL.length;
       }
     }
     setLetter(prevIdx);
@@ -5874,7 +8957,8 @@ function goHome() {
     targetIdx = unmastered.length > 0 ? unmastered[0] : 0;
   } else {
     // Shuffle ON: Give a random unmastered letter
-    const pool = unmastered.length > 0 ? unmastered : Array.from({ length: lessons.length }, (_, i) => i);
+    const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+    const pool = unmastered.length > 0 ? unmastered : Array.from({ length: curL.length }, (_, i) => i);
     const candidates = pool.filter(i => i !== idx);
     const finalPool = candidates.length > 0 ? candidates : pool;
     targetIdx = finalPool[Math.floor(Math.random() * finalPool.length)];
@@ -5909,7 +8993,12 @@ function hasTopMatra(str) {
   if (!str) return false;
   for (const ch of str) {
     const c = ch.charCodeAt(0);
+    // Devanagari top marks: ि, ी, े, ै, ो, ौ, ं, ँ
     if (c === 0x093f || c === 0x0940 || c === 0x0947 || c === 0x0948 || c === 0x094b || c === 0x094c || c === 0x0902 || c === 0x0901) {
+      return true;
+    }
+    // Kannada top marks: ಿ, ೀ, ೆ, ೇ, ೈ, ೊ, ೋ, ಂ
+    if (c === 0x0cbf || c === 0x0cc0 || c === 0x0cc6 || c === 0x0cc7 || c === 0x0cc8 || c === 0x0cca || c === 0x0ccb || c === 0x0c82) {
       return true;
     }
   }
@@ -5924,7 +9013,12 @@ function hasBottomMatra(str) {
   }
   for (const ch of str) {
     const c = ch.charCodeAt(0);
+    // Devanagari bottom marks: ु, ू, ृ
     if (c === 0x0941 || c === 0x0942 || c === 0x0943) {
+      return true;
+    }
+    // Kannada bottom marks: ು, ೂ, ೃ, ೌ, ್ (virama / ottu)
+    if (c === 0x0cc1 || c === 0x0cc2 || c === 0x0cc3 || c === 0x0ccc || c === 0x0ccd) {
       return true;
     }
   }
@@ -5936,7 +9030,8 @@ function decomposeWordToUnits(word) {
   let segments = [];
   if (typeof Intl !== 'undefined' && Intl.Segmenter) {
     try {
-      const seg = new Intl.Segmenter('hi', { granularity: 'grapheme' });
+      const lang = (typeof currentLanguage !== 'undefined' && currentLanguage === 'kn') ? 'kn' : 'hi';
+      const seg = new Intl.Segmenter(lang, { granularity: 'grapheme' });
       segments = Array.from(seg.segment(word), s => ({ segment: s.segment, index: s.index }));
     } catch (_) {}
   }
@@ -6467,8 +9562,38 @@ window.addEventListener('load', () => {
 });
 
 // Step Navigation Handlers: progression is auto-driven (st1-st3 non-clickable); st4 opens non-destructive progress book
-$('st4').onclick = () => openProgressStickers();
+$('st4').onclick = (e) => {
+  if (e && e.target && e.target.closest('#langSelectorTrigger')) return;
+  openProgressStickers();
+};
 makeTouchResponsive($('st4'));
+
+if ($('langSelectorTrigger')) {
+  $('langSelectorTrigger').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleLangDropdown();
+  });
+}
+
+document.querySelectorAll('.lang-dropdown-item').forEach(item => {
+  item.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const l = item.getAttribute('data-lang');
+    if (l) {
+      switchLanguage(l);
+      toggleLangDropdown(false);
+    }
+  });
+});
+
+document.addEventListener('click', (e) => {
+  const menu = $('langDropdownMenu');
+  if (menu && menu.style.display !== 'none') {
+    if (!e.target.closest('#langDropdownMenu') && !e.target.closest('#langSelectorTrigger')) {
+      toggleLangDropdown(false);
+    }
+  }
+});
 
 function getAutoStepForLetter(item) {
   const m = getLetterMastery(item.c);
@@ -6490,13 +9615,17 @@ function setLetter(newIdx) {
   idx = newIdx;
   currentUnitIndex = 0;
   unitStrokesMap = [];
-  const item = lessons[idx];
+  const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+  const item = curL[idx] || curL[0] || lessons[0];
 
   const autoStep = getAutoStepForLetter(item);
   setStep(autoStep);
 
-  if (!$('prevBtn').querySelector('span')) $('prevBtn').innerHTML = '<span>◀</span><span>Prev</span>';
-  if (!$('nextBtn').querySelector('span')) $('nextBtn').innerHTML = '<span>Next</span><span>▶</span>';
+  const pack = (typeof getCurLanguagePack === 'function') ? getCurLanguagePack() : null;
+  const prevTxt = pack?.ui?.previous || 'Prev';
+  const nextTxt = pack?.ui?.next || 'Next';
+  if (!$('prevBtn').querySelector('span')) $('prevBtn').innerHTML = '<span>◀</span><span>' + prevTxt + '</span>';
+  if (!$('nextBtn').querySelector('span')) $('nextBtn').innerHTML = '<span>' + nextTxt + '</span><span>▶</span>';
 
   const matraStepEl = $('st2');
   if (item.isSwar) {
@@ -6512,7 +9641,8 @@ function setLetter(newIdx) {
 
 function setStep(stepNum) {
   if ($('guidanceModal')) $('guidanceModal').classList.remove('show');
-  const item = lessons[idx];
+  const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+  const item = curL[idx] || curL[0] || lessons[0];
   if (item.isSwar && stepNum === 2) {
     stepNum = 1;
   }
@@ -6530,7 +9660,8 @@ function setStep(stepNum) {
 }
 
 function render() {
-  const item = lessons[idx];
+  const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+  const item = curL[idx] || curL[0] || lessons[0];
   const m = getLetterMastery(item.c);
 
   // Auto-Progression Invariant: automatically drive child from Letter -> Matras -> Words
@@ -6571,7 +9702,8 @@ function render() {
     renderClue(item, 1);
   } else if (currentStep === 2 && !item.isSwar) {
     // Stage 2: Matra Recall
-    const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+    const matras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
+    const matraObj = matras[m.matraIndex || 0] || matras[0];
     const combo = getMatraCombo(item.c, matraObj.sym);
     const tierName = m.matraTier === 0 ? 'Trace' : (m.matraTier === 1 ? 'Ghost' : 'Freehand');
     const tierRatio = (m.matraTier + 1) + '/3';
@@ -6580,7 +9712,8 @@ function render() {
       if (m.matraMastered) {
         badge.innerHTML = '<span>⭐⭐</span><span class="tablet-pill-text"> Matras Mastered</span>';
       } else {
-        badge.innerHTML = '<span>🌿</span> <span class="tablet-pill-text">' + ((m.matraIndex || 0) + 1) + '/13 ' + tierName + '</span><span class="phone-pill-text">' + ((m.matraIndex || 0) + 1) + '/13</span>';
+        const totalMatras = matras.length;
+        badge.innerHTML = '<span>🌿</span> <span class="tablet-pill-text">' + ((m.matraIndex || 0) + 1) + '/' + totalMatras + ' ' + tierName + '</span><span class="phone-pill-text">' + ((m.matraIndex || 0) + 1) + '/' + totalMatras + '</span>';
       }
     }
     renderClue(item, 2);
@@ -6629,8 +9762,9 @@ function openProgressStickers() {
   if (!modal) return;
   updateShuffleBtn();
 
+  const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
   let masteredCount = 0;
-  lessons.forEach(l => {
+  curL.forEach(l => {
     const m = getLetterMastery(l.c);
     if (m.star === 3) masteredCount++;
   });
@@ -6641,7 +9775,7 @@ function openProgressStickers() {
   const grid = $('stickerGrid');
   grid.innerHTML = '';
 
-  lessons.forEach((l, i) => {
+  curL.forEach((l, i) => {
     const m = getLetterMastery(l.c);
     const card = document.createElement('div');
     card.className = 'sticker-card' + (m.star === 3 ? ' gold-card' : '');
@@ -6757,7 +9891,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.4.8';
+const CURRENT_APP_VERSION = '3.5.0';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
@@ -6782,7 +9916,14 @@ if (verBadge) {
 }
 
 setupPWAUpdate();
-setLetter(0);
+if (typeof updateLanguageUI === 'function') updateLanguageUI();
+try {
+  const savedIndices = JSON.parse(localStorage.getItem('rasari_lang_idx') || '{}');
+  if (typeof savedIndices[currentLanguage] === 'number') {
+    idx = savedIndices[currentLanguage];
+  }
+} catch (_) {}
+setLetter(idx || 0);
 
 </script>
 </body>

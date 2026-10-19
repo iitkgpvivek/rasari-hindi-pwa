@@ -790,6 +790,79 @@ test('Multimodal Gemini AI Vision Evaluator & Offline Fallback Resilience', () =
   assert(scriptContent.includes(".normalize('NFC')"), 'Must use Unicode NFC normalization for Devanagari nuktas and ligatures');
 });
 
+// ---------------------------------------------------------
+// SUITE 16: Modular Multilingual Architecture & Kannada Pack
+// ---------------------------------------------------------
+test('Modular Multilingual Architecture & Kannada Curriculum Pack (51 Lessons, 15 Kagunita Matras, 510 Words)', () => {
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  // 1. Kannada Lessons
+  assert(html.includes('const KANNADA_LESSONS = ['), 'KANNADA_LESSONS curriculum array must exist');
+  const lessonsMatch = scriptContent.match(/const KANNADA_LESSONS = (\[[\s\S]*?\]);/);
+  assert(lessonsMatch, 'KANNADA_LESSONS must be parseable');
+  const knLessons = new Function(`return ${lessonsMatch[1]}`)();
+  assert.strictEqual(knLessons.length, 51, 'Must contain exactly 51 Kannada lessons (15 Swaras/Yogavahas + 34 Vyanjanas + 2 Samyuktaksharas)');
+
+  // Swaras must be marked isSwar: true
+  const swaras = knLessons.filter(l => l.isSwar);
+  assert.strictEqual(swaras.length, 15, 'Must contain 15 Swaras/Yogavahas (ಅ to ಅಃ)');
+  const vyanjanas = knLessons.filter(l => !l.isSwar);
+  assert.strictEqual(vyanjanas.length, 36, 'Must contain 36 Vyanjanas/Samyuktaksharas (ಕ to ಜ್ಞ)');
+
+  // 2. Kannada Kagunita Matras
+  assert(html.includes('const KANNADA_KAGUNITA_MATRAS = ['), 'KANNADA_KAGUNITA_MATRAS array must exist');
+  const matrasMatch = scriptContent.match(/const KANNADA_KAGUNITA_MATRAS = (\[[\s\S]*?\]);/);
+  assert(matrasMatch, 'KANNADA_KAGUNITA_MATRAS must be parseable');
+  const knMatras = new Function(`return ${matrasMatch[1]}`)();
+  assert.strictEqual(knMatras.length, 15, 'Must contain all 15 Kagunita forms');
+
+  // 3. Kannada Word Banks
+  assert(html.includes('const KANNADA_WORD_BANKS = {'), 'KANNADA_WORD_BANKS must exist');
+  knLessons.forEach(l => {
+    assert(html.includes(`"${l.c}": [`), `KANNADA_WORD_BANKS must contain an entry for letter ${l.c}`);
+  });
+
+  // 4. Modular Language Packs
+  assert(html.includes('const LANGUAGE_PACKS = LANGUAGE_CONFIGS;'), 'LANGUAGE_PACKS must alias LANGUAGE_CONFIGS for clean modular access');
+  assert(scriptContent.includes('function getCurLessons('), 'getCurLessons accessor must exist');
+  assert(scriptContent.includes('function getCurMatras('), 'getCurMatras accessor must exist');
+  assert(scriptContent.includes('function getCurWordBanks('), 'getCurWordBanks accessor must exist');
+});
+
+test('Language Switching on Progress Button (#st4), Dynamic Stepper Icons, and Shared Bananas', () => {
+  // 1. Language selector trigger inside #st4
+  assert(html.includes('id="langSelectorTrigger"'), 'Language selector trigger button must exist inside #st4');
+  assert(html.includes('id="langDropdownMenu"'), 'Floating language dropdown menu must exist');
+  assert(html.includes('data-lang="hi"'), 'Hindi language option must exist');
+  assert(html.includes('data-lang="kn"'), 'Kannada language option must exist');
+
+  // 2. Dynamic Stepper Bubbles matching language being learned
+  assert(html.includes('id="navLetter"'), 'Step 1 letter bubble must have dynamic id navLetter');
+  assert(html.includes('id="navStep1Label"'), 'Step 1 text label must have dynamic id navStep1Label');
+  assert(html.includes('id="navMatraIcon"'), 'Step 2 matra bubble must have dynamic id navMatraIcon');
+  assert(html.includes('id="navStep2Label"'), 'Step 2 text label must have dynamic id navStep2Label');
+  assert(html.includes('id="navWordIcon"'), 'Step 3 word bubble must have dynamic id navWordIcon');
+  assert(html.includes('id="navStep3Label"'), 'Step 3 text label must have dynamic id navStep3Label');
+  assert(html.includes('id="navStep4Label"'), 'Step 4 text label must have dynamic id navStep4Label');
+
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  // 3. Runtime Switcher Function
+  assert(scriptContent.includes('function switchLanguage('), 'switchLanguage function must exist');
+  assert(scriptContent.includes('function updateLanguageUI('), 'updateLanguageUI function must exist');
+  assert(scriptContent.includes('function toggleLangDropdown('), 'toggleLangDropdown function must exist');
+
+  // 4. Shared Bananas & Isolated Mastery
+  assert(html.includes("localStorage.getItem('rasari_bananas')"), 'Bananas must be shared globally across all languages');
+  assert(html.includes("localStorage.setItem('rasari_lang'"), 'Selected language must persist to localStorage');
+  assert(html.includes("localStorage.getItem('rasari_lang_idx'"), 'Letter position must be remembered per language');
+
+  // 5. Kannada visual illustrations mapped to 3D library
+  assert(html.includes('"ಕಮಲ": "images/kamal.webp"'), 'Kannada word ಕಮಲ must map to 3D kamal.webp illustration');
+  assert(html.includes('"ಆನೆ": "images/haathi.png"'), 'Kannada word ಆನೆ must map to 3D haathi.png illustration');
+  assert(html.includes('"ಸೂರ್ಯ": "images/sooraj.png"'), 'Kannada word ಸೂರ್ಯ must map to 3D sooraj.png illustration');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');
