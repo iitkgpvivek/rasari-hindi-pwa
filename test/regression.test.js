@@ -205,17 +205,111 @@ test('Erases earlier writing on "I\'m done" (both success and failure) and lette
   assert(setLetterMatch[0].includes('clearPad()'), 'setLetter must call clearPad() to guarantee clean slate');
 });
 
-test('Bottom pills use Previous and Next labels with centered larger typography', () => {
-  assert(html.includes('id="prevBtn">Previous</button>'), 'Initial Prev button must use Previous text');
-  assert(html.includes('id="nextBtn">Next</button>'), 'Initial Next button must use Next text');
-  assert(html.includes("$('prevBtn').textContent = 'Previous'"), 'render must set Prev button to Previous');
-  assert(html.includes("$('nextBtn').textContent = 'Next'"), 'render must set Next button to Next');
+test('Paper CTAs match mockup with Prev/Next navigation and prominent Done action', () => {
+  assert(html.includes('id="prevBtn"'), 'Previous letter button must exist');
+  assert(html.includes('id="nextBtn"'), 'Next letter button must exist');
+  assert(html.includes('id="done"'), 'Done button must exist');
+  assert(html.includes('Prev</span>') || html.includes('Prev</button>'), 'Prev button must use Prev label');
+  assert(html.includes('Next</span>') || html.includes('Next</button>'), 'Next button must use Next label');
 
-  const prevBtnStyle = html.match(/\.prev-btn\{([^}]+)\}/);
-  assert(prevBtnStyle, '.prev-btn style must exist');
-  assert(prevBtnStyle[1].includes('text-align:center'), '.prev-btn must have text-align:center');
-  assert(prevBtnStyle[1].includes('justify-content:center'), '.prev-btn must center content');
-  assert(!prevBtnStyle[1].includes('clamp(14px,1.8vw,23px)'), '.prev-btn font size must be increased');
+  const prevBtnStyle = html.match(/\.nav-paper-btn\{([^}]+)\}/) || html.match(/\.prev-btn\{([^}]+)\}/);
+  assert(prevBtnStyle, 'nav-paper-btn style must exist');
+  assert(prevBtnStyle[1].includes('text-align:center'), 'nav-paper-btn must have text-align:center');
+  assert(prevBtnStyle[1].includes('justify-content:center'), 'nav-paper-btn must center content');
+
+  const doneBtnStyle = html.match(/\.done-paper-btn\{([^}]+)\}/);
+  assert(doneBtnStyle, 'done-paper-btn style must exist');
+  assert(doneBtnStyle[1].includes('font-weight:900'), 'Done button must have prominent font-weight:900');
+});
+
+test('Top bar contains all internal elements without overflowing or leaking', () => {
+  assert(html.includes('id="navBar"'), 'Top navigation bar must exist');
+  assert(html.includes('id="homeBtn"'), 'Home button must be in top navigation bar');
+  assert(html.includes('id="st1"'), 'Letter step pill must be in top navigation bar');
+  assert(html.includes('id="stageBadge"'), 'Stage badge must be in top navigation bar');
+  assert(html.includes('id="st2"'), 'Matra step pill must be in top navigation bar');
+  assert(html.includes('id="st3"'), 'Word step pill must be in top navigation bar');
+  assert(html.includes('id="st4"'), 'Progress step pill must be in top navigation bar');
+  assert(html.includes('id="bananaBadge"'), 'Treats counter must be in top navigation bar');
+
+  // Verify CSS containment preventing content leakage
+  const navBarStyle = html.match(/\.nav-bar-container\{([^}]+)\}/);
+  assert(navBarStyle, '.nav-bar-container style must exist');
+  const styleStr = navBarStyle[1];
+  assert(styleStr.includes('overflow:hidden'), '.nav-bar-container must have overflow:hidden to prevent leaking');
+  assert(styleStr.includes('max-width:min(96vw,680px)'), '.nav-bar-container must have generous max-width to fit all controls');
+
+  // Streamlined label check: "Letter" instead of "Today's letter" prevents horizontal overflow
+  assert(!html.includes(">Today's letter<"), "Step 1 label must be streamlined to 'Letter' to avoid top-bar leakage");
+
+  // Mobile icon-only check: on phones words like Letter/Matra/Word are omitted to save space, and Progress has single star
+  assert(!html.includes('<span class="phone-pill-text">Letter</span>'), 'Step 1 must be icon-only on phones without redundant text');
+  assert(!html.includes('<span class="phone-pill-text">Matra</span>'), 'Step 2 must be icon-only on phones without redundant text');
+  assert(!html.includes('<span class="phone-pill-text">Word</span>'), 'Step 3 must be icon-only on phones without redundant text');
+  assert(!html.includes('<span class="phone-pill-text">★</span>'), 'Progress must not have redundant second star');
+});
+
+test('Paper slate is bottom-anchored with zero awkward bottom gap and large mobile writing area', () => {
+  // App container must close after mainActivityWrapper so no safe zone pushes paper up
+  const appContainerHtml = html.match(/<div id="appContainer"[^>]*>([\s\S]*?)<\/div>\s*<!-- Dormant/);
+  assert(appContainerHtml, '#appContainer must be followed directly by dormant zone');
+  assert(!appContainerHtml[1].includes('android-safe-zone'), '#appContainer must not contain android-safe-zone pushing paper up');
+
+  // Verify computeRuling provides large writing area on mobile heights (< 500px)
+  const rulingMatch = html.match(/function computeRuling\(height[\s\S]*?\n\}/);
+  assert(rulingMatch, 'computeRuling function must exist');
+  const computeRuling = new Function(`return ${rulingMatch[0]}`)();
+  
+  // Mobile landscape test: 180px height canvas should have >= 70px bodyHeight
+  const rMobileLandscape = computeRuling(180, 400);
+  assert(rMobileLandscape.bodyHeight >= 70, `Mobile landscape bodyHeight must be >= 70px (got ${rMobileLandscape.bodyHeight}px)`);
+  assert(rMobileLandscape.line1 >= 6, 'Line 1 upper matra guide must fit on canvas');
+  assert(rMobileLandscape.line5 <= 180, 'Line 5 lower matra guide must fit on canvas');
+
+  // Mobile portrait test: 220px height canvas should have >= 70px bodyHeight
+  const rMobilePortrait = computeRuling(220, 350);
+  assert(rMobilePortrait.bodyHeight >= 70, `Mobile portrait bodyHeight must be >= 70px (got ${rMobilePortrait.bodyHeight}px)`);
+  assert(rMobilePortrait.line1 >= 6, 'Line 1 upper matra guide must fit on canvas');
+  assert(rMobilePortrait.line5 <= 220, 'Line 5 lower matra guide must fit on canvas');
+});
+
+test('Monkey and easel sizes in phone portrait mode match mockup without colliding', () => {
+  // Inner elements must have max-width: 100% to prevent overflowing their containers
+  assert(html.includes('.monkey-inner-wrap{position:relative;height:100%;max-width:100%'), 'monkey-inner-wrap must have max-width: 100%');
+  assert(html.includes('.monkey-img{height:100%;width:auto;max-width:100%'), 'monkey-img must have max-width: 100%');
+  assert(html.includes('.hanging-sign-inner{position:relative;height:100%;max-width:100%'), 'hanging-sign-inner must have max-width: 100%');
+  assert(html.includes('.hanging-sign-frame{height:100%;width:auto;max-width:100%'), 'hanging-sign-frame must have max-width: 100%');
+
+  // Phone portrait rules must scale monkey and easel to fit cleanly
+  assert(html.includes('@media (max-width: 500px)'), 'Phone portrait media query must exist');
+  assert(html.includes('max-height: 275px !important'), 'Monkey max-height must be 275px on phones');
+  assert(html.includes('max-height: 205px !important'), 'Easel max-height must be 205px on phones');
+});
+
+test('Pen ink width and color match mockup standards across phone, tablet, and desktop', () => {
+  const rulingMatch = html.match(/function computeRuling\(height[\s\S]*?\n\}/);
+  assert(rulingMatch, 'computeRuling function must exist');
+  const computeRuling = new Function(`return ${rulingMatch[0]}`)();
+
+  // Tablet (width >= 550px, height ~300px): bodyHeight = 86px -> brushWidth ~13px
+  const rTablet = computeRuling(300, 700);
+  assert.strictEqual(rTablet.brushWidth, 13, 'Tablet ink width should be 13px (~60% of stem thickness)');
+
+  // Phone portrait (width 350px, height 220px): bodyHeight = 72px -> brushWidth ~11px
+  const rPhone = computeRuling(220, 350);
+  assert.strictEqual(rPhone.brushWidth, 11, 'Phone portrait ink width should be ~11px (never clamped to 16px)');
+
+  // Phone small: bodyHeight = 48-50px -> brushWidth = 10px minimum
+  const rPhoneSmall = computeRuling(160, 250);
+  assert.strictEqual(rPhoneSmall.brushWidth, 10, 'Small phone ink width must respect 10px minimum bound');
+
+  // Desktop benchmark (height 500px): bodyHeight = 145px -> brushWidth >= 16px
+  const rDesktop = computeRuling(500);
+  assert(rDesktop.brushWidth >= 16, 'Desktop benchmark ink width must be >= 16px');
+
+  // Verify deep navy ink color #103960 matching mockup
+  assert(html.includes("ctx.strokeStyle = '#103960'"), 'Ink stroke color must be deep navy #103960');
+  assert(html.includes('stemWidth'), 'getTextLayout must compute stemWidth');
 });
 
 test('Accurate visual illustrations provided (Anaar is not an Apple, Yagya is not a Diya, Rath is not a Wheel, Hal is not a Crop)', () => {
@@ -404,23 +498,16 @@ test('Akshara aperture sizing, matra ruling bounds (hasTop / hasBottom), Prev na
   assert(clearFnMatch.includes('insideCount') || clearFnMatch.includes('insidePoints') || clearFnMatch.includes('pt.x'), 'Must check stroke points spatially inside selected box');
 });
 
-test('Two-Phase Workflow: "Let\'s write" enters Write Mode, "Finish Word" exits to review, and "I\'m done" celebrates', () => {
-  assert(html.includes("✍️ Let's write"), 'Default main CTA must be "Let\'s write"');
-  assert(html.includes('mainCtaState'), 'mainCtaState tracker must exist');
-  assert(html.includes('updateMainCta'), 'updateMainCta function must exist');
+test('Direct Slate Handwriting Evaluation: user writes directly on #write, and "I\'m done" evaluates handwriting', () => {
+  assert(html.includes('id="done"'), 'Done button must exist');
+  assert(html.includes('id="write"'), 'Writing canvas must exist');
 
   const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
   const doneMatch = html.match(/\$\('done'\)\.onclick\s*=\s*e\s*=>\s*\{([\s\S]*?)\n\};/);
   assert(doneMatch, 'Done click handler must exist');
-  assert(doneMatch[0].includes('openApertureMode()'), 'Clicking "Let\'s write" must open Write Mode');
-
-  const apertureDoneMatch = scriptContent.match(/function handleApertureDone\(\)[\s\S]*?\n\}/)[0];
-  assert(apertureDoneMatch.includes('closeApertureMode(false)'), 'Word finish must exit Write Mode to return to main page');
-  assert(apertureDoneMatch.includes("mainCtaState = 'done'"), 'Word finish must switch main CTA to "done" state');
-  assert(apertureDoneMatch.includes('updateMainCta()'), 'Word finish must update main CTA text');
-
-  // Verify top Write Mode toggle is removed as primary entry is via main "Let's write" CTA
-  assert(!html.includes('id="startWritingBtn"'), 'Top Write Mode ON/OFF toggle is cleanly removed');
+  assert(!doneMatch[0].includes('openApertureMode()'), 'Done button must evaluate directly on #write without opening black aperture screen');
+  assert(doneMatch[0].includes('evaluateFullWordOCR') || doneMatch[0].includes('evaluateHandwriting'), 'Done button must trigger handwriting evaluation');
+  assert(doneMatch[0].includes('triggerConfetti()'), 'Done button must celebrate success with confetti');
 });
 
 test('Multi-touch Palm-Down Button Responsiveness & Anti-Dot Stroke Auto-Recovery', () => {

@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rasari Hindi Writing Gym</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Baloo 2', system-ui, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .hindi-font { font-family: 'Noto Sans Devanagari', sans-serif; }
+
+    /* 5-Line Devanagari Notebook Ruling */
+    .notebook-guide-1 { border-bottom: 2px dashed #8ecdf7; } /* Upper Matra Guide */
+    .notebook-guide-2 { border-bottom: 3.5px solid #124170; } /* Shirorekha / Top Bar */
+    .notebook-guide-3 { border-bottom: 1.8px dashed #5cc4bb; } /* Midline Guide */
+    .notebook-guide-4 { border-bottom: 3.5px solid #124170; } /* Baseline Foot */
+    .notebook-guide-5 { border-bottom: 2px dashed #fca5b9; } /* Lower Matra Guide */
+
+    /* Subtle animation for hanging sign */
+    @keyframes gentle-sway {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(0.8deg); }
+    }
+    .sway-subtle {
+      animation: gentle-sway 5s ease-in-out infinite;
+      transform-origin: top center;
+    }
+
+    /* Interactive Ink Canvas */
+    #paintCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      cursor: crosshair;
+      z-index: 15;
+    }
+
+    /* App scrollable container */
+    #appContainer {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(18, 65, 112, 0.3) transparent;
+      scroll-snap-type: y proximity;
+      pointer-events: none !important;
+      z-index: 30 !important;
+      padding-top: clamp(48px, 7.5vh, 60px) !important;
+    }
+    #appContainer > * {
+      pointer-events: auto !important;
+    }
+
+    /* Top Navigation Bar: Supreme UI plane (always above jungle foliage & branches) */
+    #navBar {
+      position: fixed !important;
+      top: max(8px, env(safe-area-inset-top, 8px)) !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      z-index: 50 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      width: max-content !important;
+      max-width: min(94vw, 560px) !important;
+      box-sizing: border-box !important;
+      pointer-events: auto !important;
+    }
+    #navBar * {
+      white-space: nowrap !important;
+    }
+    #appContainer::-webkit-scrollbar {
+      width: 6px;
+    }
+    #appContainer::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    #appContainer::-webkit-scrollbar-thumb {
+      background: rgba(18, 65, 112, 0.25);
+      border-radius: 9999px;
+    }
+
+    /* Responsive Pill Labels: Shortened on all phones (regardless of orientation), full on tablets */
+    .tablet-pill-text {
+      display: inline;
+    }
+    .phone-pill-text {
+      display: none;
+    }
+
+    /* On all phones: short dimension is <= 540px (portrait width <= 500px, landscape height <= 540px) */
+    @media (max-width: 500px), (orientation: landscape) and (max-height: 540px) {
+      .tablet-pill-text {
+        display: none !important;
+      }
+      .phone-pill-text {
+        display: inline !important;
+      }
+    }
+
+    /* Slate Inner Content & Top Bar (Centered below paper top edge) */
+    #slateInnerContent {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding-top: clamp(16px, 3.8vh, 24px) !important;
+      padding-bottom: clamp(6px, 1.8vh, 12px) !important;
+      padding-left: clamp(12px, 3vw, 22px) !important;
+      padding-right: clamp(12px, 3vw, 22px) !important;
+      box-sizing: border-box !important;
+    }
+
+    #slateTopBar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      flex-shrink: 0;
+      z-index: 20;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    /* Paper Navigation Buttons: Prev & Next (Harmonious, slightly secondary in nature) */
+    .nav-paper-btn {
+      height: 28px !important;
+      padding: 0 12px !important;
+      font-size: 11.5px !important;
+      font-weight: 800 !important;
+      line-height: 1 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 4px !important;
+      border-radius: 9999px !important;
+      background: rgba(254, 243, 199, 0.88) !important;
+      border: 1.5px solid rgba(217, 119, 6, 0.4) !important;
+      color: #78350f !important;
+      box-shadow: 0 1px 3px rgba(120, 53, 15, 0.1) !important;
+      flex-shrink: 0 !important;
+      box-sizing: border-box !important;
+      cursor: pointer !important;
+      transition: all 0.15s ease !important;
+    }
+    .nav-paper-btn:hover {
+      background: rgba(254, 240, 138, 0.96) !important;
+      border-color: rgba(180, 83, 9, 0.6) !important;
+      color: #451a03 !important;
+    }
+    .nav-paper-btn:active {
+      transform: scale(0.95) !important;
+    }
+
+    /* "I'm done!" Primary CTA: Prominent & Slightly Bigger than Prev and Next */
+    .done-paper-btn {
+      height: 34px !important;
+      padding: 0 16px !important;
+      font-size: 13px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+      border-radius: 9999px !important;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35) !important;
+      flex-shrink: 0 !important;
+      box-sizing: border-box !important;
+      cursor: pointer !important;
+    }
+
+    @media (min-width: 640px) and (min-height: 541px) {
+      .nav-paper-btn {
+        height: 32px !important;
+        padding: 0 16px !important;
+        font-size: 13px !important;
+      }
+      .done-paper-btn {
+        height: 40px !important;
+        padding: 0 26px !important;
+        font-size: 15px !important;
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.4) !important;
+      }
+    }
+
+    /* Cute Hanging Wooden Placards: Hint & Clear connected to the Easel */
+    #easelTools {
+      position: absolute !important;
+      top: 87.5% !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      display: flex !important;
+      align-items: flex-start !important;
+      justify-content: center !important;
+      gap: 7px !important;
+      width: max-content !important;
+      z-index: 30 !important;
+      pointer-events: auto !important;
+    }
+
+    .hanging-card-assembly {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      transform-origin: top center !important;
+    }
+
+    @keyframes cardDangleLeft {
+      0%, 100% { transform: rotate(-1.5deg); }
+      50% { transform: rotate(1.8deg); }
+    }
+    @keyframes cardDangleRight {
+      0%, 100% { transform: rotate(1.8deg); }
+      50% { transform: rotate(-1.5deg); }
+    }
+
+    .hanging-assembly-left {
+      animation: cardDangleLeft 4s ease-in-out infinite !important;
+    }
+    .hanging-assembly-right {
+      animation: cardDangleRight 4.6s ease-in-out infinite 0.5s !important;
+    }
+
+    .hanging-rope-anchor {
+      width: 14px !important;
+      height: 18px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin-bottom: -3px !important;
+      pointer-events: none !important;
+      position: relative !important;
+      z-index: 2 !important;
+    }
+
+    .hanging-rope-svg {
+      width: 100% !important;
+      height: 100% !important;
+      overflow: visible !important;
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35)) !important;
+    }
+
+    .hanging-card {
+      position: relative !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 2.5px !important;
+      border-radius: 12px !important;
+      background: linear-gradient(180deg, #92400e 0%, #78350f 45%, #451a03 100%) !important;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+      border: 1.5px solid #361401 !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, filter 0.15s ease !important;
+      box-sizing: border-box !important;
+      z-index: 1 !important;
+    }
+
+    .hanging-card::before {
+      content: '' !important;
+      position: absolute !important;
+      top: -5px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: 8px !important;
+      height: 6px !important;
+      border-radius: 4px 4px 0 0 !important;
+      background: linear-gradient(180deg, #fbbf24 0%, #b45309 100%) !important;
+      border: 1.2px solid #451a03 !important;
+      border-bottom: none !important;
+    }
+
+    .hanging-card:hover {
+      transform: scale(1.06) translateY(-1px) !important;
+      filter: brightness(1.06) !important;
+    }
+    .hanging-card:active {
+      transform: scale(0.93) translateY(2px) !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .card-inner-pill {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 4px !important;
+      height: 27px !important;
+      padding: 0 10px !important;
+      border-radius: 9px !important;
+      font-family: 'Baloo 2', system-ui, sans-serif !important;
+      font-weight: 800 !important;
+      font-size: 11.5px !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+      box-sizing: border-box !important;
+    }
+
+    .hint-card .card-inner-pill {
+      background: linear-gradient(180deg, #fef08a 0%, #facc15 65%, #eab308 100%) !important;
+      color: #451a03 !important;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.9), inset 0 -1px 2px rgba(161, 98, 7, 0.3), 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+      border: 1px solid #ca8a04 !important;
+    }
+
+    .clear-card .card-inner-pill {
+      background: linear-gradient(180deg, #ffffff 0%, #ffe4e6 55%, #fecdd3 100%) !important;
+      color: #881337 !important;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.95), inset 0 -1px 2px rgba(225, 29, 72, 0.2), 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+      border: 1px solid #fda4af !important;
+    }
+
+    @media (min-width: 640px) and (min-height: 541px) {
+      #easelTools {
+        top: 88% !important;
+        gap: 10px !important;
+      }
+      .hanging-rope-anchor {
+        width: 16px !important;
+        height: 24px !important;
+        margin-bottom: -4px !important;
+      }
+      .hanging-card {
+        padding: 3.5px !important;
+        border-radius: 14px !important;
+      }
+      .hanging-card::before {
+        top: -6px !important;
+        width: 10px !important;
+        height: 7px !important;
+      }
+      .card-inner-pill {
+        height: 35px !important;
+        padding: 0 14px !important;
+        font-size: 13.5px !important;
+        border-radius: 10px !important;
+        gap: 5px !important;
+      }
+    }
+
+    /* Mittu Monkey Speech Bubble (Shows word being practiced) */
+    .monkey-speech-bubble {
+      position: absolute !important;
+      left: 50% !important;
+      top: 88% !important;
+      transform: translateX(-50%) !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      background: rgba(255, 255, 255, 0.96) !important;
+      border: 2px solid #f59e0b !important;
+      border-radius: 9999px !important;
+      padding: 4px 12px !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+      pointer-events: auto !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      white-space: nowrap !important;
+      z-index: 40 !important;
+      animation: speechFloat 3.8s ease-in-out infinite !important;
+      transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+    }
+    .monkey-speech-bubble:hover {
+      transform: translateX(-50%) translateY(-2px) scale(1.05) !important;
+    }
+    .monkey-speech-bubble:active {
+      transform: translateX(-50%) translateY(0) scale(0.95) !important;
+    }
+
+    /* Speech bubble cartoon pointer tail pointing UP directly to Mittu */
+    .monkey-speech-bubble::before {
+      content: '' !important;
+      position: absolute !important;
+      top: -8px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: 0 !important;
+      height: 0 !important;
+      border-left: 6px solid transparent !important;
+      border-right: 6px solid transparent !important;
+      border-bottom: 8px solid #f59e0b !important;
+    }
+    .monkey-speech-bubble::after {
+      content: '' !important;
+      position: absolute !important;
+      top: -5.5px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: 0 !important;
+      height: 0 !important;
+      border-left: 5px solid transparent !important;
+      border-right: 5px solid transparent !important;
+      border-bottom: 6px solid #ffffff !important;
+    }
+
+    @keyframes speechFloat {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-3px); }
+    }
+
+    .speech-label {
+      font-size: 10px !important;
+      font-weight: 800 !important;
+      color: #b45309 !important;
+      letter-spacing: 0.02em !important;
+    }
+    .speech-word {
+      font-family: 'Noto Sans Devanagari', sans-serif !important;
+      font-size: 15px !important;
+      font-weight: 800 !important;
+      color: #1e293b !important;
+      line-height: 1 !important;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+    .speech-sound-badge {
+      font-size: 11px !important;
+      width: 20px !important;
+      height: 20px !important;
+      border-radius: 9999px !important;
+      background: #fef3c7 !important;
+      border: 1px solid #fde047 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      line-height: 1 !important;
+    }
+
+    .hint-card.hint-inactive {
+      opacity: 0.55 !important;
+      filter: grayscale(0.6) !important;
+    }
+
+    /* --- RESPONSIVE ORIENTATION & ERGONOMIC RULES --- */
+    /* 1. Default Landscape (Tablets & Desktops where layout is already perfect) */
+    @media (orientation: landscape) {
+      /* Monkey on left edge: pinned to top-left, sits on Layer 2 (z-15, strictly below topBar z-50) */
+      #monkeyZone {
+        position: fixed !important;
+        height: 48vh !important;
+        max-height: 380px !important;
+        width: auto !important;
+        max-width: 22vw !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 15 !important;
+        pointer-events: none !important;
+      }
+      /* Easel on right edge: pinned to top-right, elevated for direct tap wiring */
+      #hangingSignZone {
+        position: fixed !important;
+        height: 48vh !important;
+        max-height: 380px !important;
+        width: auto !important;
+        max-width: 22vw !important;
+        top: 0 !important;
+        right: 1vw !important;
+        z-index: 25 !important;
+        pointer-events: auto !important;
+      }
+      /* Speech bubble at the exact same vertical level as Hint/Clear on easel */
+      .monkey-speech-bubble {
+        left: 50% !important;
+        top: 88% !important;
+        transform: translateX(-50%) !important;
+      }
+      /* Center activity: accommodated BETWEEN monkey and easel */
+      #mainActivityWrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin-top: auto !important;
+        margin-bottom: 8px !important;
+        min-height: 0 !important;
+        flex-shrink: 0 !important;
+        z-index: 25 !important;
+        scroll-snap-align: end !important;
+      }
+      /* Stage arena: Slate centered cleanly between monkey and easel */
+      #stageArena {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        margin-bottom: 6px !important;
+      }
+      #slateWrapper {
+        width: 100% !important;
+        max-width: min(calc(100vh - 24px), 52vw, 540px) !important;
+        margin: 0 auto !important;
+        height: clamp(250px, 68vh, 380px) !important;
+        flex-shrink: 0 !important;
+      }
+    }
+
+    /* 2. Phone Landscape (Short screens <= 540px height): Monkey and Easel slightly larger */
+    @media (orientation: landscape) and (max-height: 540px) {
+      /* Monkey on left edge: enlarged for lively character presence in phone landscape */
+      #monkeyZone {
+        position: fixed !important;
+        height: 68vh !important;
+        max-height: 285px !important;
+        max-width: 28vw !important;
+        top: 0 !important;
+        left: env(safe-area-inset-left, 0px) !important;
+        z-index: 15 !important;
+        pointer-events: none !important;
+      }
+      /* Easel on right edge: enlarged for clear visual clue presence in phone landscape */
+      #hangingSignZone {
+        height: 68vh !important;
+        max-height: 285px !important;
+        max-width: 28vw !important;
+        right: max(0.5vw, env(safe-area-inset-right, 0px)) !important;
+        z-index: 25 !important;
+        pointer-events: auto !important;
+      }
+      /* Speech bubble at the exact same vertical level as Hint/Clear (87.5%) */
+      .monkey-speech-bubble {
+        left: 50% !important;
+        top: 87.5% !important;
+        transform: translateX(-50%) !important;
+        padding: 3px 9px !important;
+        gap: 4px !important;
+      }
+      .speech-label {
+        font-size: 9px !important;
+      }
+      .speech-word {
+        font-size: 13px !important;
+      }
+      .speech-sound-badge {
+        width: 17px !important;
+        height: 17px !important;
+        font-size: 9px !important;
+      }
+      /* Center activity: bottom-anchored so writing area is the first thing seen */
+      #mainActivityWrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin-top: auto !important;
+        margin-bottom: 2px !important;
+        min-height: 0 !important;
+        flex-shrink: 0 !important;
+        z-index: 25 !important;
+        scroll-snap-align: end !important;
+      }
+      #slateWrapper {
+        max-width: clamp(380px, 48vw, 470px) !important;
+        height: clamp(210px, 68vh, 290px) !important;
+      }
+      #slateInnerContent {
+        padding-top: clamp(12px, 3.2vh, 18px) !important;
+        padding-bottom: clamp(4px, 1.4vh, 8px) !important;
+      }
+      #appContainer {
+        justify-content: flex-end !important;
+        padding-top: 4px !important;
+        padding-bottom: 0 !important;
+      }
+      #easelTools {
+        top: 87.5% !important;
+        gap: 5px !important;
+      }
+      .hanging-rope-anchor {
+        width: 12px !important;
+        height: 15px !important;
+        margin-bottom: -2.5px !important;
+      }
+      .hanging-card {
+        padding: 2px !important;
+        border-radius: 10px !important;
+      }
+      .hanging-card::before {
+        top: -4px !important;
+        width: 7px !important;
+        height: 5px !important;
+      }
+      .card-inner-pill {
+        height: 24px !important;
+        padding: 0 8px !important;
+        font-size: 10.5px !important;
+        border-radius: 8px !important;
+        gap: 3px !important;
+      }
+    }
+
+    @media (orientation: portrait) {
+      /* Monkey on left: branch stays strictly BEHIND topBar (z-15 vs z-50) */
+      #monkeyZone {
+        position: absolute !important;
+        height: 42vh !important;
+        max-height: 380px !important;
+        width: auto !important;
+        max-width: 48vw !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 15 !important;
+        pointer-events: none !important;
+      }
+      /* Easel on right: 38vh */
+      #hangingSignZone {
+        position: absolute !important;
+        height: 38vh !important;
+        max-height: 340px !important;
+        width: auto !important;
+        max-width: 44vw !important;
+        top: 0 !important;
+        right: 1.5vw !important;
+        z-index: 25 !important;
+        pointer-events: auto !important;
+      }
+      /* Speech bubble below monkey at level of tools */
+      .monkey-speech-bubble {
+        left: 50% !important;
+        top: 86% !important;
+        transform: translateX(-50%) !important;
+      }
+      /* Anchored from bottom, lifted slightly up to fit cleanly above bottom border and safe zone */
+      #mainActivityWrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin-top: auto !important;
+        margin-bottom: 8px !important;
+        min-height: 0 !important;
+        flex-shrink: 0 !important;
+        scroll-snap-align: end !important;
+      }
+      /* In portrait: Stage arena centers slate cleanly */
+      #stageArena {
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        width: 100% !important;
+        padding-top: 8px !important;
+      }
+      #slateWrapper {
+        position: relative !important;
+        width: 100% !important;
+        max-width: min(680px, calc(100vw - 16px)) !important;
+        height: clamp(230px, 38vh, 400px) !important;
+        margin-bottom: 6px !important;
+        flex-shrink: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body class="relative w-screen h-screen overflow-hidden bg-[#8fd8ff]">
+
+  <!-- LAYER 1: Fullscreen Scenic Jungle Landscape (Object-fit: cover, never stretches) -->
+  <div class="absolute inset-0 pointer-events-none select-none z-0">
+    <img src="images/jungle_landscape.png" alt="Scenic Jungle" class="w-full h-full object-cover object-center" />
+    <div class="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/10"></div>
+  </div>
+
+  <!-- LAYER 1B: MODULAR ASSEMBLED JUNGLE BORDER (Zero stretching, natural organic boundaries, zero clipping) -->
+  <div class="absolute inset-0 pointer-events-none select-none z-10 overflow-hidden">
+    <!-- 1. Four Corners: Top-Right, Top-Left, Bottom-Right, Bottom-Left -->
+    <img src="images/frame_corner_tr.png?v=9" alt="" class="absolute top-0 right-0 h-[18vh] sm:h-[24vh] max-h-[190px] w-auto object-contain z-12 select-none pointer-events-none" />
+    <img src="images/frame_corner_tl.png?v=9" alt="" class="absolute top-0 left-0 h-[18vh] sm:h-[24vh] max-h-[190px] w-auto object-contain z-12 select-none pointer-events-none" />
+    <img src="images/frame_corner_br.png?v=9" alt="" class="absolute bottom-0 right-0 h-[9vh] sm:h-[16vh] max-h-[120px] w-auto object-contain z-10 select-none pointer-events-none" />
+    <img src="images/frame_corner_bl.png?v=9" alt="" class="absolute bottom-0 left-0 h-[9vh] sm:h-[16vh] max-h-[120px] w-auto object-contain z-10 select-none pointer-events-none" />
+
+    <!-- 2. Four Edges: Naturally Filling Space with Zero Rectangular Clipping -->
+    <!-- Top Edge: Central Hanging Canopy Garland -->
+    <img src="images/frame_edge_top.png?v=9" alt="" class="absolute top-0 left-1/2 -translate-x-1/2 h-[9vh] sm:h-[12vh] max-h-[90px] w-auto object-contain z-10 select-none pointer-events-none" />
+
+    <!-- Bottom Edge: Central Row of Bushes Flush on Ground -->
+    <img src="images/frame_edge_bottom.png?v=9" alt="" class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[5vh] sm:h-[8vh] max-h-[60px] w-auto object-contain z-10 select-none pointer-events-none" />
+
+    <!-- Left Edge: Hanging Vine (Full Natural Leaf Contours, Zero Box Clipping) -->
+    <img src="images/frame_edge_left.png?v=9" alt="" class="absolute left-0 top-[18vh] h-[34vh] sm:h-[40vh] max-h-[300px] w-auto object-contain z-10 select-none pointer-events-none" />
+
+    <!-- Right Edge: Hanging Vine (Full Natural Leaf Contours, Zero Box Clipping) -->
+    <img src="images/frame_edge_right.png?v=9" alt="" class="absolute right-0 top-[18vh] h-[34vh] sm:h-[40vh] max-h-[300px] w-auto object-contain z-10 select-none pointer-events-none" />
+  </div>
+
+  <!-- LAYER 2A: Waving Mittu Monkey on Overhead Branch with Speech Cloud -->
+  <div id="monkeyZone" class="absolute z-15 pointer-events-none transition-all flex items-start">
+    <div class="relative h-full flex items-start">
+      <img src="images/mittu_branch.png?v=9" alt="Mittu Monkey Hanging" class="h-full w-auto object-contain filter drop-shadow-xl select-none" />
+      
+      <!-- Speech Cloud next to Mittu showing the word being practiced -->
+      <div id="monkeySpeechBubble" onclick="playSampleAudio()" class="monkey-speech-bubble" title="Tap to hear Mittu speak the word!">
+        <span class="speech-label">लिखो ✍️</span>
+        <span id="monkeySpeechWord" class="speech-word hindi-font">अखबार</span>
+        <span class="speech-sound-badge">🔊</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAYER 2B: Hanging Wooden Square Sign / Easel -->
+  <div id="hangingSignZone" class="absolute z-25 pointer-events-auto transition-all flex flex-col items-center sway-subtle">
+    <div class="relative h-full aspect-[884/1024]">
+      <!-- The Wooden Sign with Ropes PNG Frame (Perfect 1:1 Square Whitespace) -->
+      <img src="images/hanging_sign.png?v=9" alt="Hanging Wooden Sign" class="h-full w-auto object-contain filter drop-shadow-2xl select-none" />
+
+      <!-- Content Overlay: Exactly matches the 1:1 square inner canvas with ZERO edges left on sides -->
+      <div class="absolute left-[28%] right-[24.4%] top-[42.1%] bottom-[17.4%] rounded-2xl overflow-hidden flex items-center justify-center z-20 pointer-events-auto bg-transparent cursor-pointer" onclick="playSampleAudio()" title="Tap to hear word">
+        <img id="targetWordImg" src="images/akhbar.png" alt="Visual Clue" class="w-full h-full object-cover select-none transition-transform hover:scale-105 active:scale-95" />
+      </div>
+
+      <!-- Two Hanging Mini Cards Connected to the Easel (Hint & Clear) -->
+      <div id="easelTools">
+        <!-- Hanging Frame 1: Hint (💡) -->
+        <div class="hanging-card-assembly hanging-assembly-left">
+          <div class="hanging-rope-anchor">
+            <svg class="hanging-rope-svg" viewBox="0 0 14 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Top wooden peg attaching to easel bottom beam -->
+              <circle cx="7" cy="3" r="2.5" fill="#451a03" stroke="#854d0e" stroke-width="1.2"/>
+              <circle cx="7" cy="3" r="1.2" fill="#d97706"/>
+              <!-- Twisted rope stem -->
+              <path d="M7 5V19" stroke="#78350f" stroke-width="2.6" stroke-linecap="round"/>
+              <path d="M7 6L6 8M7 10L6 12M7 14L6 16" stroke="#fef08a" stroke-width="0.8" stroke-linecap="round" opacity="0.65"/>
+              <path d="M7 7L8 9M7 11L8 13M7 15L8 17" stroke="#451a03" stroke-width="0.8" stroke-linecap="round" opacity="0.75"/>
+              <!-- Cute jungle leaf sprouting right -->
+              <path d="M7 10C9.8 8.2 13.5 9.8 12.5 12.8C9.8 13.8 7.8 11.8 7 10Z" fill="#22c55e" stroke="#14532d" stroke-width="0.6"/>
+              <path d="M7 10.5C9 10.8 11 11.6 12 12.5" stroke="#86efac" stroke-width="0.5" stroke-linecap="round"/>
+              <!-- Bottom loop attaching to card -->
+              <circle cx="7" cy="20" r="2" fill="#ca8a04" stroke="#451a03" stroke-width="1"/>
+            </svg>
+          </div>
+          <button id="hintBtn" onclick="toggleHint()" class="hanging-card hint-card" title="Hint">
+            <div class="card-inner-pill">
+              <span>💡</span>
+              <span>Hint</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Hanging Frame 2: Clear (🧽) -->
+        <div class="hanging-card-assembly hanging-assembly-right">
+          <div class="hanging-rope-anchor">
+            <svg class="hanging-rope-svg" viewBox="0 0 14 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Top wooden peg attaching to easel bottom beam -->
+              <circle cx="7" cy="3" r="2.5" fill="#451a03" stroke="#854d0e" stroke-width="1.2"/>
+              <circle cx="7" cy="3" r="1.2" fill="#d97706"/>
+              <!-- Twisted rope stem -->
+              <path d="M7 5V19" stroke="#78350f" stroke-width="2.6" stroke-linecap="round"/>
+              <path d="M7 6L6 8M7 10L6 12M7 14L6 16" stroke="#fef08a" stroke-width="0.8" stroke-linecap="round" opacity="0.65"/>
+              <path d="M7 7L8 9M7 11L8 13M7 15L8 17" stroke="#451a03" stroke-width="0.8" stroke-linecap="round" opacity="0.75"/>
+              <!-- Cute jungle leaf sprouting left -->
+              <path d="M7 11C4.2 9.2 0.5 10.8 1.5 13.8C4.2 14.8 6.2 12.8 7 11Z" fill="#22c55e" stroke="#14532d" stroke-width="0.6"/>
+              <path d="M7 11.5C5 11.8 3 12.6 2 13.5" stroke="#86efac" stroke-width="0.5" stroke-linecap="round"/>
+              <!-- Bottom loop attaching to card -->
+              <circle cx="7" cy="20" r="2" fill="#ca8a04" stroke="#451a03" stroke-width="1"/>
+            </svg>
+          </div>
+          <button id="clearBtn" onclick="clearCanvas()" class="hanging-card clear-card" title="Clear">
+            <div class="card-inner-pill">
+              <span>🧽</span>
+              <span>Clear</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPREME UI LAYER: Fixed Top Header Navigation Bar (Always in front of monkey branch and easel) -->
+  <header id="navBar" class="flex items-center justify-between gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 bg-white/90 backdrop-blur-md rounded-2xl border border-white/95 shadow-md shrink-0">
+    <button onclick="window.location.reload()" class="w-8 h-8 rounded-full bg-[#143e70] text-white flex items-center justify-center font-bold text-sm shadow hover:scale-105 active:scale-95 transition-transform shrink-0" title="Home">
+      🏠
+    </button>
+
+    <!-- Stepper Pills -->
+    <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
+      <!-- Letter "A" Active Step Pill -->
+      <div class="flex items-center gap-1 px-2 sm:px-2.5 py-1 bg-amber-400 text-amber-950 font-black rounded-full text-xs shadow-sm shrink-0">
+        <span class="w-4 h-4 rounded-full bg-white flex items-center justify-center text-[10px] font-black hindi-font">अ</span>
+        <span class="tablet-pill-text">Letter</span>
+      </div>
+
+      <!-- 2. The 1/3 Trace Stage Pill (Appears next to the letter "A"!) -->
+      <div id="stageBadge" class="flex items-center gap-1 px-2 sm:px-2.5 py-1 bg-amber-200/95 border border-amber-400/80 text-amber-950 font-black rounded-full text-[10px] sm:text-xs shadow-sm shrink-0">
+        <span>✍️</span>
+        <span class="tablet-pill-text">1/3 Trace</span>
+        <span class="phone-pill-text">1/3</span>
+      </div>
+
+      <!-- Matra Step Pill -->
+      <div class="flex items-center gap-1 px-2 py-1 bg-white/80 text-slate-700 font-bold rounded-full text-xs shrink-0">
+        <span class="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold hindi-font">ा</span>
+        <span class="tablet-pill-text">Matra</span>
+      </div>
+
+      <!-- Word Step Pill -->
+      <div class="flex items-center gap-1 px-2 py-1 bg-white/80 text-slate-700 font-bold rounded-full text-xs shrink-0">
+        <span class="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold hindi-font">का</span>
+        <span class="tablet-pill-text">Word</span>
+      </div>
+
+      <!-- Progress Pill -->
+      <div class="flex items-center gap-1 px-2 py-1 bg-white/80 text-amber-800 font-bold rounded-full text-xs cursor-pointer hover:bg-amber-100 shrink-0">
+        <span>★</span>
+        <span class="tablet-pill-text">Progress</span>
+      </div>
+    </div>
+
+    <!-- Treats Counter -->
+    <div class="flex items-center gap-1 px-2.5 py-1 bg-amber-100 border border-amber-300 rounded-full text-xs font-black text-amber-900 shadow-sm shrink-0">
+      <span>🍌</span>
+      <span id="treatsCounter">24</span>
+    </div>
+  </header>
+
+  <!-- LAYER 3: Native App Interactive Interface (Full Screen Layout) -->
+  <div id="appContainer" class="relative z-30 w-full h-full flex flex-col justify-end p-2 sm:p-4 pb-0">
+
+    <!-- Main Activity Section -->
+    <div id="mainActivityWrapper">
+
+      <!-- Stage Arena: Slate (Center) -->
+      <div id="stageArena" class="w-full flex items-center justify-center">
+
+        <!-- The Sacred Parchment Writing Slate (#write) -->
+        <div id="slateWrapper" class="relative flex items-center justify-center min-w-0 min-h-0 mx-auto z-10">
+          
+          <!-- Background Deckle Scroll Image (Swapped dynamically based on orientation) -->
+          <img id="parchmentImg" src="images/parchment_scroll.png" alt="Parchment Scroll" class="absolute inset-0 w-full h-full object-fill pointer-events-none filter drop-shadow-2xl select-none" />
+
+          <!-- Interactive Writing Canvas Container inside the parchment (positioned safely below paper top edge) -->
+          <div id="slateInnerContent">
+            
+            <!-- 4. Slate Top Bar: Prev & Next next to each other on left, Done on extreme right -->
+            <div id="slateTopBar">
+              <!-- Left: Prev & Next Navigation Pair (Harmonious Secondary Styling) -->
+              <div class="flex items-center gap-1.5 sm:gap-2">
+                <button id="prevBtn" onclick="prevWord()" class="nav-paper-btn flex items-center justify-center gap-1 active:scale-95 transition-transform" title="Previous word">
+                  <span>◀</span>
+                  <span>Prev</span>
+                </button>
+                <button id="nextBtn" onclick="nextWord()" class="nav-paper-btn flex items-center justify-center gap-1 active:scale-95 transition-transform" title="Next word">
+                  <span>Next</span>
+                  <span>▶</span>
+                </button>
+              </div>
+
+              <!-- Extreme Right: "✓ I'm done!" Primary Action Button -->
+              <button id="done" onclick="handleDone()" class="done-paper-btn bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-black border border-emerald-400 shadow-md active:scale-95 transition-transform flex items-center justify-center gap-1.5 tracking-wide" title="I'm done!">
+                <span>✓</span>
+                <span class="tablet-pill-text">I'm done!</span>
+                <span class="phone-pill-text">Done</span>
+              </button>
+            </div>
+
+          <!-- 5-Line Devanagari Notebook Ruling & Interactive Paint Canvas -->
+          <div id="canvasRulingContainer" class="flex-1 my-1 w-full h-full relative select-none">
+            <!-- LIVE TOUCH / MOUSE DRAWING & RULING CANVAS -->
+            <canvas id="paintCanvas" class="w-full h-full block select-none touch-none"></canvas>
+          </div>
+
+          <!-- Bottom Slate Footnote / Palm Shield Zone -->
+          <div class="text-center text-[9px] sm:text-[11px] text-amber-900/70 font-bold shrink-0 z-20">
+            🖐️ Palm Shield Protected
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+    <!-- LAYER 4: Bottom Android Navigation Safe Zone (ZERO BUTTONS) -->
+    <div id="androidSafeZone" class="h-9 sm:h-10 min-h-[36px] w-full flex items-center justify-center shrink-0 z-30 pb-[env(safe-area-inset-bottom,4px)] mb-1">
+      <div class="text-[9px] sm:text-[11px] text-slate-700 font-bold flex items-center gap-1 bg-white/85 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border border-slate-200/60">
+        <span>🛡️ Android Safe Zone (36px clearance)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const wordList = ['अखबार', 'कमल', 'कबूतर', 'आम', 'डमरू'];
+    const wordData = {
+      'अखबार': { letter: 'अ', img: 'images/akhbar.png' },
+      'कमल': { letter: 'क', img: 'images/kamal.jpg' },
+      'कबूतर': { letter: 'क', img: 'images/kabootar.png' },
+      'आम': { letter: 'आ', img: 'images/aam.webp' },
+      'डमरू': { letter: 'ड', img: 'images/damru.png' }
+    };
+    let currentWordIndex = 0;
+    let hintActive = true;
+    let userStrokes = [];
+    let currentStroke = null;
+    let isDrawing = false;
+
+    const canvas = document.getElementById('paintCanvas');
+    const ctx = canvas.getContext('2d');
+    let cachedRuling = null;
+    let cachedLayout = null;
+
+    // --- 5-LINE DEVANAGARI NOTEBOOK RULING (Strict Grade-1 Invariant) ---
+    // Line 1: Upper Matra Guide (Sky Blue Dashed)
+    // Line 2: Shirorekha / Top Bar (Solid Navy) -> TOP DARK LINE
+    // Line 3: Midline Guide (Teal Dashed)
+    // Line 4: Baseline Foot (Solid Navy) -> BOTTOM DARK LINE
+    // Line 5: Lower Matra Guide (Pink Dashed)
+    function computeRuling(width, height) {
+      // Body height is the distance between Line 2 and Line 4 (the two dark lines)
+      // On tablet (width >= 550px): bodyHeight is locked at 86px (+20% size approved by user).
+      // On phone portrait (width ~300-360px): bodyHeight is scaled up comfortably (~64-70px),
+      // giving noticeably larger, bolder writing on mobile while fitting "अखबार" cleanly with ample side padding.
+      const maxByWidth = Math.round((width - 32) / 4.4);
+      const maxByHeight = Math.round(height * 0.44);
+      const bodyHeight = Math.max(48, Math.min(86, maxByWidth, maxByHeight));
+
+      const topMatraH = Math.round(bodyHeight * 0.44);
+      const bottomMatraH = Math.round(bodyHeight * 0.44);
+      const totalRulingH = bodyHeight + topMatraH + bottomMatraH;
+
+      // Vertically center the entire 5-line ruling guide inside the container
+      const topMargin = Math.max(8, Math.round((height - totalRulingH) / 2));
+      const line1 = topMargin;                          // Upper matra guide
+      const line2 = line1 + topMatraH;                  // Top dark line (Shirorekha)
+      const line3 = Math.round(line2 + bodyHeight * 0.5); // Midline guide
+      const line4 = line2 + bodyHeight;                 // Bottom dark line (Baseline foot)
+      const line5 = line4 + bottomMatraH;               // Lower matra guide
+
+      // Compute font size strictly matching bodyHeight
+      const layout = getTextLayout(ctx, wordList[currentWordIndex], { line2, line4, bodyHeight });
+
+      // Production Standard: ink width is ~60% of watermark stem thickness
+      // (~13-14px on tablet, ~10px on phone) to ensure clean strokes without clogging loops (AGENTS.md)
+      const brushWidth = Math.max(10, Math.round((layout.stemWidth || Math.round(layout.fontSize * 0.16)) * 0.60));
+
+      return { line1, line2, line3, line4, line5, bodyHeight, brushWidth, layout };
+    }
+
+    // Exact Glyph Alignment: Pins Shirorekha flush to Line 2 and feet flush to Line 4 with 0px gap
+    function getTextLayout(context, text, ruling) {
+      const targetH = ruling.bodyHeight;
+      const testSize = 100;
+      context.font = '700 ' + testSize + 'px "Noto Sans Devanagari", sans-serif';
+      context.textBaseline = 'alphabetic';
+
+      // Measure reference glyph
+      const mRef = context.measureText('क');
+      const refAscent = mRef.actualBoundingBoxAscent || (testSize * 0.62);
+      const refDescent = mRef.actualBoundingBoxDescent || 0;
+      const refTotal = (refAscent + refDescent) > 20 ? (refAscent + refDescent) : (testSize * 0.62);
+
+      const exactFontSize = Math.round(testSize * (targetH / refTotal));
+      const fontStr = '700 ' + exactFontSize + 'px "Noto Sans Devanagari", sans-serif';
+      context.font = fontStr;
+
+      const mExact = context.measureText('क');
+      const exactAscent = mExact.actualBoundingBoxAscent || Math.round(exactFontSize * 0.62);
+
+      // textBaselineY pins top bar flush to Line 2 (top dark line) and foot flush to Line 4 (bottom dark line)
+      const textBaselineY = ruling.line2 + exactAscent;
+
+      // Calculate exact font stem thickness so drawing boldness matches watermark boldness
+      // In Noto Sans Devanagari Bold (700), the vertical stem thickness is ~16% of font size
+      const theoreticalStemWidth = Math.round(exactFontSize * 0.16);
+      let stemWidth = theoreticalStemWidth;
+      try {
+        const sz = Math.max(240, Math.round(exactFontSize * 1.5));
+        const off = document.createElement('canvas');
+        off.width = sz;
+        off.height = sz;
+        const octx = off.getContext('2d');
+        octx.font = fontStr;
+        octx.fillStyle = '#000';
+        octx.textBaseline = 'middle';
+        octx.textAlign = 'center';
+        // Standalone Devanagari Danda '।' (pure vertical stem, no combining dotted circle)
+        octx.fillText('।', sz / 2, sz / 2);
+        const midY = Math.round(sz / 2);
+        const imgData = octx.getImageData(0, midY - 5, sz, 10).data;
+        let maxRun = 0;
+        for (let row = 0; row < 10; row++) {
+          let curRun = 0;
+          for (let col = 0; col < sz; col++) {
+            if (imgData[(row * sz + col) * 4 + 3] > 100) {
+              curRun++;
+              if (curRun > maxRun) maxRun = curRun;
+            } else {
+              curRun = 0;
+            }
+          }
+        }
+        if (maxRun >= Math.round(theoreticalStemWidth * 0.75) && maxRun <= Math.round(theoreticalStemWidth * 1.35)) {
+          stemWidth = maxRun;
+        }
+      } catch (e) {}
+
+      return {
+        fontSize: exactFontSize,
+        baselineY: textBaselineY,
+        fontStr: fontStr,
+        stemWidth: stemWidth
+      };
+    }
+
+    function drawNotebookLines(context, width, ruling) {
+      const { line1, line2, line3, line4, line5 } = ruling;
+      const startX = Math.round(width * 0.04);
+      const endX = Math.round(width * 0.96);
+
+      context.save();
+
+      // Line 1: Upper Matra Guide (Sky Blue Dashed)
+      context.strokeStyle = '#8ecdf7';
+      context.lineWidth = 2.0;
+      context.setLineDash([8, 6]);
+      context.beginPath();
+      context.moveTo(startX, line1);
+      context.lineTo(endX, line1);
+      context.stroke();
+
+      // Line 2: TOP DARK LINE - Bold Solid Navy Shirorekha
+      context.setLineDash([]);
+      context.strokeStyle = '#124170';
+      context.lineWidth = 3.6;
+      context.beginPath();
+      context.moveTo(startX, line2);
+      context.lineTo(endX, line2);
+      context.stroke();
+
+      // Line 3: Midline Guide (Teal Dashed)
+      context.strokeStyle = '#5cc4bb';
+      context.lineWidth = 1.6;
+      context.setLineDash([7, 5]);
+      context.beginPath();
+      context.moveTo(startX, line3);
+      context.lineTo(endX, line3);
+      context.stroke();
+
+      // Line 4: BOTTOM DARK LINE - Bold Solid Navy Baseline Foot
+      context.setLineDash([]);
+      context.strokeStyle = '#124170';
+      context.lineWidth = 3.6;
+      context.beginPath();
+      context.moveTo(startX, line4);
+      context.lineTo(endX, line4);
+      context.stroke();
+
+      // Line 5: Lower Matra Guide (Pink Dashed)
+      context.strokeStyle = '#fca5b9';
+      context.lineWidth = 2.0;
+      context.setLineDash([8, 6]);
+      context.beginPath();
+      context.moveTo(startX, line5);
+      context.lineTo(endX, line5);
+      context.stroke();
+
+      context.restore();
+    }
+
+    function drawSmoothStroke(context, pts, width) {
+      if (!pts || pts.length === 0) return;
+      context.save();
+      context.strokeStyle = '#103960';
+      context.fillStyle = '#103960';
+      context.lineWidth = width;
+      context.lineCap = 'round';
+      context.lineJoin = 'round';
+
+      if (pts.length === 1) {
+        context.beginPath();
+        context.arc(pts[0].x, pts[0].y, width / 2, 0, Math.PI * 2);
+        context.fill();
+        context.restore();
+        return;
+      }
+
+      if (pts.length === 2) {
+        context.beginPath();
+        context.moveTo(pts[0].x, pts[0].y);
+        context.lineTo(pts[1].x, pts[1].y);
+        context.stroke();
+        context.restore();
+        return;
+      }
+
+      context.beginPath();
+      context.moveTo(pts[0].x, pts[0].y);
+
+      for (let i = 1; i < pts.length - 1; i++) {
+        const midX = (pts[i].x + pts[i + 1].x) / 2;
+        const midY = (pts[i].y + pts[i + 1].y) / 2;
+        context.quadraticCurveTo(pts[i].x, pts[i].y, midX, midY);
+      }
+      const lastPt = pts[pts.length - 1];
+      context.lineTo(lastPt.x, lastPt.y);
+      context.stroke();
+      context.restore();
+    }
+
+    function renderPad() {
+      const rect = canvas.getBoundingClientRect();
+      const ww = rect.width;
+      const hh = rect.height;
+      if (ww === 0 || hh === 0) return;
+
+      ctx.clearRect(0, 0, ww, hh);
+
+      cachedRuling = computeRuling(ww, hh);
+      cachedLayout = cachedRuling.layout;
+
+      // 1. Draw 5 Notebook Ruling Lines
+      drawNotebookLines(ctx, ww, cachedRuling);
+
+      // 2. Draw Target Word strictly between Line 2 and Line 4 (The Two Dark Lines)
+      if (hintActive) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(18, 65, 112, 0.32)'; // Clean visible watermark
+        ctx.font = cachedLayout.fontStr;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'alphabetic';
+        const targetWord = wordList[currentWordIndex];
+        ctx.fillText(targetWord, ww / 2, cachedLayout.baselineY);
+        ctx.restore();
+      }
+
+      // 3. Draw User Ink with Exact Matched Boldness
+      const bw = cachedRuling.brushWidth;
+      userStrokes.forEach(stroke => {
+        drawSmoothStroke(ctx, stroke, bw);
+      });
+      if (currentStroke && currentStroke.length > 0) {
+        drawSmoothStroke(ctx, currentStroke, bw);
+      }
+    }
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      renderPad();
+    }
+
+    function updateWord(word) {
+      const data = wordData[word] || { letter: 'अ', img: 'images/akhbar.png' };
+      const label = document.getElementById('targetWordLabel');
+      if (label) label.textContent = word;
+      const speechWord = document.getElementById('monkeySpeechWord');
+      if (speechWord) {
+        speechWord.textContent = word;
+        speechWord.classList.add('scale-125');
+        setTimeout(() => speechWord.classList.remove('scale-125'), 200);
+      }
+      document.getElementById('targetWordImg').src = data.img;
+      userStrokes = [];
+      currentStroke = null;
+      renderPad();
+    }
+
+    function prevWord() {
+      currentWordIndex = (currentWordIndex - 1 + wordList.length) % wordList.length;
+      updateWord(wordList[currentWordIndex]);
+    }
+
+    function nextWord() {
+      currentWordIndex = (currentWordIndex + 1) % wordList.length;
+      updateWord(wordList[currentWordIndex]);
+    }
+
+    function toggleHint() {
+      hintActive = !hintActive;
+      const hintBtn = document.getElementById('hintBtn');
+      if (hintBtn) {
+        hintBtn.classList.toggle('hint-inactive', !hintActive);
+      }
+      renderPad();
+    }
+
+    function clearCanvas() {
+      userStrokes = [];
+      currentStroke = null;
+      renderPad();
+      const clearBtn = document.getElementById('clearBtn');
+      if (clearBtn) {
+        clearBtn.classList.add('scale-90');
+        setTimeout(() => clearBtn.classList.remove('scale-90'), 150);
+      }
+    }
+
+    function handleDone() {
+      triggerConfetti();
+      const treatsEl = document.getElementById('treatsCounter');
+      if (treatsEl) {
+        const cur = parseInt(treatsEl.textContent) || 24;
+        treatsEl.textContent = cur + 1;
+      }
+      setTimeout(() => {
+        alert("🎉 Shabaash! Great job writing " + wordList[currentWordIndex] + "! 🍌 +1 Banana Treat!");
+      }, 350);
+    }
+
+    function playSampleAudio() {
+      try {
+        const u = new SpeechSynthesisUtterance(wordList[currentWordIndex]);
+        u.lang = 'hi-IN';
+        speechSynthesis.speak(u);
+      } catch(e){}
+    }
+
+    // Anchor landing page from the bottom so writing area is the first thing seen
+    function anchorToBottom() {
+      const app = document.getElementById('appContainer');
+      if (app) {
+        app.scrollTop = app.scrollHeight;
+      }
+      const slate = document.getElementById('slateWrapper');
+      if (slate && typeof slate.scrollIntoView === 'function') {
+        slate.scrollIntoView({ block: 'end' });
+      }
+    }
+
+    // Paper Slate uses the same horizontal parchment scroll in both orientations
+    function handleOrientationChange() {
+      const parchmentImg = document.getElementById('parchmentImg');
+      if (parchmentImg) {
+        parchmentImg.src = 'images/parchment_scroll.png';
+      }
+      setTimeout(resizeCanvas, 100);
+      setTimeout(anchorToBottom, 120);
+    }
+
+    window.addEventListener('resize', handleOrientationChange);
+    window.addEventListener('orientationchange', handleOrientationChange);
+    handleOrientationChange();
+    updateWord(wordList[currentWordIndex]);
+    
+    function wireToolButtons() {
+      const hintBtn = document.getElementById('hintBtn');
+      if (hintBtn) {
+        hintBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+      }
+      const clearBtn = document.getElementById('clearBtn');
+      if (clearBtn) {
+        clearBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+      }
+    }
+    wireToolButtons();
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        resizeCanvas();
+        anchorToBottom();
+      });
+    }
+    window.addEventListener('load', () => {
+      resizeCanvas();
+      anchorToBottom();
+      wireToolButtons();
+      setTimeout(anchorToBottom, 150);
+    });
+    anchorToBottom();
+    requestAnimationFrame(anchorToBottom);
+
+    // --- Interactive Drawing Engine with Pointer Events (Touch & Stylus) ---
+    function getCanvasPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      isDrawing = true;
+      canvas.setPointerCapture(e.pointerId);
+      const p = getCanvasPos(e);
+      currentStroke = [{ x: p.x, y: p.y }];
+      renderPad();
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (!isDrawing || !currentStroke) return;
+      const p = getCanvasPos(e);
+      currentStroke.push({ x: p.x, y: p.y });
+      renderPad();
+    });
+
+    function endStroke(e) {
+      if (isDrawing && currentStroke) {
+        userStrokes.push(currentStroke);
+        currentStroke = null;
+        isDrawing = false;
+        renderPad();
+      }
+      try { canvas.releasePointerCapture(e.pointerId); } catch(err){}
+    }
+
+    canvas.addEventListener('pointerup', endStroke);
+    canvas.addEventListener('pointercancel', endStroke);
+
+    // --- High-Energy Confetti Celebration Engine (Rule 4) ---
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const confettiCtx = confettiCanvas ? confettiCanvas.getContext('2d') : null;
+    let confettiParticles = [];
+    let confettiAnimId = null;
+
+    function triggerConfetti() {
+      if (!confettiCanvas) return;
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+      confettiCanvas.style.display = 'block';
+
+      confettiParticles = [];
+      const colors = ['#f1c40f', '#e67e22', '#2ecc71', '#3498db', '#e91e63', '#9b59b6'];
+      for (let i = 0; i < 90; i++) {
+        confettiParticles.push({
+          x: window.innerWidth * (0.35 + Math.random() * 0.3),
+          y: window.innerHeight * 0.55,
+          vx: (Math.random() - 0.5) * 16,
+          vy: -Math.random() * 14 - 6,
+          size: Math.random() * 10 + 6,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 12,
+          opacity: 1
+        });
+      }
+
+      if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+
+      let start = performance.now();
+      function animate(now) {
+        const elapsed = now - start;
+        confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+        confettiParticles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.35; // gravity
+          p.rotation += p.vRot;
+          if (elapsed > 1800) {
+            p.opacity = Math.max(0, p.opacity - 0.02);
+          }
+
+          confettiCtx.save();
+          confettiCtx.translate(p.x, p.y);
+          confettiCtx.rotate((p.rotation * Math.PI) / 180);
+          confettiCtx.fillStyle = p.color;
+          confettiCtx.globalAlpha = p.opacity;
+          confettiCtx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+          confettiCtx.restore();
+        });
+
+        if (elapsed < 3000) {
+          confettiAnimId = requestAnimationFrame(animate);
+        } else {
+          confettiCanvas.style.display = 'none';
+        }
+      }
+      confettiAnimId = requestAnimationFrame(animate);
+    }
+  </script>
+
+  <!-- Confetti Particle Burst Canvas -->
+  <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50 w-full h-full" style="display:none"></canvas>
+</body>
+</html>

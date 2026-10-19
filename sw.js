@@ -1,10 +1,22 @@
-const APP_VERSION = '3.3.31';
+const APP_VERSION = '3.4.7';
 const CACHE = `rasari-hindi-v${APP_VERSION}`;
 const ASSETS = [
   './',
   './index.html',
   './review.html',
   './review2.html',
+  './images/jungle_landscape.png',
+  './images/frame_corner_tr.png',
+  './images/frame_corner_tl.png',
+  './images/frame_corner_br.png',
+  './images/frame_corner_bl.png',
+  './images/frame_edge_top.png',
+  './images/frame_edge_bottom.png',
+  './images/frame_edge_left.png',
+  './images/frame_edge_right.png',
+  './images/mittu_branch.png',
+  './images/hanging_sign.png',
+  './images/parchment_scroll.png',
   './audio_samples/anaar_wala_a.m4a',
   './audio_samples/anaar_wala_aa.m4a',
   './audio_samples/a_se_anaar.m4a',

@@ -12,91 +12,437 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap');
 :root{--navy:#123b6c;--teal:#0f7a66;--gold:#ffca4f;--pink:#ff7d9c;--green:#39b84a}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;touch-action:none}body{font-family:'Baloo 2',system-ui,sans-serif;color:var(--navy);background:#bfeaff;overscroll-behavior:none}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;touch-action:none;font-family:'Baloo 2',system-ui,sans-serif;user-select:none;-webkit-user-select:none}body{color:var(--navy);background:#8fd8ff;overscroll-behavior:none}
 button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:3px solid #147ac2;outline-offset:2px}
-.app{width:100vw;height:100dvh;position:relative;overflow:hidden;background:#bfeaff;isolation:isolate}
-.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none;z-index:-1}
+.hindi-font{font-family:'Noto Sans Devanagari',sans-serif}
 
-/* Home button mapped directly over the dark blue circle on the top-left */
-.homebtn{position:absolute;left:1.2%;top:2.2%;width:5.2%;height:7.5%;border-radius:50%;background:transparent;cursor:pointer;z-index:10}
+/* LAYER 1: Fullscreen Scenic Jungle Background */
+.layer-jungle-bg{position:absolute;inset:0;pointer-events:none;user-select:none;z-index:0}
+.jungle-bg-img{width:100%;height:100%;object-fit:cover;object-position:center}
+.jungle-vignette{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.05),transparent 50%,rgba(0,0,0,0.12))}
 
-.badge{position:absolute;right:1.7%;top:1.5%;background:#fff8df;border:2px solid white;border-radius:99px;padding:5px 12px;font-size:clamp(10px,1.1vw,14px);font-weight:800;color:#80531a;box-shadow:0 2px 4px rgba(0,0,0,0.06)}
-
-/* Top nav steps inside the light blue sky banner */
-.nav{position:absolute;left:24%;right:14%;top:5.2%;height:9.2%;display:flex;align-items:center;justify-content:space-between}.step{display:flex;flex-direction:column;align-items:center;gap:0;font-size:clamp(10px,1.3vw,16px);font-weight:800;white-space:nowrap;color:#143e70}.step:not(#st4){cursor:default;pointer-events:none}#st4{cursor:pointer;pointer-events:auto}.circ{width:clamp(34px,5.2vw,58px);height:clamp(34px,5.2vw,58px);display:grid;place-items:center;border-radius:50%;background:#f7f8fc;border:4px solid white;box-shadow:0 3px 0 #c8dce3;font-family:'Noto Sans Devanagari',sans-serif;font-size:clamp(17px,2.2vw,28px)}.step.active .circ{background:#ffcf50;border-color:#fff4c6;box-shadow:0 0 0 3px #ffbd32}
-
-/* Left Speech Bubble */
-.prompt{position:absolute;left:4%;top:18.2%;width:20%;height:4.2%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.5vw,20px);font-weight:800;color:#123b6c;white-space:nowrap;pointer-events:none}
-.letter{position:absolute;left:4%;top:22.5%;width:20%;height:12%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Noto Sans Devanagari','Nirmala UI',sans-serif;font-size:clamp(46px,6.2vw,84px);font-weight:800;color:#103d70;line-height:1;cursor:pointer}
-.anchorword{font-size:clamp(13px,1.5vw,20px);font-weight:800;color:#0f7a66;margin-top:2px;display:flex;align-items:center;gap:4px}
-.soundleft{position:absolute;left:3.5%;top:18%;width:21%;height:18%;border-radius:24px;background:transparent;cursor:pointer;z-index:2}
-
-/* Center Writing Slate - Perfectly aligned over the center white board */
-#write{position:absolute;left:27.5%;top:19.5%;width:45.8%;height:56.5%;touch-action:none;cursor:crosshair}
-
-/* Stage & Mode Toolbar placed cleanly inside the top of the center slate */
-.toolbar-top{position:absolute;left:28%;top:20.2%;width:44.8%;height:4.5%;display:flex;align-items:center;justify-content:space-between;z-index:7;pointer-events:none}
-.toolbar-left{display:flex;align-items:center;gap:6px;pointer-events:auto}
-.stage-badge{background:#ffffffdd;border:2px solid #0f7a66;border-radius:999px;padding:3px 8px;font-size:clamp(9px,1.05vw,12px);font-weight:800;color:#0f7a66;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.06);white-space:nowrap;pointer-events:auto}
-.ctrl-pill{background:#fff8df;border:2px solid #e2a03f;border-radius:999px;padding:3px 8px;font-size:clamp(9px,1.05vw,12px);font-weight:800;color:#80531a;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 4px rgba(0,0,0,0.06);transition:all .15s;white-space:nowrap;pointer-events:auto}
-.ctrl-pill:active{transform:scale(0.95)}
-.ctrl-pill.active{background:#ffefc2;border-color:#b47514;color:#6d3d04}
-.is-prod .local-only{display:none !important}
-#ocrInspectPill{display:none !important}
-
-/* Full-Screen Aperture Writing Shield (Palm Protected Mode) */
-.aperture-overlay{position:fixed;inset:0;z-index:1000;pointer-events:none;user-select:none}
-.aperture-bar{position:fixed;top:10px;left:50%;transform:translateX(-50%);width:94%;max-width:920px;height:52px;background:rgba(13,37,30,0.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:2px solid #ffca4f;border-radius:999px;display:flex;align-items:center;justify-content:space-between;padding:6px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.45);z-index:1003;pointer-events:auto}
-.aperture-bar-left{display:flex;align-items:center;gap:8px;min-width:0}
-.aperture-units-track{display:inline-flex;align-items:center;gap:4px;overflow-x:auto;max-width:240px;padding:2px 0}
-.aperture-unit-pill{background:rgba(255,255,255,0.14);color:#ffffff;border:1.5px solid rgba(255,202,79,0.45);border-radius:999px;min-width:28px;height:28px;padding:0 6px;font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
-.aperture-unit-pill:active{transform:scale(0.92)}
-.aperture-unit-pill.active{background:#ffcf50;color:#533303;border-color:#ffffff;font-weight:900;transform:scale(1.06);box-shadow:0 0 10px rgba(255,207,80,0.75)}
-.aperture-unit-pill.has-ink{border-color:#55d667;color:#d7ffd9}
-.aperture-badge{background:#ffcf50;color:#533303;padding:4px 12px;border-radius:999px;font-weight:800;font-size:clamp(12px,1.4vw,15px)}
-.aperture-prompt{color:#fff9e6;font-weight:800;font-size:clamp(12px,1.4vw,16px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.aperture-bar-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.aperture-btn{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,202,79,0.5);color:#ffffff;border-radius:999px;padding:5px 11px;font-size:clamp(11px,1.2vw,14px);font-weight:800;cursor:pointer;transition:transform .12s}
-.aperture-btn:active{transform:scale(0.95)}
-.aperture-btn.done-pill{background:#37b949;border-color:#55d667;color:white;padding:6px 16px;box-shadow:0 2px 8px rgba(55,185,73,0.4)}
-.aperture-close-btn{background:rgba(239,68,68,0.9);border:2px solid #ffffff;color:white;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;font-size:18px;font-weight:900;cursor:pointer;transition:transform .12s;box-shadow:0 2px 6px rgba(0,0,0,0.3)}
-.aperture-close-btn:active{transform:scale(0.92)}
-.aperture-blocker{position:fixed;background:rgba(14,38,30,0.96);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:1001;pointer-events:auto;touch-action:none}
-.aperture-blocker-label{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:rgba(255,210,118,0.55);font-size:clamp(11px,1.2vw,14px);font-weight:700;letter-spacing:0.5px;pointer-events:none;white-space:nowrap;user-select:none}
-.aperture-window{position:fixed;z-index:1002;pointer-events:none;border:3.5px solid #ffca4f;border-radius:20px;box-shadow:0 0 24px rgba(255,202,79,0.45),inset 0 0 16px rgba(255,202,79,0.15);transition:left .26s cubic-bezier(.2,.9,.3,1),width .26s,top .26s,height .26s}
-.aperture-window.shake{animation:canvasShake .4s ease-in-out}
-.aperture-guide-corner{position:absolute;width:14px;height:14px;border-color:#ffd276;border-style:solid}
-.corner-tl{top:-2px;left:-2px;border-width:3px 0 0 3px;border-top-left-radius:18px}
-.corner-tr{top:-2px;right:-2px;border-width:3px 3px 0 0;border-top-right-radius:18px}
-.corner-bl{bottom:-2px;left:-2px;border-width:0 0 3px 3px;border-bottom-left-radius:18px}
-.corner-br{bottom:-2px;right:-2px;border-width:0 3px 3px 0;border-bottom-right-radius:18px}
-
-/* Right "See how to write" card */
-.guideheading{position:absolute;left:76.5%;top:19.8%;width:19.8%;height:5.5%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,1.5vw,19px);font-weight:800;color:#49370d;white-space:nowrap}
-.guideheading button{margin-left:7px;border-radius:50%;width:26px;height:26px;background:transparent;color:#7a4e10;font-size:18px;font-weight:800;cursor:pointer}
-#guide{position:absolute;left:76.5%;top:26.2%;width:19.8%;height:32.5%;pointer-events:none}
-
-/* Right Erase & Try Again buttons mapped transparently over pink & blue artwork cards */
-.sidebtn{position:absolute;top:61.5%;height:14%;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:clamp(12px,1.5vw,19px);font-weight:800;background:transparent;cursor:pointer;transition:transform .1s}
-.sidebtn:active{transform:scale(0.96)}
-.sidebtn .ico{font-size:clamp(22px,2.6vw,32px);line-height:1}
-.erase{left:75.8%;width:10.2%;color:#a82e50}
-.retry{left:86.8%;width:10.2%;color:#155787}
-
-/* Bottom CTA buttons mapped transparently over green and orange artwork buttons */
-.praise{position:absolute;left:4%;top:80%;width:27%;height:12.5%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(13px,1.7vw,22px);font-weight:800;color:#81501a;background:transparent;pointer-events:none}
-.bottombtn{position:absolute;top:79.5%;height:13.5%;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:10px;color:white;font-size:clamp(16px,2.2vw,27px);font-weight:800;background:transparent;cursor:pointer;transition:transform .1s, filter .2s;text-shadow:0 2px 4px rgba(0,0,0,0.25)}
-.bottombtn:active{transform:scale(0.97)}
-.bottombtn.ready-done{animation:ctaPulse 1.8s infinite ease-in-out}
-@keyframes ctaPulse {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(255,255,255,0.7)); }
-  50% { transform: scale(1.03); filter: drop-shadow(0 0 14px rgba(255,215,0,0.95)); }
+/* LAYER 1B: Modular Assembled Jungle Border (Natural organic boundaries, zero clipping) */
+.layer-jungle-border{position:absolute;inset:0;pointer-events:none;user-select:none;z-index:10;overflow:hidden}
+.corner-tr-img{position:absolute;top:0;right:0;height:18vh;max-height:190px;width:auto;object-fit:contain;z-index:12}
+.corner-tl-img{position:absolute;top:0;left:0;height:18vh;max-height:190px;width:auto;object-fit:contain;z-index:12}
+.corner-br-img{position:absolute;bottom:0;right:0;height:9vh;max-height:120px;width:auto;object-fit:contain;z-index:10}
+.corner-bl-img{position:absolute;bottom:0;left:0;height:9vh;max-height:120px;width:auto;object-fit:contain;z-index:10}
+.edge-top-img{position:absolute;top:0;left:50%;transform:translateX(-50%);height:9vh;max-height:90px;width:auto;object-fit:contain;z-index:10}
+.edge-bottom-img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:5vh;max-height:60px;width:auto;object-fit:contain;z-index:10}
+.edge-left-img{position:absolute;left:0;top:18vh;height:34vh;max-height:300px;width:auto;object-fit:contain;z-index:10}
+.edge-right-img{position:absolute;right:0;top:18vh;height:34vh;max-height:300px;width:auto;object-fit:contain;z-index:10}
+@media(min-width:640px){
+  .corner-tr-img,.corner-tl-img{height:24vh}
+  .corner-br-img,.corner-bl-img{height:16vh}
+  .edge-top-img{height:12vh}
+  .edge-bottom-img{height:8vh}
+  .edge-left-img,.edge-right-img{height:40vh}
 }
-.done{left:36.5%;width:28%}
-.hear{left:66.5%;width:28%}
 
-/* Modal */
-.modal{display:none;position:absolute;inset:0;z-index:20;background:#123b6c80;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.dialog{background:#fffdf5;border:5px solid white;border-radius:28px;text-align:center;padding:24px;max-width:400px;width:100%;box-shadow:0 7px 0 #bddbce}.dialog h2{font-size:28px;margin:0 0 6px}.dialog p{font-size:16px;margin:0 0 16px}.dialog button{border-radius:15px;background:#37b949;color:white;padding:12px 20px;font-size:17px;font-weight:800}
+/* LAYER 2A: Waving Mittu Monkey on Overhead Branch */
+.monkey-zone-layer{position:absolute;top:0;left:0;z-index:15 !important;pointer-events:none;transition:all 0.2s ease;display:flex;align-items:flex-start}
+.monkey-inner-wrap{position:relative;height:100%;max-width:100%;display:flex;align-items:flex-start}
+.monkey-img{height:100%;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 20px rgba(0,0,0,0.25));user-select:none;-webkit-user-select:none}
+
+/* Mittu Monkey Speech Bubble (Shows target text & speaks on tap) */
+.monkey-speech-bubble{position:absolute !important;left:50% !important;top:88% !important;transform:translateX(-50%) !important;display:inline-flex !important;align-items:center !important;gap:6px !important;background:rgba(255,255,255,0.96) !important;border:2px solid #f59e0b !important;border-radius:9999px !important;padding:4px 12px !important;box-shadow:0 4px 14px rgba(0,0,0,0.18),0 1px 3px rgba(0,0,0,0.1) !important;pointer-events:auto !important;cursor:pointer !important;user-select:none !important;white-space:nowrap !important;z-index:40 !important;animation:speechFloat 3.8s ease-in-out infinite !important;transition:transform 0.15s ease,box-shadow 0.15s ease !important}
+.monkey-speech-bubble:hover{transform:translateX(-50%) translateY(-2px) scale(1.05) !important}
+.monkey-speech-bubble:active{transform:translateX(-50%) translateY(0) scale(0.95) !important}
+.monkey-speech-bubble::before{content:'' !important;position:absolute !important;top:-8px !important;left:50% !important;transform:translateX(-50%) !important;width:0 !important;height:0 !important;border-left:6px solid transparent !important;border-right:6px solid transparent !important;border-bottom:8px solid #f59e0b !important}
+.monkey-speech-bubble::after{content:'' !important;position:absolute !important;top:-5.5px !important;left:50% !important;transform:translateX(-50%) !important;width:0 !important;height:0 !important;border-left:5px solid transparent !important;border-right:5px solid transparent !important;border-bottom:6px solid #ffffff !important}
+@keyframes speechFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-3px)}}
+.speech-label{font-size:10px !important;font-weight:800 !important;color:#b45309 !important;letter-spacing:0.02em !important}
+.speech-word{font-family:'Noto Sans Devanagari',sans-serif !important;font-size:15px !important;font-weight:800 !important;color:#1e293b !important;line-height:1 !important}
+.speech-sound-badge{font-size:11px !important;width:20px !important;height:20px !important;border-radius:9999px !important;background:#fef3c7 !important;border:1px solid #fde047 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;line-height:1 !important}
+
+/* LAYER 2B: Hanging Wooden Square Sign / Easel (Elevated to z-35 above paper slate z-30) */
+.hanging-sign-zone-layer{position:absolute;top:0;right:1vw;z-index:35 !important;pointer-events:auto !important;transition:all 0.2s ease;display:flex;flex-direction:column;align-items:center}
+@keyframes gentle-sway{0%,100%{transform:rotate(0deg)}50%{transform:rotate(0.8deg)}}
+.sway-subtle{animation:gentle-sway 5s ease-in-out infinite;transform-origin:top center}
+.hanging-sign-inner{position:relative;height:100%;max-width:100%;aspect-ratio:884/1024}
+.hanging-sign-frame{height:100%;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 15px 25px rgba(0,0,0,0.3));user-select:none;-webkit-user-select:none}
+.clue-board-overlay{position:absolute;left:28%;right:24.4%;top:42.1%;bottom:17.4%;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:20;pointer-events:auto;background:transparent;cursor:pointer}
+.clue-emoji-container{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+
+/* Hanging Miniature Placards: Hint & Clear connected to the Easel (Enlarged & Always Interactive) */
+#easelTools{position:absolute !important;top:87.5% !important;left:50% !important;transform:translateX(-50%) !important;display:flex !important;align-items:flex-start !important;justify-content:center !important;gap:8px !important;width:max-content !important;z-index:40 !important;pointer-events:auto !important}
+.hanging-card-assembly{display:flex !important;flex-direction:column !important;align-items:center !important;transform-origin:top center !important}
+@keyframes cardDangleLeft{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(1.8deg)}}
+@keyframes cardDangleRight{0%,100%{transform:rotate(1.8deg)}50%{transform:rotate(-1.5deg)}}
+.hanging-assembly-left{animation:cardDangleLeft 4s ease-in-out infinite !important}
+.hanging-assembly-right{animation:cardDangleRight 4.6s ease-in-out infinite 0.5s !important}
+.hanging-rope-anchor{width:16px !important;height:22px !important;display:flex !important;align-items:center !important;justify-content:center !important;margin-bottom:-3px !important;pointer-events:none !important;position:relative !important;z-index:2 !important}
+.hanging-rope-svg{width:100% !important;height:100% !important;overflow:visible !important;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.35)) !important}
+.hanging-card{position:relative !important;display:flex !important;align-items:center !important;justify-content:center !important;padding:3px !important;border-radius:14px !important;background:linear-gradient(180deg,#92400e 0%,#78350f 45%,#451a03 100%) !important;box-shadow:0 4px 8px rgba(0,0,0,0.3),0 1px 2px rgba(0,0,0,0.2),inset 0 1px 1px rgba(255,255,255,0.35) !important;border:1.5px solid #361401 !important;cursor:pointer !important;user-select:none !important;-webkit-tap-highlight-color:transparent !important;transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.15s ease,filter 0.15s ease !important;box-sizing:border-box !important;z-index:1 !important}
+.hanging-card::before{content:'' !important;position:absolute !important;top:-5.5px !important;left:50% !important;transform:translateX(-50%) !important;width:9px !important;height:6px !important;border-radius:4px 4px 0 0 !important;background:linear-gradient(180deg,#fbbf24 0%,#b45309 100%) !important;border:1.2px solid #451a03 !important;border-bottom:none !important}
+.hanging-card:hover{transform:scale(1.06) translateY(-1px) !important;filter:brightness(1.06) !important}
+.hanging-card:active{transform:scale(0.93) translateY(2px) !important;box-shadow:0 2px 4px rgba(0,0,0,0.35),inset 0 1px 2px rgba(0,0,0,0.4) !important}
+.card-inner-pill{display:flex !important;align-items:center !important;justify-content:center !important;gap:5px !important;height:30px !important;padding:0 12px !important;border-radius:10px !important;font-family:'Baloo 2',system-ui,sans-serif !important;font-weight:800 !important;font-size:12.5px !important;line-height:1 !important;white-space:nowrap !important;box-sizing:border-box !important}
+.hint-card .card-inner-pill{background:linear-gradient(180deg,#fef08a 0%,#facc15 65%,#eab308 100%) !important;color:#451a03 !important;box-shadow:inset 0 1px 2px rgba(255,255,255,0.9),inset 0 -1px 2px rgba(161,98,7,0.3),0 1px 2px rgba(0,0,0,0.15) !important;border:1px solid #ca8a04 !important}
+.clear-card .card-inner-pill{background:linear-gradient(180deg,#ffffff 0%,#ffe4e6 55%,#fecdd3 100%) !important;color:#881337 !important;box-shadow:inset 0 1px 2px rgba(255,255,255,0.95),inset 0 -1px 2px rgba(225,29,72,0.2),0 1px 2px rgba(0,0,0,0.15) !important;border:1px solid #fda4af !important}
+
+@media(min-width:640px) and (min-height:541px){
+  #easelTools{top:88% !important;gap:10px !important}
+  .hanging-rope-anchor{width:18px !important;height:26px !important;margin-bottom:-4px !important}
+  .hanging-card{padding:4px !important;border-radius:16px !important}
+  .hanging-card::before{top:-6px !important;width:11px !important;height:7px !important}
+  .card-inner-pill{height:36px !important;padding:0 16px !important;font-size:14px !important;border-radius:11px !important;gap:6px !important}
+}
+
+/* LAYER 4: SUPREME TOP NAVIGATION BAR (Fixed at z-50, always in front of branches) */
+.nav-bar-container{position:fixed !important;top:max(8px,env(safe-area-inset-top,8px)) !important;left:50% !important;transform:translateX(-50%) !important;z-index:50 !important;display:inline-flex !important;align-items:center !important;justify-content:space-between !important;width:max-content !important;max-width:min(96vw,680px) !important;background:rgba(255,255,255,0.92) !important;backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important;border:1.5px solid rgba(255,255,255,0.95) !important;border-radius:9999px !important;padding:5px clamp(8px,1.5vw,14px) !important;box-shadow:0 4px 14px rgba(0,0,0,0.12) !important;box-sizing:border-box !important;pointer-events:auto !important;gap:clamp(4px,1vw,8px) !important;overflow:hidden !important}
+.nav-bar-container *{white-space:nowrap !important}
+.home-nav-btn{width:32px;height:32px;border-radius:50%;background:#143e70;color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;box-shadow:0 2px 4px rgba(20,62,112,0.3);cursor:pointer;border:none;flex-shrink:0;transition:transform 0.12s ease}
+.home-nav-btn:hover{transform:scale(1.06)}
+.home-nav-btn:active{transform:scale(0.94)}
+.nav-steps-container{display:inline-flex;align-items:center;gap:clamp(3px,0.6vw,6px);flex-shrink:1;min-width:0}
+.nav-step-pill{display:inline-flex;align-items:center;gap:4px;padding:3px clamp(6px,0.8vw,9px);border-radius:9999px;font-size:11.5px;font-weight:700;color:#334155;background:rgba(255,255,255,0.82);border:1px solid rgba(203,213,225,0.8);box-sizing:border-box;flex-shrink:0;cursor:default;transition:all 0.15s ease}
+.nav-step-pill.active{background:#facc15;color:#451a03;font-weight:900;border-color:#eab308;box-shadow:0 1px 3px rgba(161,98,7,0.25)}
+.nav-step-pill.disabled{opacity:0.35;pointer-events:none;filter:grayscale(1)}
+.step:not(#st4){cursor:default;pointer-events:none}
+.progress-step-pill{cursor:pointer !important;pointer-events:auto !important;color:#92400e}
+.progress-step-pill:hover{background:#fef3c7}
+.step-circ-icon{width:17px;height:17px;border-radius:9999px;background:#f1f5f9;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;line-height:1}
+.nav-step-pill.active .step-circ-icon{background:#ffffff;color:#451a03}
+.nav-stage-badge{display:inline-flex;align-items:center;gap:3px;padding:3px clamp(6px,0.8vw,9px);border-radius:9999px;background:#fef3c7;border:1.2px solid #f59e0b;color:#78350f;font-size:11px;font-weight:900;box-shadow:0 1px 2px rgba(180,83,9,0.15);flex-shrink:0;transition:all 0.2s ease}
+.treats-pill-badge{display:inline-flex;align-items:center;gap:4px;padding:3px clamp(7px,1vw,11px);background:#fef3c7;border:1.2px solid #fcd34d;border-radius:9999px;font-size:11.5px;font-weight:900;color:#78350f;box-shadow:0 1px 2px rgba(180,83,9,0.15);flex-shrink:0}
+
+/* Responsive Pill Labels: Shortened on phones, full on tablets */
+.tablet-pill-text{display:inline}
+.phone-pill-text{display:none}
+@media(max-width:600px),(orientation:landscape) and (max-height:540px){
+  .tablet-pill-text{display:none !important}
+  .phone-pill-text{display:inline !important}
+  .nav-bar-container{padding:3px 8px !important;gap:4px !important}
+  .nav-steps-container{gap:3px !important}
+  .nav-step-pill{padding:2px 5px !important;font-size:10px !important;gap:0 !important}
+  .nav-stage-badge{padding:2px 6px !important;font-size:10px !important;gap:2px !important}
+  .treats-pill-badge{padding:2px 7px !important;font-size:11px !important;gap:3px !important}
+}
+
+/* LAYER 3: Native App Interactive Interface (Scrollable Bottom Anchored) */
+.app-container-layer{position:absolute !important;inset:0 !important;width:100% !important;height:100% !important;overflow-y:auto !important;overflow-x:hidden !important;-webkit-overflow-scrolling:touch !important;scrollbar-width:thin;scrollbar-color:rgba(18,65,112,0.3) transparent;scroll-snap-type:y proximity;pointer-events:none !important;z-index:30 !important;padding:8px 16px 0 16px;padding-top:clamp(48px,7.5vh,60px) !important;display:flex !important;flex-direction:column !important;justify-content:flex-end !important;box-sizing:border-box !important}
+.app-container-layer > *{pointer-events:auto !important}
+#mainActivityWrapper{display:flex !important;flex-direction:column !important;justify-content:flex-end !important;align-items:center !important;width:100% !important;margin-top:auto !important;margin-bottom:8px !important;min-height:0 !important;flex-shrink:0 !important;z-index:25 !important;scroll-snap-align:end !important;pointer-events:none !important}
+#stageArena{display:flex !important;flex-direction:row !important;align-items:center !important;justify-content:center !important;width:100% !important;margin-bottom:6px !important;pointer-events:none !important}
+
+/* The Sacred Parchment Writing Slate (#write) */
+#slateWrapper{position:relative !important;display:flex !important;align-items:center !important;justify-content:center !important;min-width:0 !important;min-height:0 !important;margin:0 auto !important;z-index:10 !important;pointer-events:auto !important}
+.parchment-scroll-img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;filter:drop-shadow(0 15px 25px rgba(0,0,0,0.3));user-select:none;-webkit-user-select:none}
+#slateInnerContent{position:relative !important;z-index:10 !important;width:100% !important;height:100% !important;display:flex !important;flex-direction:column !important;justify-content:space-between !important;padding-top:clamp(16px,3.8vh,24px) !important;padding-bottom:clamp(6px,1.8vh,12px) !important;padding-left:clamp(12px,3vw,22px) !important;padding-right:clamp(12px,3vw,22px) !important;box-sizing:border-box !important}
+#slateTopBar{display:flex !important;align-items:center !important;justify-content:space-between !important;width:100% !important;flex-shrink:0 !important;z-index:20 !important;gap:6px !important;margin-bottom:2px !important}
+.slate-nav-pair{display:flex;align-items:center;gap:6px}
+.nav-paper-btn{height:28px !important;padding:0 12px !important;font-size:11.5px !important;font-weight:800 !important;line-height:1 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;text-align:center !important;gap:4px !important;border-radius:9999px !important;background:rgba(254,243,199,0.88) !important;border:1.5px solid rgba(217,119,6,0.4) !important;color:#78350f !important;box-shadow:0 1px 3px rgba(120,53,15,0.1) !important;flex-shrink:0 !important;box-sizing:border-box !important;cursor:pointer !important;transition:all 0.15s ease !important}
+.nav-paper-btn:hover{background:rgba(254,240,138,0.96) !important;border-color:rgba(180,83,9,0.6) !important;color:#451a03 !important}
+.nav-paper-btn:active{transform:scale(0.95) !important}
+.prev-btn{text-align:center;justify-content:center}
+.next-btn{text-align:center;justify-content:center}
+.done-paper-btn{height:34px !important;padding:0 16px !important;font-size:13px !important;font-weight:900 !important;line-height:1 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;text-align:center !important;gap:6px !important;border-radius:9999px !important;background:linear-gradient(135deg,#10b981 0%,#059669 100%) !important;border:1.5px solid #34d399 !important;color:#ffffff !important;box-shadow:0 2px 6px rgba(16,185,129,0.35) !important;flex-shrink:0 !important;box-sizing:border-box !important;cursor:pointer !important;letter-spacing:0.02em !important;transition:all 0.15s ease !important}
+.done-paper-btn:hover{filter:brightness(1.08) !important;box-shadow:0 3px 8px rgba(16,185,129,0.45) !important}
+.done-paper-btn:active{transform:scale(0.95) !important}
+
+@media(min-width:640px) and (min-height:541px){
+  .nav-paper-btn{height:32px !important;padding:0 16px !important;font-size:13px !important}
+  .done-paper-btn{height:40px !important;padding:0 26px !important;font-size:15px !important;box-shadow:0 3px 10px rgba(16,185,129,0.4) !important}
+}
+
+/* Canvas Container */
+.canvas-slate-container{position:relative !important;width:100% !important;flex:1 1 0% !important;min-height:0 !important;margin:4px 0 !important;overflow:hidden !important}
+#write{position:absolute !important;inset:0 !important;width:100% !important;height:100% !important;touch-action:none !important;cursor:crosshair !important;z-index:15 !important}
+.canvas-prompt-container{text-align:center;font-size:clamp(9px,1.1vw,11px);color:rgba(120,53,15,0.7);font-weight:800;flex-shrink:0;z-index:20;user-select:none;-webkit-user-select:none;margin-top:2px}
+.android-safe-zone{height:36px !important;min-height:36px !important;width:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:30;margin-bottom:4px;padding-bottom:env(safe-area-inset-bottom,4px)}
+.safe-zone-pill{font-size:clamp(9px,1.1vw,11px) !important;color:#334155 !important;font-weight:700 !important;display:flex !important;align-items:center !important;gap:4px !important;background:rgba(255,255,255,0.85) !important;backdrop-filter:blur(4px) !important;-webkit-backdrop-filter:blur(4px) !important;padding:4px 12px !important;border-radius:9999px !important;border:1px solid rgba(226,232,240,0.8) !important;box-shadow:0 1px 2px rgba(0,0,0,0.05) !important}
+
+/* --- RESPONSIVE ORIENTATION & ERGONOMIC RULES (EXACT MATCH TO MOCKUP.HTML) --- */
+/* 1. Default Landscape (Tablets & Desktops where layout is already perfect) */
+@media (orientation: landscape) {
+  /* Monkey on left edge: pinned to top-left, sits on Layer 2 (z-15, strictly below topBar z-50) */
+  #monkeyZone {
+    position: fixed !important;
+    height: 48vh !important;
+    max-height: 380px !important;
+    width: auto !important;
+    max-width: 22vw !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 15 !important;
+    pointer-events: none !important;
+  }
+  /* Easel on right edge: pinned to top-right, elevated for direct tap wiring */
+  #hangingSignZone {
+    position: fixed !important;
+    height: 48vh !important;
+    max-height: 380px !important;
+    width: auto !important;
+    max-width: 22vw !important;
+    top: 0 !important;
+    right: 1vw !important;
+    z-index: 25 !important;
+    pointer-events: auto !important;
+  }
+  /* Speech bubble at the exact same vertical level as Hint/Clear on easel */
+  .monkey-speech-bubble {
+    left: 50% !important;
+    top: 88% !important;
+    transform: translateX(-50%) !important;
+  }
+  /* Center activity: accommodated BETWEEN monkey and easel */
+  #mainActivityWrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin-top: auto !important;
+    margin-bottom: 8px !important;
+    min-height: 0 !important;
+    flex-shrink: 0 !important;
+    z-index: 25 !important;
+    scroll-snap-align: end !important;
+  }
+  /* Stage arena: Slate centered cleanly between monkey and easel */
+  #stageArena {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin-bottom: 6px !important;
+  }
+  #slateWrapper {
+    width: 100% !important;
+    max-width: min(calc(100vh - 24px), 52vw, 540px) !important;
+    margin: 0 auto !important;
+    height: clamp(250px, 68vh, 380px) !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+/* 2. Phone Landscape (Short screens <= 540px height): Monkey and Easel slightly larger */
+@media (orientation: landscape) and (max-height: 540px) {
+  /* Monkey on left edge: enlarged for lively character presence in phone landscape */
+  #monkeyZone {
+    position: fixed !important;
+    height: 68vh !important;
+    max-height: 285px !important;
+    max-width: 28vw !important;
+    top: 0 !important;
+    left: env(safe-area-inset-left, 0px) !important;
+    z-index: 15 !important;
+    pointer-events: none !important;
+  }
+  /* Easel on right edge: enlarged for clear visual clue presence in phone landscape */
+  #hangingSignZone {
+    height: 68vh !important;
+    max-height: 285px !important;
+    max-width: 28vw !important;
+    right: max(0.5vw, env(safe-area-inset-right, 0px)) !important;
+    z-index: 25 !important;
+    pointer-events: auto !important;
+  }
+  /* Speech bubble at the exact same vertical level as Hint/Clear (87.5%) */
+  .monkey-speech-bubble {
+    left: 50% !important;
+    top: 87.5% !important;
+    transform: translateX(-50%) !important;
+    padding: 3px 9px !important;
+    gap: 4px !important;
+  }
+  .speech-label {
+    font-size: 9px !important;
+  }
+  .speech-word {
+    font-size: 13px !important;
+  }
+  .speech-sound-badge {
+    width: 17px !important;
+    height: 17px !important;
+    font-size: 9px !important;
+  }
+  /* Center activity: bottom-anchored so writing area is the first thing seen */
+  #mainActivityWrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin-top: auto !important;
+    margin-bottom: 2px !important;
+    min-height: 0 !important;
+    flex-shrink: 0 !important;
+    z-index: 25 !important;
+    scroll-snap-align: end !important;
+  }
+  #stageArena {
+    margin-bottom: 2px !important;
+  }
+  #slateWrapper {
+    max-width: clamp(380px, 48vw, 470px) !important;
+    height: clamp(210px, 68vh, 290px) !important;
+  }
+  #slateInnerContent {
+    padding-top: clamp(12px, 3.2vh, 18px) !important;
+    padding-bottom: clamp(4px, 1.4vh, 8px) !important;
+  }
+  #appContainer, .app-container-layer {
+    justify-content: flex-end !important;
+    padding-top: 4px !important;
+    padding-bottom: 0 !important;
+  }
+  #easelTools {
+    top: 87.5% !important;
+    gap: 5px !important;
+  }
+  .hanging-rope-anchor {
+    width: 12px !important;
+    height: 15px !important;
+    margin-bottom: -2.5px !important;
+  }
+  .hanging-card {
+    padding: 2px !important;
+    border-radius: 10px !important;
+  }
+  .hanging-card::before {
+    top: -4px !important;
+    width: 7px !important;
+    height: 5px !important;
+  }
+  .card-inner-pill {
+    height: 24px !important;
+    padding: 0 8px !important;
+    font-size: 10.5px !important;
+    border-radius: 8px !important;
+    gap: 3px !important;
+  }
+}
+
+/* 3. Portrait (Phones and Tablets) */
+@media (orientation: portrait) {
+  /* Monkey on left: branch stays strictly BEHIND topBar (z-15 vs z-50) */
+  #monkeyZone {
+    position: absolute !important;
+    height: 42vh !important;
+    max-height: 380px !important;
+    width: auto !important;
+    max-width: 48vw !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 15 !important;
+    pointer-events: none !important;
+  }
+  /* Easel on right: 38vh */
+  #hangingSignZone {
+    position: absolute !important;
+    height: 38vh !important;
+    max-height: 340px !important;
+    width: auto !important;
+    max-width: 44vw !important;
+    top: 0 !important;
+    right: 1.5vw !important;
+    z-index: 25 !important;
+    pointer-events: auto !important;
+  }
+  /* Speech bubble below monkey at level of tools */
+  .monkey-speech-bubble {
+    left: 50% !important;
+    top: 86% !important;
+    transform: translateX(-50%) !important;
+  }
+  /* On phones in portrait mode (width <= 500px): match mockup sizes so character and clue fit without colliding */
+  @media (max-width: 500px) {
+    #monkeyZone {
+      height: clamp(210px, 32vh, 275px) !important;
+      max-height: 275px !important;
+      max-width: 48vw !important;
+    }
+    #hangingSignZone {
+      height: clamp(165px, 24vh, 205px) !important;
+      max-height: 205px !important;
+      max-width: 44vw !important;
+    }
+    .monkey-speech-bubble {
+      left: 50% !important;
+      top: 86% !important;
+      transform: translateX(-50%) !important;
+      padding: 3px 9px !important;
+      gap: 4px !important;
+    }
+    .speech-label {
+      font-size: 9px !important;
+    }
+    .speech-word {
+      font-size: 13px !important;
+    }
+    .speech-sound-badge {
+      width: 17px !important;
+      height: 17px !important;
+      font-size: 9px !important;
+    }
+    #easelTools {
+      top: 87.5% !important;
+      gap: 5px !important;
+    }
+    .hanging-rope-anchor {
+      width: 12px !important;
+      height: 15px !important;
+      margin-bottom: -2.5px !important;
+    }
+    .hanging-card {
+      padding: 2px !important;
+      border-radius: 10px !important;
+    }
+    .hanging-card::before {
+      top: -4px !important;
+      width: 7px !important;
+      height: 5px !important;
+    }
+    .card-inner-pill {
+      height: 24px !important;
+      padding: 0 8px !important;
+      font-size: 10.5px !important;
+      border-radius: 8px !important;
+      gap: 3px !important;
+    }
+  }
+  /* Anchored from bottom, lifted slightly up to fit cleanly above bottom border */
+  #mainActivityWrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin-top: auto !important;
+    margin-bottom: 4px !important;
+    min-height: 0 !important;
+    flex-shrink: 0 !important;
+    scroll-snap-align: end !important;
+  }
+  /* In portrait: Stage arena centers slate cleanly */
+  #stageArena {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+    padding-top: 8px !important;
+    margin-bottom: 0 !important;
+  }
+  #slateWrapper {
+    position: relative !important;
+    width: 100% !important;
+    max-width: min(680px, calc(100vw - 16px)) !important;
+    height: clamp(230px, 38vh, 400px) !important;
+    margin-bottom: max(6px, env(safe-area-inset-bottom, 6px)) !important;
+    flex-shrink: 0 !important;
+  }
+  #appContainer, .app-container-layer {
+    padding-bottom: 0 !important;
+  }
+}
+
+/* Modal: Supreme Layer (z-index: 99999) - Always elevated completely above the paper slate and scene */
+.modal{display:none;position:fixed !important;inset:0 !important;z-index:99999 !important;background:rgba(18,59,108,0.75) !important;backdrop-filter:blur(6px) !important;-webkit-backdrop-filter:blur(6px) !important;align-items:center !important;justify-content:center !important;padding:16px !important;overflow-y:auto !important}.modal.show{display:flex !important}.dialog{position:relative !important;z-index:100000 !important;background:#fffdf5;border:5px solid white;border-radius:28px;text-align:center;padding:24px;max-width:420px;width:94%;box-shadow:0 12px 32px rgba(0,0,0,0.35),0 6px 0 #bddbce;animation:modalPopIn 0.22s cubic-bezier(0.34,1.56,0.64,1)}.dialog h2{font-size:28px;margin:0 0 6px}.dialog p{font-size:16px;margin:0 0 16px}.dialog button{border-radius:15px;background:#37b949;color:white;padding:12px 20px;font-size:17px;font-weight:800}
+@keyframes modalPopIn{0%{transform:scale(0.88);opacity:0}100%{transform:scale(1);opacity:1}}
 .score-badge{margin-bottom:10px;display:inline-block;padding:5px 14px;border-radius:999px;background:#ffefc2;color:#7e5200;font-weight:800;font-size:15px;border:1px solid #ffd276}
 
 /* Guidance Failure Modal */
@@ -113,26 +459,18 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
   background: #c2410c;
 }
 
-
-
-
-/* Right Clue & Recall Card: Fits flush within outer clipboard frame with zero double-border */
+/* Right Clue & Recall Card: Fits flush within outer easel frame */
 .clue-board{position:absolute;left:75.85%;top:26.4%;width:20.85%;height:33.9%;display:flex;align-items:center;justify-content:center;z-index:5;pointer-events:auto;box-sizing:border-box;padding:0}
 .clue-emoji{width:100%;height:100%;border-radius:0 0 18px 18px;border:none;background:transparent;box-shadow:none;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:transform .18s cubic-bezier(.175,.885,.32,1.275);font-size:clamp(68px,8.5vw,110px);line-height:1}
 .clue-emoji:hover{transform:scale(1.02)}
 .clue-emoji:active{transform:scale(0.96)}
 .clue-emoji img,.clue-img{width:100%;height:100%;object-fit:cover;display:block;border-radius:0 0 18px 18px}
 .clue-emoji svg{width:100%;height:100%;max-width:92%;max-height:92%;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.12))}
-.clue-sound-pill{position:absolute;bottom:7px;right:7px;background:rgba(255,255,255,0.92);border:1.5px solid #ffca4f;border-radius:999px;padding:2px 8px;font-size:clamp(11px,1.2vw,14px);font-weight:800;color:#7a4600;display:flex;align-items:center;gap:4px;box-shadow:0 2px 6px rgba(0,0,0,0.16);pointer-events:none;z-index:3}
+.clue-sound-badge{position:absolute !important;bottom:8px !important;right:8px !important;width:24px !important;height:24px !important;border-radius:50% !important;background:rgba(255,255,255,0.94) !important;border:1.5px solid #f59e0b !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;font-size:12px !important;line-height:1 !important;box-shadow:0 2px 5px rgba(0,0,0,0.2) !important;pointer-events:none !important;z-index:5 !important}
 
 /* Disabled state for steps (e.g. Swars with no matra) */
 .step.disabled{opacity:0.35;pointer-events:none;filter:grayscale(1)}
 
-/* Bottom Capsule Buttons (Prev | I'm Done | Next) */
-.prev-btn{position:absolute;left:4.1%;top:83%;width:27.5%;height:9.6%;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:clamp(16px,2.2vw,28px);font-family:'Baloo 2',system-ui,-apple-system,sans-serif;font-weight:800;color:#78450d;background:transparent;cursor:pointer;transition:transform .1s;text-align:center;line-height:1;white-space:nowrap;box-sizing:border-box}
-.prev-btn:active{transform:scale(0.97)}
-.next-btn{position:absolute;left:66.5%;top:83%;width:25.5%;height:9.6%;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:clamp(16px,2.2vw,28px);font-family:'Baloo 2',system-ui,-apple-system,sans-serif;font-weight:800;color:white;background:transparent;cursor:pointer;transition:transform .1s;text-shadow:0 2px 4px rgba(0,0,0,0.25);text-align:center;line-height:1;white-space:nowrap;box-sizing:border-box}
-.next-btn:active{transform:scale(0.97)}
 
 .update-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(160%);background:#0d2847;color:#ffffff;padding:8px 16px;border-radius:999px;box-shadow:0 10px 28px rgba(0,0,0,0.35);display:flex;align-items:center;gap:12px;font-size:clamp(12px,1.4vw,15px);font-weight:700;z-index:10000;transition:transform .35s cubic-bezier(.175,.885,.32,1.275);border:2px solid #ffca4f;pointer-events:none;opacity:0}
 .update-toast.show{transform:translateX(-50%) translateY(0);pointer-events:auto;opacity:1}
@@ -310,84 +648,231 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 </head>
 <body>
 <main class="app" id="app">
-<img class="bg" src="./background.jpg" alt="">
-<button class="homebtn" id="homeBtn" aria-label="Home"></button>
-<div class="badge" id="bananaBadge">🍌 <span id="bananaCount">0</span> treats</div>
 
-<nav class="nav" aria-label="Practice steps">
-  <div class="step active" id="st1"><span class="circ" id="navLetter">अ</span><span>Today's letter</span></div>
-  <div class="step" id="st2"><span class="circ">ा</span><span>Matra</span></div>
-  <div class="step" id="st3"><span class="circ">का</span><span>Word</span></div>
-  <div class="step" id="st4"><span class="circ">★</span><span>Progress</span></div>
-</nav>
-
-<div class="prompt" id="promptText">Write this letter</div>
-<div class="letter" id="letter">
-  <span id="charGlyph">अ</span>
-</div>
-<button class="soundleft" id="sound" aria-label="Hear letter"></button>
-
-<div class="toolbar-top" id="toolbarTop">
-  <div class="toolbar-left">
-    <span class="stage-badge" id="stageBadge">Stage 1/3: Trace ✍️</span>
-    <button class="ctrl-pill local-only" id="ocrInspectPill" style="display:none !important;" aria-hidden="true" title="View live OCR reading and captured drawing">🔍 OCR: <span id="ocrPillStatus">Ready</span></button>
-    <button class="ctrl-pill local-only" id="audioReviewBtn" title="Review sounds and diagnostic studio">🎧 Sounds</button>
+  <!-- LAYER 1: Fullscreen Scenic Jungle Background -->
+  <div class="layer-jungle-bg">
+    <img src="images/jungle_landscape.png" alt="Scenic Jungle" class="jungle-bg-img" />
+    <div class="jungle-vignette"></div>
   </div>
-  <button class="ctrl-pill" id="fullscreenToggle" title="Toggle Fullscreen to hide tablet navigation buttons">⛶ Fullscreen</button>
-  <button class="ctrl-pill" id="voiceToggle" style="display:none" aria-hidden="true"></button>
-</div>
 
-<canvas id="write" aria-label="Writing canvas"></canvas>
+  <!-- LAYER 1B: Modular Assembled Jungle Border (Natural organic boundaries, zero clipping) -->
+  <div class="layer-jungle-border">
+    <img src="images/frame_corner_tr.png" alt="" class="corner-tr-img" />
+    <img src="images/frame_corner_tl.png" alt="" class="corner-tl-img" />
+    <img src="images/frame_corner_br.png" alt="" class="corner-br-img" />
+    <img src="images/frame_corner_bl.png" alt="" class="corner-bl-img" />
+    <img src="images/frame_edge_top.png" alt="" class="edge-top-img" />
+    <img src="images/frame_edge_bottom.png" alt="" class="edge-bottom-img" />
+    <img src="images/frame_edge_left.png" alt="" class="edge-left-img" />
+    <img src="images/frame_edge_right.png" alt="" class="edge-right-img" />
+  </div>
 
-<!-- Full-Screen Writing Aperture Shield (Palm Protected Mode) -->
-<div class="aperture-overlay" id="apertureOverlay" style="display:none">
-  <!-- Top Control Bar -->
-  <div class="aperture-bar" id="apertureBar">
-    <div class="aperture-bar-left">
-      <div class="aperture-units-track" id="apertureUnitsTrack"></div>
-      <span class="aperture-badge" id="apertureBadge" style="display:none">Letter: अ</span>
-      <span class="aperture-prompt" id="aperturePrompt">Write 'अ' ✍️ (Rest hand anywhere)</span>
-    </div>
-    <div class="aperture-bar-right">
-      <button class="aperture-btn" id="apertureSoundBtn" title="Hear sound">🔊 Sound</button>
-      <button class="aperture-btn" id="apertureHintBtn" title="Show guide">💡 Hint</button>
-      <button class="aperture-btn" id="apertureClearBtn" title="Clear letter stroke">🧽 Clear</button>
-      <button class="aperture-btn" id="aperturePrevBtn" title="Previous letter/matra">◀ Prev</button>
-      <button class="aperture-btn done-pill" id="apertureDoneBtn">✓ Next</button>
-      <button class="aperture-close-btn" id="apertureCloseBtn" title="Exit Writing Mode" aria-label="Exit Writing Mode">✕</button>
+  <!-- LAYER 2A: Waving Mittu Monkey on Overhead Branch with Speech Cloud -->
+  <div id="monkeyZone" class="monkey-zone-layer">
+    <div class="monkey-inner-wrap">
+      <img src="images/mittu_branch.png" alt="Mittu Monkey Hanging" class="monkey-img" />
+      
+      <!-- Speech Cloud next to Mittu showing the word being practiced -->
+      <div id="monkeySpeechBubble" onclick="speakClue()" class="monkey-speech-bubble" title="Tap to hear Mittu speak the word!">
+        <span class="speech-label">लिखो ✍️</span>
+        <span id="monkeySpeechWord" class="speech-word hindi-font">अखबार</span>
+        <span class="speech-sound-badge" id="sound">🔊</span>
+      </div>
+      <!-- Dormant anchors for compatibility -->
+      <span id="letter" style="display:none !important;"><span id="charGlyph"></span></span>
     </div>
   </div>
 
-  <!-- 4 Blocker Shields (100% Palm Protection around the window) -->
-  <div class="aperture-blocker" id="blockerTop"></div>
-  <div class="aperture-blocker" id="blockerBottom">
-    <div class="aperture-blocker-label">🖐️ Palm Shield: Rest hand anywhere safely</div>
+  <!-- LAYER 2B: Hanging Wooden Square Sign / Easel -->
+  <div id="hangingSignZone" class="hanging-sign-zone-layer sway-subtle">
+    <div class="hanging-sign-inner">
+      <img src="images/hanging_sign.png" alt="Hanging Wooden Sign" class="hanging-sign-frame" />
+
+      <!-- Content Overlay: Exactly matches the 1:1 square inner canvas -->
+      <div id="clueBoard" class="clue-board-overlay" title="Tap to hear word">
+        <div id="clueEmoji" class="clue-emoji-container"></div>
+      </div>
+
+      <!-- Two Hanging Mini Cards Connected to the Easel (Hint & Clear) -->
+      <div id="easelTools">
+        <!-- Hanging Frame 1: Hint (💡) -->
+        <div class="hanging-card-assembly hanging-assembly-left">
+          <div class="hanging-rope-anchor">
+            <svg class="hanging-rope-svg" viewBox="0 0 14 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="7" cy="3" r="2.5" fill="#451a03" stroke="#854d0e" stroke-width="1.2"/>
+              <circle cx="7" cy="3" r="1.2" fill="#d97706"/>
+              <path d="M7 5V19" stroke="#78350f" stroke-width="2.6" stroke-linecap="round"/>
+              <path d="M7 6L6 8M7 10L6 12M7 14L6 16" stroke="#fef08a" stroke-width="0.8" stroke-linecap="round" opacity="0.65"/>
+              <path d="M7 7L8 9M7 11L8 13M7 15L8 17" stroke="#451a03" stroke-width="0.8" stroke-linecap="round" opacity="0.75"/>
+              <path d="M7 10C9.8 8.2 13.5 9.8 12.5 12.8C9.8 13.8 7.8 11.8 7 10Z" fill="#22c55e" stroke="#14532d" stroke-width="0.6"/>
+              <path d="M7 10.5C9 10.8 11 11.6 12 12.5" stroke="#86efac" stroke-width="0.5" stroke-linecap="round"/>
+              <circle cx="7" cy="20" r="2" fill="#ca8a04" stroke="#451a03" stroke-width="1"/>
+            </svg>
+          </div>
+          <button id="hintBtn" class="hanging-card hint-card" title="Hint">
+            <div class="card-inner-pill">
+              <span>💡</span>
+              <span>Hint</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Hanging Frame 2: Clear (🧽) -->
+        <div class="hanging-card-assembly hanging-assembly-right">
+          <div class="hanging-rope-anchor">
+            <svg class="hanging-rope-svg" viewBox="0 0 14 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="7" cy="3" r="2.5" fill="#451a03" stroke="#854d0e" stroke-width="1.2"/>
+              <circle cx="7" cy="3" r="1.2" fill="#d97706"/>
+              <path d="M7 5V19" stroke="#78350f" stroke-width="2.6" stroke-linecap="round"/>
+              <path d="M7 6L6 8M7 10L6 12M7 14L6 16" stroke="#fef08a" stroke-width="0.8" stroke-linecap="round" opacity="0.65"/>
+              <path d="M7 7L8 9M7 11L8 13M7 15L8 17" stroke="#451a03" stroke-width="0.8" stroke-linecap="round" opacity="0.75"/>
+              <path d="M7 11C4.2 9.2 0.5 10.8 1.5 13.8C4.2 14.8 6.2 12.8 7 11Z" fill="#22c55e" stroke="#14532d" stroke-width="0.6"/>
+              <path d="M7 11.5C5 11.8 3 12.6 2 13.5" stroke="#86efac" stroke-width="0.5" stroke-linecap="round"/>
+              <circle cx="7" cy="20" r="2" fill="#ca8a04" stroke="#451a03" stroke-width="1"/>
+            </svg>
+          </div>
+          <button id="clearBtn" onclick="clearCanvas(event)" class="hanging-card clear-card" title="Clear">
+            <div class="card-inner-pill">
+              <span>🧽</span>
+              <span>Clear</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="aperture-blocker" id="blockerLeft"></div>
-  <div class="aperture-blocker" id="blockerRight"></div>
 
-  <!-- Focused Cutout Window directly over the notebook canvas -->
-  <div class="aperture-window" id="apertureWindow">
-    <div class="aperture-guide-corner corner-tl"></div>
-    <div class="aperture-guide-corner corner-tr"></div>
-    <div class="aperture-guide-corner corner-bl"></div>
-    <div class="aperture-guide-corner corner-br"></div>
+  <!-- SUPREME UI LAYER: Fixed Top Header Navigation Bar (Always in front of monkey branch and easel) -->
+  <header id="navBar" class="nav-bar-container">
+    <button class="home-nav-btn" id="homeBtn" title="Home" aria-label="Home">🏠</button>
+
+    <!-- Stepper Pills -->
+    <div class="nav-steps-container">
+      <div class="nav-step-pill active" id="st1" title="Step 1: Letter Recall">
+        <span class="step-circ-icon" id="navLetter">अ</span>
+        <span class="tablet-pill-text">Letter</span>
+      </div>
+
+      <!-- The dynamic stage badge (moves dynamically next to whichever stage is active) -->
+      <div id="stageBadge" class="nav-stage-badge">
+        <span>✍️</span>
+        <span id="stageBadgeText" class="tablet-pill-text">1/3 Trace</span>
+        <span id="stageBadgeShort" class="phone-pill-text">1/3</span>
+      </div>
+
+      <div class="nav-step-pill" id="st2" title="Step 2: Matra Recall">
+        <span class="step-circ-icon">ा</span>
+        <span class="tablet-pill-text">Matra</span>
+      </div>
+
+      <div class="nav-step-pill" id="st3" title="Step 3: Word Recall">
+        <span class="step-circ-icon">का</span>
+        <span class="tablet-pill-text">Word</span>
+      </div>
+
+      <div class="nav-step-pill progress-step-pill" id="st4" title="Progress & Stickers">
+        <span class="step-circ-icon">★</span>
+        <span class="tablet-pill-text">Progress</span>
+      </div>
+    </div>
+
+    <!-- Treats Counter -->
+    <div class="treats-pill-badge" id="bananaBadge" title="Treats collected">
+      <span>🍌</span>
+      <span id="bananaCount">0</span>
+      <span class="tablet-pill-text">treats</span>
+    </div>
+  </header>
+
+  <!-- LAYER 3: Native App Interactive Interface (Scrollable Bottom Anchored) -->
+  <div id="appContainer" class="app-container-layer">
+    <!-- Main Activity Section -->
+    <div id="mainActivityWrapper">
+      <!-- Stage Arena: Slate (Center) -->
+      <div id="stageArena">
+        <!-- The Sacred Parchment Writing Slate (#write) -->
+        <div id="slateWrapper">
+          <img id="parchmentImg" class="parchment-scroll-img" src="images/parchment_scroll.png" alt="Writing Parchment" />
+          <div id="slateInnerContent">
+            <!-- Slate Top Bar: Prev & Next next to each other on left, Done on extreme right -->
+            <div id="slateTopBar">
+              <div class="slate-nav-pair">
+                <button class="nav-paper-btn prev-btn" id="prevBtn" title="Previous letter">
+                  <span>◀</span>
+                  <span>Prev</span>
+                </button>
+                <button class="nav-paper-btn next-btn" id="nextBtn" title="Next letter">
+                  <span>Next</span>
+                  <span>▶</span>
+                </button>
+              </div>
+              <button class="done-paper-btn done" id="done" title="I'm done!">
+                <span>✓</span>
+                <span class="tablet-pill-text">I'm done!</span>
+                <span class="phone-pill-text">Done</span>
+              </button>
+            </div>
+
+            <!-- 5-Line Devanagari Notebook Ruling & Interactive Paint Canvas -->
+            <div class="canvas-slate-container" id="canvasRulingContainer">
+              <canvas id="write" aria-label="Writing canvas"></canvas>
+            </div>
+
+            <!-- Bottom Slate Footnote / Palm Shield Zone -->
+            <div class="canvas-prompt-container" id="promptText">
+              🖐️ Palm Shield Protected
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 
-<div class="guideheading" id="guideHeading"><span id="guideTitle">Visual Clue</span></div>
-<div class="clue-board" id="clueBoard" title="Tap to hear word">
-  <div class="clue-emoji" id="clueEmoji"></div>
-</div>
-<canvas id="guide" aria-label="Letter guide" style="display:none"></canvas>
+  <!-- Dormant Elements Zone (Hidden for test suite & backward compatibility) -->
+  <div id="dormantCompatibilityZone" style="display:none !important;" aria-hidden="true">
+    <!-- Bottom Android Navigation Safe Zone (Dormant to eliminate gap below paper) -->
+    <div class="android-safe-zone" id="androidSafeZone">
+      <div class="safe-zone-pill">
+        <span>🛡️ Android Safe Zone (36px clearance)</span>
+      </div>
+    </div>
+    <div class="guideheading" id="guideHeading"><span id="guideTitle">Visual Clue</span></div>
+    <canvas id="guide" aria-label="Letter guide" style="display:none"></canvas>
+    <div class="toolbar-top" id="toolbarTop">
+      <div class="toolbar-left">
+        <button class="ctrl-pill local-only" id="ocrInspectPill" style="display:none !important;" aria-hidden="true">🔍 OCR: <span id="ocrPillStatus">Ready</span></button>
+        <button class="ctrl-pill local-only" id="audioReviewBtn" title="Review sounds">🎧 Sounds</button>
+      </div>
+      <button class="ctrl-pill" id="fullscreenToggle" title="Toggle Fullscreen">⛶ Fullscreen</button>
+      <button class="ctrl-pill" id="voiceToggle" style="display:none" aria-hidden="true"></button>
+    </div>
 
-<button class="sidebtn erase" id="erase"><span class="ico">🧽</span>Erase</button>
-<button class="sidebtn retry" id="hintBtn"><span class="ico">💡</span>Hint</button>
+    <!-- Aperture overlay elements kept dormant in DOM -->
+    <div class="aperture-overlay" id="apertureOverlay" style="display:none">
+      <div class="aperture-bar" id="apertureBar">
+        <div class="aperture-bar-left">
+          <div class="aperture-units-track" id="apertureUnitsTrack"></div>
+          <span class="aperture-badge" id="apertureBadge" style="display:none">Letter: अ</span>
+          <span class="aperture-prompt" id="aperturePrompt">Write 'अ' ✍️</span>
+        </div>
+        <div class="aperture-bar-right">
+          <button class="aperture-btn" id="apertureSoundBtn" title="Hear sound">🔊 Sound</button>
+          <button class="aperture-btn" id="apertureHintBtn" title="Show guide">💡 Hint</button>
+          <button class="aperture-btn" id="apertureClearBtn" title="Clear letter stroke">🧽 Clear</button>
+          <button class="aperture-btn" id="aperturePrevBtn" title="Previous letter/matra">◀ Prev</button>
+          <button class="aperture-btn done-pill" id="apertureDoneBtn">✓ Next</button>
+          <button class="aperture-close-btn" id="apertureCloseBtn" title="Exit Writing Mode">✕</button>
+        </div>
+      </div>
+      <div class="aperture-blocker" id="blockerTop"></div>
+      <div class="aperture-blocker" id="blockerBottom"></div>
+      <div class="aperture-blocker" id="blockerLeft"></div>
+      <div class="aperture-blocker" id="blockerRight"></div>
+      <div class="aperture-window" id="apertureWindow"></div>
+    </div>
+  </div>
 
-<button class="prev-btn" id="prevBtn">Previous</button>
-<button class="bottombtn done" id="done">✍️ Let's write</button>
-<button class="next-btn" id="nextBtn">Next</button>
-<div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.3.16</div>
+  <div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.4.7</div>
 
 <div class="modal" id="modal">
   <div class="dialog">
@@ -2031,7 +2516,7 @@ function renderClue(item, step) {
 
   currentActiveClueWord = key;
 
-  const soundBadge = '<span class="clue-sound-pill">🔊 सुनो</span>';
+  const soundBadge = '<span class="clue-sound-badge" title="Tap to hear">🔊</span>';
   let imgSrc = IMAGES[key];
 
   if (imgSrc) {
@@ -2068,7 +2553,7 @@ let hintTimer = null;
 let bananas = parseInt(localStorage.getItem('rasari_bananas') || '0', 10);
 let masteryData = JSON.parse(localStorage.getItem('rasari_mastery_v2') || '{}');
 
-const $ = id => document.getElementById(id);
+const $ = id => document.getElementById(id) || (id === 'erase' ? document.getElementById('clearBtn') : null) || (id === 'clearBtn' ? document.getElementById('erase') : null);
 const w = $('write'), ctx = w.getContext('2d');
 
 $('bananaCount').textContent = bananas;
@@ -2152,17 +2637,62 @@ function fit(canvas, context) {
 }
 
 // 5-line Notebook Ruling Proportions (Strict Invariant: ZERO SCALING)
-function computeRuling(height) {
-  const bodyHeight = Math.round(height * 0.29);
-  const line2 = Math.round(height * 0.37);               // Bold Shirorekha
-  const line4 = line2 + bodyHeight;                     // Bold Baseline
-  const line3 = Math.round(line2 + bodyHeight * 0.5);   // Midline guide
-  const line1 = Math.round(line2 - bodyHeight * 0.44);  // Upper matra guide (Line 1)
-  const line5 = Math.round(line4 + bodyHeight * 0.44);  // Lower matra guide (Line 5)
+function computeRuling(height, width) {
+  // If height >= 500 (standard desktop/large tablet canvas & regression benchmark):
+  // maintain exact 37% Shirorekha and 29% bodyHeight
+  if (height >= 500) {
+    const bodyHeight = Math.round(height * 0.29);
+    const line2 = Math.round(height * 0.37);               // Bold Shirorekha
+    const line4 = line2 + bodyHeight;                     // Bold Baseline
+    const line3 = Math.round(line2 + bodyHeight * 0.5);   // Midline guide
+    const line1 = Math.round(line2 - bodyHeight * 0.44);  // Upper matra guide (Line 1)
+    const line5 = Math.round(line4 + bodyHeight * 0.44);  // Lower matra guide (Line 5)
+    const theoreticalFontSize = Math.round(100 * (bodyHeight / 62));
+    const theoreticalStem = Math.round(theoreticalFontSize * 0.16);
+    let stemWidth = theoreticalStem;
+    let layout = null;
+    if (typeof getTextLayout === 'function' && typeof ctx !== 'undefined' && ctx) {
+      try {
+        layout = getTextLayout(ctx, typeof getTargetText === 'function' ? getTargetText() : 'क', { line2, line4, bodyHeight });
+        if (layout && layout.stemWidth) stemWidth = layout.stemWidth;
+      } catch (_) {}
+    }
+    const brushWidth = Math.max(16, Math.round(stemWidth * 0.60));
+    return { line1, line2, line3, line4, line5, bodyHeight, brushWidth, layout };
+  }
 
-  const brushWidth = Math.max(16, Math.round(bodyHeight * 0.12));
+  // On mobile / shorter screens: utilize vertical canvas height with centered ruling (exact match to mockup.html)
+  const maxByHeight = Math.round(height * 0.44);
+  const maxByWidth = width ? Math.round((width - 32) / 4.4) : maxByHeight;
+  const bodyHeight = Math.max(48, Math.min(86, maxByWidth, maxByHeight));
 
-  return { line1, line2, line3, line4, line5, bodyHeight, brushWidth };
+  const topMatraH = Math.round(bodyHeight * 0.44);
+  const bottomMatraH = Math.round(bodyHeight * 0.44);
+  const totalRulingH = bodyHeight + topMatraH + bottomMatraH;
+
+  // Vertically center the entire 5-line ruling guide inside the container
+  const topMargin = Math.max(6, Math.round((height - totalRulingH) / 2));
+  const line1 = topMargin;                                // Upper matra guide
+  const line2 = line1 + topMatraH;                        // Bold Shirorekha (Line 2)
+  const line3 = Math.round(line2 + bodyHeight * 0.5);     // Midline guide (Line 3)
+  const line4 = line2 + bodyHeight;                       // Bold Baseline foot (Line 4)
+  const line5 = line4 + bottomMatraH;                     // Lower matra guide (Line 5)
+
+  // Production Standard: ink width is ~60% of watermark stem thickness
+  // (~13-14px on tablet, ~10px on phone) to ensure clean strokes without clogging loops (exact match to mockup.html)
+  const theoreticalFontSize = Math.round(100 * (bodyHeight / 62));
+  const theoreticalStem = Math.round(theoreticalFontSize * 0.16);
+  let stemWidth = theoreticalStem;
+  let layout = null;
+  if (typeof getTextLayout === 'function' && typeof ctx !== 'undefined' && ctx) {
+    try {
+      layout = getTextLayout(ctx, typeof getTargetText === 'function' ? getTargetText() : 'क', { line2, line4, bodyHeight });
+      if (layout && layout.stemWidth) stemWidth = layout.stemWidth;
+    } catch (_) {}
+  }
+  const brushWidth = Math.max(10, Math.round(stemWidth * 0.60));
+
+  return { line1, line2, line3, line4, line5, bodyHeight, brushWidth, layout };
 }
 
 // Exact Font Metrics: pins Shirorekha to Line 2 and foot to Line 4 with 0px gap
@@ -2179,17 +2709,54 @@ function getTextLayout(context, text, ruling) {
   const refTotal = (refAscent + refDescent) > 20 ? (refAscent + refDescent) : (testSize * 0.62);
 
   const exactFontSize = Math.round(testSize * (targetH / refTotal));
+  const fontStr = '700 ' + exactFontSize + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif';
+  context.font = fontStr;
 
-  context.font = '700 ' + exactFontSize + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif';
   const mExact = context.measureText('क');
   const exactAscent = mExact.actualBoundingBoxAscent || Math.round(exactFontSize * 0.62);
 
   const textBaselineY = ruling.line2 + exactAscent;
 
+  // Calculate exact font stem thickness so drawing boldness matches watermark boldness
+  // In Noto Sans Devanagari Bold (700), the vertical stem thickness is ~16% of font size
+  const theoreticalStemWidth = Math.round(exactFontSize * 0.16);
+  let stemWidth = theoreticalStemWidth;
+  try {
+    const sz = Math.max(240, Math.round(exactFontSize * 1.5));
+    const off = document.createElement('canvas');
+    off.width = sz;
+    off.height = sz;
+    const octx = off.getContext('2d');
+    octx.font = fontStr;
+    octx.fillStyle = '#000';
+    octx.textBaseline = 'middle';
+    octx.textAlign = 'center';
+    // Standalone Devanagari Danda '।' (pure vertical stem, no combining dotted circle)
+    octx.fillText('।', sz / 2, sz / 2);
+    const midY = Math.round(sz / 2);
+    const imgData = octx.getImageData(0, midY - 5, sz, 10).data;
+    let maxRun = 0;
+    for (let row = 0; row < 10; row++) {
+      let curRun = 0;
+      for (let col = 0; col < sz; col++) {
+        if (imgData[(row * sz + col) * 4 + 3] > 100) {
+          curRun++;
+          if (curRun > maxRun) maxRun = curRun;
+        } else {
+          curRun = 0;
+        }
+      }
+    }
+    if (maxRun >= Math.round(theoreticalStemWidth * 0.75) && maxRun <= Math.round(theoreticalStemWidth * 1.35)) {
+      stemWidth = maxRun;
+    }
+  } catch (e) {}
+
   return {
     fontSize: exactFontSize,
     baselineY: textBaselineY,
-    fontStr: '700 ' + exactFontSize + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif'
+    fontStr: fontStr,
+    stemWidth: stemWidth
   };
 }
 
@@ -2249,7 +2816,7 @@ function drawNotebookLines(context, width, ruling) {
 }
 
 function getBrushWidth() {
-  const r = computeRuling(w.clientHeight);
+  const r = computeRuling(w.clientHeight, w.clientWidth);
   return r.brushWidth;
 }
 
@@ -2417,6 +2984,8 @@ function smoothStrokeMicroscopic(pts, customBrushWidth = null) {
 function drawSmoothStroke(ctx, pts, width, offsetX = 0, offsetY = 0) {
   if (!pts || pts.length === 0) return;
   ctx.save();
+  if (!ctx.strokeStyle || ctx.strokeStyle === '#000000') ctx.strokeStyle = '#103960';
+  if (!ctx.fillStyle || ctx.fillStyle === '#000000') ctx.fillStyle = '#103960';
   ctx.lineWidth = width;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
@@ -2458,7 +3027,7 @@ function drawPad() {
   ctx.clearRect(0, 0, ww, h);
 
   const targetText = getTargetText();
-  const ruling = computeRuling(h);
+  const ruling = computeRuling(h, ww);
   drawNotebookLines(ctx, ww, ruling);
 
   const item = lessons[idx];
@@ -2491,8 +3060,8 @@ function drawPad() {
   if (alpha > 0 && targetText) {
     ctx.save();
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = '#1c5e4c';
-    const layout = getTextLayout(ctx, targetText, ruling);
+    ctx.fillStyle = 'rgba(18, 65, 112, 0.32)'; // Clean visible watermark matching mockup.html
+    const layout = (ruling && ruling.layout) ? ruling.layout : getTextLayout(ctx, targetText, ruling);
     ctx.font = layout.fontStr;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
@@ -2500,11 +3069,11 @@ function drawPad() {
     ctx.restore();
   }
 
-  // Draw User Strokes with Smooth Bezier Inking
+  // Draw User Strokes with Smooth Bezier Inking (Exact match to mockup.html)
   const bw = ruling.brushWidth;
   ctx.save();
-  ctx.strokeStyle = '#173e33';
-  ctx.fillStyle = '#173e33';
+  ctx.strokeStyle = '#103960';
+  ctx.fillStyle = '#103960';
   ctx.lineWidth = bw;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
@@ -2602,8 +3171,8 @@ w.addEventListener('pointerdown', e => {
   }
 
   const bw = getBrushWidth();
-  ctx.strokeStyle = '#173e33';
-  ctx.fillStyle = '#173e33';
+  ctx.strokeStyle = '#103960';
+  ctx.fillStyle = '#103960';
   ctx.lineWidth = bw;
   ctx.beginPath();
   ctx.arc(p.x, p.y, bw / 2, 0, Math.PI * 2);
@@ -2631,7 +3200,7 @@ w.addEventListener('pointermove', e => {
           }
           currentStroke.push(p);
           const bw = getBrushWidth();
-          ctx.strokeStyle = '#173e33';
+          ctx.strokeStyle = '#103960';
           ctx.lineWidth = bw;
           ctx.lineCap = 'round';
           ctx.lineJoin = 'round';
@@ -2695,7 +3264,7 @@ w.addEventListener('pointermove', e => {
   const len = pts.length;
 
   const bw = getBrushWidth();
-  ctx.strokeStyle = '#173e33';
+  ctx.strokeStyle = '#103960';
   ctx.lineWidth = bw;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
@@ -2730,7 +3299,7 @@ w.addEventListener('pointerup', e => {
     // Finish final line segment to stroke tip if needed
     if (len >= 3) {
       const bw = getBrushWidth();
-      ctx.strokeStyle = '#173e33';
+      ctx.strokeStyle = '#103960';
       ctx.lineWidth = bw;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
@@ -2826,11 +3395,10 @@ let mainCtaState = 'write'; // 'write' | 'done'
 function updateMainCta() {
   const btn = $('done');
   if (!btn) return;
+  btn.innerHTML = `<span>✓</span><span class="tablet-pill-text">I'm done!</span><span class="phone-pill-text">Done</span>`;
   if (mainCtaState === 'write') {
-    btn.textContent = "✍️ Let's write";
     btn.classList.remove('ready-done');
   } else {
-    btn.textContent = "✓ I'm done!";
     btn.classList.add('ready-done');
   }
 }
@@ -4424,7 +4992,7 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
   const tx = tc.getContext('2d');
   tx.fillStyle = '#000'; tx.fillRect(0, 0, S, S);
   tx.fillStyle = '#fff';
-  const tRuling = computeRuling(S);
+  const tRuling = computeRuling(S, S);
   const tLayout = getTextLayout(tx, targetString, tRuling);
   tx.font = tLayout.fontStr;
   tx.textAlign = 'center';
@@ -4456,7 +5024,7 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
   ux.fillStyle = '#000'; ux.fillRect(0, 0, S, S);
   ux.strokeStyle = '#fff';
   const scale = S / h;
-  const screenRuling = computeRuling(h);
+  const screenRuling = computeRuling(h, ww);
   const offscreenBw = Math.max(3, Math.min(6, Math.round(screenRuling.brushWidth * scale)));
   ux.lineWidth = offscreenBw;
   ux.lineCap = 'round'; ux.lineJoin = 'round';
@@ -4718,11 +5286,6 @@ $('done').onclick = e => {
   drawing = false;
   activePointerId = null;
   lastDrawEndTime = 0;
-
-  if (mainCtaState === 'write') {
-    openApertureMode();
-    return;
-  }
 
   if (!userStrokes.length) {
     w.classList.add('shake');
@@ -5050,7 +5613,7 @@ $('done').onclick = e => {
       console.error('[Done Handler Error]:', err);
     } finally {
       isEvaluatingSubmission = false;
-      $('done').textContent = prevDoneLabel || '✓ I\'m done!';
+      $('done').innerHTML = '<span>✓</span> <span class="tablet-pill-text">I\'m done!</span><span class="phone-pill-text">Done</span>';
       $('done').style.pointerEvents = 'auto';
     }
   })();
@@ -5219,15 +5782,54 @@ $('clueBoard').onclick = speakClue;
 makeTouchResponsive($('clueBoard'));
 $('clueEmoji').onclick = speakClue;
 makeTouchResponsive($('clueEmoji'));
-$('erase').onclick = () => {
+if ($('monkeyHandBoard')) {
+  $('monkeyHandBoard').onclick = () => {
+    if (currentStep === 1) {
+      speakLetter();
+    } else {
+      speakClue();
+    }
+  };
+  makeTouchResponsive($('monkeyHandBoard'));
+}
+if ($('monkeySpeechBubble')) {
+  $('monkeySpeechBubble').onclick = () => {
+    if (currentStep === 1) {
+      speakLetter();
+    } else {
+      speakClue();
+    }
+  };
+  makeTouchResponsive($('monkeySpeechBubble'));
+}
+function performClear(e) {
+  if (e) {
+    if (e.preventDefault) e.preventDefault();
+    if (e.stopPropagation) e.stopPropagation();
+  }
   if (isApertureMode) {
     clearCurrentAksharaStrokes();
   } else {
     clearPad();
   }
-};
-makeTouchResponsive($('erase'));
-makeTouchResponsive($('hintBtn'));
+  const clr = $('erase');
+  if (clr) {
+    clr.style.transform = 'scale(0.92) translateY(2px)';
+    setTimeout(() => {
+      clr.style.transform = '';
+    }, 160);
+  }
+}
+window.clearCanvas = performClear;
+if ($('erase')) {
+  $('erase').onclick = performClear;
+  $('erase').addEventListener('pointerdown', e => e.stopPropagation());
+  makeTouchResponsive($('erase'), performClear);
+}
+if ($('hintBtn')) {
+  $('hintBtn').addEventListener('pointerdown', e => e.stopPropagation());
+  makeTouchResponsive($('hintBtn'));
+}
 
 function goHome() {
   if (isApertureMode) {
@@ -5337,7 +5939,7 @@ function getAksharaMetrics(unitIdx) {
   const targetText = getTargetText() || 'अ';
   const cW = w.clientWidth || 400;
   const cH = w.clientHeight || 400;
-  const ruling = computeRuling(cH);
+  const ruling = computeRuling(cH, cW);
   const layout = getTextLayout(ctx, targetText, ruling);
   ctx.font = layout.fontStr;
 
@@ -5816,9 +6418,28 @@ if ($('apertureCloseBtn')) {
 
 updateWriteModeBtn();
 
+function anchorToBottom() {
+  const app = $('appContainer');
+  if (app) app.scrollTop = app.scrollHeight;
+  const slate = $('slateWrapper');
+  if (slate && typeof slate.scrollIntoView === 'function') {
+    slate.scrollIntoView({ block: 'end' });
+  }
+}
+
 window.addEventListener('resize', () => {
   drawPad();
+  anchorToBottom();
   if (isApertureMode) updateApertureView();
+});
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    drawPad();
+    anchorToBottom();
+  }, 100);
+});
+window.addEventListener('load', () => {
+  setTimeout(anchorToBottom, 120);
 });
 
 // Step Navigation Handlers: progression is auto-driven (st1-st3 non-clickable); st4 opens non-destructive progress book
@@ -5850,8 +6471,8 @@ function setLetter(newIdx) {
   const autoStep = getAutoStepForLetter(item);
   setStep(autoStep);
 
-  $('prevBtn').textContent = 'Previous';
-  $('nextBtn').textContent = 'Next';
+  if (!$('prevBtn').querySelector('span')) $('prevBtn').innerHTML = '<span>◀</span><span>Prev</span>';
+  if (!$('nextBtn').querySelector('span')) $('nextBtn').innerHTML = '<span>Next</span><span>▶</span>';
 
   const matraStepEl = $('st2');
   if (item.isSwar) {
@@ -5895,39 +6516,84 @@ function render() {
     return;
   }
 
-  // Left Callout: ONLY the action to be done and the focus letter!
-  $('charGlyph').textContent = item.c;
-  $('navLetter').textContent = item.c;
+  // Move stageBadge next to active step pill
+  const activeStepEl = currentStep === 1 ? $('st1') : (currentStep === 2 ? $('st2') : $('st3'));
+  const badge = $('stageBadge');
+  if (activeStepEl && badge && activeStepEl.nextElementSibling !== badge) {
+    activeStepEl.after(badge);
+  }
 
-  // Bottom Nav Labels
-  $('prevBtn').textContent = 'Previous';
-  $('nextBtn').textContent = 'Next';
+  // Left Callout: ONLY the action to be done and the focus letter!
+  if ($('charGlyph')) $('charGlyph').textContent = item.c;
+  if ($('navLetter')) $('navLetter').textContent = item.c;
+
+  // Bottom Nav Labels (Preserve mockup Prev/Next markup)
+  if (!$('prevBtn').querySelector('span')) $('prevBtn').innerHTML = '<span>◀</span><span>Prev</span>';
+  if (!$('nextBtn').querySelector('span')) $('nextBtn').innerHTML = '<span>Next</span><span>▶</span>';
 
   // Dynamic Stage Setup (Right Clue: Pure Visual Clue, no text!)
   if (currentStep === 1) {
     // Stage 1: Letter Recall
     const tierName = m.letterTier === 0 ? 'Trace' : (m.letterTier === 1 ? 'Ghost' : 'Freehand');
+    const tierRatio = (m.letterTier + 1) + '/3';
     $('promptText').textContent = "Write letter " + item.c;
-    $('stageBadge').textContent = m.letterMastered ? 'Letter Mastered ⭐' : ('Letter (' + tierName + ')');
+    if (badge) {
+      if (m.letterMastered) {
+        badge.innerHTML = '<span>⭐</span><span class="tablet-pill-text"> Letter Mastered</span>';
+      } else {
+        badge.innerHTML = '<span>✍️</span> <span class="tablet-pill-text">' + tierRatio + ' ' + tierName + '</span><span class="phone-pill-text">' + tierRatio + '</span>';
+      }
+    }
     renderClue(item, 1);
   } else if (currentStep === 2 && !item.isSwar) {
     // Stage 2: Matra Recall
     const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
     const combo = getMatraCombo(item.c, matraObj.sym);
     const tierName = m.matraTier === 0 ? 'Trace' : (m.matraTier === 1 ? 'Ghost' : 'Freehand');
+    const tierRatio = (m.matraTier + 1) + '/3';
     $('promptText').textContent = "Write " + combo + " (" + matraObj.name + ")";
-    $('stageBadge').textContent = m.matraMastered ? 'Matras Mastered ⭐⭐' : ('Matra ' + ((m.matraIndex || 0) + 1) + '/13 (' + tierName + ')');
+    if (badge) {
+      if (m.matraMastered) {
+        badge.innerHTML = '<span>⭐⭐</span><span class="tablet-pill-text"> Matras Mastered</span>';
+      } else {
+        badge.innerHTML = '<span>🌿</span> <span class="tablet-pill-text">' + ((m.matraIndex || 0) + 1) + '/13 ' + tierName + '</span><span class="phone-pill-text">' + ((m.matraIndex || 0) + 1) + '/13</span>';
+      }
+    }
     renderClue(item, 2);
   } else if (currentStep === 3) {
     // Stage 3: Word Recall
     const tierName = m.wordTier === 0 ? 'Trace' : (m.wordTier === 1 ? 'Ghost' : 'Freehand');
     $('promptText').textContent = "Write the word ✍️";
     const count = (m.wordsMastered && m.wordsMastered.length) || 0;
-    $('stageBadge').textContent = count >= 10 ? ('Words Mastered ⭐⭐⭐ (' + count + ')') : ('Word ' + ((m.wordIndex || 0) + 1) + ' (' + count + '/10 ⭐⭐⭐, ' + tierName + ')');
+    if (badge) {
+      if (count >= 10) {
+        badge.innerHTML = '<span>⭐⭐⭐</span><span class="tablet-pill-text"> Words Mastered (' + count + ')</span>';
+      } else {
+        badge.innerHTML = '<span>📝</span> <span class="tablet-pill-text">' + count + '/10 ' + tierName + '</span><span class="phone-pill-text">' + count + '/10</span>';
+      }
+    }
     renderClue(item, 3);
   }
 
+  // Update Mittu monkey held board
+  const glyph = $('charGlyph');
+  const speechWord = $('monkeySpeechWord');
+  if (currentStep === 1) {
+    if (glyph) glyph.textContent = item.c;
+    if (speechWord) speechWord.textContent = item.word ? (item.c + ' से ' + item.word) : item.c;
+  } else if (currentStep === 2 && !item.isSwar) {
+    const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+    const combo = getMatraCombo(item.c, matraObj.sym);
+    if (glyph) glyph.textContent = combo;
+    if (speechWord) speechWord.textContent = matraObj.name || combo;
+  } else if (currentStep === 3) {
+    const wObj = getWordForLetter(item.c, m.wordIndex || 0);
+    if (glyph) glyph.textContent = item.c;
+    if (speechWord) speechWord.textContent = wObj.word || item.c;
+  }
+
   drawPad();
+  anchorToBottom();
   if (isApertureMode) {
     currentPracticeUnits = decomposeWordToUnits(getTargetText());
     updateApertureView();
@@ -6067,7 +6733,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.3.31';
+const CURRENT_APP_VERSION = '3.4.7';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
