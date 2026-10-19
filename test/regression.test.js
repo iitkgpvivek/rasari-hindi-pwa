@@ -770,9 +770,11 @@ test('Visual OCR Inspector UI & Topological Discriminators (\'ष\' vs \'प\', 
 test('Multimodal Gemini AI Vision Evaluator & Offline Fallback Resilience', () => {
   const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 
-  // 1. Gemini Vision Evaluator function and default key
+  // 1. Gemini Vision Evaluator function and keys
   assert(scriptContent.includes('async function evaluateWithGeminiVision('), 'evaluateWithGeminiVision function must exist');
-  assert(scriptContent.includes('gemini-flash-lite-latest') || scriptContent.includes('gemini-3.8-flash'), 'Must use fast multimodal free tier model');
+  assert(scriptContent.includes('DEFAULT_GEMINI_API_KEY'), 'DEFAULT_GEMINI_API_KEY must exist');
+  assert(scriptContent.includes('BACKUP_GEMINI_API_KEY'), 'BACKUP_GEMINI_API_KEY must exist for redundancy');
+  assert(scriptContent.includes('gemini-flash-lite-latest') || scriptContent.includes('gemini-3.8-flash'), 'Must use fast multimodal model');
 
   // 2. Offline Resilience (AGENTS.md rule)
   assert(scriptContent.includes('navigator.onLine === false'), 'Must verify online status to prevent stalling when offline');

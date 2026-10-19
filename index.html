@@ -4191,11 +4191,11 @@ function captureSubmittedWriting() {
       if (pt.y > maxY) maxY = pt.y;
     });
   });
-  if (totalPts < 2 || !isFinite(minX) || maxX <= minX || maxY <= minY) return null;
+  if (totalPts < 1 || !isFinite(minX) || !isFinite(minY)) return null;
 
   const pad = 14;
-  const strokeW = maxX - minX;
-  const strokeH = maxY - minY;
+  const strokeW = Math.max(10, maxX - minX);
+  const strokeH = Math.max(10, maxY - minY);
   const bw = Math.round(strokeW + pad * 2);
   const bh = Math.round(strokeH + pad * 2);
 
@@ -4742,11 +4742,18 @@ function recognizeDevanagariOCR(strokes, expectedChar, strokeOffset = 0, W = nul
 }
 
 // Gemini AI Multimodal Vision Evaluator
-const DEFAULT_GEMINI_API_KEY = (typeof atob === 'function') ? atob('QVEuQWI4Uk42TFNjVktUTXZaaW5zQ0dZS0RFMEtSZ2J0VGJCcWx4MGh4a000WWlCR1RiWmc=') : '';
+// Primary key: Billed / Paid account with high production quota and zero rate limits
+const DEFAULT_GEMINI_API_KEY = (typeof atob === 'function') ? atob('QVEuQWI4Uk42S0JqRDRDNnh6V1FhV3Zlcl9Kc3VMUEpIVXA2SzFMSUtVU2hwM2d3SE5OV1E=') : '';
+// Backup key: Free tier key for fallback redundancy
+const BACKUP_GEMINI_API_KEY = (typeof atob === 'function') ? atob('QVEuQWI4Uk42TFNjVktUTXZaaW5zQ0dZS0RFMEtSZ2J0VGJCcWx4MGh4a000WWlCR1RiWmc=') : '';
 
 function getGeminiApiKey() {
   try {
-    return localStorage.getItem('rasari_gemini_api_key') || DEFAULT_GEMINI_API_KEY;
+    const stored = (localStorage.getItem('rasari_gemini_api_key') || '').trim();
+    if (stored && stored.length > 20 && stored !== 'null' && stored !== 'undefined') {
+      return stored;
+    }
+    return DEFAULT_GEMINI_API_KEY;
   } catch (e) {
     return DEFAULT_GEMINI_API_KEY;
   }
@@ -4762,8 +4769,9 @@ async function evaluateWithGeminiVision(capturedDataUrl, targetText) {
     return null;
   }
 
-  const apiKey = getGeminiApiKey();
-  if (!apiKey) {
+  const primaryKey = getGeminiApiKey();
+  const apiKeys = [primaryKey, BACKUP_GEMINI_API_KEY].filter((k, idx, arr) => k && arr.indexOf(k) === idx);
+  if (!apiKeys.length) {
     window.lastGeminiFailureReason = 'No API Key';
     return null;
   }
@@ -4799,41 +4807,44 @@ Respond ONLY with a JSON object:
       generationConfig: {
         temperature: 0.1,
         responseMimeType: "application/json",
-        maxOutputTokens: 60
+        maxOutputTokens: 256
       }
     };
 
     let response = null;
     let chosenModel = '';
     let lastErrorReason = 'Unknown Error';
-    // Ultra-fast Flash Lite models with active free quota and sub-2s responsiveness
-    const FAST_MODELS = ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest'];
+    // Ultra-fast Flash-Lite models followed by flagship Flash 3.8 fallback
+    const FAST_MODELS = ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-3.8-flash'];
 
-    for (const model of FAST_MODELS) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6500);
+    for (const key of apiKeys) {
+      for (const model of FAST_MODELS) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
 
-        if (res.ok) {
-          response = res;
-          chosenModel = model;
-          break;
-        } else {
-          lastErrorReason = (res.status === 429) ? 'Quota Limit (429)' : `HTTP ${res.status}`;
-          console.warn(`[Gemini Vision] Model ${model} returned ${res.status}, trying fallback...`);
+          if (res.ok) {
+            response = res;
+            chosenModel = model;
+            break;
+          } else {
+            lastErrorReason = (res.status === 429) ? 'Quota Limit (429)' : `HTTP ${res.status}`;
+            console.warn(`[Gemini Vision] Model ${model} returned ${res.status}, trying fallback...`);
+          }
+        } catch (err) {
+          lastErrorReason = (err && err.name === 'AbortError') ? 'Timeout (>12s)' : 'Network Error';
+          console.warn(`[Gemini Vision] Model ${model} timeout or error, trying fallback...`, err);
         }
-      } catch (err) {
-        lastErrorReason = (err && err.name === 'AbortError') ? 'Timeout (>6.5s)' : 'Network Error';
-        console.warn(`[Gemini Vision] Model ${model} timeout or error, trying fallback...`, err);
       }
+      if (response) break;
     }
 
     if (!response) {
@@ -4844,14 +4855,27 @@ Respond ONLY with a JSON object:
 
     window.lastGeminiFailureReason = null;
     const data = await response.json();
-    let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const candidate = data.candidates?.[0];
+    const parts = candidate?.content?.parts || [];
+    let text = '';
+    for (const p of parts) {
+      if (p && typeof p.text === 'string') text += p.text;
+    }
     if (!text) {
-      window.lastGeminiFailureReason = 'Empty response';
+      window.lastGeminiFailureReason = candidate?.finishReason || 'Empty response';
       return null;
     }
 
-    text = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-    const parsed = JSON.parse(text);
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const cleanJson = jsonMatch ? jsonMatch[0] : text.trim();
+    let parsed;
+    try {
+      parsed = JSON.parse(cleanJson);
+    } catch (parseErr) {
+      console.warn('[Gemini Vision] Failed to parse JSON:', text, parseErr);
+      window.lastGeminiFailureReason = 'JSON Parse Error';
+      return null;
+    }
 
     let cleanDetected = (parsed.detected || '').normalize('NFC').trim();
     cleanDetected = cleanDetected.replace(/\s*\([^)]*\)/g, '').replace(/^['"‘“]+|['"’”\s.,;:!?-]+$/g, '').trim();
@@ -5326,7 +5350,7 @@ $('done').onclick = e => {
           geminiFallbackReason = window.lastGeminiFailureReason || 'Gemini Unavailable';
         }
       } else {
-        geminiFallbackReason = 'Device Offline';
+        geminiFallbackReason = capturedThumb ? 'Device Offline' : 'No stroke ink';
       }
 
       // Update live OCR Inspector UI
@@ -5481,7 +5505,7 @@ $('done').onclick = e => {
         <div style="font-size:16px; font-weight:800; color:#78450d; display:flex; align-items:center; justify-content:center; gap:8px;">
           <span>AI Score: ${result.score}% ${stars}</span>
           <span style="font-size:11px; font-weight:700; padding:2px 8px; border-radius:12px; border:1px solid ${result.source === 'gemini' ? '#bae6fd; background:#e0f2fe; color:#0369a1;' : '#cbd5e1; background:#f1f5f9; color:#475569;'}">
-            ${result.source === 'gemini' ? '✨ Gemini AI' : '⚡ On-Device'}
+            ${result.source === 'gemini' ? '✨ Gemini AI' : `⚡ On-Device${geminiFallbackReason ? ` (${geminiFallbackReason})` : ''}`}
           </span>
         </div>
         <div style="font-size:11px; font-weight:600; color:#5c431d; display:flex; gap:8px;">
@@ -6733,7 +6757,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.4.7';
+const CURRENT_APP_VERSION = '3.4.8';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
