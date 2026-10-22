@@ -6591,7 +6591,7 @@ function showGuidanceModal(result, targetText, capturedThumb, retrySpeech, retry
   let msgText = '';
   if (result.reason === 'wrong_script') {
     const scriptName = (currentLanguage === 'kn') ? 'Kannada' : 'Hindi';
-    msgText = `Please write in ${scriptName} script, not in English!`;
+    msgText = `Please write in ${scriptName} script!`;
   } else if (result.reason === 'wrong_word') {
     msgText = `You wrote '${detected}', but the target word is '${expected}'!`;
   } else if (result.reason === 'wrong_letter') {
@@ -6951,16 +6951,45 @@ function getBestVoiceForLang(langCode = 'hi-IN') {
   const voices = window.speechSynthesis.getVoices();
   if (!voices || !voices.length) return null;
 
+  const prefix = (langCode || '').split('-')[0].toLowerCase();
+
+  // 1. Strict English Voice Selection (never pick Hindi/Kannada voices for English speech)
+  if (prefix === 'en') {
+    const enVoices = voices.filter(v => {
+      const l = (v.lang || '').toLowerCase().replace('_', '-');
+      return l.startsWith('en');
+    });
+    if (enVoices.length > 0) {
+      const preferred = (voicePersona === 'monkey')
+        ? ['junior', 'child', 'boy', 'eddy', 'flo', 'daniel', 'alex', 'male', 'en-us', 'en']
+        : ['samantha', 'karen', 'victoria', 'serena', 'moira', 'female', 'natural', 'google', 'en-us', 'en'];
+      for (const p of preferred) {
+        const found = enVoices.find(v => (v.name || '').toLowerCase().includes(p));
+        if (found) {
+          cachedVoicesMap[key] = found;
+          return found;
+        }
+      }
+      cachedVoicesMap[key] = enVoices[0];
+      return enVoices[0];
+    }
+    cachedVoicesMap[key] = voices[0];
+    return voices[0];
+  }
+
+  // 2. Local Language Voice Selection (Hindi or Kannada)
   const currentLangConfig = LANGUAGE_CONFIGS[currentLanguage] || LANGUAGE_CONFIGS['hi'];
   const preferredNames = (voicePersona === 'monkey')
     ? (currentLangConfig.voice.monkeyNames || ['hie', 'hic', 'madhur', 'hemant', 'male', 'google हिन्दी', 'hindi'])
     : (currentLangConfig.voice.teacherNames || ['swara', 'lekha', 'kavya', 'neerja', 'kalpana', 'hia', 'hid', 'female', 'google हिन्दी', 'hindi']);
-  const prefix = langCode.split('-')[0].toLowerCase();
 
   const langVoices = voices.filter(v => {
     const l = (v.lang || '').toLowerCase().replace('_', '-');
     const n = (v.name || '').toLowerCase();
-    return l === langCode.toLowerCase() || l.startsWith(prefix) || l.startsWith('hin') || n.includes('hindi') || n.includes('हिन्दी');
+    if (prefix === 'kn') {
+      return l.startsWith('kn') || n.includes('kannada') || n.includes('ಕನ್ನಡ');
+    }
+    return l.startsWith('hi') || l.startsWith('hin') || n.includes('hindi') || n.includes('हिन्दी');
   });
 
   if (!langVoices.length) return null;
@@ -7113,7 +7142,7 @@ function speakWordOrPhrase(text, fallbackAudio = null, forceLang = null) {
           cleanup();
           if (fallbackAudio) playSnd(fallbackAudio);
         }
-      }, 750);
+      }, 2500);
 
       // Fix Android Chrome queue freeze & preserve transient user activation:
       if (window.speechSynthesis.speaking || window.speechSynthesis.paused) {
@@ -7138,7 +7167,7 @@ function speakRetryPrompt(text = null) {
     ? "Try again! Follow the lines carefully."
     : "Try again! Follow the lines carefully.";
   const phrase = text || defaultPhrase;
-  speakWordOrPhrase(phrase, 'audio/snd_tryagain.mp3', 'en-US');
+  speakWordOrPhrase(phrase, null, 'en-US');
 }
 
 function speakHindi(phrase, fallbackAudio = null) {
@@ -7892,10 +7921,10 @@ Target word/letter to write: "${targetText}"
 
 CRITICAL SCRIPT MANDATE:
 The child MUST write in genuine KANNADA SCRIPT.
-- If the child wrote in English/Latin/Roman alphabet (e.g. spelling "Anaj", "a", "ka", or any English letters):
-  1. DO NOT transliterate to Kannada! Output the EXACT English/Latin letters into "detected".
+- If the child wrote in another script (such as English/Latin alphabet, Devanagari/Hindi, etc.):
+  1. DO NOT transliterate to Kannada! Output the EXACT characters actually written into "detected".
   2. Set "isNativeScript": false.
-  3. Set "script": "latin".
+  3. Set "script": "latin" | "devanagari" | "other".
 - If the child wrote in genuine Kannada script:
   1. Identify the exact Kannada characters written.
   2. Set "isNativeScript": true.
@@ -7913,7 +7942,7 @@ Distinguish lookalike Kannada characters with high optical precision:
 Respond ONLY with a JSON object:
 {
   "detected": "detected string in the script actually written",
-  "script": "kannada" | "latin" | "other",
+  "script": "kannada" | "latin" | "devanagari" | "other",
   "isNativeScript": true | false,
   "confidence": integer 0-100
 }`;
@@ -7923,10 +7952,10 @@ Target word/letter to write: "${targetText}"
 
 CRITICAL SCRIPT MANDATE:
 The child MUST write in genuine DEVANAGARI HINDI SCRIPT.
-- If the child wrote in English/Latin/Roman alphabet (e.g. spelling "Anaj", "anaaj", "k", "ka", or any English letters):
-  1. DO NOT transliterate to Devanagari! Output the EXACT English/Latin letters into "detected".
+- If the child wrote in another script (such as English/Latin alphabet, Kannada, etc.):
+  1. DO NOT transliterate to Devanagari! Output the EXACT characters actually written into "detected".
   2. Set "isNativeScript": false.
-  3. Set "script": "latin".
+  3. Set "script": "latin" | "kannada" | "other".
 - If the child wrote in genuine Devanagari script:
   1. Identify the exact Devanagari characters written.
   2. Set "isNativeScript": true.
@@ -7941,7 +7970,7 @@ Distinguish lookalike characters with high optical precision:
 Respond ONLY with a JSON object:
 {
   "detected": "detected string in the script actually written",
-  "script": "devanagari" | "latin" | "other",
+  "script": "devanagari" | "latin" | "kannada" | "other",
   "isNativeScript": true | false,
   "confidence": integer 0-100
 }`;
@@ -8030,9 +8059,16 @@ Respond ONLY with a JSON object:
     let cleanDetected = (parsed.detected || '').normalize('NFC').trim();
     cleanDetected = cleanDetected.replace(/\s*\([^)]*\)/g, '').replace(/^['"‘“]+|['"’”\s.,;:!?-]+$/g, '').trim();
 
-    // Check script validity: strictly reject Latin/English writing
+    // Check script validity: strictly reject Latin/English, Hindi when in Kannada mode, or Kannada when in Hindi mode
     const hasLatin = /[a-zA-Z]/.test(cleanDetected);
-    const isWrongScript = parsed.script === 'latin' || parsed.isNativeScript === false || hasLatin;
+    const hasDevanagari = /[\u0900-\u097F]/.test(cleanDetected);
+    const hasKannada = /[\u0C80-\u0CFF]/.test(cleanDetected);
+
+    const isWrongScript = parsed.isNativeScript === false
+      || hasLatin
+      || (currentLanguage === 'kn' && (parsed.script === 'devanagari' || hasDevanagari))
+      || (currentLanguage === 'hi' && (parsed.script === 'kannada' || hasKannada))
+      || (parsed.script === 'latin');
 
     if (isWrongScript) {
       const scriptName = (currentLanguage === 'kn') ? 'Kannada' : 'Hindi';
@@ -8047,7 +8083,7 @@ Respond ONLY with a JSON object:
         score: 10,
         form: 10,
         neatness: 10,
-        feedback: `Please write in ${scriptName} script, not in English!`,
+        feedback: `Please write in ${scriptName} script!`,
         source: 'gemini',
         model: chosenModel
       };
@@ -8587,8 +8623,8 @@ $('done').onclick = e => {
 
     if (result.reason === 'wrong_script') {
       const scriptName = (currentLanguage === 'kn') ? 'Kannada' : 'Hindi';
-      retrySpeech = `Please write in ${scriptName} script, not in English!`;
-      retryPrompt = `Please write in ${scriptName} script, not in English! ✍️`;
+      retrySpeech = `Please write in ${scriptName} script!`;
+      retryPrompt = `Please write in ${scriptName} script! ✍️`;
     } else if (result.reason === 'wrong_word') {
       // English-first spoken feedback (legacy: आपने '${detected}' लिखा है, पर सही शब्द '${expected}' है!)
       retrySpeech = `You wrote ${detected}, but the target word is ${expected}!`;
@@ -10017,7 +10053,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.5.3';
+const CURRENT_APP_VERSION = '3.5.4';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
