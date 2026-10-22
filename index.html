@@ -52,7 +52,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .monkey-speech-bubble::after{content:'' !important;position:absolute !important;top:-5.5px !important;left:50% !important;transform:translateX(-50%) !important;width:0 !important;height:0 !important;border-left:5px solid transparent !important;border-right:5px solid transparent !important;border-bottom:6px solid #ffffff !important}
 @keyframes speechFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-3px)}}
 .speech-label{font-size:10px !important;font-weight:800 !important;color:#b45309 !important;letter-spacing:0.02em !important}
-.speech-word{font-family:'Noto Sans Devanagari',sans-serif !important;font-size:15px !important;font-weight:800 !important;color:#1e293b !important;line-height:1 !important}
+.speech-word{font-family:'Noto Sans Devanagari','Noto Sans Kannada','Baloo 2',system-ui,sans-serif !important;font-size:15px !important;font-weight:800 !important;color:#1e293b !important;line-height:1 !important}
 .speech-sound-badge{font-size:11px !important;width:20px !important;height:20px !important;border-radius:9999px !important;background:#fef3c7 !important;border:1px solid #fde047 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;line-height:1 !important}
 
 /* LAYER 2B: Hanging Wooden Square Sign / Easel (Elevated to z-35 above paper slate z-30) */
@@ -65,7 +65,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .clue-emoji-container{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
 
 /* Hanging Miniature Placards: Hint & Clear connected to the Easel (Enlarged & Always Interactive) */
-#easelTools{position:absolute !important;top:87.5% !important;left:50% !important;transform:translateX(-50%) !important;display:flex !important;align-items:flex-start !important;justify-content:center !important;gap:8px !important;width:max-content !important;z-index:40 !important;pointer-events:auto !important}
+#easelTools{position:absolute !important;top:82% !important;left:50% !important;transform:translateX(-50%) !important;display:flex !important;align-items:flex-start !important;justify-content:center !important;gap:8px !important;width:max-content !important;z-index:40 !important;pointer-events:auto !important}
 .hanging-card-assembly{display:flex !important;flex-direction:column !important;align-items:center !important;transform-origin:top center !important}
 @keyframes cardDangleLeft{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(1.8deg)}}
 @keyframes cardDangleRight{0%,100%{transform:rotate(1.8deg)}50%{transform:rotate(-1.5deg)}}
@@ -82,7 +82,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .clear-card .card-inner-pill{background:linear-gradient(180deg,#ffffff 0%,#ffe4e6 55%,#fecdd3 100%) !important;color:#881337 !important;box-shadow:inset 0 1px 2px rgba(255,255,255,0.95),inset 0 -1px 2px rgba(225,29,72,0.2),0 1px 2px rgba(0,0,0,0.15) !important;border:1px solid #fda4af !important}
 
 @media(min-width:640px) and (min-height:541px){
-  #easelTools{top:88% !important;gap:10px !important}
+  #easelTools{top:82% !important;gap:10px !important}
   .hanging-rope-anchor{width:18px !important;height:26px !important;margin-bottom:-4px !important}
   .hanging-card{padding:4px !important;border-radius:16px !important}
   .hanging-card::before{top:-6px !important;width:11px !important;height:7px !important}
@@ -298,7 +298,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
     padding-bottom: 0 !important;
   }
   #easelTools {
-    top: 87.5% !important;
+    top: 82% !important;
     gap: 5px !important;
   }
   .hanging-rope-anchor {
@@ -387,7 +387,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
       font-size: 9px !important;
     }
     #easelTools {
-      top: 87.5% !important;
+      top: 82% !important;
       gap: 5px !important;
     }
     .hanging-rope-anchor {
@@ -682,8 +682,8 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
       
       <!-- Speech Cloud next to Mittu showing the word being practiced -->
       <div id="monkeySpeechBubble" onclick="speakClue()" class="monkey-speech-bubble" title="Tap to hear Mittu speak the word!">
-        <span class="speech-label">लिखो ✍️</span>
-        <span id="monkeySpeechWord" class="speech-word hindi-font">अखबार</span>
+        <span class="speech-label" id="monkeySpeechLabel">Write ✍️</span>
+        <span id="monkeySpeechWord" class="speech-word">अखबार</span>
         <span class="speech-sound-badge" id="sound">🔊</span>
       </div>
       <!-- Dormant anchors for compatibility -->
@@ -2302,7 +2302,18 @@ const IMAGES = {
   "ಔಷಧ": "images/dawa.png",
   "ಅಂಗಡಿ": "images/bazaar.png",
   "ಅಂಡಾಣು": "images/anda.png",
-  "ಉಷಃಕಾಲ": "images/pratah.png"
+  "ಉಷಃಕಾಲ": "images/pratah.png",
+  "ಅರಸ": "images/inaam.png",
+  "ಅನ್ನ": "images/chawal.png",
+  "ಈಜು": "images/paani.png",
+  "ಏಣಿ": "images/khatiya.png",
+  "ಐದು": "images/haath.png",
+  "ಅಂಗಿ": "images/achkan.png",
+  "ಅಃ": "images/pratah.png",
+  "ಖಡ್ಗ": "images/teer.png",
+  "ಙ": "images/khali.png",
+  "ಞ": "images/khali.png",
+  "ಠಸ್ಸೆ": "images/khat.png"
 };
 
 // Grade 1 Hindi Barakhadi Matras (13 combinations: क, का, कि, की, कु, कू, कृ, के, कै, को, कौ, कं, कः)
@@ -5930,8 +5941,8 @@ function drawPad() {
   const ruling = computeRuling(h, ww);
   drawNotebookLines(ctx, ww, ruling);
 
-  const item = lessons[idx];
-  const m = getLetterMastery(item.c);
+  const item = (typeof getCurItem === 'function') ? getCurItem() : (lessons[idx] || lessons[0]);
+  const m = getLetterMastery(item ? item.c : '');
 
   let alpha = 0;
   if (hintActive) {
@@ -6193,59 +6204,68 @@ w.addEventListener('pointermove', e => {
 w.addEventListener('pointerup', e => {
   if (e.pointerId !== activePointerId) return;
 
-  if (currentStroke && currentStroke.length >= 2) {
-    const pts = currentStroke;
-    const len = pts.length;
-    // Finish final line segment to stroke tip if needed
-    if (len >= 3) {
-      const bw = getBrushWidth();
-      ctx.strokeStyle = '#103960';
-      ctx.lineWidth = bw;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      const prevMidX = (pts[len - 2].x + pts[len - 1].x) / 2;
-      const prevMidY = (pts[len - 2].y + pts[len - 1].y) / 2;
-      ctx.beginPath();
-      ctx.moveTo(prevMidX, prevMidY);
-      ctx.lineTo(pts[len - 1].x, pts[len - 1].y);
-      ctx.stroke();
-    }
+  try {
+    if (currentStroke && currentStroke.length >= 2) {
+      const pts = currentStroke;
+      const len = pts.length;
+      // Finish final line segment to stroke tip if needed
+      if (len >= 3) {
+        const bw = getBrushWidth();
+        ctx.strokeStyle = '#103960';
+        ctx.lineWidth = bw;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        const prevMidX = (pts[len - 2].x + pts[len - 1].x) / 2;
+        const prevMidY = (pts[len - 2].y + pts[len - 1].y) / 2;
+        ctx.beginPath();
+        ctx.moveTo(prevMidX, prevMidY);
+        ctx.lineTo(pts[len - 1].x, pts[len - 1].y);
+        ctx.stroke();
+      }
 
-    // Apply microscopic smoothing to the completed stroke in-place
-    if (len >= 3) {
-      const smoothed = smoothStrokeMicroscopic(currentStroke);
-      currentStroke.length = 0;
-      for (let i = 0; i < smoothed.length; i++) currentStroke.push(smoothed[i]);
-      // Repaint slate immediately with smooth Bezier curves
-      drawPad();
+      // Apply microscopic smoothing to the completed stroke in-place
+      if (len >= 3) {
+        const smoothed = smoothStrokeMicroscopic(currentStroke);
+        currentStroke.length = 0;
+        for (let i = 0; i < smoothed.length; i++) currentStroke.push(smoothed[i]);
+        // Repaint slate immediately with smooth Bezier curves
+        drawPad();
+      }
     }
+  } catch (err) {
+    console.error('Error in pointerup stroke smoothing/drawPad:', err);
+  } finally {
+    drawing = false;
+    currentStroke = null;
+    last = null;
+    activePointerId = null;
+    lastDrawEndTime = Date.now();
   }
-
-  drawing = false;
-  currentStroke = null;
-  last = null;
-  activePointerId = null;
-  lastDrawEndTime = Date.now();
 });
 
 w.addEventListener('pointercancel', e => {
   if (e.pointerId !== activePointerId) return;
-  if (currentStroke && currentStroke.length >= 3) {
-    const smoothed = smoothStrokeMicroscopic(currentStroke);
-    currentStroke.length = 0;
-    for (let i = 0; i < smoothed.length; i++) currentStroke.push(smoothed[i]);
-    drawPad();
-  }
-  // Do not abruptly discard last position: allow smooth auto-recovery if stylus continues moving
-  drawing = false;
-  activePointerId = null;
-  lastDrawEndTime = Date.now();
-  setTimeout(() => {
-    if (!drawing) {
-      currentStroke = null;
-      last = null;
+  try {
+    if (currentStroke && currentStroke.length >= 3) {
+      const smoothed = smoothStrokeMicroscopic(currentStroke);
+      currentStroke.length = 0;
+      for (let i = 0; i < smoothed.length; i++) currentStroke.push(smoothed[i]);
+      drawPad();
     }
-  }, 250);
+  } catch (err) {
+    console.error('Error in pointercancel stroke smoothing/drawPad:', err);
+  } finally {
+    // Do not abruptly discard last position: allow smooth auto-recovery if stylus continues moving
+    drawing = false;
+    activePointerId = null;
+    lastDrawEndTime = Date.now();
+    setTimeout(() => {
+      if (!drawing) {
+        currentStroke = null;
+        last = null;
+      }
+    }, 250);
+  }
 });
 
 let lastGlobalActionTime = 0;
@@ -6499,8 +6519,8 @@ function showGuidanceModal(result, targetText, capturedThumb, retrySpeech, retry
   // Populate #guidanceBadge identically to #scoreBadge with subtle mismatch hints
   const badgeEl = $('guidanceBadge');
   if (badgeEl) {
-    const item = lessons[idx];
-    const char = item.c;
+    const item = (typeof getCurItem === 'function') ? getCurItem() : (lessons[idx] || lessons[0]);
+    const char = item ? item.c : '';
     const m = getLetterMastery(char);
     let wordPicSrc = '';
     let wordEmoji = item.emoji || '📖';
@@ -6699,25 +6719,25 @@ const LANGUAGE_CONFIGS = {
     wordBanks: KANNADA_WORD_BANKS,
     stepper: {
       step1Icon: 'ಅ',
-      step1Label: 'ಅಕ್ಷರ',
+      step1Label: 'Letter',
       step2Icon: 'ಾ',
-      step2Label: 'ಕಾಗುಣಿತ',
+      step2Label: 'Kagunita',
       step3Icon: 'ಕಾ',
-      step3Label: 'ಪದ',
-      step4Label: 'ಪ್ರಗತಿ',
+      step3Label: 'Word',
+      step4Label: 'Progress',
       langBadge: 'ಕನ್ನಡ'
     },
     ui: {
-      stepLetter: 'ಅಕ್ಷರ',
-      stepMatra: 'ಕಾಗುಣಿತ',
-      stepWord: 'ಪದ',
-      stepProgress: 'ಪ್ರಗತಿ',
-      promptLetter: 'ಅಕ್ಷರ ಬರೆಯಿರಿ ',
-      promptWord: 'ಪದ ಬರೆಯಿರಿ ✍️',
-      letsWrite: "✍️ ಬರೆಯೋಣ",
-      imDone: "✓ ಆಯಿತು!",
-      previous: 'ಹಿಂದೆ',
-      next: 'ಮುಂದೆ',
+      stepLetter: "Today's letter",
+      stepMatra: 'Kagunita',
+      stepWord: 'Word',
+      stepProgress: 'Progress',
+      promptLetter: 'Write letter ',
+      promptWord: 'Write the word ✍️',
+      letsWrite: "✍️ Let's write",
+      imDone: "✓ I'm done!",
+      previous: 'Prev',
+      next: 'Next',
       listen: '🔊 ಕೇಳಿ'
     },
     voice: {
@@ -7114,7 +7134,7 @@ function speakHindi(phrase, fallbackAudio = null) {
 }
 
 function speakLetter() {
-  const item = lessons[idx];
+  const item = (typeof getCurItem === 'function') ? getCurItem() : (lessons[idx] || lessons[0]);
   if (!item) return;
 
   const glyph = $('charGlyph');
@@ -7128,13 +7148,19 @@ function speakLetter() {
   }
 
   if (currentStep === 1) {
-    const basePhrase = ['ङ', 'ञ', 'अः', 'ण'].includes(item.c)
-      ? (item.c + ' खाली')
-      : (item.word + ' वाला ' + item.c);
+    let basePhrase = '';
+    if (currentLanguage === 'kn') {
+      basePhrase = (item.word && item.word !== item.c) ? (item.word + ' ' + item.c) : item.c;
+    } else {
+      basePhrase = ['ङ', 'ञ', 'अः', 'ण'].includes(item.c)
+        ? (item.c + ' खाली')
+        : (item.word + ' वाला ' + item.c);
+    }
     speakWordOrPhrase(basePhrase, item.audio);
   } else if (currentStep === 2 && !item.isSwar) {
     const m = getLetterMastery(item.c);
-    const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+    const matras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
+    const matraObj = matras[m.matraIndex || 0] || matras[0];
     const combo = getMatraCombo(item.c, matraObj.sym);
     speakWordOrPhrase(combo, null);
   } else if (currentStep === 3) {
@@ -7145,7 +7171,7 @@ function speakLetter() {
 }
 
 function speakClue() {
-  const item = lessons[idx];
+  const item = (typeof getCurItem === 'function') ? getCurItem() : (lessons[idx] || lessons[0]);
   if (!item) return;
 
   const clueEmoji = $('clueEmoji');
@@ -7161,9 +7187,11 @@ function speakClue() {
       const wordObj = getWordForLetter(item.c, m.wordIndex || 0);
       wordToSpeak = wordObj.word;
     } else if (currentStep === 2 && !item.isSwar) {
-      const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+      const matras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
+      const matraObj = matras[m.matraIndex || 0] || matras[0];
       const combo = getMatraCombo(item.c, matraObj.sym);
-      const wordObj = (WORD_BANKS[item.c] || []).find(w => w.word.startsWith(combo));
+      const curBanks = (typeof getCurWordBanks === 'function') ? getCurWordBanks() : WORD_BANKS;
+      const wordObj = (curBanks[item.c] || []).find(w => w.word.startsWith(combo));
       wordToSpeak = wordObj ? wordObj.word : (item.matra?.exWord || combo);
     } else {
       wordToSpeak = item.word || item.c;
@@ -7483,10 +7511,12 @@ function getOcrCandidates(expectedUnit) {
     });
   });
 
-  // 2. Words from current letter's WORD_BANKS matching syllabic unit length (+- 1 unit)
-  if (typeof idx !== 'undefined' && lessons && lessons[idx]) {
-    const letter = lessons[idx].c;
-    const bank = WORD_BANKS[letter] || [];
+  // 2. Words from current letter's word bank matching syllabic unit length (+- 1 unit)
+  const curItem = (typeof getCurItem === 'function') ? getCurItem() : (lessons && lessons[idx]);
+  if (curItem) {
+    const letter = curItem.c;
+    const curBanks = (typeof getCurWordBanks === 'function') ? getCurWordBanks() : WORD_BANKS;
+    const bank = curBanks[letter] || [];
     bank.forEach(w => {
       if (w && w.word) {
         const normW = w.word.normalize('NFC');
@@ -7519,7 +7549,7 @@ function getCandidateMask(char, W = 64, H = 64) {
   tx.fillStyle = '#000'; tx.fillRect(0, 0, scratchW, scratchH);
   tx.fillStyle = '#fff';
   const fontSize = 48;
-  tx.font = '700 ' + fontSize + 'px "Noto Sans Devanagari", "Nirmala UI", sans-serif';
+  tx.font = '700 ' + fontSize + 'px "Noto Sans Devanagari", "Noto Sans Kannada", "Nirmala UI", sans-serif';
   tx.textAlign = 'left';
   tx.textBaseline = 'alphabetic';
   const baselineY = Math.round(scratchH * 0.60);
@@ -8053,7 +8083,7 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
     activeTier = 0;
   } else {
     // guideMode === 'auto'
-    const item = lessons[idx];
+    const item = (typeof getCurItem === 'function') ? getCurItem() : (lessons[idx] || lessons[0]);
     const m = item ? getLetterMastery(item.c) : null;
     if (m) {
       if (currentStep === 1) activeTier = m.letterTier || 0;
@@ -8194,8 +8224,9 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
     return { score: 18, pass: false, reason: 'scribble', coverage: Math.round(coverage * 100), precision: Math.round(precision * 100) };
   }
 
+  const isKn = (typeof currentLanguage !== 'undefined' && currentLanguage === 'kn');
   const isVowelChar = ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ', 'ऋ', 'ए', 'ऐ', 'ओ', 'औ', 'अं', 'अः'].some(v => targetString.startsWith(v));
-  const targetHasTopBar = !isVowelChar && ((tZones[0] + tZones[1] + tZones[2]) / tPixels > 0.16);
+  const targetHasTopBar = !isKn && !isVowelChar && ((tZones[0] + tZones[1] + tZones[2]) / tPixels > 0.16);
   const userHasTopBar = uPixels > 0 ? ((uZones[0] + uZones[1] + uZones[2]) / uPixels > 0.12) : false;
   const spillRatio = spill / tPixels;
 
@@ -8531,8 +8562,9 @@ $('done').onclick = e => {
   clearPad();
   triggerConfetti();
 
-  const char = lessons[idx].c;
-  const item = lessons[idx];
+  const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+  const item = (typeof getCurItem === 'function') ? getCurItem() : (curL[idx] || curL[0] || lessons[0]);
+  const char = item.c;
   const m = getLetterMastery(char);
   m.attempts++;
   m.passes++;
@@ -8621,12 +8653,13 @@ $('done').onclick = e => {
       };
     }
   } else if (currentStep === 2) {
-    const curMatra = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+    const curMatras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
+    const curMatra = curMatras[m.matraIndex || 0] || curMatras[0];
     const curCombo = getMatraCombo(char, curMatra.sym);
 
     if (m.matraTier < 2) {
       m.matraTier++;
-      $('mt').textContent = '🌿 Good Matra Practice!';
+      $('mt').textContent = currentLanguage === 'kn' ? '🌿 Good Kagunita Practice!' : '🌿 Good Matra Practice!';
       $('mp').textContent = m.matraTier === 1
         ? 'Now try ' + curCombo + ' with a faint guide! (+' + treatsEarned + ' 🍌)'
         : 'Now write ' + curCombo + ' freehand! (+' + treatsEarned + ' 🍌)';
@@ -8639,13 +8672,13 @@ $('done').onclick = e => {
       if (!m.matrasCompleted.includes(curCombo)) {
         m.matrasCompleted.push(curCombo);
       }
-      if (m.matraIndex < BARAKHADI_MATRAS.length - 1) {
+      if (m.matraIndex < curMatras.length - 1) {
         m.matraIndex++;
         m.matraTier = 0;
-        const nextMatra = BARAKHADI_MATRAS[m.matraIndex];
+        const nextMatra = curMatras[m.matraIndex];
         const nextCombo = getMatraCombo(char, nextMatra.sym);
-        $('mt').textContent = '🌿 Matra Mastered!';
-        $('mp').textContent = 'Superb! You wrote ' + curCombo + '! Next matra: ' + nextCombo + ' (' + (m.matraIndex + 1) + '/' + BARAKHADI_MATRAS.length + ')';
+        $('mt').textContent = currentLanguage === 'kn' ? '🌿 Kagunita Mastered!' : '🌿 Matra Mastered!';
+        $('mp').textContent = 'Superb! You wrote ' + curCombo + '! Next ' + (currentLanguage === 'kn' ? 'kagunita' : 'matra') + ': ' + nextCombo + ' (' + (m.matraIndex + 1) + '/' + curMatras.length + ')';
         $('next').textContent = 'Practice ' + nextCombo + ' →';
         $('next').onclick = () => {
           $('modal').classList.remove('show');
@@ -8655,9 +8688,9 @@ $('done').onclick = e => {
         m.matraMastered = true;
         updateLetterStar(char);
         setStep(3);
-        $('mt').textContent = '⭐⭐ Barakhadi Mastered!';
-        $('mp').textContent = 'Incredible! You completed all 13 matras for ' + char + '! (+' + treatsEarned + ' 🍌)';
-        $('next').textContent = 'Practice Words (कमल, कार...) 📝';
+        $('mt').textContent = currentLanguage === 'kn' ? '⭐⭐ Kagunita Mastered!' : '⭐⭐ Barakhadi Mastered!';
+        $('mp').textContent = 'Incredible! You completed all ' + curMatras.length + ' forms for ' + char + '! (+' + treatsEarned + ' 🍌)';
+        $('next').textContent = 'Practice Words 📝';
         $('next').onclick = () => {
           $('modal').classList.remove('show');
         };
@@ -9380,7 +9413,7 @@ function handleApertureDone() {
 
   const result = evaluateHandwriting(unit.char, curStrokes, strokeOffset);
 
-  const item = lessons[idx];
+  const item = (typeof getCurItem === 'function') ? getCurItem() : (lessons[idx] || lessons[0]);
   const m = item ? getLetterMastery(item.c) : null;
   let currentTier = (currentStep === 1) ? (m ? m.letterTier : 0) : ((currentStep === 2) ? (m ? m.matraTier : 0) : (m ? m.wordTier : 0));
   const isFreehand = (guideMode === 'auto') ? (currentTier === 2) : (guideMode === 'off');
@@ -9735,11 +9768,21 @@ function render() {
   // Update Mittu monkey held board
   const glyph = $('charGlyph');
   const speechWord = $('monkeySpeechWord');
+  const speechLabel = $('monkeySpeechLabel') || document.querySelector('.speech-label');
+  if (speechLabel) speechLabel.textContent = 'Write ✍️';
+
   if (currentStep === 1) {
     if (glyph) glyph.textContent = item.c;
-    if (speechWord) speechWord.textContent = item.word ? (item.c + ' से ' + item.word) : item.c;
+    if (speechWord) {
+      if (currentLanguage === 'kn') {
+        speechWord.textContent = item.word ? (item.word + ' - ' + item.c) : item.c;
+      } else {
+        speechWord.textContent = item.word ? (item.word + ' वाला ' + item.c) : item.c;
+      }
+    }
   } else if (currentStep === 2 && !item.isSwar) {
-    const matraObj = BARAKHADI_MATRAS[m.matraIndex || 0] || BARAKHADI_MATRAS[0];
+    const matras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
+    const matraObj = matras[m.matraIndex || 0] || matras[0];
     const combo = getMatraCombo(item.c, matraObj.sym);
     if (glyph) glyph.textContent = combo;
     if (speechWord) speechWord.textContent = matraObj.name || combo;
@@ -9891,7 +9934,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.5.0';
+const CURRENT_APP_VERSION = '3.5.1';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;

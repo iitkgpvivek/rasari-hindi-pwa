@@ -863,6 +863,41 @@ test('Language Switching on Progress Button (#st4), Dynamic Stepper Icons, and S
   assert(html.includes('"ಸೂರ್ಯ": "images/sooraj.png"'), 'Kannada word ಸೂರ್ಯ must map to 3D sooraj.png illustration');
 });
 
+// ---------------------------------------------------------
+// SUITE 17: Tablet Placard Anchoring, English UI Standard, Language Diction, Clue Coverage & Drawing Stability
+// ---------------------------------------------------------
+test('Tablet Placard Anchoring, English UI Standard, Language Diction, Clue Coverage, and Drawing Stability', () => {
+  // 1. Placard Anchoring: #easelTools positioned flush to wooden frame (82% !important)
+  assert(html.includes('#easelTools{position:absolute !important;top:82% !important;'), 'Base easelTools top must be 82% to prevent air gap');
+  assert(html.includes('#easelTools{top:82% !important;gap:10px !important}'), 'Tablet easelTools top must be 82%');
+
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  // 2. English UI labels for both Hindi and Kannada
+  assert(scriptContent.includes("step1Label: 'Letter'"), 'Step 1 label must be Letter in English');
+  assert(scriptContent.includes("step2Label: 'Kagunita'"), 'Step 2 label in Kannada must be Kagunita');
+  assert(scriptContent.includes("step3Label: 'Word'"), 'Step 3 label must be Word in English');
+  assert(scriptContent.includes("step4Label: 'Progress'"), 'Step 4 label must be Progress in English');
+  assert(scriptContent.includes("imDone: \"✓ I'm done!\""), "Done button must be ✓ I'm done! in English");
+  assert(scriptContent.includes("previous: 'Prev'"), 'Previous button must be Prev in English');
+  assert(scriptContent.includes("next: 'Next'"), 'Next button must be Next in English');
+
+  // 3. Speech bubble diction: Anaar wala a (Hindi) vs Arasa - a (Kannada)
+  assert(scriptContent.includes("item.word + ' वाला ' + item.c"), 'Hindi diction must use "Anaar wala a" format');
+  assert(scriptContent.includes("item.word + ' - ' + item.c"), 'Kannada diction must use "Arasa - a" format without Hindi "se"');
+
+  // 4. Clue visual image coverage for Kannada lessons
+  assert(html.includes('"ಅರಸ": "images/inaam.png"'), 'Lesson 0 ಅರಸ must have image in IMAGES');
+  assert(html.includes('"ಈಜು": "images/paani.png"'), 'ಈಜು must have image in IMAGES');
+  assert(html.includes('"ಏಣಿ": "images/khatiya.png"'), 'ಏಣಿ must have image in IMAGES');
+  assert(html.includes('"ಐದು": "images/haath.png"'), 'ಐದು must have image in IMAGES');
+  assert(html.includes('"ಅಂಗಿ": "images/achkan.png"'), 'ಅಂಗಿ must have image in IMAGES');
+
+  // 5. Drawing stability and anti-freeze try-finally block
+  assert(scriptContent.includes("const item = (typeof getCurItem === 'function') ? getCurItem() : (lessons[idx] || lessons[0]);"), 'drawPad must use getCurItem() to prevent undefined.c crash on Kannada lessons');
+  assert(scriptContent.includes("drawing = false;\n    currentStroke = null;\n    last = null;\n    activePointerId = null;\n    lastDrawEndTime = Date.now();"), 'pointerup must reset drawing state in a finally block so canvas never freezes');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');
