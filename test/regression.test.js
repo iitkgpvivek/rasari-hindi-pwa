@@ -867,9 +867,10 @@ test('Language Switching on Progress Button (#st4), Dynamic Stepper Icons, and S
 // SUITE 17: Tablet Placard Anchoring, English UI Standard, Language Diction, Clue Coverage & Drawing Stability
 // ---------------------------------------------------------
 test('Tablet Placard Anchoring, English UI Standard, Language Diction, Clue Coverage, and Drawing Stability', () => {
-  // 1. Placard Anchoring: #easelTools positioned flush to wooden frame (82% !important)
-  assert(html.includes('#easelTools{position:absolute !important;top:82% !important;'), 'Base easelTools top must be 82% to prevent air gap');
-  assert(html.includes('#easelTools{top:82% !important;gap:10px !important}'), 'Tablet easelTools top must be 82%');
+  // 1. Placard Anchoring: #easelTools positioned flush to bottom wooden beam (89.5% !important)
+  assert(html.includes('#easelTools{position:absolute !important;top:89.5% !important;'), 'Base easelTools top must be 89.5% to anchor directly to bottom wooden beam');
+  assert(html.includes('#easelTools{top:89.5% !important;gap:10px !important}'), 'Tablet easelTools top must be 89.5%');
+  assert(html.includes('left:28.3%;right:25.8%;top:42.5%;bottom:18.5%'), 'Clue board overlay must stay strictly within inner parchment (bottom: 18.5%) to prevent wooden frame overlap');
 
   const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 
@@ -896,6 +897,13 @@ test('Tablet Placard Anchoring, English UI Standard, Language Diction, Clue Cove
   // 5. Drawing stability and anti-freeze try-finally block
   assert(scriptContent.includes("const item = (typeof getCurItem === 'function') ? getCurItem() : (lessons[idx] || lessons[0]);"), 'drawPad must use getCurItem() to prevent undefined.c crash on Kannada lessons');
   assert(scriptContent.includes("drawing = false;\n    currentStroke = null;\n    last = null;\n    activePointerId = null;\n    lastDrawEndTime = Date.now();"), 'pointerup must reset drawing state in a finally block so canvas never freezes');
+
+  // 6. Kannada Full-Height Ruling Invariant: Kannada characters fill 100% of space between Line 2 and Line 4
+  assert(scriptContent.includes('const visualH = (refAscent !== null && refDescent !== null && (refAscent + refDescent) > 15)'), 'getTextLayout must measure visual height for Kannada glyphs');
+  assert(scriptContent.includes('exactFontSize = Math.round(testSize * (targetH / visualH));'), 'getTextLayout must scale font so visual height matches target bodyHeight');
+
+  // 7. Unified Easel Lock: Aspect-ratio locked across container and inner unit to prevent letterbox desync
+  assert(html.includes('aspect-ratio: 884 / 1024 !important;'), 'hangingSignZone must enforce 884 / 1024 aspect-ratio to keep frame, photo, and studs rigidly unified');
 });
 
 console.log('\n----------------------------------------------------');
