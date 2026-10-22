@@ -41,19 +41,23 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 
 /* LAYER 2A: Waving Mittu Monkey on Overhead Branch */
 .monkey-zone-layer{position:absolute;top:0;left:0;z-index:15 !important;pointer-events:none;transition:all 0.2s ease;display:flex;align-items:flex-start}
-.monkey-inner-wrap{position:relative;height:100%;max-width:100%;display:flex;align-items:flex-start}
+.monkey-inner-wrap{position:relative;height:100%;max-width:100%;aspect-ratio:465/680;display:flex;align-items:flex-start}
 .monkey-img{height:100%;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 20px rgba(0,0,0,0.25));user-select:none;-webkit-user-select:none}
 
-/* Mittu Monkey Speech Bubble (Shows target text & speaks on tap) */
-.monkey-speech-bubble{position:absolute !important;left:50% !important;top:88% !important;transform:translateX(-50%) !important;display:inline-flex !important;align-items:center !important;gap:6px !important;background:rgba(255,255,255,0.96) !important;border:2px solid #f59e0b !important;border-radius:9999px !important;padding:4px 12px !important;box-shadow:0 4px 14px rgba(0,0,0,0.18),0 1px 3px rgba(0,0,0,0.1) !important;pointer-events:auto !important;cursor:pointer !important;user-select:none !important;white-space:nowrap !important;z-index:40 !important;animation:speechFloat 3.8s ease-in-out infinite !important;transition:transform 0.15s ease,box-shadow 0.15s ease !important}
-.monkey-speech-bubble:hover{transform:translateX(-50%) translateY(-2px) scale(1.05) !important}
-.monkey-speech-bubble:active{transform:translateX(-50%) translateY(0) scale(0.95) !important}
-.monkey-speech-bubble::before{content:'' !important;position:absolute !important;top:-8px !important;left:50% !important;transform:translateX(-50%) !important;width:0 !important;height:0 !important;border-left:6px solid transparent !important;border-right:6px solid transparent !important;border-bottom:8px solid #f59e0b !important}
-.monkey-speech-bubble::after{content:'' !important;position:absolute !important;top:-5.5px !important;left:50% !important;transform:translateX(-50%) !important;width:0 !important;height:0 !important;border-left:5px solid transparent !important;border-right:5px solid transparent !important;border-bottom:6px solid #ffffff !important}
-@keyframes speechFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-3px)}}
+/* Mittu Monkey Speech Bubble (Shows target letter & word in big square card next to monkey's body) */
+.monkey-speech-bubble{position:absolute !important;top:57% !important;right:3% !important;height:33% !important;aspect-ratio:1/1 !important;width:auto !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:space-between !important;background:rgba(255,255,255,0.98) !important;border:2.5px solid #f59e0b !important;border-radius:18px !important;padding:5px 6px !important;box-shadow:0 6px 16px rgba(0,0,0,0.18),0 1px 3px rgba(0,0,0,0.1) !important;pointer-events:auto !important;cursor:pointer !important;user-select:none !important;z-index:40 !important;animation:speechFloat 3.8s ease-in-out infinite !important;transition:transform 0.15s ease,box-shadow 0.15s ease !important;box-sizing:border-box !important}
+.monkey-speech-bubble:hover{transform:translateY(-2px) scale(1.04) !important;box-shadow:0 8px 22px rgba(0,0,0,0.22) !important}
+.monkey-speech-bubble:active{transform:translateY(1px) scale(0.96) !important}
+.monkey-speech-bubble::before{content:'' !important;position:absolute !important;top:-8px !important;right:14px !important;left:auto !important;transform:none !important;width:0 !important;height:0 !important;border-left:6px solid transparent !important;border-right:6px solid transparent !important;border-bottom:8px solid #f59e0b !important}
+.monkey-speech-bubble::after{content:'' !important;position:absolute !important;top:-5.5px !important;right:15px !important;left:auto !important;transform:none !important;width:0 !important;height:0 !important;border-left:5px solid transparent !important;border-right:5px solid transparent !important;border-bottom:6px solid #ffffff !important}
+@keyframes speechFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.speech-top-bar{display:flex !important;align-items:center !important;justify-content:space-between !important;width:100% !important;padding:0 2px !important;line-height:1 !important}
 .speech-label{font-size:10px !important;font-weight:800 !important;color:#b45309 !important;letter-spacing:0.02em !important}
-.speech-word{font-family:'Noto Sans Devanagari','Noto Sans Kannada','Baloo 2',system-ui,sans-serif !important;font-size:15px !important;font-weight:800 !important;color:#1e293b !important;line-height:1 !important}
-.speech-sound-badge{font-size:11px !important;width:20px !important;height:20px !important;border-radius:9999px !important;background:#fef3c7 !important;border:1px solid #fde047 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;line-height:1 !important}
+.speech-sound-badge{font-size:10px !important;width:18px !important;height:18px !important;border-radius:9999px !important;background:#fef3c7 !important;border:1px solid #fde047 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;line-height:1 !important}
+.speech-word-container{display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;width:100% !important;flex:1 !important;min-height:0 !important;overflow:hidden !important}
+.speech-focus-char{font-family:'Noto Sans Kannada','Noto Sans Devanagari','Baloo 2',system-ui,sans-serif !important;font-size:clamp(32px,4.4vh,48px) !important;font-weight:900 !important;color:#1e293b !important;line-height:1.05 !important;text-align:center !important}
+.speech-focus-word{font-family:'Noto Sans Kannada','Noto Sans Devanagari','Baloo 2',system-ui,sans-serif !important;font-size:clamp(10px,1.4vh,12px) !important;font-weight:800 !important;color:#78350f !important;line-height:1.1 !important;text-align:center !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:100% !important}
+.speech-focus-word.speech-word-only{font-size:clamp(15px,2.2vh,20px) !important;color:#1e293b !important;font-weight:900 !important}
 
 /* LAYER 2B: Hanging Wooden Square Sign / Easel (Elevated to z-35 above paper slate z-30) */
 .hanging-sign-zone-layer{position:absolute;top:0;right:1vw;z-index:35 !important;pointer-events:auto !important;transition:all 0.2s ease;display:flex;flex-direction:column;align-items:center}
@@ -189,12 +193,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
     z-index: 25 !important;
     pointer-events: auto !important;
   }
-  /* Speech bubble at the exact same vertical level as Hint/Clear on easel */
-  .monkey-speech-bubble {
-    left: 50% !important;
-    top: 88% !important;
-    transform: translateX(-50%) !important;
-  }
+
   /* Center activity: accommodated BETWEEN monkey and easel */
   #mainActivityWrapper {
     display: flex !important;
@@ -250,20 +249,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
     z-index: 25 !important;
     pointer-events: auto !important;
   }
-  /* Speech bubble at the exact same vertical level as Hint/Clear (87.5%) */
-  .monkey-speech-bubble {
-    left: 50% !important;
-    top: 87.5% !important;
-    transform: translateX(-50%) !important;
-    padding: 3px 9px !important;
-    gap: 4px !important;
-  }
-  .speech-label {
-    font-size: 9px !important;
-  }
-  .speech-word {
-    font-size: 13px !important;
-  }
+
   .speech-sound-badge {
     width: 17px !important;
     height: 17px !important;
@@ -353,12 +339,6 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
     z-index: 25 !important;
     pointer-events: auto !important;
   }
-  /* Speech bubble below monkey at level of tools */
-  .monkey-speech-bubble {
-    left: 50% !important;
-    top: 86% !important;
-    transform: translateX(-50%) !important;
-  }
   /* On phones in portrait mode (width <= 500px): match mockup sizes so character and clue fit without colliding */
   @media (max-width: 500px) {
     #monkeyZone {
@@ -371,24 +351,6 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
       max-height: 205px !important;
       max-width: 44vw !important;
       aspect-ratio: 884 / 1024 !important;
-    }
-    .monkey-speech-bubble {
-      left: 50% !important;
-      top: 86% !important;
-      transform: translateX(-50%) !important;
-      padding: 3px 9px !important;
-      gap: 4px !important;
-    }
-    .speech-label {
-      font-size: 9px !important;
-    }
-    .speech-word {
-      font-size: 13px !important;
-    }
-    .speech-sound-badge {
-      width: 17px !important;
-      height: 17px !important;
-      font-size: 9px !important;
     }
     #easelTools {
       top: 89.5% !important;
@@ -685,10 +647,15 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
       <img src="images/mittu_branch.png" alt="Mittu Monkey Hanging" class="monkey-img" />
       
       <!-- Speech Cloud next to Mittu showing the word being practiced -->
-      <div id="monkeySpeechBubble" onclick="speakClue()" class="monkey-speech-bubble" title="Tap to hear Mittu speak the word!">
-        <span class="speech-label" id="monkeySpeechLabel">Write ✍️</span>
-        <span id="monkeySpeechWord" class="speech-word">अखबार</span>
-        <span class="speech-sound-badge" id="sound">🔊</span>
+      <div id="monkeySpeechBubble" onclick="speakClue()" class="monkey-speech-bubble" title="Tap to hear Mittu speak!">
+        <div class="speech-top-bar">
+          <span class="speech-label" id="monkeySpeechLabel">Write ✍️</span>
+          <span class="speech-sound-badge" id="sound">🔊</span>
+        </div>
+        <div id="monkeySpeechWord" class="speech-word-container">
+          <span class="speech-focus-char">क</span>
+          <span class="speech-focus-word">कमल वाला क</span>
+        </div>
       </div>
       <!-- Dormant anchors for compatibility -->
       <span id="letter" style="display:none !important;"><span id="charGlyph"></span></span>
@@ -5620,31 +5587,30 @@ function getTextLayout(context, text, ruling) {
   context.textBaseline = 'alphabetic';
 
   if (isKn) {
-    // In Kannada elementary notebook ruling, the entire core letter MUST fill 100% of the space
-    // between the two dark lines: Line 2 (top line) and Line 4 (bottom baseline foot).
-    const rawText = (text && typeof text === 'string') ? text.trim() : '';
-    const baseChar = rawText
-      ? (rawText.replace(/[\u0CBE-\u0CDD\u0CD5\u0CD6\u0CE2\u0CE3]/g, '').charAt(0) || rawText.charAt(0))
-      : 'ಕ';
-
-    const mRef = context.measureText(baseChar);
+    // In Kannada elementary notebook ruling (two-line copy writing), the round body of Kannada letters
+    // occupies the entire space between the two dark lines (Line 2 and Line 4).
+    // The top strokes/talakattu ('the Ls at the top' as in 'ಕ', 'ಈ') go above Line 2 into the top blue line (Line 1) territory,
+    // and bottom matras ('ು', 'ೂ') go below Line 4 into the bottom red/pink line (Line 5) territory.
+    // Therefore, canonical reference character for body height is the pure round vowel 'ಅ'.
+    const refChar = 'ಅ';
+    const mRef = context.measureText(refChar);
     const refAscent = (typeof mRef.actualBoundingBoxAscent === 'number') ? mRef.actualBoundingBoxAscent : null;
     const refDescent = (typeof mRef.actualBoundingBoxDescent === 'number') ? mRef.actualBoundingBoxDescent : null;
 
     const visualH = (refAscent !== null && refDescent !== null && (refAscent + refDescent) > 15)
       ? (refAscent + refDescent)
-      : Math.round(testSize * 0.65);
+      : Math.round(testSize * 0.58);
 
     const exactFontSize = Math.round(testSize * (targetH / visualH));
     const fontStr = '700 ' + exactFontSize + 'px ' + fontName;
     context.font = fontStr;
 
-    const mExact = context.measureText(baseChar);
+    const mExact = context.measureText(refChar);
     const exactAscent = (typeof mExact.actualBoundingBoxAscent === 'number' && mExact.actualBoundingBoxAscent > 5)
       ? mExact.actualBoundingBoxAscent
-      : Math.round(exactFontSize * 0.62);
+      : Math.round(exactFontSize * 0.58);
 
-    // Top sits flush on Line 2 (baseline is at Line 2 + ascent), bottom touches Line 4
+    // Top of round body sits flush on Line 2 (baseline is at Line 2 + ascent), bottom touches Line 4
     const textBaselineY = ruling.line2 + exactAscent;
     const stemWidth = Math.max(10, Math.round(exactFontSize * 0.16));
 
@@ -5990,9 +5956,9 @@ function drawPad() {
 
   let alpha = 0;
   if (hintActive) {
-    alpha = 0.28;
+    alpha = 0.38;
   } else if (guideMode === 'on') {
-    alpha = 0.22;
+    alpha = 0.34;
   } else if (guideMode === 'off') {
     alpha = 0;
   } else {
@@ -6003,9 +5969,9 @@ function drawPad() {
     else if (currentStep === 3) tier = m.wordTier || 0;
 
     if (tier === 0) {
-      alpha = 0.28; // Tier 0: Trace guide
+      alpha = 0.38; // Tier 0: Trace guide (slightly darker, clear and visible)
     } else if (tier === 1) {
-      alpha = 0.10; // Tier 1: Ghost faint watermark
+      alpha = 0.16; // Tier 1: Ghost faint watermark (distinctly visible faint guide)
     } else {
       alpha = 0;    // Tier 2: Freehand recall
     }
@@ -6015,7 +5981,7 @@ function drawPad() {
   if (alpha > 0 && targetText) {
     ctx.save();
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = 'rgba(18, 65, 112, 0.32)'; // Clean visible watermark matching mockup.html
+    ctx.fillStyle = 'rgba(18, 65, 112, 0.65)'; // Slightly darker navy watermark matching tablet requirements
     const layout = (ruling && ruling.layout) ? ruling.layout : getTextLayout(ctx, targetText, ruling);
     ctx.font = layout.fontStr;
     ctx.textAlign = 'center';
@@ -6623,16 +6589,19 @@ function showGuidanceModal(result, targetText, capturedThumb, retrySpeech, retry
 
   // Spoken message phrase
   let msgText = '';
-  if (result.reason === 'wrong_word') {
-    msgText = `'${detected}' नहीं, '${expected}' लिखो!`;
+  if (result.reason === 'wrong_script') {
+    const scriptName = (currentLanguage === 'kn') ? 'Kannada' : 'Hindi';
+    msgText = `Please write in ${scriptName} script, not in English!`;
+  } else if (result.reason === 'wrong_word') {
+    msgText = `You wrote '${detected}', but the target word is '${expected}'!`;
   } else if (result.reason === 'wrong_letter') {
-    msgText = `यह '${result.detected || detected}' लग रहा है, '${expected}' लिखो!`;
+    msgText = `That looks like '${result.detected || detected}', not '${expected}'!`;
   } else if (result.reason === 'scribble') {
-    msgText = 'रेखाओं पर ध्यान से लिखो!';
+    msgText = `Don't scribble! Follow the lines carefully.`;
   } else if (result.reason === 'inaccurate_trace') {
-    msgText = 'रेखाओं के ऊपर लिखो!';
+    msgText = `Trace carefully along the lines.`;
   } else {
-    msgText = 'साफ और सुंदर लिखो!';
+    msgText = `Almost there! Keep your lines neat and steady.`;
   }
   lastGuidancePhrase = msgText;
 
@@ -7063,9 +7032,10 @@ document.addEventListener('visibilitychange', () => {
 
 let activeUtterance = null;
 window._activeUtterances = [];
-function speakWordOrPhrase(text, fallbackAudio = null) {
+function speakWordOrPhrase(text, fallbackAudio = null, forceLang = null) {
   if (!text) return;
   const langConfig = LANGUAGE_CONFIGS[currentLanguage] || LANGUAGE_CONFIGS['hi'];
+  const targetLang = forceLang || langConfig.langCode;
 
   if ('speechSynthesis' in window && window.SpeechSynthesisUtterance) {
     try {
@@ -7074,7 +7044,7 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
       }
 
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = langConfig.langCode;
+      u.lang = targetLang;
 
       if (voicePersona === 'monkey') {
         u.pitch = langConfig.voice.monkeyPitch || 1.25;
@@ -7084,11 +7054,11 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
         u.rate = langConfig.voice.teacherRate || 0.84;
       }
 
-      const v = getBestVoiceForLang(langConfig.langCode);
+      const v = getBestVoiceForLang(targetLang);
       const allVoices = window.speechSynthesis.getVoices();
       const voicesLoaded = allVoices && allVoices.length > 0;
 
-      // Fallback if NO Hindi voice exists on device
+      // Fallback if NO voice exists on device
       if (!v && fallbackAudio) {
         playSnd(fallbackAudio);
         return;
@@ -7129,9 +7099,6 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
         cleanup();
         if (e && (e.error === 'canceled' || e.error === 'interrupted')) return;
         console.warn('SpeechSynthesis error:', e);
-        if (e && e.error === 'language-unavailable') {
-          showNotice('💡 Hindi voice not installed: Settings > Text-to-speech > Install voice > Hindi ⚙️');
-        }
         if (fallbackAudio) playSnd(fallbackAudio);
       };
 
@@ -7149,7 +7116,6 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
       }, 750);
 
       // Fix Android Chrome queue freeze & preserve transient user activation:
-      // Clear any stalled or paused queue synchronously without async setTimeout
       if (window.speechSynthesis.speaking || window.speechSynthesis.paused) {
         try {
           window.speechSynthesis.cancel();
@@ -7168,9 +7134,11 @@ function speakWordOrPhrase(text, fallbackAudio = null) {
 }
 
 function speakRetryPrompt(text = null) {
-  const defaultPhrase = (voicePersona === 'monkey') ? 'फिर से कोशिश करो!' : 'फिर से कोशिश करो!';
+  const defaultPhrase = (voicePersona === 'monkey')
+    ? "Try again! Follow the lines carefully."
+    : "Try again! Follow the lines carefully.";
   const phrase = text || defaultPhrase;
-  speakWordOrPhrase(phrase, 'audio/snd_tryagain.mp3');
+  speakWordOrPhrase(phrase, 'audio/snd_tryagain.mp3', 'en-US');
 }
 
 function speakHindi(phrase, fallbackAudio = null) {
@@ -7919,9 +7887,21 @@ async function evaluateWithGeminiVision(capturedDataUrl, targetText) {
 
     let promptText = '';
     if (currentLanguage === 'kn') {
-      promptText = `Examine the handwritten Kannada writing in the image.
-Identify what exact Kannada letter or word was written.
-Distinguish lookalike characters with high optical precision:
+      promptText = `You are evaluating a Grade 1 child's handwriting in KANNADA.
+Target word/letter to write: "${targetText}"
+
+CRITICAL SCRIPT MANDATE:
+The child MUST write in genuine KANNADA SCRIPT.
+- If the child wrote in English/Latin/Roman alphabet (e.g. spelling "Anaj", "a", "ka", or any English letters):
+  1. DO NOT transliterate to Kannada! Output the EXACT English/Latin letters into "detected".
+  2. Set "isNativeScript": false.
+  3. Set "script": "latin".
+- If the child wrote in genuine Kannada script:
+  1. Identify the exact Kannada characters written.
+  2. Set "isNativeScript": true.
+  3. Set "script": "kannada".
+
+Distinguish lookalike Kannada characters with high optical precision:
 - ರ vs ದ: 'ರ' is a single rounded loop with top talekattu; 'ದ' has an inner curl/loop.
 - ಬ vs ಭ: 'ಬ' has no vertical center notch; 'ಭ' has a distinct vertical emphasis/slash.
 - ವ vs ಮ: 'ವ' is an open loop at bottom; 'ಮ' has a small circle/loop at bottom left and connects across.
@@ -7929,24 +7909,40 @@ Distinguish lookalike characters with high optical precision:
 - ಗ vs ಘ: 'ಗ' is open; 'ಘ' has a middle notch and downward stroke.
 - ಇ vs ಝ: 'ಇ' has two lower loops; 'ಝ' has talekattu and right stroke.
 - ನ vs ಸ: 'ನ' has no loop inside; 'ಸ' has an inner loop on the left.
-Output ONLY the Kannada characters in "detected" (no English, no transliteration, no punctuation).
+
 Respond ONLY with a JSON object:
 {
-  "detected": "detected Kannada string",
+  "detected": "detected string in the script actually written",
+  "script": "kannada" | "latin" | "other",
+  "isNativeScript": true | false,
   "confidence": integer 0-100
 }`;
     } else {
-      promptText = `Examine the handwritten Devanagari Hindi writing in the image.
-Identify what exact Devanagari Hindi letter or word was written.
+      promptText = `You are evaluating a Grade 1 child's handwriting in HINDI (Devanagari script).
+Target word/letter to write: "${targetText}"
+
+CRITICAL SCRIPT MANDATE:
+The child MUST write in genuine DEVANAGARI HINDI SCRIPT.
+- If the child wrote in English/Latin/Roman alphabet (e.g. spelling "Anaj", "anaaj", "k", "ka", or any English letters):
+  1. DO NOT transliterate to Devanagari! Output the EXACT English/Latin letters into "detected".
+  2. Set "isNativeScript": false.
+  3. Set "script": "latin".
+- If the child wrote in genuine Devanagari script:
+  1. Identify the exact Devanagari characters written.
+  2. Set "isNativeScript": true.
+  3. Set "script": "devanagari".
+
 Distinguish lookalike characters with high optical precision:
 - अ vs उ vs ऊ: 'अ' has a complete vertical stem on the right connected by a middle waist bar; 'ऊ' has a curved tail starting from the center waist and NO vertical stem on the right; 'उ' has NO tail and NO vertical stem.
 - व vs क: 'व' has a loop on the left and NO hook on the right; 'क' has a loop on the left AND a hanging hook on the right.
 - ग vs म vs न: 'ग' has a separate vertical stem with an open gap; 'म' connects with a crossbar; 'न' has no vertical stem above the loop.
 - tail vs loop in द vs ढ vs ट vs ठ, घ vs ध, क vs फ, ष vs प.
-Output ONLY the Devanagari characters in "detected" (no English, no transliteration, no punctuation).
+
 Respond ONLY with a JSON object:
 {
-  "detected": "detected Devanagari string",
+  "detected": "detected string in the script actually written",
+  "script": "devanagari" | "latin" | "other",
+  "isNativeScript": true | false,
   "confidence": integer 0-100
 }`;
     }
@@ -8034,7 +8030,30 @@ Respond ONLY with a JSON object:
     let cleanDetected = (parsed.detected || '').normalize('NFC').trim();
     cleanDetected = cleanDetected.replace(/\s*\([^)]*\)/g, '').replace(/^['"‘“]+|['"’”\s.,;:!?-]+$/g, '').trim();
 
-    // Canonical Devanagari Unicode NFC Normalization (stripping invisible zero-width chars)
+    // Check script validity: strictly reject Latin/English writing
+    const hasLatin = /[a-zA-Z]/.test(cleanDetected);
+    const isWrongScript = parsed.script === 'latin' || parsed.isNativeScript === false || hasLatin;
+
+    if (isWrongScript) {
+      const scriptName = (currentLanguage === 'kn') ? 'Kannada' : 'Hindi';
+      return {
+        pass: false,
+        reason: 'wrong_script',
+        detectedWord: cleanDetected,
+        expectedWord: targetText,
+        detected: cleanDetected,
+        expected: targetText,
+        confidence: 95,
+        score: 10,
+        form: 10,
+        neatness: 10,
+        feedback: `Please write in ${scriptName} script, not in English!`,
+        source: 'gemini',
+        model: chosenModel
+      };
+    }
+
+    // Canonical Devanagari/Kannada Unicode NFC Normalization (stripping invisible zero-width chars)
     const normDetected = cleanDetected.replace(/[\u200B-\u200D\uFEFF]/g, '').normalize('NFC');
     const normTarget = targetText.replace(/[\u200B-\u200D\uFEFF]/g, '').normalize('NFC').trim();
     const isExactMatch = normDetected === normTarget;
@@ -8566,20 +8585,25 @@ $('done').onclick = e => {
     let retrySpeech = '';
     let retryPrompt = '';
 
-    if (result.reason === 'wrong_word') {
-      retrySpeech = `आपने '${detected}' लिखा है, पर सही शब्द '${expected}' है!`;
-      retryPrompt = `You wrote '${detected}', but the word is '${expected}'! Check '${result.detected}' ✍️`;
+    if (result.reason === 'wrong_script') {
+      const scriptName = (currentLanguage === 'kn') ? 'Kannada' : 'Hindi';
+      retrySpeech = `Please write in ${scriptName} script, not in English!`;
+      retryPrompt = `Please write in ${scriptName} script, not in English! ✍️`;
+    } else if (result.reason === 'wrong_word') {
+      // English-first spoken feedback (legacy: आपने '${detected}' लिखा है, पर सही शब्द '${expected}' है!)
+      retrySpeech = `You wrote ${detected}, but the target word is ${expected}!`;
+      retryPrompt = `You wrote '${detected}', but the word is '${expected}'! ✍️`;
     } else if (result.reason === 'wrong_letter') {
-      retrySpeech = `यह '${result.detected || detected}' लग रहा है, '${expected}' लिखो!`;
+      retrySpeech = `That looks like ${result.detected || detected}. Try writing ${expected}!`;
       retryPrompt = `That looks like '${result.detected}', not '${expected}'! ✍️`;
     } else if (result.reason === 'scribble') {
-      retrySpeech = 'रेखाओं पर ध्यान से लिखो!';
+      retrySpeech = `Don't scribble! Follow the lines carefully.`;
       retryPrompt = `Don't scribble! Follow the letter strokes ✍️`;
     } else if (result.reason === 'inaccurate_trace') {
-      retrySpeech = 'रेखाओं के ऊपर लिखो!';
+      retrySpeech = `Trace carefully along the lines.`;
       retryPrompt = `Trace carefully along the lines ✍️`;
     } else {
-      retrySpeech = 'साफ और सुंदर लिखो!';
+      retrySpeech = `Almost there! Keep your lines neat and steady.`;
       retryPrompt = `Almost there! Keep your lines neat and steady ✍️`;
     }
 
@@ -9068,14 +9092,26 @@ const MATRA_NAMES = {
 
 function hasTopMatra(str) {
   if (!str) return false;
+  // If Kannada mode: talakattu consonants ('the Ls at the top') and 'ಈ' extend into Line 1
+  if (typeof currentLanguage !== 'undefined' && currentLanguage === 'kn') {
+    if (str.includes('ಈ')) return true;
+    for (const ch of str) {
+      const c = ch.charCodeAt(0);
+      // Kannada top matras: ಿ, ೀ, ೆ, ೇ, ೈ, ೊ, ೋ, ಂ
+      if (c === 0x0cbf || c === 0x0cc0 || c === 0x0cc6 || c === 0x0cc7 || c === 0x0cc8 || c === 0x0cca || c === 0x0ccb || c === 0x0c82) {
+        return true;
+      }
+      // Kannada consonants (0x0c95 to 0x0cb9) all possess top talakattu
+      if (c >= 0x0c95 && c <= 0x0cb9) {
+        return true;
+      }
+    }
+    return false;
+  }
   for (const ch of str) {
     const c = ch.charCodeAt(0);
     // Devanagari top marks: ि, ी, े, ै, ो, ौ, ं, ँ
     if (c === 0x093f || c === 0x0940 || c === 0x0947 || c === 0x0948 || c === 0x094b || c === 0x094c || c === 0x0902 || c === 0x0901) {
-      return true;
-    }
-    // Kannada top marks: ಿ, ೀ, ೆ, ೇ, ೈ, ೊ, ೋ, ಂ
-    if (c === 0x0cbf || c === 0x0cc0 || c === 0x0cc6 || c === 0x0cc7 || c === 0x0cc8 || c === 0x0cca || c === 0x0ccb || c === 0x0c82) {
       return true;
     }
   }
@@ -9478,7 +9514,7 @@ function handleApertureDone() {
       win.classList.add('shake');
       setTimeout(() => win.classList.remove('shake'), 450);
     }
-    speakRetryPrompt(result.reason === 'wrong_letter' ? `यह '${result.detected}' लग रहा है!` : 'फिर से कोशिश करो!');
+    speakRetryPrompt(result.reason === 'wrong_letter' ? `That looks like '${result.detected}', not '${unit.char}'!` : `Try again! Follow the lines for '${unit.char}'.`);
     clearCurrentAksharaStrokes();
 
     const prompt = $('aperturePrompt');
@@ -9818,22 +9854,25 @@ function render() {
   if (currentStep === 1) {
     if (glyph) glyph.textContent = item.c;
     if (speechWord) {
-      if (currentLanguage === 'kn') {
-        speechWord.textContent = item.word ? (item.word + ' - ' + item.c) : item.c;
-      } else {
-        speechWord.textContent = item.word ? (item.word + ' वाला ' + item.c) : item.c;
-      }
+      const phrase = (currentLanguage === 'kn')
+        ? (item.word ? (item.word + ' - ' + item.c) : item.c)
+        : (item.word ? (item.word + ' वाला ' + item.c) : item.c);
+      speechWord.innerHTML = `<span class="speech-focus-char">${item.c}</span><span class="speech-focus-word">${phrase}</span>`;
     }
   } else if (currentStep === 2 && !item.isSwar) {
     const matras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
     const matraObj = matras[m.matraIndex || 0] || matras[0];
     const combo = getMatraCombo(item.c, matraObj.sym);
     if (glyph) glyph.textContent = combo;
-    if (speechWord) speechWord.textContent = matraObj.name || combo;
+    if (speechWord) {
+      speechWord.innerHTML = `<span class="speech-focus-char">${combo}</span><span class="speech-focus-word">${matraObj.name || combo}</span>`;
+    }
   } else if (currentStep === 3) {
     const wObj = getWordForLetter(item.c, m.wordIndex || 0);
     if (glyph) glyph.textContent = item.c;
-    if (speechWord) speechWord.textContent = wObj.word || item.c;
+    if (speechWord) {
+      speechWord.innerHTML = `<span class="speech-focus-char speech-word-only">${wObj.word || item.c}</span><span class="speech-focus-word">${item.c}</span>`;
+    }
   }
 
   drawPad();
@@ -9978,7 +10017,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.5.2';
+const CURRENT_APP_VERSION = '3.5.3';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
