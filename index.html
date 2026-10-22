@@ -6953,21 +6953,44 @@ function getBestVoiceForLang(langCode = 'hi-IN') {
 
   const prefix = (langCode || '').split('-')[0].toLowerCase();
 
-  // 1. Strict English Voice Selection (never pick Hindi/Kannada voices for English speech)
+  // 1. Strict English Voice Selection (Indian accent English en-IN prioritized)
   if (prefix === 'en') {
     const enVoices = voices.filter(v => {
       const l = (v.lang || '').toLowerCase().replace('_', '-');
       return l.startsWith('en');
     });
     if (enVoices.length > 0) {
-      const preferred = (voicePersona === 'monkey')
-        ? ['junior', 'child', 'boy', 'eddy', 'flo', 'daniel', 'alex', 'male', 'en-us', 'en']
-        : ['samantha', 'karen', 'victoria', 'serena', 'moira', 'female', 'natural', 'google', 'en-us', 'en'];
-      for (const p of preferred) {
-        const found = enVoices.find(v => (v.name || '').toLowerCase().includes(p));
-        if (found) {
-          cachedVoicesMap[key] = found;
-          return found;
+      // Prioritize authentic Indian Accent English (en-IN)
+      const indianVoices = enVoices.filter(v => {
+        const l = (v.lang || '').toLowerCase().replace('_', '-');
+        const n = (v.name || '').toLowerCase();
+        return l === 'en-in' || l.startsWith('en-in') || n.includes('india') || n.includes('indian');
+      });
+
+      if (indianVoices.length > 0) {
+        const preferredIndian = (voicePersona === 'monkey')
+          ? ['rishi', 'aman', 'ravi', 'male', 'en-in', 'india']
+          : ['isha', 'sangeeta', 'veena', 'tara', 'neerja', 'heera', 'priya', 'female', 'en-in', 'india'];
+        for (const p of preferredIndian) {
+          const match = indianVoices.find(v => (v.name || '').toLowerCase().includes(p));
+          if (match) {
+            cachedVoicesMap[key] = match;
+            return match;
+          }
+        }
+        cachedVoicesMap[key] = indianVoices[0];
+        return indianVoices[0];
+      }
+
+      // General English fallback (if device lacks en-IN voices)
+      const preferredGeneral = (voicePersona === 'monkey')
+        ? ['eddy', 'junior', 'child', 'boy', 'alex', 'male', 'en']
+        : ['samantha', 'victoria', 'female', 'natural', 'en'];
+      for (const p of preferredGeneral) {
+        const match = enVoices.find(v => (v.name || '').toLowerCase().includes(p));
+        if (match) {
+          cachedVoicesMap[key] = match;
+          return match;
         }
       }
       cachedVoicesMap[key] = enVoices[0];
@@ -7167,7 +7190,7 @@ function speakRetryPrompt(text = null) {
     ? "Try again! Follow the lines carefully."
     : "Try again! Follow the lines carefully.";
   const phrase = text || defaultPhrase;
-  speakWordOrPhrase(phrase, null, 'en-US');
+  speakWordOrPhrase(phrase, null, 'en-IN');
 }
 
 function speakHindi(phrase, fallbackAudio = null) {
@@ -10053,7 +10076,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.5.4';
+const CURRENT_APP_VERSION = '3.5.5';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
