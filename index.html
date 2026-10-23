@@ -58,6 +58,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .speech-focus-char{font-family:'Noto Sans Kannada','Noto Sans Devanagari','Baloo 2',system-ui,sans-serif !important;font-size:clamp(44px,6.2vh,62px) !important;font-weight:900 !important;color:#1e293b !important;line-height:1 !important;text-align:center !important;flex:1 !important;display:flex !important;align-items:center !important;justify-content:center !important}
 .speech-focus-word{font-family:'Noto Sans Kannada','Noto Sans Devanagari','Baloo 2',system-ui,sans-serif !important;font-size:clamp(12px,1.7vh,14.5px) !important;font-weight:800 !important;color:#78350f !important;line-height:1.15 !important;text-align:center !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:100% !important;margin-top:auto !important;margin-bottom:1px !important;padding-bottom:1px !important}
 .speech-focus-char.speech-word-only,.speech-focus-word.speech-word-only{font-size:clamp(16px,2.3vh,22px) !important;color:#1e293b !important;font-weight:900 !important}
+.speech-focus-word.speech-matra-subtitle{font-size:clamp(9.5px,1.35vh,12px) !important;white-space:normal !important;line-height:1.15 !important;padding:0 2px !important;text-overflow:clip !important;word-break:break-word !important}
 
 /* LAYER 2B: Hanging Wooden Square Sign / Easel (Elevated to z-35 above paper slate z-30) */
 .hanging-sign-zone-layer{position:absolute;top:0;right:1vw;z-index:35 !important;pointer-events:auto !important;transition:all 0.2s ease;display:flex;flex-direction:column;align-items:center}
@@ -647,7 +648,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
       <img src="images/mittu_branch.png" alt="Mittu Monkey Hanging" class="monkey-img" />
       
       <!-- Speech Cloud next to Mittu showing the word being practiced -->
-      <div id="monkeySpeechBubble" onclick="speakClue()" class="monkey-speech-bubble" title="Tap to hear Mittu speak!">
+      <div id="monkeySpeechBubble" onclick="speakMonkeyBubble()" class="monkey-speech-bubble" title="Tap to hear Mittu speak!">
         <div class="speech-top-bar">
           <span class="speech-label" id="monkeySpeechLabel">Write ✍️</span>
           <span class="speech-sound-badge" id="sound">🔊</span>
@@ -2284,30 +2285,103 @@ const IMAGES = {
   "ಖಡ್ಗ": "images/teer.png",
   "ಙ": "images/khali.png",
   "ಞ": "images/khali.png",
-  "ಠಸ್ಸೆ": "images/khat.png"
+  "ಠಸ್ಸೆ": "images/khat.png",
+  "वानर": "images/bandar.png",
+  "ಖಾಲಿ": "images/khali.png",
+  "ವಾಹನ": "images/car.png",
+  "ಥಾಲ": "images/thaali.png",
+  "ಟೊಮ್ಯಾಟೊ": "images/tamatar.png"
 };
 
-// Grade 1 Hindi Barakhadi Matras (13 combinations: क, का, कि, की, कु, कू, कृ, के, कै, को, कौ, कं, कः)
+// Grade 1 Hindi Barakhadi Matras (12 combinations starting from aa: का, कि, की, कु, कू, कृ, के, कै, को, कौ, कं, कः)
 const BARAKHADI_MATRAS = [
-  { sym: '', name: 'अ (बिना मात्रा)', label: 'अ' },
-  { sym: 'ा', name: 'आ की मात्रा (ा)', label: 'ा' },
-  { sym: 'ि', name: 'इ की मात्रा (ि)', label: 'ि' },
-  { sym: 'ी', name: 'ई की मात्रा (ी)', label: 'ी' },
-  { sym: 'ु', name: 'उ की मात्रा (ु)', label: 'ु' },
-  { sym: 'ू', name: 'ऊ की मात्रा (ू)', label: 'ू' },
-  { sym: 'ृ', name: 'ऋ की मात्रा (ृ)', label: 'ृ' },
-  { sym: 'े', name: 'ए की मात्रा (े)', label: 'े' },
-  { sym: 'ै', name: 'ऐ की मात्रा (ै)', label: 'ै' },
-  { sym: 'ो', name: 'ओ की मात्रा (ो)', label: 'ो' },
-  { sym: 'ौ', name: 'औ की मात्रा (ौ)', label: 'ौ' },
-  { sym: 'ं', name: 'अनुस्वार (ं)', label: 'ं' },
-  { sym: 'ः', name: 'विसर्ग (ः)', label: 'ः' }
+  { sym: 'ा', name: 'आ की मात्रा (ा)', label: 'ा', swar: 'आ', phraseName: 'आ की मात्रा' },
+  { sym: 'ि', name: 'इ की मात्रा (ि)', label: 'ि', swar: 'इ', phraseName: 'इ की मात्रा' },
+  { sym: 'ी', name: 'ई की मात्रा (ी)', label: 'ी', swar: 'ई', phraseName: 'ई की मात्रा' },
+  { sym: 'ु', name: 'उ की मात्रा (ु)', label: 'ु', swar: 'उ', phraseName: 'उ की मात्रा' },
+  { sym: 'ू', name: 'ऊ की मात्रा (ू)', label: 'ू', swar: 'ऊ', phraseName: 'ऊ की मात्रा' },
+  { sym: 'ृ', name: 'ऋ की मात्रा (ृ)', label: 'ृ', swar: 'ऋ', phraseName: 'ऋ की मात्रा' },
+  { sym: 'े', name: 'ए की मात्रा (े)', label: 'े', swar: 'ए', phraseName: 'ए की मात्रा' },
+  { sym: 'ै', name: 'ऐ की मात्रा (ै)', label: 'ै', swar: 'ऐ', phraseName: 'ऐ की मात्रा' },
+  { sym: 'ो', name: 'ओ की मात्रा (ो)', label: 'ो', swar: 'ओ', phraseName: 'ओ की मात्रा' },
+  { sym: 'ौ', name: 'औ की मात्रा (ौ)', label: 'ौ', swar: 'औ', phraseName: 'औ की मात्रा' },
+  { sym: 'ं', name: 'अनुस्वार (ं)', label: 'ं', swar: 'अं', phraseName: 'अं की मात्रा' },
+  { sym: 'ः', name: 'विसर्ग (ः)', label: 'ः', swar: 'अः', phraseName: 'विसर्ग' }
 ];
 
 function getMatraCombo(char, matraSym) {
   if (!matraSym) return char;
   return char + matraSym;
 }
+
+function getMatraPhrase(char, matraObj) {
+  if (!matraObj) return char;
+  const combo = getMatraCombo(char, matraObj.sym);
+  if (currentLanguage === 'kn') {
+    const pName = matraObj.phraseName || (matraObj.swar ? (matraObj.swar + ' ಕಾರ') : matraObj.name);
+    return `${char} ಗೆ ${pName} - ${combo}`;
+  } else {
+    const pName = matraObj.phraseName || (matraObj.swar ? (matraObj.swar + ' की मात्रा') : matraObj.name);
+    return `${char} में ${pName} - ${combo}`;
+  }
+}
+
+const MATRA_CLUE_WORDS = {
+  'hi': {
+    'का': { word: 'कार', emoji: '🚗' },
+    'खा': { word: 'खाना', emoji: '🍲' },
+    'गा': { word: 'गाय', emoji: '🐄' },
+    'घा': { word: 'घास', emoji: '🌱' },
+    'चा': { word: 'चावल', emoji: '🍚' },
+    'छा': { word: 'छाता', emoji: '⛱️' },
+    'जा': { word: 'जहाज', emoji: '🚢' },
+    'झा': { word: 'झाड़ू', emoji: '🧹' },
+    'टा': { word: 'टमाटर', emoji: '🍅' },
+    'डा': { word: 'डाल', emoji: '🌿' },
+    'ढा': { word: 'ढाल', emoji: '🛡️' },
+    'ता': { word: 'ताला', emoji: '🔒' },
+    'था': { word: 'थाली', emoji: '🍽️' },
+    'दा': { word: 'दांत', emoji: '🦷' },
+    'ना': { word: 'नाव', emoji: '⛵' },
+    'पा': { word: 'पानी', emoji: '💧' },
+    'फा': { word: 'फाटक', emoji: '🚪' },
+    'बा': { word: 'बादल', emoji: '☁️' },
+    'भा': { word: 'भालू', emoji: '🐻' },
+    'मा': { word: 'माला', emoji: '📿' },
+    'या': { word: 'याक', emoji: '🐂' },
+    'रा': { word: 'राखी', emoji: '🎀' },
+    'ला': { word: 'लालटेन', emoji: '🏮' },
+    'वा': { word: 'वानर', emoji: '🐒' },
+    'शा': { word: 'शीशा', emoji: '🪞' },
+    'सा': { word: 'साबुन', emoji: '🧼' },
+    'हा': { word: 'हाथ', emoji: '✋' },
+    'ज्ञा': { word: 'ज्ञानी', emoji: '📖' }
+  },
+  'kn': {
+    'ಕಾ': { word: 'ಕಾಗೆ', emoji: '🐦‍⬛' },
+    'ಖಾ': { word: 'ಖಾಲಿ', emoji: '🥛' },
+    'ಗಾ': { word: 'ಗಾಳಿಪಟ', emoji: '🪁' },
+    'ಚಾ': { word: 'ಚಾಕು', emoji: '🔪' },
+    'ಛಾ': { word: 'ಛಾವಣಿ', emoji: '🏠' },
+    'ಜಾ': { word: 'ಜಹಾಜು', emoji: '🚢' },
+    'ತಾ': { word: 'ತಾರಾ', emoji: '⭐' },
+    'ಥಾ': { word: 'ಥಾಲ', emoji: '🍽️' },
+    'ದಾ': { word: 'ದಾಳಿಂಬೆ', emoji: '🍎' },
+    'ಧಾ': { word: 'ಧಾನ್ಯ', emoji: '🌾' },
+    'ನಾ': { word: 'ನಾಯಿ', emoji: '🐕' },
+    'ಪಾ': { word: 'ಪಾರಿವಾಳ', emoji: '🕊️' },
+    'ಬಾ': { word: 'ಬಾಳೆಹಣ್ಣು', emoji: '🍌' },
+    'ಭಾ': { word: 'ಭಾರತ', emoji: '🇮🇳' },
+    'ಮಾ': { word: 'ಮಾವಿನಹಣ್ಣು', emoji: '🥭' },
+    'ಯಾ': { word: 'ಯಾನ', emoji: '✈️' },
+    'ರಾ': { word: 'ರಾತ್ರಿ', emoji: '🌙' },
+    'ಲಾ': { word: 'ಲಾಂದ್ರ', emoji: '🏮' },
+    'ವಾ': { word: 'ವಾಹನ', emoji: '🚗' },
+    'ಸಾ': { word: 'ಸಾಬೂನು', emoji: '🧼' },
+    'ಹಾ': { word: 'ಹಾವು', emoji: '🐍' },
+    'ಜ್ಞಾ': { word: 'ಜ್ಞಾನಿ', emoji: '🧑‍🏫' }
+  }
+};
 
 // Extensible Grade 1 Hindi Word Banks for All 49 Letters (10+ vocabulary words per letter)
 const WORD_BANKS = {
@@ -2607,82 +2681,105 @@ const WORD_BANKS = {
   ]
 };
 
-// Grade 1 Kannada Kagunita Matras (15 Gunintagalu)
+// Grade 1 Kannada Kagunita Matras (14 Gunintagalu starting from aa)
 const KANNADA_KAGUNITA_MATRAS = [
-  {
-    "sym": "",
-    "name": "ಅ (ತಲೆಕಟ್ಟು)",
-    "label": "ಅ"
-  },
   {
     "sym": "ಾ",
     "name": "ಆ (ದೀರ್ಘ ಾ)",
-    "label": "ಾ"
+    "label": "ಾ",
+    "swar": "ಆ",
+    "phraseName": "ಆ ಕಾರ"
   },
   {
     "sym": "ಿ",
     "name": "ಇ (ಗುಡಿಸು ಿ)",
-    "label": "ಿ"
+    "label": "ಿ",
+    "swar": "ಇ",
+    "phraseName": "ಇ ಕಾರ"
   },
   {
     "sym": "ೀ",
     "name": "ಈ (ಗುಡಿಸು ದೀರ್ಘ ೀ)",
-    "label": "ೀ"
+    "label": "ೀ",
+    "swar": "ಈ",
+    "phraseName": "ಈ ಕಾರ"
   },
   {
     "sym": "ು",
     "name": "ಉ (ಕೊಂಬು ು)",
-    "label": "ು"
+    "label": "ು",
+    "swar": "ಉ",
+    "phraseName": "ಉ ಕಾರ"
   },
   {
     "sym": "ೂ",
     "name": "ಊ (ಕೊಂಬು ದೀರ್ಘ ೂ)",
-    "label": "ೂ"
+    "label": "ೂ",
+    "swar": "ಊ",
+    "phraseName": "ಊ ಕಾರ"
   },
   {
     "sym": "ೃ",
     "name": "ಋ (ವಟ್ರಸುಳಿ ೃ)",
-    "label": "ೃ"
+    "label": "ೃ",
+    "swar": "ಋ",
+    "phraseName": "ಋ ಕಾರ"
   },
   {
     "sym": "ೆ",
     "name": "ಎ (ಎತ್ವ ೆ)",
-    "label": "ೆ"
+    "label": "ೆ",
+    "swar": "ಎ",
+    "phraseName": "ಎ ಕಾರ"
   },
   {
     "sym": "ೇ",
     "name": "ಏ (ಏತ್ವ ೇ)",
-    "label": "ೇ"
+    "label": "ೇ",
+    "swar": "ಏ",
+    "phraseName": "ಏ ಕಾರ"
   },
   {
     "sym": "ೈ",
     "name": "ಐ (ಐತ್ವ ೈ)",
-    "label": "ೈ"
+    "label": "ೈ",
+    "swar": "ಐ",
+    "phraseName": "ಐ ಕಾರ"
   },
   {
     "sym": "ೊ",
     "name": "ಒ (ಒತ್ವ ೊ)",
-    "label": "ೊ"
+    "label": "ೊ",
+    "swar": "ಒ",
+    "phraseName": "ಒ ಕಾರ"
   },
   {
     "sym": "ೋ",
     "name": "ಓ (ಓತ್ವ ೋ)",
-    "label": "ೋ"
+    "label": "ೋ",
+    "swar": "ಓ",
+    "phraseName": "ಓ ಕಾರ"
   },
   {
     "sym": "ೌ",
     "name": "ಔ (ಔತ್ವ ೌ)",
-    "label": "ೌ"
+    "label": "ೌ",
+    "swar": "ಔ",
+    "phraseName": "ಔ ಕಾರ"
   },
   {
     "sym": "ಂ",
     "name": "ಅನುಸ್ವಾರ (ಂ)",
-    "label": "ಂ"
+    "label": "ಂ",
+    "swar": "ಅಂ",
+    "phraseName": "ಅನುಸ್ವಾರ"
   },
   {
     "sym": "ಃ",
     "name": "ವಿಸರ್ಗ (ಃ)",
-    "label": "ಃ"
+    "label": "ಃ",
+    "swar": "ಅಃ",
+    "phraseName": "ವಿಸರ್ಗ"
   }
 ];
 
@@ -5373,13 +5470,25 @@ function renderClue(item, step) {
     const matraObj = matras[m.matraIndex || 0] || matras[0];
     const combo = getMatraCombo(char, matraObj.sym);
     const curBanks = (typeof getCurWordBanks === 'function') ? getCurWordBanks() : WORD_BANKS;
-    const wordObj = (curBanks[char] || []).find(w => w.word.startsWith(combo));
+    let wordObj = (curBanks[char] || []).find(w => w.word.startsWith(combo));
+    if (!wordObj && typeof MATRA_CLUE_WORDS !== 'undefined' && MATRA_CLUE_WORDS[currentLanguage]) {
+      wordObj = MATRA_CLUE_WORDS[currentLanguage][combo];
+    }
+    if (!wordObj) {
+      for (const k in curBanks) {
+        const found = (curBanks[k] || []).find(w => w.word.startsWith(combo));
+        if (found) { wordObj = found; break; }
+      }
+    }
+    if (!wordObj) {
+      wordObj = (curBanks[char] || []).find(w => w.word.includes(combo));
+    }
     if (wordObj) {
       key = wordObj.word;
-      fallback = wordObj.emoji || item.emoji;
+      fallback = wordObj.emoji || '📝';
     } else {
-      key = item.matra?.exWord || item.word || '';
-      fallback = item.matra?.exEmoji || item.emoji;
+      key = item.matra?.exWord || combo;
+      fallback = item.matra?.exEmoji || '📝';
     }
   } else if (step === 3) {
     const wordObj = getWordForLetter(char, m.wordIndex || 0);
@@ -7225,13 +7334,22 @@ function speakLetter() {
     const m = getLetterMastery(item.c);
     const matras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
     const matraObj = matras[m.matraIndex || 0] || matras[0];
-    const combo = getMatraCombo(item.c, matraObj.sym);
-    speakWordOrPhrase(combo, null);
+    const phrase = getMatraPhrase(item.c, matraObj);
+    speakWordOrPhrase(phrase, null);
   } else if (currentStep === 3) {
     const m = getLetterMastery(item.c);
     const wordObj = getWordForLetter(item.c, m.wordIndex || 0);
     speakWordOrPhrase(wordObj.word, null);
   }
+}
+
+function speakMonkeyBubble() {
+  const bubble = $('monkeySpeechBubble');
+  if (bubble) {
+    bubble.style.transform = 'translateY(-3px) scale(1.05)';
+    setTimeout(() => bubble.style.transform = '', 300);
+  }
+  speakLetter();
 }
 
 function speakClue() {
@@ -8716,10 +8834,12 @@ $('done').onclick = e => {
       wordEmoji = item.emoji;
       wordLabel = item.word || char;
     } else if (currentStep === 2) {
-      const exWord = (item.matra && item.matra.exWord) ? item.matra.exWord : item.word;
-      wordPicSrc = IMAGES[exWord] || '';
-      wordEmoji = (item.matra && item.matra.exEmoji) ? item.matra.exEmoji : item.emoji;
-      wordLabel = exWord || targetText;
+      const curMatras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
+      const curMatra = curMatras[m.matraIndex || 0] || curMatras[0];
+      const curCombo = getMatraCombo(char, curMatra.sym);
+      wordPicSrc = IMAGES[currentActiveClueWord] || '';
+      wordEmoji = curMatra.label || '🌿';
+      wordLabel = currentActiveClueWord || curCombo;
     } else if (currentStep === 3) {
       const wObj = getWordForLetter(char, m.wordIndex || 0);
       wordPicSrc = IMAGES[wObj.word] || '';
@@ -8774,7 +8894,9 @@ $('done').onclick = e => {
       setStep(targetStep);
       $('mt').textContent = '⭐ Letter Mastered!';
       $('mp').textContent = 'Awesome! You mastered letter ' + char + '! (+' + treatsEarned + ' bananas 🍌)';
-      $('next').textContent = item.isSwar ? 'Practice Words 📝' : 'Practice Matras (क, का...) 🌿';
+      $('next').textContent = item.isSwar
+        ? 'Practice Words 📝'
+        : (currentLanguage === 'kn' ? 'Practice Kagunita (ಕಾ, ಕಿ...) 🌿' : 'Practice Matras (का, कि...) 🌿');
       $('next').onclick = () => {
         $('modal').classList.remove('show');
       };
@@ -9921,10 +10043,10 @@ function render() {
   } else if (currentStep === 2 && !item.isSwar) {
     const matras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
     const matraObj = matras[m.matraIndex || 0] || matras[0];
-    const combo = getMatraCombo(item.c, matraObj.sym);
-    if (glyph) glyph.textContent = combo;
+    const phrase = getMatraPhrase(item.c, matraObj);
+    if (glyph) glyph.textContent = item.c;
     if (speechWord) {
-      speechWord.innerHTML = `<span class="speech-focus-char">${combo}</span><span class="speech-focus-word">${matraObj.name || combo}</span>`;
+      speechWord.innerHTML = `<span class="speech-focus-char">${item.c}</span><span class="speech-focus-word speech-matra-subtitle">${phrase}</span>`;
     }
   } else if (currentStep === 3) {
     const wObj = getWordForLetter(item.c, m.wordIndex || 0);

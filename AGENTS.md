@@ -60,15 +60,15 @@ Children often scribble in frustration or playfulness. The handwriting evaluator
    - **Tier 2 (Freehand):** Zero watermark (`0.0`).
 3. **Step 2 (Barakhadi Matra Progression):**
    - Swars (`अ` to `अः`) DO NOT take matras: `#st2` disabled.
-   - For consonants (`क` to `ज्ञ`), "I'm done" advances through all 13 Barakhadi forms:
-     `क`, `का`, `कि`, `की`, `कु`, `कू`, `कृ`, `के`, `कै`, `को`, `कौ`, `कं`, `कः`.
+   - For consonants (`क` to `ज्ञ`), "I'm done" advances through all 12 Barakhadi matras starting from 'aa':
+     `का`, `कि`, `की`, `कु`, `कू`, `कृ`, `के`, `कै`, `को`, `कौ`, `कं`, `कः` (since the root letter `क` is already mastered in Step 1).
    - Each matra combo follows the 3-tier scaffold (Trace $\to$ Ghost $\to$ Freehand).
 4. **Step 3 (Infinite Word Practice Engine):**
    - Grade-appropriate curated word banks (`WORD_BANKS`) provide 10+ words per letter (e.g., `कमल`, `कबूतर`, `कलम`, `कार`, `काम`, `किताब`, `कील`, `कुत्ता`, `केला`, `कौआ`, `कैंची`, `कोट`).
    - The engine supports infinite practice rotation on the focus letter until the child explicitly taps `>>`.
 5. **Mastery Star Criteria:**
    - ⭐ **1 Star (Letter Mastery):** Freehand completion of the letter (Tier 2 passed).
-   - ⭐⭐ **2 Stars (Matra Mastery):** Completion of all 13 Barakhadi matras for consonants (or $\ge 3$ words for Swars).
+   - ⭐⭐ **2 Stars (Matra Mastery):** Completion of all 12 Barakhadi matras for consonants (or $\ge 3$ words for Swars).
    - ⭐⭐⭐ **3 Stars (Word Mastery):** Mastery of at least 10 words for that letter.
 6. **NO Spoiler Stroke Diagrams:** The right clue card MUST NOT show the target text or stroke diagram. Only pure visual clues (SVG illustrations or emojis) and a single sound button are permitted. Faint guide is only shown via explicit `💡 Hint` button (3s timeout).
 7. **Direct Bottom Navigation:** Bottom pills provide `<< Prev Letter` and `Next Letter >>` direct navigation.

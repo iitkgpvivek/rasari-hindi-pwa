@@ -344,13 +344,14 @@ test('Focus Letter Invariant: "I\'m done" stays locked on current letter (never 
   assert(html.includes("$('nextBtn').onclick"), 'Next button must exist for explicit letter navigation');
 });
 
-test('Barakhadi 13-Matra Sequence is defined for consonants', () => {
+test('Barakhadi Matra Sequence starts from "aa" (12 matras: का, कि, की, कु, कू, कृ, के, कै, को, कौ, कं, कः)', () => {
   assert(html.includes('const BARAKHADI_MATRAS = ['), 'BARAKHADI_MATRAS array must exist');
   const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
   const matrasMatch = scriptContent.match(/const BARAKHADI_MATRAS = (\[[\s\S]*?\]);/);
   assert(matrasMatch, 'BARAKHADI_MATRAS must be parseable');
   const matras = new Function(`return ${matrasMatch[1]}`)();
-  assert.strictEqual(matras.length, 13, 'Must contain all 13 Barakhadi matras (क, का, कि, की, कु, कू, कृ, के, कै, को, कौ, कं, कः)');
+  assert.strictEqual(matras.length, 12, 'Must contain all 12 Barakhadi matras starting from aa');
+  assert.strictEqual(matras[0].sym, 'ा', 'First matra must be aa (ा)');
 });
 
 test('WORD_BANKS contains 10+ Grade-1 words for each of the 49 letters', () => {
@@ -614,7 +615,7 @@ test('Semantic Word Pronunciation on Clue Tap & 3D AI Illustrated Library (No bl
 
   // Verify speakLetter does not pass item.audio in Step 2 or Step 3
   const speakLetterMatch = scriptContent.match(/function speakLetter\(\)\s*\{([\s\S]*?)\n\}/)[0];
-  assert(speakLetterMatch.includes('speakWordOrPhrase(combo, null)'), 'Step 2 matra speech must not fall back to letter audio');
+  assert(speakLetterMatch.includes('speakWordOrPhrase(phrase, null)') || speakLetterMatch.includes('speakWordOrPhrase(combo, null)'), 'Step 2 matra speech must not fall back to letter audio');
   assert(speakLetterMatch.includes('speakWordOrPhrase(wordObj.word, null)'), 'Step 3 word speech must not fall back to letter audio');
 
   // Verify that core secondary vocabulary words now map to 3D PNG illustrations, not block SVGs
@@ -814,7 +815,8 @@ test('Modular Multilingual Architecture & Kannada Curriculum Pack (51 Lessons, 1
   const matrasMatch = scriptContent.match(/const KANNADA_KAGUNITA_MATRAS = (\[[\s\S]*?\]);/);
   assert(matrasMatch, 'KANNADA_KAGUNITA_MATRAS must be parseable');
   const knMatras = new Function(`return ${matrasMatch[1]}`)();
-  assert.strictEqual(knMatras.length, 15, 'Must contain all 15 Kagunita forms');
+  assert.strictEqual(knMatras.length, 14, 'Must contain all 14 Kagunita forms starting from aa');
+  assert.strictEqual(knMatras[0].sym, 'ಾ', 'First Kannada matra must be aa (ಾ)');
 
   // 3. Kannada Word Banks
   assert(html.includes('const KANNADA_WORD_BANKS = {'), 'KANNADA_WORD_BANKS must exist');
