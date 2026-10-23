@@ -390,7 +390,7 @@ test('Fullscreen Kiosk Mode & Parental Guidance modal protect against OS navigat
   assert(html.includes('id="stylusModal"'), 'Stylus & Tablet guidance modal must exist');
   const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'manifest.webmanifest'), 'utf8'));
   assert.strictEqual(manifest.display, 'fullscreen', 'Manifest must specify fullscreen display to hide tablet navigation bar');
-  assert.strictEqual(manifest.orientation, 'any', 'Manifest orientation must be "any" to support responsive orientation in both portrait and landscape modes');
+  assert.strictEqual(manifest.orientation, undefined, 'Manifest orientation must be omitted to allow full sensor responsiveness without locking to landscape or portrait in WebAPK');
 });
 
 test('Full-Screen Aperture Writing Shield Mode & Akshara-by-Akshara guidance are active', () => {
@@ -870,10 +870,10 @@ test('Language Switching on Progress Button (#st4), Dynamic Stepper Icons, and S
 // SUITE 17: Tablet Placard Anchoring, English UI Standard, Language Diction, Clue Coverage & Drawing Stability
 // ---------------------------------------------------------
 test('Tablet Placard Anchoring, English UI Standard, Language Diction, Clue Coverage, and Drawing Stability', () => {
-  // 1. Placard Anchoring: #easelTools positioned flush to bottom wooden beam (89.5% !important)
-  assert(html.includes('#easelTools{position:absolute !important;top:89.5% !important;'), 'Base easelTools top must be 89.5% to anchor directly to bottom wooden beam');
-  assert(html.includes('#easelTools{top:89.5% !important;gap:10px !important}'), 'Tablet easelTools top must be 89.5%');
-  assert(html.includes('left:28.3%;right:25.8%;top:42.5%;bottom:18.5%'), 'Clue board overlay must stay strictly within inner parchment (bottom: 18.5%) to prevent wooden frame overlap');
+  // 1. Placard Anchoring: #easelTools positioned flush to bottom wooden beam (82% !important)
+  assert(html.includes('#easelTools{position:absolute !important;top:82% !important;'), 'Base easelTools top must be 82% to anchor directly to bottom wooden beam');
+  assert(html.includes('#easelTools{top:82% !important;gap:10px !important}'), 'Tablet easelTools top must be 82%');
+  assert(html.includes('left:28.5% !important;right:25.5% !important;top:42.5% !important;bottom:20.5% !important;'), 'Clue board overlay must stay strictly within inner parchment (bottom: 20.5%) to prevent wooden frame overlap');
 
   const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 

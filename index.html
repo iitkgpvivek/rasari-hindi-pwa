@@ -64,13 +64,13 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .hanging-sign-zone-layer{position:absolute;top:0;right:1vw;z-index:35 !important;pointer-events:auto !important;transition:all 0.2s ease;display:flex;flex-direction:column;align-items:center}
 @keyframes gentle-sway{0%,100%{transform:rotate(0deg)}50%{transform:rotate(0.8deg)}}
 .sway-subtle{animation:gentle-sway 5s ease-in-out infinite;transform-origin:top center}
-.hanging-sign-inner{position:relative;height:100%;max-width:100%;aspect-ratio:884/1024;display:flex;align-items:center;justify-content:center}
+.hanging-sign-inner{position:relative;height:100%;max-width:100%;width:100%;aspect-ratio:884/1024;display:flex;align-items:center;justify-content:center}
 .hanging-sign-frame{height:100%;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 15px 25px rgba(0,0,0,0.3));user-select:none;-webkit-user-select:none;pointer-events:none}
-.clue-board-overlay{position:absolute;left:28.3%;right:25.8%;top:42.5%;bottom:18.5%;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;z-index:20;pointer-events:auto;background:transparent;cursor:pointer}
-.clue-emoji-container{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.clue-board-overlay{position:absolute !important;left:28.5% !important;right:25.5% !important;top:42.5% !important;bottom:20.5% !important;border-radius:12px !important;overflow:hidden !important;display:flex !important;align-items:center !important;justify-content:center !important;z-index:20 !important;pointer-events:auto !important;background:transparent !important;cursor:pointer !important}
+.clue-emoji-container{width:100% !important;height:100% !important;display:flex !important;align-items:center !important;justify-content:center !important;overflow:hidden !important;position:relative !important}
 
-/* Hanging Miniature Placards: Hint & Clear connected to the Easel (Anchored to bottom wooden beam 89.5%) */
-#easelTools{position:absolute !important;top:89.5% !important;left:50% !important;transform:translateX(-50%) !important;display:flex !important;align-items:flex-start !important;justify-content:center !important;gap:8px !important;width:max-content !important;z-index:40 !important;pointer-events:auto !important}
+/* Hanging Miniature Placards: Hint & Clear connected to the Easel (Anchored to bottom wooden beam 82%) */
+#easelTools{position:absolute !important;top:82% !important;left:50% !important;transform:translateX(-50%) !important;display:flex !important;align-items:flex-start !important;justify-content:center !important;gap:8px !important;width:max-content !important;z-index:40 !important;pointer-events:auto !important}
 .hanging-card-assembly{display:flex !important;flex-direction:column !important;align-items:center !important;transform-origin:top center !important}
 @keyframes cardDangleLeft{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(1.8deg)}}
 @keyframes cardDangleRight{0%,100%{transform:rotate(1.8deg)}50%{transform:rotate(-1.5deg)}}
@@ -87,7 +87,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .clear-card .card-inner-pill{background:linear-gradient(180deg,#ffffff 0%,#ffe4e6 55%,#fecdd3 100%) !important;color:#881337 !important;box-shadow:inset 0 1px 2px rgba(255,255,255,0.95),inset 0 -1px 2px rgba(225,29,72,0.2),0 1px 2px rgba(0,0,0,0.15) !important;border:1px solid #fda4af !important}
 
 @media(min-width:640px) and (min-height:541px){
-  #easelTools{top:89.5% !important;gap:10px !important}
+  #easelTools{top:82% !important;gap:10px !important}
   .hanging-rope-anchor{width:18px !important;height:26px !important;margin-bottom:-4px !important}
   .hanging-card{padding:4px !important;border-radius:16px !important}
   .hanging-card::before{top:-6px !important;width:11px !important;height:7px !important}
@@ -287,7 +287,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
     padding-bottom: 0 !important;
   }
   #easelTools {
-    top: 89.5% !important;
+    top: 82% !important;
     gap: 5px !important;
   }
   .hanging-rope-anchor {
@@ -354,7 +354,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
       aspect-ratio: 884 / 1024 !important;
     }
     #easelTools {
-      top: 89.5% !important;
+      top: 82% !important;
       gap: 5px !important;
     }
     .hanging-rope-anchor {
@@ -9851,7 +9851,20 @@ window.addEventListener('resize', () => {
   anchorToBottom();
   if (isApertureMode) updateApertureView();
 });
+function releaseOrientationLock() {
+  try {
+    if (window.screen && window.screen.orientation && typeof window.screen.orientation.unlock === 'function') {
+      const p = window.screen.orientation.unlock();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    }
+  } catch (err) {}
+}
+releaseOrientationLock();
+window.addEventListener('DOMContentLoaded', releaseOrientationLock);
+window.addEventListener('pointerdown', releaseOrientationLock, { once: true, passive: true });
+
 window.addEventListener('orientationchange', () => {
+  releaseOrientationLock();
   setTimeout(() => {
     drawPad();
     anchorToBottom();
@@ -9860,6 +9873,7 @@ window.addEventListener('orientationchange', () => {
 });
 if (window.screen && window.screen.orientation && window.screen.orientation.addEventListener) {
   window.screen.orientation.addEventListener('change', () => {
+    releaseOrientationLock();
     setTimeout(() => {
       drawPad();
       anchorToBottom();
@@ -9868,6 +9882,7 @@ if (window.screen && window.screen.orientation && window.screen.orientation.addE
   });
 }
 window.addEventListener('load', () => {
+  releaseOrientationLock();
   setTimeout(anchorToBottom, 120);
 });
 
@@ -10214,7 +10229,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.6.0';
+const CURRENT_APP_VERSION = '3.6.1';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;

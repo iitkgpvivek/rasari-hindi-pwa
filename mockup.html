@@ -209,7 +209,7 @@
     /* Cute Hanging Wooden Placards: Hint & Clear connected to the Easel */
     #easelTools {
       position: absolute !important;
-      top: 87.5% !important;
+      top: 82% !important;
       left: 50% !important;
       transform: translateX(-50%) !important;
       display: flex !important;
@@ -336,7 +336,7 @@
 
     @media (min-width: 640px) and (min-height: 541px) {
       #easelTools {
-        top: 88% !important;
+        top: 82% !important;
         gap: 10px !important;
       }
       .hanging-rope-anchor {
@@ -588,7 +588,7 @@
         padding-bottom: 0 !important;
       }
       #easelTools {
-        top: 87.5% !important;
+        top: 82% !important;
         gap: 5px !important;
       }
       .hanging-rope-anchor {
@@ -724,12 +724,12 @@
 
   <!-- LAYER 2B: Hanging Wooden Square Sign / Easel -->
   <div id="hangingSignZone" class="absolute z-25 pointer-events-auto transition-all flex flex-col items-center sway-subtle">
-    <div class="relative h-full aspect-[884/1024]">
+    <div class="relative w-full h-full aspect-[884/1024]">
       <!-- The Wooden Sign with Ropes PNG Frame (Perfect 1:1 Square Whitespace) -->
-      <img src="images/hanging_sign.png?v=9" alt="Hanging Wooden Sign" class="h-full w-auto object-contain filter drop-shadow-2xl select-none" />
+      <img src="images/hanging_sign.png?v=9" alt="Hanging Wooden Sign" class="absolute inset-0 w-full h-full object-fill filter drop-shadow-2xl select-none pointer-events-none" />
 
       <!-- Content Overlay: Exactly matches the 1:1 square inner canvas with ZERO edges left on sides -->
-      <div class="absolute left-[28%] right-[24.4%] top-[42.1%] bottom-[17.4%] rounded-2xl overflow-hidden flex items-center justify-center z-20 pointer-events-auto bg-transparent cursor-pointer" onclick="playSampleAudio()" title="Tap to hear word">
+      <div class="absolute left-[28.5%] right-[25.5%] top-[42.5%] bottom-[20.5%] rounded-2xl overflow-hidden flex items-center justify-center z-20 pointer-events-auto bg-transparent cursor-pointer" onclick="playSampleAudio()" title="Tap to hear word">
         <img id="targetWordImg" src="images/akhbar.png" alt="Visual Clue" class="w-full h-full object-cover select-none transition-transform hover:scale-105 active:scale-95" />
       </div>
 
