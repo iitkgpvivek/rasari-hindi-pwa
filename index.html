@@ -9855,8 +9855,18 @@ window.addEventListener('orientationchange', () => {
   setTimeout(() => {
     drawPad();
     anchorToBottom();
+    if (isApertureMode) updateApertureView();
   }, 100);
 });
+if (window.screen && window.screen.orientation && window.screen.orientation.addEventListener) {
+  window.screen.orientation.addEventListener('change', () => {
+    setTimeout(() => {
+      drawPad();
+      anchorToBottom();
+      if (isApertureMode) updateApertureView();
+    }, 100);
+  });
+}
 window.addEventListener('load', () => {
   setTimeout(anchorToBottom, 120);
 });
@@ -10204,7 +10214,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.5.5';
+const CURRENT_APP_VERSION = '3.6.0';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;

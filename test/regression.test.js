@@ -390,6 +390,7 @@ test('Fullscreen Kiosk Mode & Parental Guidance modal protect against OS navigat
   assert(html.includes('id="stylusModal"'), 'Stylus & Tablet guidance modal must exist');
   const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'manifest.webmanifest'), 'utf8'));
   assert.strictEqual(manifest.display, 'fullscreen', 'Manifest must specify fullscreen display to hide tablet navigation bar');
+  assert.strictEqual(manifest.orientation, 'any', 'Manifest orientation must be "any" to support responsive orientation in both portrait and landscape modes');
 });
 
 test('Full-Screen Aperture Writing Shield Mode & Akshara-by-Akshara guidance are active', () => {
