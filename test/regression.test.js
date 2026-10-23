@@ -908,6 +908,32 @@ test('Tablet Placard Anchoring, English UI Standard, Language Diction, Clue Cove
   assert(html.includes('aspect-ratio: 884 / 1024 !important;'), 'hangingSignZone must enforce 884 / 1024 aspect-ratio to keep frame, photo, and studs rigidly unified');
 });
 
+test('Mittu Speech Bubble Interactive Pronunciation & Unclipped Upper Matra Headroom (Khadi Dandi \'ा\' Display, Full Bubble Tap)', () => {
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  // 1. Full speech bubble tap speaks monkey bubble
+  assert(/\$\('monkeySpeechBubble'\)\.onclick\s*=\s*\([^)]*\)\s*=>\s*\{[\s\S]*?speakMonkeyBubble\(\)/.test(scriptContent),
+    'monkeySpeechBubble onclick must call speakMonkeyBubble to pronounce matra phrase in Step 2, not speakClue');
+
+  // 2. Sound badge click speaks monkey bubble
+  assert(/\$\('sound'\)\.onclick\s*=\s*\([^)]*\)\s*=>\s*\{[\s\S]*?speakMonkeyBubble\(\)/.test(scriptContent),
+    'sound badge onclick must call speakMonkeyBubble');
+
+  // 3. Khadi dandi ('ा' / 'ಾ') display in written text vs spoken vowel articulation
+  assert(scriptContent.includes("function getMatraPhrase(char, matraObj, forSpeech = false)"),
+    'getMatraPhrase must support forSpeech parameter');
+  assert(scriptContent.includes("if (!forSpeech && matraObj.sym === 'ा') {\n      pName = 'ा की मात्रा';\n    }"),
+    'getMatraPhrase must show khadi dandi "ा" in display text');
+  assert(scriptContent.includes("if (!forSpeech && matraObj.sym === 'ಾ') {\n      pName = 'ಾ ಕಾರ';\n    }"),
+    'getMatraPhrase must show Kannada "ಾ" in display text');
+
+  // 4. Zero clipping headroom: overflow visible on word container, focus char, and subtitle
+  assert(html.includes('.speech-word-container{display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:space-between !important;width:100% !important;flex:1 !important;min-height:0 !important;overflow:visible !important}'),
+    '.speech-word-container must have overflow: visible to prevent bindu/upper matra clipping');
+  assert(html.includes('.speech-focus-word{') && html.includes('padding-top:4px !important;') && html.includes('overflow:visible !important;'),
+    '.speech-focus-word must have overflow: visible and padding-top: 4px headroom');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');
