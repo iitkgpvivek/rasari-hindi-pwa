@@ -209,7 +209,7 @@
     /* Cute Hanging Wooden Placards: Hint & Clear connected to the Easel */
     #easelTools {
       position: absolute !important;
-      top: 82% !important;
+      top: 87% !important;
       left: 50% !important;
       transform: translateX(-50%) !important;
       display: flex !important;
@@ -336,7 +336,7 @@
 
     @media (min-width: 640px) and (min-height: 541px) {
       #easelTools {
-        top: 82% !important;
+        top: 87% !important;
         gap: 10px !important;
       }
       .hanging-rope-anchor {
@@ -472,10 +472,11 @@
       /* Easel on right edge: pinned to top-right, elevated for direct tap wiring */
       #hangingSignZone {
         position: fixed !important;
-        height: 48vh !important;
+        width: min(22vw, calc(44vh * 884 / 1024), 320px) !important;
+        height: auto !important;
         max-height: 380px !important;
-        width: auto !important;
-        max-width: 22vw !important;
+        max-width: min(22vw, 320px) !important;
+        aspect-ratio: 884 / 1024 !important;
         top: 0 !important;
         right: 1vw !important;
         z-index: 25 !important;
@@ -534,9 +535,11 @@
       }
       /* Easel on right edge: enlarged for clear visual clue presence in phone landscape */
       #hangingSignZone {
-        height: 68vh !important;
+        width: min(28vw, calc(70vh * 884 / 1024), 242px) !important;
+        height: auto !important;
         max-height: 285px !important;
         max-width: 28vw !important;
+        aspect-ratio: 884 / 1024 !important;
         right: max(0.5vw, env(safe-area-inset-right, 0px)) !important;
         z-index: 25 !important;
         pointer-events: auto !important;
@@ -588,7 +591,7 @@
         padding-bottom: 0 !important;
       }
       #easelTools {
-        top: 82% !important;
+        top: 87% !important;
         gap: 5px !important;
       }
       .hanging-rope-anchor {
@@ -627,17 +630,51 @@
         z-index: 15 !important;
         pointer-events: none !important;
       }
-      /* Easel on right: 38vh */
+      /* Easel on right: locked to 884:1024 aspect ratio, parallel to monkey speech card */
       #hangingSignZone {
         position: absolute !important;
-        height: 38vh !important;
+        width: min(44vw, calc(38vh * 884 / 1024), 293px) !important;
+        height: auto !important;
         max-height: 340px !important;
-        width: auto !important;
         max-width: 44vw !important;
-        top: 0 !important;
+        aspect-ratio: 884 / 1024 !important;
+        top: clamp(40px, 7.5vh, 75px) !important;
         right: 1.5vw !important;
         z-index: 25 !important;
         pointer-events: auto !important;
+      }
+      #hangingSignZone::before {
+        content: '' !important;
+        position: absolute !important;
+        bottom: calc(100% - 2px) !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 140px !important;
+        pointer-events: none !important;
+        background-image: url('images/rope_extension.png') !important;
+        background-size: 100% auto !important;
+        background-position: center bottom !important;
+        background-repeat: repeat-y !important;
+        z-index: 1 !important;
+      }
+      @media (max-width: 500px) {
+        #monkeyZone {
+          height: clamp(210px, 32vh, 275px) !important;
+          max-height: 275px !important;
+          max-width: 48vw !important;
+        }
+        #hangingSignZone {
+          width: min(44vw, calc(24vh * 884 / 1024), 177px) !important;
+          height: auto !important;
+          max-height: 205px !important;
+          max-width: 44vw !important;
+          aspect-ratio: 884 / 1024 !important;
+          top: clamp(48px, 8.8vh, 76px) !important;
+        }
+        #easelTools {
+          top: 87% !important;
+          gap: 5px !important;
+        }
       }
       /* Speech bubble below monkey at level of tools */
       .monkey-speech-bubble {
@@ -729,7 +766,7 @@
       <img src="images/hanging_sign.png?v=9" alt="Hanging Wooden Sign" class="absolute inset-0 w-full h-full object-fill filter drop-shadow-2xl select-none pointer-events-none" />
 
       <!-- Content Overlay: Exactly matches the 1:1 square inner canvas with ZERO edges left on sides -->
-      <div class="absolute left-[28.5%] right-[25.5%] top-[42.5%] bottom-[20.5%] rounded-2xl overflow-hidden flex items-center justify-center z-20 pointer-events-auto bg-transparent cursor-pointer" onclick="playSampleAudio()" title="Tap to hear word">
+      <div class="absolute left-[28.2%] right-[25%] top-[42.2%] bottom-[17.5%] rounded-2xl overflow-hidden flex items-center justify-center z-20 pointer-events-auto bg-transparent cursor-pointer" onclick="playSampleAudio()" title="Tap to hear word">
         <img id="targetWordImg" src="images/akhbar.png" alt="Visual Clue" class="w-full h-full object-cover select-none transition-transform hover:scale-105 active:scale-95" />
       </div>
 

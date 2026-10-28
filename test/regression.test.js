@@ -870,10 +870,10 @@ test('Language Switching on Progress Button (#st4), Dynamic Stepper Icons, and S
 // SUITE 17: Tablet Placard Anchoring, English UI Standard, Language Diction, Clue Coverage & Drawing Stability
 // ---------------------------------------------------------
 test('Tablet Placard Anchoring, English UI Standard, Language Diction, Clue Coverage, and Drawing Stability', () => {
-  // 1. Placard Anchoring: #easelTools positioned flush to bottom wooden beam (82% !important)
-  assert(html.includes('#easelTools{position:absolute !important;top:82% !important;'), 'Base easelTools top must be 82% to anchor directly to bottom wooden beam');
-  assert(html.includes('#easelTools{top:82% !important;gap:10px !important}'), 'Tablet easelTools top must be 82%');
-  assert(html.includes('left:28.5% !important;right:25.5% !important;top:42.5% !important;bottom:20.5% !important;'), 'Clue board overlay must stay strictly within inner parchment (bottom: 20.5%) to prevent wooden frame overlap');
+  // 1. Placard Anchoring: #easelTools positioned flush to bottom edge of wooden beam (87% !important)
+  assert(html.includes('#easelTools{position:absolute !important;top:87% !important;'), 'Base easelTools top must be 87% to anchor directly to bottom edge of wooden beam');
+  assert(html.includes('#easelTools{top:87% !important;gap:10px !important}'), 'Tablet easelTools top must be 87%');
+  assert(html.includes('left:28.2% !important;right:25% !important;top:42.2% !important;bottom:17.5% !important;'), 'Clue board overlay must fill inner parchment cleanly (bottom: 17.5%) with zero bottom gap');
 
   const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 
@@ -907,6 +907,13 @@ test('Tablet Placard Anchoring, English UI Standard, Language Diction, Clue Cove
 
   // 7. Unified Easel Lock: Aspect-ratio locked across container and inner unit to prevent letterbox desync
   assert(html.includes('aspect-ratio: 884 / 1024 !important;'), 'hangingSignZone must enforce 884 / 1024 aspect-ratio to keep frame, photo, and studs rigidly unified');
+
+  // 8. Portrait Hanging Sign Alignment: Vertically parallel to Mittu speech card and clears top navigation bar
+  assert(html.includes('top: clamp(40px, 7.5vh, 75px) !important;'), 'Portrait easel top must use clamp(40px, 7.5vh, 75px) to stay parallel with Mittu speech card');
+  assert(html.includes('top: clamp(48px, 8.8vh, 76px) !important;'), 'Phone portrait easel top must use clamp(48px, 8.8vh, 76px) to clear top nav bar and match speech bubble');
+  assert(html.includes('#hangingSignZone::before'), 'Continuous vine rope pseudo-element must connect hanging sign upward to canopy');
+  assert(html.includes("background-image: url('images/rope_extension.png')"), 'hangingSignZone::before must use authentic rope_extension.png wrapped with vine');
+  assert(sw.includes("'./images/rope_extension.png'"), 'sw.js must cache rope_extension.png for offline availability');
 });
 
 test('Mittu Speech Bubble Interactive Pronunciation & Unclipped Upper Matra Headroom (Khadi Dandi \'ा\' Display, Full Bubble Tap)', () => {

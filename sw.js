@@ -1,4 +1,4 @@
-const APP_VERSION = '3.6.1';
+const APP_VERSION = '3.6.4';
 const CACHE = `rasari-hindi-v${APP_VERSION}`;
 const ASSETS = [
   './',
@@ -16,6 +16,7 @@ const ASSETS = [
   './images/frame_edge_right.png',
   './images/mittu_branch.png',
   './images/hanging_sign.png',
+  './images/rope_extension.png',
   './images/parchment_scroll.png',
   './audio_samples/anaar_wala_a.m4a',
   './audio_samples/anaar_wala_aa.m4a',

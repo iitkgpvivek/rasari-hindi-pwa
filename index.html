@@ -66,11 +66,11 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .sway-subtle{animation:gentle-sway 5s ease-in-out infinite;transform-origin:top center}
 .hanging-sign-inner{position:relative;height:100%;max-width:100%;width:100%;aspect-ratio:884/1024;display:flex;align-items:center;justify-content:center}
 .hanging-sign-frame{height:100%;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 15px 25px rgba(0,0,0,0.3));user-select:none;-webkit-user-select:none;pointer-events:none}
-.clue-board-overlay{position:absolute !important;left:28.5% !important;right:25.5% !important;top:42.5% !important;bottom:20.5% !important;border-radius:12px !important;overflow:hidden !important;display:flex !important;align-items:center !important;justify-content:center !important;z-index:20 !important;pointer-events:auto !important;background:transparent !important;cursor:pointer !important}
+.clue-board-overlay{position:absolute !important;left:28.2% !important;right:25% !important;top:42.2% !important;bottom:17.5% !important;border-radius:12px !important;overflow:hidden !important;display:flex !important;align-items:center !important;justify-content:center !important;z-index:20 !important;pointer-events:auto !important;background:transparent !important;cursor:pointer !important}
 .clue-emoji-container{width:100% !important;height:100% !important;display:flex !important;align-items:center !important;justify-content:center !important;overflow:hidden !important;position:relative !important}
 
-/* Hanging Miniature Placards: Hint & Clear connected to the Easel (Anchored to bottom wooden beam 82%) */
-#easelTools{position:absolute !important;top:82% !important;left:50% !important;transform:translateX(-50%) !important;display:flex !important;align-items:flex-start !important;justify-content:center !important;gap:8px !important;width:max-content !important;z-index:40 !important;pointer-events:auto !important}
+/* Hanging Miniature Placards: Hint & Clear connected to the Easel (Anchored to bottom edge of wooden beam 87%) */
+#easelTools{position:absolute !important;top:87% !important;left:50% !important;transform:translateX(-50%) !important;display:flex !important;align-items:flex-start !important;justify-content:center !important;gap:8px !important;width:max-content !important;z-index:40 !important;pointer-events:auto !important}
 .hanging-card-assembly{display:flex !important;flex-direction:column !important;align-items:center !important;transform-origin:top center !important}
 @keyframes cardDangleLeft{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(1.8deg)}}
 @keyframes cardDangleRight{0%,100%{transform:rotate(1.8deg)}50%{transform:rotate(-1.5deg)}}
@@ -87,7 +87,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .clear-card .card-inner-pill{background:linear-gradient(180deg,#ffffff 0%,#ffe4e6 55%,#fecdd3 100%) !important;color:#881337 !important;box-shadow:inset 0 1px 2px rgba(255,255,255,0.95),inset 0 -1px 2px rgba(225,29,72,0.2),0 1px 2px rgba(0,0,0,0.15) !important;border:1px solid #fda4af !important}
 
 @media(min-width:640px) and (min-height:541px){
-  #easelTools{top:82% !important;gap:10px !important}
+  #easelTools{top:87% !important;gap:10px !important}
   .hanging-rope-anchor{width:18px !important;height:26px !important;margin-bottom:-4px !important}
   .hanging-card{padding:4px !important;border-radius:16px !important}
   .hanging-card::before{top:-6px !important;width:11px !important;height:7px !important}
@@ -184,9 +184,9 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
   /* Easel on right edge: pinned to top-right, elevated for direct tap wiring */
   #hangingSignZone {
     position: fixed !important;
-    height: clamp(220px, 44vh, 380px) !important;
+    width: min(22vw, calc(44vh * 884 / 1024), 320px) !important;
+    height: auto !important;
     max-height: 380px !important;
-    width: auto !important;
     max-width: min(22vw, 320px) !important;
     aspect-ratio: 884 / 1024 !important;
     top: 0 !important;
@@ -242,7 +242,8 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
   }
   /* Easel on right edge: enlarged for clear visual clue presence in phone landscape */
   #hangingSignZone {
-    height: min(70vh, 280px) !important;
+    width: min(28vw, calc(70vh * 884 / 1024), 242px) !important;
+    height: auto !important;
     max-height: 285px !important;
     max-width: 28vw !important;
     aspect-ratio: 884 / 1024 !important;
@@ -287,7 +288,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
     padding-bottom: 0 !important;
   }
   #easelTools {
-    top: 82% !important;
+    top: 87% !important;
     gap: 5px !important;
   }
   .hanging-rope-anchor {
@@ -327,18 +328,32 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
     z-index: 15 !important;
     pointer-events: none !important;
   }
-  /* Easel on right: 38vh */
+  /* Easel on right: locked to 884:1024 aspect ratio, parallel to monkey speech card */
   #hangingSignZone {
     position: absolute !important;
-    height: 38vh !important;
+    width: min(44vw, calc(38vh * 884 / 1024), 293px) !important;
+    height: auto !important;
     max-height: 340px !important;
-    width: auto !important;
     max-width: 44vw !important;
     aspect-ratio: 884 / 1024 !important;
-    top: 0 !important;
+    top: clamp(40px, 7.5vh, 75px) !important;
     right: 1.5vw !important;
     z-index: 25 !important;
     pointer-events: auto !important;
+  }
+  #hangingSignZone::before {
+    content: '' !important;
+    position: absolute !important;
+    bottom: calc(100% - 2px) !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 140px !important;
+    pointer-events: none !important;
+    background-image: url('images/rope_extension.png') !important;
+    background-size: 100% auto !important;
+    background-position: center bottom !important;
+    background-repeat: repeat-y !important;
+    z-index: 1 !important;
   }
   /* On phones in portrait mode (width <= 500px): match mockup sizes so character and clue fit without colliding */
   @media (max-width: 500px) {
@@ -348,13 +363,15 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
       max-width: 48vw !important;
     }
     #hangingSignZone {
-      height: clamp(165px, 24vh, 205px) !important;
+      width: min(44vw, calc(24vh * 884 / 1024), 177px) !important;
+      height: auto !important;
       max-height: 205px !important;
       max-width: 44vw !important;
       aspect-ratio: 884 / 1024 !important;
+      top: clamp(48px, 8.8vh, 76px) !important;
     }
     #easelTools {
-      top: 82% !important;
+      top: 87% !important;
       gap: 5px !important;
     }
     .hanging-rope-anchor {
@@ -439,7 +456,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .clue-emoji{width:100%;height:100%;border-radius:0 0 18px 18px;border:none;background:transparent;box-shadow:none;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:transform .18s cubic-bezier(.175,.885,.32,1.275);font-size:clamp(68px,8.5vw,110px);line-height:1}
 .clue-emoji:hover{transform:scale(1.02)}
 .clue-emoji:active{transform:scale(0.96)}
-.clue-emoji img,.clue-img{width:100%;height:100%;object-fit:cover;display:block;border-radius:0 0 18px 18px}
+.clue-emoji img,.clue-img{width:100%;height:100%;object-fit:cover;display:block;border-radius:12px}
 .clue-emoji svg{width:100%;height:100%;max-width:92%;max-height:92%;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.12))}
 .clue-sound-badge{position:absolute !important;bottom:8px !important;right:8px !important;width:24px !important;height:24px !important;border-radius:50% !important;background:rgba(255,255,255,0.94) !important;border:1.5px solid #f59e0b !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;font-size:12px !important;line-height:1 !important;box-shadow:0 2px 5px rgba(0,0,0,0.2) !important;pointer-events:none !important;z-index:5 !important}
 
@@ -10229,7 +10246,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.6.1';
+const CURRENT_APP_VERSION = '3.6.4';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
