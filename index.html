@@ -673,6 +673,21 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
   background: #fffdf0;
   box-shadow: 0 0 0 1px #f1c40f;
 }
+.sticker-card.crown-card {
+  border-color: #d97706 !important;
+  background: linear-gradient(145deg, #fffbeb 0%, #fef3c7 100%) !important;
+  box-shadow: 0 0 0 1.5px #d97706, 0 4px 12px rgba(217, 119, 6, 0.22) !important;
+}
+.sticker-card.test-passed-card {
+  border-color: #0284c7 !important;
+  background: #f0f9ff !important;
+}
+.stat-pill.crown-pill {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
+  border-color: #d97706 !important;
+  color: #92400e !important;
+  font-weight: 800 !important;
+}
 
 .app-version-badge {
   position: fixed;
@@ -1086,6 +1101,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
     </div>
     <div class="sticker-stats">
       <span class="stat-pill gold">🌟 Mastered: <span id="masteredCount">0</span>/49</span>
+      <span class="stat-pill crown-pill" id="trueMasteryPill">👑 True Mastery: <span id="trueMasteryCount">0</span>/49</span>
       <span class="stat-pill">🍌 <span id="treatCount">0</span> treats</span>
     </div>
     <div class="sticker-grid" id="stickerGrid"></div>
@@ -5745,13 +5761,19 @@ function getLetterMastery(c) {
     masteryData[c] = {
       letterTier: 0,
       letterMastered: false,
+      letterTestPassed: false,
       matraIndex: 0,
       matraTier: 0,
       matrasCompleted: [],
       matraMastered: false,
+      matrasTestPassed: [],
+      matraTestMastered: false,
       wordIndex: 0,
       wordTier: 0,
       wordsMastered: [],
+      wordsTestPassed: [],
+      wordTestMastered: false,
+      trueMastery: false,
       attempts: 0,
       passes: 0,
       star: 0
@@ -5760,16 +5782,22 @@ function getLetterMastery(c) {
   const m = masteryData[c];
   if (m.letterTier === undefined) m.letterTier = m.recall ? 2 : 0;
   if (m.letterMastered === undefined) m.letterMastered = !!m.recall;
+  if (m.letterTestPassed === undefined) m.letterTestPassed = false;
   if (m.matraIndex === undefined) m.matraIndex = 0;
   if (m.matraTier === undefined) m.matraTier = 0;
   if (!m.matrasCompleted) m.matrasCompleted = m.matra ? ['का'] : [];
   if (m.matraMastered === undefined) m.matraMastered = false;
+  if (!m.matrasTestPassed) m.matrasTestPassed = [];
+  if (m.matraTestMastered === undefined) m.matraTestMastered = false;
   if (m.wordIndex === undefined) m.wordIndex = 0;
   if (m.wordTier === undefined) m.wordTier = 0;
   if (!m.wordsMastered) {
     const curWord = (typeof getCurItem === 'function') ? getCurItem()?.word : (lessons[idx]?.word || 'कमल');
     m.wordsMastered = m.word ? [curWord || 'कमल'] : [];
   }
+  if (!m.wordsTestPassed) m.wordsTestPassed = [];
+  if (m.wordTestMastered === undefined) m.wordTestMastered = false;
+  if (m.trueMastery === undefined) m.trueMastery = false;
   if (m.star === undefined) m.star = 0;
   return m;
 }
@@ -5792,8 +5820,80 @@ function updateLetterStar(c) {
     }
   }
   m.star = stars;
+
+  // True Mastery: Tested at Word level for ALL letters in freehand
+  const minTestWords = item.isSwar ? 3 : 10;
+  if (m.wordsTestPassed && m.wordsTestPassed.length >= minTestWords) {
+    m.trueMastery = true;
+  }
+
   localStorage.setItem('rasari_mastery_v2', JSON.stringify(masteryData));
   return m.star;
+}
+
+function getTestEligibility(char) {
+  const m = getLetterMastery(char);
+  const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+  const item = curL.find(l => l.c === char) || curL[idx] || curL[0];
+
+  const wordsLearned = (m.wordsMastered && m.wordsMastered.length > 0);
+  const matrasLearned = !item.isSwar && ((m.matrasCompleted && m.matrasCompleted.length > 0) || m.matraMastered);
+  const letterLearned = !!m.letterMastered || (m.letterTier >= 2);
+
+  if (wordsLearned) {
+    return { eligible: true, testStep: 3, stageLabel: 'Word' };
+  } else if (matrasLearned) {
+    return { eligible: true, testStep: 2, stageLabel: 'Matra' };
+  } else if (letterLearned) {
+    return { eligible: true, testStep: 1, stageLabel: 'Letter' };
+  }
+  return { eligible: false, testStep: 1, stageLabel: 'None' };
+}
+
+function getTestEligibleIndices() {
+  const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+  return curL
+    .map((l, i) => ({ idx: i, char: l.c }))
+    .filter(({ char }) => getTestEligibility(char).eligible)
+    .map(({ idx }) => idx);
+}
+
+function getNextTestLetterIdx(currentIdx = idx) {
+  const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+  const eligible = getTestEligibleIndices();
+  if (eligible.length === 0) {
+    return (currentIdx + 1) % curL.length;
+  }
+  if (!shuffleMode) {
+    const nextSeq = eligible.find(i => i > currentIdx);
+    return nextSeq !== undefined ? nextSeq : eligible[0];
+  } else {
+    const candidates = eligible.filter(i => i !== currentIdx);
+    const pool = candidates.length > 0 ? candidates : eligible;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+}
+
+function getEligibleTestMatras(item, m) {
+  const curMatras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
+  if (m.matrasCompleted && m.matrasCompleted.length > 0) {
+    const list = curMatras.filter(mat => {
+      const combo = getMatraCombo(item.c, mat.sym);
+      return m.matrasCompleted.includes(combo);
+    });
+    return list.length > 0 ? list : curMatras;
+  }
+  return curMatras;
+}
+
+function getEligibleTestWords(item, m) {
+  const curBanks = (typeof getCurWordBanks === 'function') ? getCurWordBanks() : WORD_BANKS;
+  const bank = curBanks[item.c] || WORD_BANKS[item.c] || [];
+  if (m.wordsMastered && m.wordsMastered.length > 0) {
+    const list = bank.filter(wObj => m.wordsMastered.includes(wObj.word));
+    return list.length > 0 ? list : (bank.length > 0 ? [bank[0]] : [{ word: item.c, emoji: '✍️' }]);
+  }
+  return bank.length > 0 ? [bank[0]] : [{ word: item.c, emoji: '✍️' }];
 }
 
 function getTargetText() {
@@ -6265,7 +6365,11 @@ function drawPad() {
 
   let alpha = 0;
   if (hintActive) {
-    alpha = 0.38;
+    if (practiceMode === 'test') {
+      alpha = 0; // Target character watermark is NEVER revealed in Test Mode!
+    } else {
+      alpha = 0.38;
+    }
   } else if (practiceMode === 'test') {
     alpha = 0; // Test mode: Freehand recall with NO watermark
   } else if (guideMode === 'on') {
@@ -6282,8 +6386,22 @@ function drawPad() {
     }
   }
 
-  // Draw Watermark strictly pinned to Line 2 and Line 4
-  if (alpha > 0 && targetText) {
+  // Draw Watermark strictly pinned to Line 2 and Line 4 (or funny smiley in Test Mode)
+  if (practiceMode === 'test' && hintActive) {
+    ctx.save();
+    ctx.globalAlpha = 0.88;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const centerX = ww / 2;
+    const centerY = (ruling.line2 + ruling.line4) / 2;
+    ctx.font = 'bold ' + Math.round(ruling.bodyHeight * 0.72) + 'px "Baloo 2", sans-serif';
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillText('😜', centerX, centerY - ruling.bodyHeight * 0.16);
+    ctx.font = 'bold ' + Math.max(14, Math.round(ruling.bodyHeight * 0.22)) + 'px "Baloo 2", sans-serif';
+    ctx.fillStyle = '#b45309';
+    ctx.fillText('No Cheating! ✍️', centerX, centerY + ruling.bodyHeight * 0.44);
+    ctx.restore();
+  } else if (alpha > 0 && targetText) {
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.fillStyle = 'rgba(18, 65, 112, 0.65)'; // Slightly darker navy watermark matching tablet requirements
@@ -9110,7 +9228,7 @@ $('done').onclick = e => {
         };
       }
     } else {
-      // Test Mode
+      // Test Mode (Step 1: Letter)
       testPasses++;
       if (testPasses < 3) {
         $('mt').textContent = '🎯 Pass ' + testPasses + ' of 3!';
@@ -9121,20 +9239,21 @@ $('done').onclick = e => {
           render();
         };
       } else {
+        testPasses = 0;
         m.letterTier = 2;
         m.letterMastered = true;
+        m.letterTestPassed = true;
         updateLetterStar(char);
-        testPasses = 0;
-        const targetStep = getAutoStepForLetter(item);
-        setStep(targetStep);
-        $('mt').textContent = '🏆 True Mastery Proven!';
+
+        $('mt').textContent = '🏆 Letter Test Mastered!';
         $('mp').textContent = 'Sensational! You wrote ' + char + ' freehand 3 times in a row! (+' + treatsEarned + ' bananas 🍌)';
-        $('next').textContent = item.isSwar
-          ? 'Practice Words 📝'
-          : (currentLanguage === 'kn' ? 'Practice Kagunita (ಕಾ, ಕಿ...) 🌿' : 'Practice Matras (का, कि...) 🌿');
+        $('next').textContent = 'Next Test Letter ➔';
         $('next').onclick = () => {
           $('modal').classList.remove('show');
-          render();
+          const nextIdx = getNextTestLetterIdx(idx);
+          setLetter(nextIdx);
+          const nextElig = getTestEligibility(curL[nextIdx].c);
+          setStep(nextElig.eligible ? nextElig.testStep : 1);
         };
       }
     }
@@ -9183,7 +9302,7 @@ $('done').onclick = e => {
         }
       }
     } else {
-      // Test Mode
+      // Test Mode (Step 2: Matras)
       testPasses++;
       if (testPasses < 3) {
         $('mt').textContent = '🎯 Pass ' + testPasses + ' of 3!';
@@ -9195,29 +9314,43 @@ $('done').onclick = e => {
         };
       } else {
         testPasses = 0;
+        if (!m.matrasTestPassed.includes(curCombo)) {
+          m.matrasTestPassed.push(curCombo);
+        }
         if (!m.matrasCompleted.includes(curCombo)) {
           m.matrasCompleted.push(curCombo);
         }
-        if (m.matraIndex < curMatras.length - 1) {
-          m.matraIndex++;
-          const nextMatra = curMatras[m.matraIndex];
-          const nextCombo = getMatraCombo(char, nextMatra.sym);
-          $('mt').textContent = currentLanguage === 'kn' ? '🌿 Kagunita Mastered!' : '🌿 Matra Mastered!';
-          $('mp').textContent = 'Superb! You wrote ' + curCombo + '! Next ' + (currentLanguage === 'kn' ? 'kagunita' : 'matra') + ': ' + nextCombo + ' (' + (m.matraIndex + 1) + '/' + curMatras.length + ')';
-          $('next').textContent = 'Practice ' + nextCombo + ' →';
+        updateLetterStar(char);
+
+        // Horizontal movement first across learned matras
+        const testMatras = getEligibleTestMatras(item, m);
+        const remainingMatras = testMatras.filter(mat => !m.matrasTestPassed.includes(getMatraCombo(char, mat.sym)));
+
+        if (remainingMatras.length > 0) {
+          const nextMatObj = remainingMatras[0];
+          m.matraIndex = curMatras.indexOf(nextMatObj);
+          if (m.matraIndex === -1) m.matraIndex = 0;
+          const nextCombo = getMatraCombo(char, curMatras[m.matraIndex].sym);
+          $('mt').textContent = '🌿 Matra Recall Proven!';
+          $('mp').textContent = 'Superb! You wrote ' + curCombo + ' freehand 3 times! Next matra: ' + nextCombo + ' (+' + treatsEarned + ' 🍌)';
+          $('next').textContent = 'Test ' + nextCombo + ' ➔';
           $('next').onclick = () => {
             $('modal').classList.remove('show');
             render();
           };
         } else {
-          m.matraMastered = true;
+          // Completed all horizontal matras for this letter!
+          m.matraTestMastered = true;
           updateLetterStar(char);
-          setStep(3);
-          $('mt').textContent = currentLanguage === 'kn' ? '⭐⭐ Kagunita Mastered!' : '⭐⭐ Barakhadi Mastered!';
-          $('mp').textContent = 'Incredible! You completed all ' + curMatras.length + ' forms for ' + char + '! (+' + treatsEarned + ' 🍌)';
-          $('next').textContent = 'Practice Words 📝';
+          $('mt').textContent = currentLanguage === 'kn' ? '⭐⭐ Kagunita Test Mastered!' : '⭐⭐ Barakhadi Test Mastered!';
+          $('mp').textContent = 'Incredible! You wrote all learned matras for ' + char + ' freehand 3 times! Moving to next test letter! (+' + treatsEarned + ' 🍌)';
+          $('next').textContent = 'Next Test Letter ➔';
           $('next').onclick = () => {
             $('modal').classList.remove('show');
+            const nextIdx = getNextTestLetterIdx(idx);
+            setLetter(nextIdx);
+            const nextElig = getTestEligibility(curL[nextIdx].c);
+            setStep(nextElig.eligible ? nextElig.testStep : 1);
           };
         }
       }
@@ -9260,7 +9393,7 @@ $('done').onclick = e => {
         };
       }
     } else {
-      // Test Mode on Words
+      // Test Mode on Words (Step 3: Words)
       testPasses++;
       if (testPasses < 3) {
         $('mt').textContent = '🎯 Pass ' + testPasses + ' of 3!';
@@ -9272,26 +9405,49 @@ $('done').onclick = e => {
         };
       } else {
         testPasses = 0;
+        if (!m.wordsTestPassed.includes(curWord.word)) {
+          m.wordsTestPassed.push(curWord.word);
+        }
         if (!m.wordsMastered.includes(curWord.word)) {
           m.wordsMastered.push(curWord.word);
         }
         updateLetterStar(char);
-        m.wordIndex++;
-        const nextWord = getWordForLetter(char, m.wordIndex);
-        const totalMastered = m.wordsMastered.length;
 
-        if (totalMastered === 10) {
-          $('mt').textContent = '⭐⭐⭐ 3 Stars! Word Mastery!';
-          $('mp').textContent = 'Brilliant! You mastered 10 words for ' + char + '! Keep practicing for infinite words!';
+        // Horizontal movement first across learned words
+        const testWords = getEligibleTestWords(item, m);
+        const remainingWords = testWords.filter(wObj => !m.wordsTestPassed.includes(wObj.word));
+
+        if (remainingWords.length > 0) {
+          const nextWObj = remainingWords[0];
+          const curBanks = (typeof getCurWordBanks === 'function') ? getCurWordBanks() : WORD_BANKS;
+          const bank = curBanks[char] || WORD_BANKS[char] || [];
+          const foundIdx = bank.findIndex(wObj => wObj.word === nextWObj.word);
+          m.wordIndex = foundIdx >= 0 ? foundIdx : 0;
+          $('mt').textContent = '📝 Word Recall Proven!';
+          $('mp').textContent = 'Brilliant! You wrote ' + curWord.word + ' freehand 3 times! Next word: ' + nextWObj.word + ' (+' + treatsEarned + ' 🍌)';
+          $('next').textContent = 'Test ' + nextWObj.word + ' ➔';
+          $('next').onclick = () => {
+            $('modal').classList.remove('show');
+            render();
+          };
         } else {
-          $('mt').textContent = '🎉 Word Mastered!';
-          $('mp').textContent = 'Brilliant! You wrote ' + curWord.word + '! (' + totalMastered + '/10 words for ' + char + ')';
+          // Completed all horizontal words for this letter!
+          m.wordTestMastered = true;
+          updateLetterStar(char);
+          const isCrown = !!m.trueMastery;
+          $('mt').textContent = isCrown ? '👑 True Mastery Proven!' : '⭐⭐⭐ Words Test Mastered!';
+          $('mp').textContent = isCrown
+            ? 'Astounding! You have proven True Freehand Mastery at Word level for ' + char + '! Moving to next test letter! (+' + treatsEarned + ' 🍌)'
+            : 'Outstanding! You tested all learned words for ' + char + ' freehand 3 times! Moving to next test letter! (+' + treatsEarned + ' 🍌)';
+          $('next').textContent = 'Next Test Letter ➔';
+          $('next').onclick = () => {
+            $('modal').classList.remove('show');
+            const nextIdx = getNextTestLetterIdx(idx);
+            setLetter(nextIdx);
+            const nextElig = getTestEligibility(curL[nextIdx].c);
+            setStep(nextElig.eligible ? nextElig.testStep : 1);
+          };
         }
-        $('next').textContent = 'Next Word (' + nextWord.word + ') →';
-        $('next').onclick = () => {
-          $('modal').classList.remove('show');
-          render();
-        };
       }
     }
   }
@@ -9442,6 +9598,18 @@ $('prevBtn').onclick = e => {
     return;
   }
 
+  if (practiceMode === 'test') {
+    const eligible = getTestEligibleIndices();
+    if (eligible.length > 0) {
+      const prevElig = eligible.filter(i => i < idx);
+      const prevIdx = prevElig.length > 0 ? prevElig[prevElig.length - 1] : eligible[eligible.length - 1];
+      setLetter(prevIdx);
+      const prevEligObj = getTestEligibility(curL[prevIdx].c);
+      setStep(prevEligObj.eligible ? prevEligObj.testStep : 1);
+      return;
+    }
+  }
+
   if (letterHistory.length > 0) {
     const lastAttempted = letterHistory.pop();
     setLetter(lastAttempted);
@@ -9484,6 +9652,14 @@ $('nextBtn').onclick = e => {
     testPasses = 0;
     clearPad();
     render();
+    return;
+  }
+
+  if (practiceMode === 'test') {
+    const nextIdx = getNextTestLetterIdx(idx);
+    setLetter(nextIdx);
+    const nextElig = getTestEligibility(curL[nextIdx].c);
+    setStep(nextElig.eligible ? nextElig.testStep : 1);
     return;
   }
 
@@ -9644,23 +9820,44 @@ function toggleNavBar() {
 
 function navigateLetterVertical(delta) {
   const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
-  if (delta > 0) {
-    letterHistory.push(idx);
-    if (letterHistory.length > 60) letterHistory.shift();
-    const nextIdx = getNextLetterIdx();
-    setLetter(nextIdx);
-  } else {
-    if (letterHistory.length > 0) {
-      const prevIdx = letterHistory.pop();
-      setLetter(prevIdx);
+  if (practiceMode === 'test') {
+    if (delta > 0) {
+      const nextIdx = getNextTestLetterIdx(idx);
+      setLetter(nextIdx);
+      const nextElig = getTestEligibility(curL[nextIdx].c);
+      setStep(nextElig.eligible ? nextElig.testStep : 1);
     } else {
-      let prevIdx = (idx - 1 + curL.length) % curL.length;
-      if (currentStep === 2) {
-        while (curL[prevIdx].isSwar) {
-          prevIdx = (prevIdx - 1 + curL.length) % curL.length;
-        }
+      const eligible = getTestEligibleIndices();
+      if (eligible.length > 0) {
+        const prevElig = eligible.filter(i => i < idx);
+        const prevIdx = prevElig.length > 0 ? prevElig[prevElig.length - 1] : eligible[eligible.length - 1];
+        setLetter(prevIdx);
+        const prevEligObj = getTestEligibility(curL[prevIdx].c);
+        setStep(prevEligObj.eligible ? prevEligObj.testStep : 1);
+      } else {
+        let prevIdx = (idx - 1 + curL.length) % curL.length;
+        setLetter(prevIdx);
       }
-      setLetter(prevIdx);
+    }
+  } else {
+    if (delta > 0) {
+      letterHistory.push(idx);
+      if (letterHistory.length > 60) letterHistory.shift();
+      const nextIdx = getNextLetterIdx();
+      setLetter(nextIdx);
+    } else {
+      if (letterHistory.length > 0) {
+        const prevIdx = letterHistory.pop();
+        setLetter(prevIdx);
+      } else {
+        let prevIdx = (idx - 1 + curL.length) % curL.length;
+        if (currentStep === 2) {
+          while (curL[prevIdx].isSwar) {
+            prevIdx = (prevIdx - 1 + curL.length) % curL.length;
+          }
+        }
+        setLetter(prevIdx);
+      }
     }
   }
 
@@ -9807,6 +10004,20 @@ function initLearningHub() {
       practiceMode = 'test';
       localStorage.setItem('rasari_practice_mode', 'test');
       testPasses = 0;
+      const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+      const curItem = curL[idx] || curL[0] || lessons[0];
+      const elig = getTestEligibility(curItem.c);
+      if (elig.eligible) {
+        setStep(elig.testStep);
+      } else {
+        const eligibleIndices = getTestEligibleIndices();
+        if (eligibleIndices.length > 0) {
+          const targetIdx = !shuffleMode ? eligibleIndices[0] : eligibleIndices[Math.floor(Math.random() * eligibleIndices.length)];
+          setLetter(targetIdx);
+          const newElig = getTestEligibility(curL[targetIdx].c);
+          setStep(newElig.eligible ? newElig.testStep : 1);
+        }
+      }
       updateHubUI();
       render();
     });
@@ -10686,12 +10897,20 @@ function render() {
     // Stage 1: Letter Recall
     const tierName = m.letterTier === 0 ? 'Trace' : (m.letterTier === 1 ? 'Ghost' : 'Freehand');
     const tierRatio = (m.letterTier + 1) + '/3';
-    $('promptText').textContent = "Write letter " + item.c;
+    $('promptText').textContent = practiceMode === 'test' ? ("Write letter " + item.c + " freehand") : ("Write letter " + item.c);
     if (badge) {
-      if (m.letterMastered) {
-        badge.innerHTML = '<span>⭐</span><span class="tablet-pill-text"> Letter Mastered</span>';
+      if (practiceMode === 'test') {
+        if (m.letterTestPassed) {
+          badge.innerHTML = '<span>🎯</span><span class="tablet-pill-text"> Letter Tested ✓</span>';
+        } else {
+          badge.innerHTML = '<span>🎯</span> <span class="tablet-pill-text">' + testPasses + '/3 Freehand</span><span class="phone-pill-text">' + testPasses + '/3</span>';
+        }
       } else {
-        badge.innerHTML = '<span>✍️</span> <span class="tablet-pill-text">' + tierRatio + ' ' + tierName + '</span><span class="phone-pill-text">' + tierRatio + '</span>';
+        if (m.letterMastered) {
+          badge.innerHTML = '<span>⭐</span><span class="tablet-pill-text"> Letter Mastered</span>';
+        } else {
+          badge.innerHTML = '<span>✍️</span> <span class="tablet-pill-text">' + tierRatio + ' ' + tierName + '</span><span class="phone-pill-text">' + tierRatio + '</span>';
+        }
       }
     }
     renderClue(item, 1);
@@ -10702,26 +10921,44 @@ function render() {
     const combo = getMatraCombo(item.c, matraObj.sym);
     const tierName = m.matraTier === 0 ? 'Trace' : (m.matraTier === 1 ? 'Ghost' : 'Freehand');
     const tierRatio = (m.matraTier + 1) + '/3';
-    $('promptText').textContent = "Write " + combo + " (" + matraObj.name + ")";
+    $('promptText').textContent = practiceMode === 'test' ? ("Write " + combo + " freehand") : ("Write " + combo + " (" + matraObj.name + ")");
     if (badge) {
-      if (m.matraMastered) {
-        badge.innerHTML = '<span>⭐⭐</span><span class="tablet-pill-text"> Matras Mastered</span>';
+      if (practiceMode === 'test') {
+        if (m.matraTestMastered) {
+          badge.innerHTML = '<span>🎯</span><span class="tablet-pill-text"> Matras Tested ✓</span>';
+        } else {
+          badge.innerHTML = '<span>🎯</span> <span class="tablet-pill-text">' + testPasses + '/3 Freehand</span><span class="phone-pill-text">' + testPasses + '/3</span>';
+        }
       } else {
-        const totalMatras = matras.length;
-        badge.innerHTML = '<span>🌿</span> <span class="tablet-pill-text">' + ((m.matraIndex || 0) + 1) + '/' + totalMatras + ' ' + tierName + '</span><span class="phone-pill-text">' + ((m.matraIndex || 0) + 1) + '/' + totalMatras + '</span>';
+        if (m.matraMastered) {
+          badge.innerHTML = '<span>⭐⭐</span><span class="tablet-pill-text"> Matras Mastered</span>';
+        } else {
+          const totalMatras = matras.length;
+          badge.innerHTML = '<span>🌿</span> <span class="tablet-pill-text">' + ((m.matraIndex || 0) + 1) + '/' + totalMatras + ' ' + tierName + '</span><span class="phone-pill-text">' + ((m.matraIndex || 0) + 1) + '/' + totalMatras + '</span>';
+        }
       }
     }
     renderClue(item, 2);
   } else if (currentStep === 3) {
     // Stage 3: Word Recall
     const tierName = m.wordTier === 0 ? 'Trace' : (m.wordTier === 1 ? 'Ghost' : 'Freehand');
-    $('promptText').textContent = "Write the word ✍️";
+    $('promptText').textContent = practiceMode === 'test' ? "Write the word freehand ✍️" : "Write the word ✍️";
     const count = (m.wordsMastered && m.wordsMastered.length) || 0;
     if (badge) {
-      if (count >= 10) {
-        badge.innerHTML = '<span>⭐⭐⭐</span><span class="tablet-pill-text"> Words Mastered (' + count + ')</span>';
+      if (practiceMode === 'test') {
+        if (m.trueMastery) {
+          badge.innerHTML = '<span>👑</span><span class="tablet-pill-text"> True Mastery ✓</span>';
+        } else if (m.wordTestMastered) {
+          badge.innerHTML = '<span>🎯</span><span class="tablet-pill-text"> Words Tested ✓</span>';
+        } else {
+          badge.innerHTML = '<span>🎯</span> <span class="tablet-pill-text">' + testPasses + '/3 Freehand</span><span class="phone-pill-text">' + testPasses + '/3</span>';
+        }
       } else {
-        badge.innerHTML = '<span>📝</span> <span class="tablet-pill-text">' + count + '/10 ' + tierName + '</span><span class="phone-pill-text">' + count + '/10</span>';
+        if (count >= 10) {
+          badge.innerHTML = '<span>⭐⭐⭐</span><span class="tablet-pill-text"> Words Mastered (' + count + ')</span>';
+        } else {
+          badge.innerHTML = '<span>📝</span> <span class="tablet-pill-text">' + count + '/10 ' + tierName + '</span><span class="phone-pill-text">' + count + '/10</span>';
+        }
       }
     }
     renderClue(item, 3);
@@ -10772,28 +11009,53 @@ function openProgressStickers() {
 
   const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
   let masteredCount = 0;
+  let trueMasteryCount = 0;
   curL.forEach(l => {
     const m = getLetterMastery(l.c);
     if (m.star === 3) masteredCount++;
+    if (m.trueMastery) trueMasteryCount++;
   });
 
-  $('masteredCount').textContent = masteredCount;
-  $('treatCount').textContent = bananas;
+  if ($('masteredCount')) $('masteredCount').textContent = masteredCount;
+  if ($('trueMasteryCount')) $('trueMasteryCount').textContent = trueMasteryCount;
+  if ($('treatCount')) $('treatCount').textContent = bananas;
 
   const grid = $('stickerGrid');
   grid.innerHTML = '';
 
   curL.forEach((l, i) => {
     const m = getLetterMastery(l.c);
+    const testElig = getTestEligibility(l.c);
     const card = document.createElement('div');
-    card.className = 'sticker-card' + (m.star === 3 ? ' gold-card' : '');
 
-    const starIcons = m.star === 3 ? '⭐⭐⭐' : (m.star === 2 ? '⭐⭐' : (m.star === 1 ? '⭐' : '⚪'));
-    const badgeText = m.wordsMastered && m.wordsMastered.length
-      ? (m.wordsMastered.length + ' words')
-      : (m.matrasCompleted && m.matrasCompleted.length
-          ? (m.matrasCompleted.length + ' matras')
-          : (m.letterMastered ? 'Letter ✓' : 'New'));
+    let cardClass = 'sticker-card';
+    let starIcons = m.star === 3 ? '⭐⭐⭐' : (m.star === 2 ? '⭐⭐' : (m.star === 1 ? '⭐' : '⚪'));
+    let badgeText = 'New';
+
+    if (m.trueMastery) {
+      cardClass += ' crown-card';
+      starIcons = '👑 ⭐⭐⭐';
+      badgeText = '👑 True Mastery';
+    } else if (m.wordsTestPassed && m.wordsTestPassed.length > 0) {
+      cardClass += ' test-passed-card';
+      badgeText = '🎯 ' + m.wordsTestPassed.length + ' words tested';
+    } else if (m.matrasTestPassed && m.matrasTestPassed.length > 0) {
+      cardClass += ' test-passed-card';
+      badgeText = '🎯 ' + m.matrasTestPassed.length + ' matras tested';
+    } else if (m.letterTestPassed) {
+      cardClass += ' test-passed-card';
+      badgeText = '🎯 Letter Tested';
+    } else if (testElig.eligible) {
+      badgeText = '🎯 Test Ready (' + testElig.stageLabel + ')';
+    } else if (m.wordsMastered && m.wordsMastered.length) {
+      badgeText = m.wordsMastered.length + ' words (Learn)';
+    } else if (m.matrasCompleted && m.matrasCompleted.length) {
+      badgeText = m.matrasCompleted.length + ' matras (Learn)';
+    } else if (m.letterMastered) {
+      badgeText = 'Letter ✓ (Learn)';
+    }
+
+    card.className = cardClass;
 
     const thumbVisual = ILLUSTRATIONS[l.word]
       ? '<div class="sticker-thumb svg-thumb">' + ILLUSTRATIONS[l.word] + '</div>'
@@ -10807,7 +11069,12 @@ function openProgressStickers() {
     card.onclick = () => {
       modal.classList.remove('show');
       setLetter(i);
-      setStep(1);
+      if (practiceMode === 'test') {
+        const elig = getTestEligibility(l.c);
+        setStep(elig.eligible ? elig.testStep : 1);
+      } else {
+        setStep(1);
+      }
     };
 
     grid.appendChild(card);

@@ -1007,6 +1007,40 @@ test('Dual-Axis Progression Engine (Learn Mode vs Test Mode) & Parent Hub Modal'
   assert(doneMatch.includes("testPasses < 3"), 'Done handler must require 3 freehand recall passes in test mode');
 });
 
+test('Test Mode Eligibility, Highest-Stage Identification, Anti-Cheat Smiley Hint, Horizontal-First Flow & True Mastery', () => {
+  // 1. DOM Elements in Letter Stars
+  assert(html.includes('id="trueMasteryCount"'), 'True Mastery count stat must exist in Letter Stars modal');
+  assert(html.includes('id="trueMasteryPill"'), 'True Mastery crown pill must exist');
+
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  // 2. Test Eligibility Function
+  assert(scriptContent.includes('function getTestEligibility('), 'getTestEligibility function must exist');
+  assert(scriptContent.includes('function getTestEligibleIndices('), 'getTestEligibleIndices function must exist');
+  assert(scriptContent.includes('function getNextTestLetterIdx('), 'getNextTestLetterIdx function must exist');
+
+  // Verify logic of getTestEligibility
+  const eligCode = scriptContent.match(/function getTestEligibility\(char\)\s*\{([\s\S]*?)\n\}/)[0];
+  assert(eligCode.includes('testStep: 3') && eligCode.includes('wordsLearned'), 'Must select Word level (testStep 3) when words learned');
+  assert(eligCode.includes('testStep: 2') && eligCode.includes('matrasLearned'), 'Must select Matra level (testStep 2) when matras learned');
+  assert(eligCode.includes('testStep: 1') && eligCode.includes('letterLearned'), 'Must select Letter level (testStep 1) when letter learned');
+  assert(eligCode.includes('eligible: false'), 'Must report uneligible when nothing learned');
+
+  // 3. Funny Smiley Hint Anti-Cheat in Test Mode
+  assert(scriptContent.includes("No Cheating!"), 'Must draw funny smiley No Cheating watermark when hint tapped in test mode');
+  assert(scriptContent.includes("alpha = 0; // Target character watermark is NEVER revealed in Test Mode!"), 'Watermark must never reveal character in test mode');
+
+  // 4. Horizontal movement first before vertical switching
+  assert(scriptContent.includes('getEligibleTestMatras'), 'Must evaluate test-ready matras for current letter');
+  assert(scriptContent.includes('getEligibleTestWords'), 'Must evaluate test-ready words for current letter');
+  assert(scriptContent.includes('remainingMatras.length > 0'), 'Must complete horizontal matras before advancing letter');
+  assert(scriptContent.includes('remainingWords.length > 0'), 'Must complete horizontal words before advancing letter');
+
+  // 5. True Mastery Invariant
+  assert(scriptContent.includes('m.trueMastery'), 'trueMastery state flag must exist');
+  assert(scriptContent.includes('👑 True Mastery'), 'Letter Stars must display True Mastery crown card');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');
