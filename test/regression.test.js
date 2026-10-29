@@ -530,7 +530,7 @@ test('Multi-touch Palm-Down Button Responsiveness & Anti-Dot Stroke Auto-Recover
 });
 
 test('Shuffle Mode & Last-Attempted Navigation History', () => {
-  assert(html.includes('id="shuffleToggle"'), 'Top Shuffle Mode toggle button must exist');
+  assert(html.includes('id="orderShuffleBtn"'), 'Shuffle Mode button must exist in Parent Hub');
   assert(html.includes('shuffleMode'), 'shuffleMode state variable must exist');
   assert(html.includes('letterHistory'), 'letterHistory navigation history stack must exist');
   assert(html.includes('function getNextLetterIdx('), 'getNextLetterIdx selection function must exist');
@@ -636,19 +636,18 @@ test('Semantic Word Pronunciation on Clue Tap & 3D AI Illustrated Library (No bl
   });
 });
 
-test('Automated Educational Progression (Stage auto-lock, Letter -> Matras -> Words, Infinite Word Rotation)', () => {
-  // Step pills must be non-clickable progression indicators
-  assert(html.includes('.step:not(#st4){cursor:default;pointer-events:none}'), 'CSS must prevent child from skipping stages');
-  assert(!html.includes("$('st1').onclick"), 'st1 must not have manual jump listener');
-  assert(!html.includes("$('st2').onclick"), 'st2 must not have manual jump listener');
-  assert(!html.includes("$('st3').onclick"), 'st3 must not have manual jump listener');
+test('Direct Stage Selection & Pedagogical Progression (Letters, Matras, Words & Infinite Word Rotation)', () => {
+  // Step pills must allow direct stage switching
+  assert(html.includes("$('st1').onclick"), 'st1 must have direct stage listener');
+  assert(html.includes("$('st2').onclick"), 'st2 must have direct stage listener');
+  assert(html.includes("$('st3').onclick"), 'st3 must have direct stage listener');
 
   const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
   assert(scriptContent.includes('function getAutoStepForLetter('), 'getAutoStepForLetter function must exist');
 
   const autoStepMatch = scriptContent.match(/function getAutoStepForLetter\(item\)\s*\{([\s\S]*?)\n\}/)[0];
-  assert(autoStepMatch.includes('!m.letterMastered') && autoStepMatch.includes('return 1'), 'Must auto-lock to Step 1 when letter is unmastered');
-  assert(autoStepMatch.includes('!m.matraMastered') && autoStepMatch.includes('return 2'), 'Must auto-lock to Step 2 when matras are unmastered');
+  assert(autoStepMatch.includes('!m.letterMastered') && autoStepMatch.includes('return 1'), 'Must return Step 1 when letter is unmastered');
+  assert(autoStepMatch.includes('!m.matraMastered') && autoStepMatch.includes('return 2'), 'Must return Step 2 when matras are unmastered');
   assert(autoStepMatch.includes('return 3'), 'Must advance to Step 3 for words');
 
   // Infinite word rotation in word bank
@@ -971,9 +970,10 @@ test('Artist-App Minimalist Floating Letter Puck, Vertical Swipe Navigation, and
   assert(scriptContent.includes("collapseNavBar()"), 'Drawing on canvas must automatically collapse top bar for maximum sketching area');
 });
 
-test('Dual-Axis Progression Engine (Learn Mode vs Test Mode) & Unified Learning Hub Modal', () => {
-  // 1. Learning Hub Modal DOM Elements
-  assert(html.includes('id="learningHubModal"'), 'Learning hub modal must exist');
+test('Dual-Axis Progression Engine (Learn Mode vs Test Mode) & Parent Hub Modal', () => {
+  // 1. Parent Hub Modal DOM Elements
+  assert(html.includes('id="learningHubModal"'), 'Parent hub modal must exist');
+  assert(html.includes('Parent&#39;s Hub') || html.includes("Parent's Hub"), 'Parent Hub modal title must exist');
   assert(html.includes('id="modeLearnBtn"'), 'Learn mode button must exist');
   assert(html.includes('id="modeTestBtn"'), 'Test mode button must exist');
   assert(html.includes('id="fadeStepsVal"'), 'Fade steps counter must exist');
@@ -981,10 +981,8 @@ test('Dual-Axis Progression Engine (Learn Mode vs Test Mode) & Unified Learning 
   assert(html.includes('id="fadeStepPlusBtn"'), 'Fade steps plus button must exist');
   assert(html.includes('id="orderCurriculumBtn"'), 'Curriculum order button must exist');
   assert(html.includes('id="orderShuffleBtn"'), 'Shuffle order button must exist');
-  assert(html.includes('id="hubLangHiBtn"'), 'Hindi language button must exist in hub');
-  assert(html.includes('id="hubLangKnBtn"'), 'Kannada language button must exist in hub');
   assert(html.includes('id="hubResetBtn"'), 'Reset to start button must exist in hub');
-  assert(html.includes('id="hubStickersBtn"'), 'Sticker book button must exist in hub');
+  assert(html.includes('id="hubStickersBtn"'), 'Letter stars button must exist in hub');
   assert(html.includes('id="hubResumeBtn"'), 'Resume writing button must exist in hub');
 
   const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];

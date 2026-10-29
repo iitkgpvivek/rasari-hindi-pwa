@@ -101,10 +101,11 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .home-nav-btn:hover{transform:scale(1.06)}
 .home-nav-btn:active{transform:scale(0.94)}
 .nav-steps-container{display:inline-flex;align-items:center;gap:clamp(3px,0.6vw,6px);flex-shrink:1;min-width:0}
-.nav-step-pill{display:inline-flex;align-items:center;gap:4px;padding:3px clamp(6px,0.8vw,9px);border-radius:9999px;font-size:11.5px;font-weight:700;color:#334155;background:rgba(255,255,255,0.82);border:1px solid rgba(203,213,225,0.8);box-sizing:border-box;flex-shrink:0;cursor:default;transition:all 0.15s ease}
+.nav-step-pill{display:inline-flex;align-items:center;gap:4px;padding:3px clamp(6px,0.8vw,9px);border-radius:9999px;font-size:11.5px;font-weight:700;color:#334155;background:rgba(255,255,255,0.82);border:1px solid rgba(203,213,225,0.8);box-sizing:border-box;flex-shrink:0;cursor:pointer !important;pointer-events:auto !important;transition:all 0.15s ease}
+.nav-step-pill:hover{background:#fef3c7;color:#78350f}
 .nav-step-pill.active{background:#facc15;color:#451a03;font-weight:900;border-color:#eab308;box-shadow:0 1px 3px rgba(161,98,7,0.25)}
-.nav-step-pill.disabled{opacity:0.35;pointer-events:none;filter:grayscale(1)}
-.step:not(#st4){cursor:default;pointer-events:none}
+.nav-step-pill.disabled{opacity:0.35;pointer-events:none !important;filter:grayscale(1);cursor:not-allowed !important}
+.step:not(#st4){cursor:pointer}
 .progress-step-pill{cursor:pointer !important;pointer-events:auto !important;color:#92400e;position:relative}
 .progress-step-pill:hover{background:#fef3c7}
 .lang-dropdown-trigger{display:inline-flex;align-items:center;gap:3px;margin-left:clamp(2px,0.4vw,5px);padding:1.5px clamp(4px,0.6vw,7px);border-radius:9999px;background:rgba(245,158,11,0.18);border:1px solid rgba(217,119,6,0.35);color:#78350f;font-size:10.5px;font-weight:800;cursor:pointer;pointer-events:auto !important;transition:all 0.15s ease;user-select:none}
@@ -139,16 +140,24 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .nav-bar-close-btn:hover{background:#fee2e2 !important;color:#dc2626 !important;border-color:#fca5a5 !important}
 .nav-bar-close-btn:active{transform:scale(0.92) !important}
 
-.letter-avatar-puck{position:fixed !important;top:max(8px,env(safe-area-inset-top,8px)) !important;left:50% !important;transform:translateX(-50%) !important;z-index:52 !important;display:inline-flex !important;align-items:center !important;gap:5px !important;background:rgba(255,255,255,0.95) !important;backdrop-filter:blur(12px) !important;-webkit-backdrop-filter:blur(12px) !important;border:1.5px solid rgba(245,158,11,0.55) !important;border-radius:9999px !important;padding:3px 8px !important;box-shadow:0 4px 14px rgba(0,0,0,0.14),0 1px 3px rgba(180,83,9,0.1) !important;user-select:none !important;-webkit-user-select:none !important;touch-action:pan-x !important;transition:transform 0.28s cubic-bezier(0.16,1,0.3,1),opacity 0.2s ease !important}
+.letter-avatar-puck{position:fixed !important;top:max(8px,env(safe-area-inset-top,8px)) !important;left:50% !important;transform:translateX(-50%) !important;z-index:52 !important;display:inline-flex !important;align-items:center !important;gap:4px !important;height:30px !important;max-height:30px !important;background:rgba(255,255,255,0.95) !important;backdrop-filter:blur(12px) !important;-webkit-backdrop-filter:blur(12px) !important;border:1.5px solid rgba(245,158,11,0.55) !important;border-radius:9999px !important;padding:2px 6px !important;box-shadow:0 3px 10px rgba(0,0,0,0.14),0 1px 2px rgba(180,83,9,0.1) !important;user-select:none !important;-webkit-user-select:none !important;touch-action:pan-x !important;white-space:nowrap !important;box-sizing:border-box !important;overflow:hidden !important;transition:transform 0.28s cubic-bezier(0.16,1,0.3,1),opacity 0.2s ease !important}
 .letter-avatar-puck.hidden{opacity:0 !important;pointer-events:none !important;transform:translateX(-50%) translateY(-150%) scale(0.9) !important}
-.puck-dial-btn{width:28px !important;height:28px !important;border-radius:50% !important;background:#f8fafc !important;border:1px solid #cbd5e1 !important;color:#1e293b !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:11px !important;font-weight:900 !important;cursor:pointer !important;transition:transform 0.12s ease,background 0.12s ease !important;padding:0 !important;outline:none !important}
+.puck-dial-btn{width:22px !important;height:22px !important;border-radius:50% !important;background:#f8fafc !important;border:1px solid #cbd5e1 !important;color:#1e293b !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:9px !important;font-weight:900 !important;cursor:pointer !important;transition:transform 0.12s ease,background 0.12s ease !important;padding:0 !important;outline:none !important;flex-shrink:0 !important}
 .puck-dial-btn:hover{background:#e2e8f0 !important;transform:scale(1.1) !important}
 .puck-dial-btn:active{transform:scale(0.9) !important}
-.puck-medallion{display:inline-flex !important;align-items:center !important;gap:6px !important;padding:2px 10px 2px 8px !important;border-radius:9999px !important;background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%) !important;border:1.2px solid #f59e0b !important;cursor:pointer !important;transition:transform 0.15s ease,filter 0.15s ease !important}
+.puck-medallion{display:inline-flex !important;align-items:center !important;gap:4px !important;height:24px !important;padding:0 7px !important;border-radius:9999px !important;background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%) !important;border:1.2px solid #f59e0b !important;cursor:pointer !important;box-sizing:border-box !important;transition:transform 0.15s ease,filter 0.15s ease !important;flex-shrink:0 !important}
 .puck-medallion:hover{filter:brightness(1.05) !important;transform:scale(1.03) !important}
 .puck-medallion:active{transform:scale(0.97) !important}
-.puck-char{font-family:'Baloo 2',system-ui,sans-serif !important;font-size:18px !important;font-weight:900 !important;line-height:1 !important;color:#78350f !important;min-width:22px !important;text-align:center !important}
-.puck-mini-badge{font-size:10px !important;font-weight:800 !important;color:#92400e !important;background:rgba(255,255,255,0.8) !important;padding:2px 6px !important;border-radius:9999px !important;letter-spacing:0.02em !important}
+.puck-char{font-family:'Baloo 2',system-ui,sans-serif !important;font-size:16px !important;font-weight:900 !important;line-height:1 !important;color:#78350f !important;min-width:18px !important;text-align:center !important}
+.puck-mini-badge{font-size:9.5px !important;font-weight:800 !important;color:#92400e !important;background:rgba(255,255,255,0.8) !important;padding:1px 5px !important;border-radius:9999px !important;letter-spacing:0.02em !important}
+
+@media(max-width:600px),(orientation:portrait){
+  .letter-avatar-puck{height:28px !important;max-height:28px !important;padding:2px 4px !important;gap:3px !important;top:max(6px,env(safe-area-inset-top,6px)) !important}
+  .puck-dial-btn{width:20px !important;height:20px !important;font-size:8px !important}
+  .puck-medallion{height:22px !important;padding:0 6px !important;gap:3px !important}
+  .puck-char{font-size:14px !important;min-width:14px !important}
+  .puck-mini-badge{font-size:8.5px !important;padding:1px 4px !important}
+}
 
 /* Learning Hub Modal Styles */
 .hub-modal-dialog{background:#fffcf8 !important;border:3px solid #fde68a !important;border-radius:26px !important;text-align:left !important;padding:18px 20px !important;max-width:480px !important;width:92% !important;box-shadow:0 16px 36px rgba(0,0,0,0.25) !important;display:flex !important;flex-direction:column !important;max-height:88vh !important;box-sizing:border-box !important}
@@ -977,13 +986,13 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 </div>
 
 
-<!-- LEARNING HUB MODAL (Settings, Practice Modes & Configs) -->
-<div class="modal" id="learningHubModal" aria-label="Learning Settings & Practice Hub">
+<!-- PARENT'S HUB MODAL (Settings, Practice Modes & Configs) -->
+<div class="modal" id="learningHubModal" aria-label="Parent's Hub">
   <div class="dialog hub-modal-dialog">
     <div class="hub-head">
       <div class="hub-title-row">
         <span class="hub-icon">⚙️</span>
-        <h2>Learning Hub</h2>
+        <h2>Parent's Hub</h2>
       </div>
       <button class="sticker-close" id="closeHubBtn" aria-label="Close">✕</button>
     </div>
@@ -1049,36 +1058,15 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
         </div>
       </div>
 
-      <!-- Section 4: Language Selection -->
-      <div class="hub-section">
-        <div class="hub-section-label">🌐 Script &amp; Language</div>
-        <div class="hub-toggle-row">
-          <button type="button" class="hub-choice-btn active" id="hubLangHiBtn">
-            <span class="choice-icon">🇮🇳</span>
-            <div class="choice-meta">
-              <span class="choice-title">हिन्दी</span>
-              <span class="choice-desc">Hindi Varnamala</span>
-            </div>
-          </button>
-          <button type="button" class="hub-choice-btn" id="hubLangKnBtn">
-            <span class="choice-icon">🟡</span>
-            <div class="choice-meta">
-              <span class="choice-title">ಕನ್ನಡ</span>
-              <span class="choice-desc">Kannada Varnamale</span>
-            </div>
-          </button>
-        </div>
-      </div>
-
-      <!-- Section 5: Quick Actions -->
+      <!-- Section 4: Quick Actions -->
       <div class="hub-section hub-actions-row">
         <button type="button" class="hub-action-btn" id="hubResetBtn">
           <span>🔄</span>
           <span>Reset to Start</span>
         </button>
         <button type="button" class="hub-action-btn" id="hubStickersBtn">
-          <span>🏆</span>
-          <span>Sticker Book</span>
+          <span>⭐</span>
+          <span>Letter Stars</span>
         </button>
       </div>
 
@@ -1099,7 +1087,6 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
     <div class="sticker-stats">
       <span class="stat-pill gold">🌟 Mastered: <span id="masteredCount">0</span>/49</span>
       <span class="stat-pill">🍌 <span id="treatCount">0</span> treats</span>
-      <button class="stat-pill shuffle-pill" id="shuffleToggle" title="Toggle Shuffle Mode (Random unmastered letters)">🔀 Shuffle: ON</button>
     </div>
     <div class="sticker-grid" id="stickerGrid"></div>
   </div>
@@ -9420,11 +9407,40 @@ function getNextLetterIdx() {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-// Previous and Next Letter Direct Buttons
+// Previous and Next Stage-Aware Navigation Buttons
 $('prevBtn').onclick = e => {
   drawing = false;
   activePointerId = null;
   lastDrawEndTime = 0;
+
+  if (currentStep === 2) {
+    const curMatras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
+    const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+    const curItem = curL[idx] || curL[0] || lessons[0];
+    const m = getLetterMastery(curItem.c);
+    const total = curMatras.length;
+    m.matraIndex = ((m.matraIndex || 0) - 1 + total) % total;
+    curAttemptInLearn = 0;
+    testPasses = 0;
+    clearPad();
+    render();
+    return;
+  }
+
+  if (currentStep === 3) {
+    const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+    const curItem = curL[idx] || curL[0] || lessons[0];
+    const m = getLetterMastery(curItem.c);
+    const curBanks = (typeof getCurWordBanks === 'function') ? getCurWordBanks() : WORD_BANKS;
+    const bank = curBanks[curItem.c] || WORD_BANKS[curItem.c] || [];
+    const total = Math.max(1, bank.length);
+    m.wordIndex = ((m.wordIndex || 0) - 1 + total) % total;
+    curAttemptInLearn = 0;
+    testPasses = 0;
+    clearPad();
+    render();
+    return;
+  }
 
   if (letterHistory.length > 0) {
     const lastAttempted = letterHistory.pop();
@@ -9432,11 +9448,6 @@ $('prevBtn').onclick = e => {
   } else {
     const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
     let prevIdx = (idx - 1 + curL.length) % curL.length;
-    if (currentStep === 2) {
-      while (curL[prevIdx].isSwar) {
-        prevIdx = (prevIdx - 1 + curL.length) % curL.length;
-      }
-    }
     setLetter(prevIdx);
   }
 };
@@ -9446,6 +9457,35 @@ $('nextBtn').onclick = e => {
   drawing = false;
   activePointerId = null;
   lastDrawEndTime = 0;
+
+  if (currentStep === 2) {
+    const curMatras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
+    const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+    const curItem = curL[idx] || curL[0] || lessons[0];
+    const m = getLetterMastery(curItem.c);
+    const total = curMatras.length;
+    m.matraIndex = ((m.matraIndex || 0) + 1) % total;
+    curAttemptInLearn = 0;
+    testPasses = 0;
+    clearPad();
+    render();
+    return;
+  }
+
+  if (currentStep === 3) {
+    const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+    const curItem = curL[idx] || curL[0] || lessons[0];
+    const m = getLetterMastery(curItem.c);
+    const curBanks = (typeof getCurWordBanks === 'function') ? getCurWordBanks() : WORD_BANKS;
+    const bank = curBanks[curItem.c] || WORD_BANKS[curItem.c] || [];
+    const total = Math.max(1, bank.length);
+    m.wordIndex = ((m.wordIndex || 0) + 1) % total;
+    curAttemptInLearn = 0;
+    testPasses = 0;
+    clearPad();
+    render();
+    return;
+  }
 
   letterHistory.push(idx);
   if (letterHistory.length > 60) letterHistory.shift();
@@ -9740,10 +9780,6 @@ function updateHubUI() {
   // Practice Order
   if ($('orderCurriculumBtn')) $('orderCurriculumBtn').classList.toggle('active', !shuffleMode);
   if ($('orderShuffleBtn')) $('orderShuffleBtn').classList.toggle('active', !!shuffleMode);
-
-  // Language
-  if ($('hubLangHiBtn')) $('hubLangHiBtn').classList.toggle('active', currentLanguage === 'hi');
-  if ($('hubLangKnBtn')) $('hubLangKnBtn').classList.toggle('active', currentLanguage === 'kn');
 }
 
 function openLearningHub() {
@@ -9815,24 +9851,6 @@ function initLearningHub() {
     });
   }
 
-  if ($('hubLangHiBtn')) {
-    $('hubLangHiBtn').addEventListener('click', () => {
-      if (currentLanguage !== 'hi') {
-        setLanguage('hi');
-        updateHubUI();
-      }
-    });
-  }
-
-  if ($('hubLangKnBtn')) {
-    $('hubLangKnBtn').addEventListener('click', () => {
-      if (currentLanguage !== 'kn') {
-        setLanguage('kn');
-        updateHubUI();
-      }
-    });
-  }
-
   if ($('hubResetBtn')) {
     $('hubResetBtn').addEventListener('click', () => {
       closeLearningHub();
@@ -9843,7 +9861,7 @@ function initLearningHub() {
   if ($('hubStickersBtn')) {
     $('hubStickersBtn').addEventListener('click', () => {
       closeLearningHub();
-      openProgressModal();
+      openProgressStickers();
     });
   }
 
@@ -10484,7 +10502,31 @@ window.addEventListener('load', () => {
   setTimeout(anchorToBottom, 120);
 });
 
-// Step Navigation Handlers: progression is auto-driven (st1-st3 non-clickable); st4 opens non-destructive progress book
+// Step Navigation Handlers: Direct stage switching (Letters, Matras, Words); st4 opens Letter Stars modal
+if ($('st1')) {
+  $('st1').onclick = () => {
+    setStep(1);
+    if (typeof collapseNavBar === 'function') collapseNavBar();
+  };
+  makeTouchResponsive($('st1'));
+}
+if ($('st2')) {
+  $('st2').onclick = () => {
+    const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+    const curItem = curL[idx] || curL[0] || lessons[0];
+    if (curItem && curItem.isSwar) return;
+    setStep(2);
+    if (typeof collapseNavBar === 'function') collapseNavBar();
+  };
+  makeTouchResponsive($('st2'));
+}
+if ($('st3')) {
+  $('st3').onclick = () => {
+    setStep(3);
+    if (typeof collapseNavBar === 'function') collapseNavBar();
+  };
+  makeTouchResponsive($('st3'));
+}
 $('st4').onclick = (e) => {
   if (e && e.target && e.target.closest('#langSelectorTrigger')) return;
   openProgressStickers();
@@ -10543,8 +10585,11 @@ function setLetter(newIdx) {
   const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
   const item = curL[idx] || curL[0] || lessons[0];
 
-  const autoStep = getAutoStepForLetter(item);
-  setStep(autoStep);
+  let targetStep = currentStep;
+  if (item.isSwar && targetStep === 2) {
+    targetStep = 1;
+  }
+  setStep(targetStep);
 
   // Synchronize floating letter puck
   if ($('puckChar')) $('puckChar').textContent = item.c;
@@ -10555,19 +10600,15 @@ function setLetter(newIdx) {
     $('puckStepBadge').textContent = `${modeIcon} ${stepLabel} ${attemptStr}`;
   }
 
-  const pack = (typeof getCurLanguagePack === 'function') ? getCurLanguagePack() : null;
-  const prevTxt = pack?.ui?.previous || 'Prev';
-  const nextTxt = pack?.ui?.next || 'Next';
-  if (!$('prevBtn').querySelector('span')) $('prevBtn').innerHTML = '<span>◀</span><span>' + prevTxt + '</span>';
-  if (!$('nextBtn').querySelector('span')) $('nextBtn').innerHTML = '<span>' + nextTxt + '</span><span>▶</span>';
-
   const matraStepEl = $('st2');
-  if (item.isSwar) {
-    matraStepEl.classList.add('disabled');
-    matraStepEl.title = 'No matra for Swars';
-  } else {
-    matraStepEl.classList.remove('disabled');
-    matraStepEl.title = 'Matra combination';
+  if (matraStepEl) {
+    if (item.isSwar) {
+      matraStepEl.classList.add('disabled');
+      matraStepEl.title = 'No matra for Swars';
+    } else {
+      matraStepEl.classList.remove('disabled');
+      matraStepEl.title = 'Matra combination';
+    }
   }
 
   render();
@@ -10600,10 +10641,9 @@ function render() {
   const item = curL[idx] || curL[0] || lessons[0];
   const m = getLetterMastery(item.c);
 
-  // Auto-Progression Invariant: automatically drive child from Letter -> Matras -> Words
-  const autoStep = getAutoStepForLetter(item);
-  if (currentStep < autoStep) {
-    setStep(autoStep);
+  // If Swar on step 2, fallback to step 1
+  if (item.isSwar && currentStep === 2) {
+    setStep(1);
     return;
   }
 
@@ -10627,9 +10667,19 @@ function render() {
   if ($('charGlyph')) $('charGlyph').textContent = item.c;
   if ($('navLetter')) $('navLetter').textContent = item.c;
 
-  // Bottom Nav Labels (Preserve mockup Prev/Next markup)
-  if (!$('prevBtn').querySelector('span')) $('prevBtn').innerHTML = '<span>◀</span><span>Prev</span>';
-  if (!$('nextBtn').querySelector('span')) $('nextBtn').innerHTML = '<span>Next</span><span>▶</span>';
+  // Bottom Nav Labels & Tooltips
+  const stepNoun = currentStep === 1 ? 'letter' : (currentStep === 2 ? 'matra' : 'word');
+  const pack = (typeof getCurLanguagePack === 'function') ? getCurLanguagePack() : null;
+  const prevTxt = pack?.ui?.previous || 'Prev';
+  const nextTxt = pack?.ui?.next || 'Next';
+  if ($('prevBtn')) {
+    $('prevBtn').innerHTML = '<span>◀</span><span>' + prevTxt + '</span>';
+    $('prevBtn').title = 'Previous ' + stepNoun;
+  }
+  if ($('nextBtn')) {
+    $('nextBtn').innerHTML = '<span>' + nextTxt + '</span><span>▶</span>';
+    $('nextBtn').title = 'Next ' + stepNoun;
+  }
 
   // Dynamic Stage Setup (Right Clue: Pure Visual Clue, no text!)
   if (currentStep === 1) {
