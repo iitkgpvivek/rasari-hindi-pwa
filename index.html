@@ -133,6 +133,59 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
   .treats-pill-badge{padding:2px 7px !important;font-size:11px !important;gap:3px !important}
 }
 
+/* Artist Minimalist Floating Letter Puck & Collapsible Navigation Bar */
+.nav-bar-container.collapsed{transform:translateX(-50%) translateY(-155%) scale(0.92) !important;opacity:0 !important;pointer-events:none !important}
+.nav-bar-close-btn{width:24px !important;height:24px !important;border-radius:50% !important;background:#f1f5f9 !important;border:1px solid #cbd5e1 !important;color:#64748b !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;font-size:11px !important;font-weight:800 !important;cursor:pointer !important;flex-shrink:0 !important;transition:transform 0.12s ease,background 0.12s ease,color 0.12s ease !important;margin-left:2px !important;padding:0 !important}
+.nav-bar-close-btn:hover{background:#fee2e2 !important;color:#dc2626 !important;border-color:#fca5a5 !important}
+.nav-bar-close-btn:active{transform:scale(0.92) !important}
+
+.letter-avatar-puck{position:fixed !important;top:max(8px,env(safe-area-inset-top,8px)) !important;left:50% !important;transform:translateX(-50%) !important;z-index:52 !important;display:inline-flex !important;align-items:center !important;gap:5px !important;background:rgba(255,255,255,0.95) !important;backdrop-filter:blur(12px) !important;-webkit-backdrop-filter:blur(12px) !important;border:1.5px solid rgba(245,158,11,0.55) !important;border-radius:9999px !important;padding:3px 8px !important;box-shadow:0 4px 14px rgba(0,0,0,0.14),0 1px 3px rgba(180,83,9,0.1) !important;user-select:none !important;-webkit-user-select:none !important;touch-action:pan-x !important;transition:transform 0.28s cubic-bezier(0.16,1,0.3,1),opacity 0.2s ease !important}
+.letter-avatar-puck.hidden{opacity:0 !important;pointer-events:none !important;transform:translateX(-50%) translateY(-150%) scale(0.9) !important}
+.puck-dial-btn{width:28px !important;height:28px !important;border-radius:50% !important;background:#f8fafc !important;border:1px solid #cbd5e1 !important;color:#1e293b !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:11px !important;font-weight:900 !important;cursor:pointer !important;transition:transform 0.12s ease,background 0.12s ease !important;padding:0 !important;outline:none !important}
+.puck-dial-btn:hover{background:#e2e8f0 !important;transform:scale(1.1) !important}
+.puck-dial-btn:active{transform:scale(0.9) !important}
+.puck-medallion{display:inline-flex !important;align-items:center !important;gap:6px !important;padding:2px 10px 2px 8px !important;border-radius:9999px !important;background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%) !important;border:1.2px solid #f59e0b !important;cursor:pointer !important;transition:transform 0.15s ease,filter 0.15s ease !important}
+.puck-medallion:hover{filter:brightness(1.05) !important;transform:scale(1.03) !important}
+.puck-medallion:active{transform:scale(0.97) !important}
+.puck-char{font-family:'Baloo 2',system-ui,sans-serif !important;font-size:18px !important;font-weight:900 !important;line-height:1 !important;color:#78350f !important;min-width:22px !important;text-align:center !important}
+.puck-mini-badge{font-size:10px !important;font-weight:800 !important;color:#92400e !important;background:rgba(255,255,255,0.8) !important;padding:2px 6px !important;border-radius:9999px !important;letter-spacing:0.02em !important}
+
+/* Learning Hub Modal Styles */
+.hub-modal-dialog{background:#fffcf8 !important;border:3px solid #fde68a !important;border-radius:26px !important;text-align:left !important;padding:18px 20px !important;max-width:480px !important;width:92% !important;box-shadow:0 16px 36px rgba(0,0,0,0.25) !important;display:flex !important;flex-direction:column !important;max-height:88vh !important;box-sizing:border-box !important}
+.hub-head{display:flex !important;align-items:center !important;justify-content:space-between !important;border-bottom:1.5px solid #ebd9b8 !important;padding-bottom:10px !important;margin-bottom:12px !important}
+.hub-title-row{display:flex !important;align-items:center !important;gap:8px !important}
+.hub-title-row h2{margin:0 !important;font-size:clamp(18px,2.2vw,22px) !important;color:#143e70 !important;font-weight:900 !important}
+.hub-icon{font-size:22px !important}
+.hub-body{display:flex !important;flex-direction:column !important;gap:12px !important;overflow-y:auto !important;padding-right:2px !important}
+.hub-section{display:flex !important;flex-direction:column !important;gap:6px !important}
+.hub-section-label{font-size:10.5px !important;font-weight:900 !important;color:#92400e !important;letter-spacing:0.05em !important;text-transform:uppercase !important}
+.hub-toggle-row{display:grid !important;grid-template-columns:1fr 1fr !important;gap:8px !important}
+.hub-choice-btn{display:flex !important;align-items:center !important;gap:8px !important;padding:8px 10px !important;border-radius:14px !important;background:#f8fafc !important;border:1.5px solid #cbd5e1 !important;color:#334155 !important;cursor:pointer !important;transition:all 0.15s ease !important;text-align:left !important}
+.hub-choice-btn:hover{background:#f1f5f9 !important;border-color:#94a3b8 !important}
+.hub-choice-btn.active{background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%) !important;border-color:#d97706 !important;color:#78350f !important;box-shadow:0 2px 6px rgba(217,119,6,0.2) !important}
+.hub-choice-btn.active .choice-title{color:#78350f !important}
+.choice-icon{font-size:20px !important;flex-shrink:0 !important}
+.choice-meta{display:flex !important;flex-direction:column !important;min-width:0 !important}
+.choice-title{font-size:12.5px !important;font-weight:800 !important;color:#1e293b !important;line-height:1.2 !important}
+.choice-desc{font-size:10px !important;font-weight:600 !important;color:#64748b !important;line-height:1.2 !important}
+.hub-choice-btn.active .choice-desc{color:#92400e !important}
+.hub-stepper-card{background:#ffffff !important;border:1.5px solid #e2e8f0 !important;border-radius:14px !important;padding:10px 14px !important;display:flex !important;flex-direction:column !important;gap:6px !important}
+.hub-stepper-controls{display:flex !important;align-items:center !important;justify-content:center !important;gap:16px !important}
+.hub-step-arrow-btn{width:32px !important;height:32px !important;border-radius:50% !important;background:#f1f5f9 !important;border:1.5px solid #cbd5e1 !important;color:#1e293b !important;font-size:18px !important;font-weight:900 !important;display:flex !important;align-items:center !important;justify-content:center !important;cursor:pointer !important;transition:all 0.12s ease !important;padding:0 !important}
+.hub-step-arrow-btn:hover{background:#e2e8f0 !important;transform:scale(1.08) !important}
+.hub-step-arrow-btn:active{transform:scale(0.92) !important}
+.hub-step-value-wrap{display:flex !important;flex-direction:column !important;align-items:center !important;min-width:80px !important}
+.hub-step-value{font-size:24px !important;font-weight:900 !important;color:#78350f !important;line-height:1 !important}
+.hub-step-unit{font-size:10px !important;font-weight:700 !important;color:#94a3b8 !important}
+.hub-stepper-hint{font-size:11px !important;font-weight:700 !important;color:#b45309 !important;text-align:center !important;background:#fffbeb !important;border-radius:8px !important;padding:4px 8px !important}
+.hub-actions-row{display:grid !important;grid-template-columns:1fr 1fr !important;gap:8px !important;margin-top:4px !important}
+.hub-action-btn{display:flex !important;align-items:center !important;justify-content:center !important;gap:6px !important;padding:8px 12px !important;border-radius:12px !important;background:#f1f5f9 !important;border:1.2px solid #cbd5e1 !important;color:#1e293b !important;font-size:12px !important;font-weight:800 !important;cursor:pointer !important;transition:all 0.12s ease !important}
+.hub-action-btn:hover{background:#e2e8f0 !important}
+.hub-action-btn:active{transform:scale(0.96) !important}
+.hub-resume-btn{margin-top:6px !important;padding:10px 16px !important;border-radius:14px !important;background:linear-gradient(135deg,#10b981 0%,#059669 100%) !important;border:1.5px solid #34d399 !important;color:#ffffff !important;font-size:14px !important;font-weight:900 !important;cursor:pointer !important;box-shadow:0 4px 10px rgba(16,185,129,0.3) !important;display:flex !important;align-items:center !important;justify-content:center !important;gap:6px !important;transition:all 0.15s ease !important}
+.hub-resume-btn:hover{filter:brightness(1.08) !important;box-shadow:0 6px 14px rgba(16,185,129,0.4) !important}
+.hub-resume-btn:active{transform:scale(0.97) !important}
+
 /* LAYER 3: Native App Interactive Interface (Scrollable Bottom Anchored) */
 .app-container-layer{position:absolute !important;inset:0 !important;width:100% !important;height:100% !important;overflow-y:auto !important;overflow-x:hidden !important;-webkit-overflow-scrolling:touch !important;scrollbar-width:thin;scrollbar-color:rgba(18,65,112,0.3) transparent;scroll-snap-type:y proximity;pointer-events:none !important;z-index:30 !important;padding:8px 16px 0 16px;padding-top:clamp(48px,7.5vh,60px) !important;display:flex !important;flex-direction:column !important;justify-content:flex-end !important;box-sizing:border-box !important}
 .app-container-layer > *{pointer-events:auto !important}
@@ -739,9 +792,23 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
     </div>
   </div>
 
+  <!-- MINIMALIST FLOATING LETTER PUCK (Artist-App Barebones HUD) -->
+  <div id="letterAvatarPuck" class="letter-avatar-puck" role="toolbar" aria-label="Current letter and navigation">
+    <button id="puckPrevBtn" class="puck-dial-btn puck-prev" title="Previous letter (Swipe down)">
+      <span class="puck-arrow">▲</span>
+    </button>
+    <div id="puckMedallion" class="puck-medallion" title="Tap to expand menu • Swipe up/down to change letter">
+      <span id="puckChar" class="puck-char">अ</span>
+      <span id="puckStepBadge" class="puck-mini-badge">📖 Letter 1/3</span>
+    </div>
+    <button id="puckNextBtn" class="puck-dial-btn puck-next" title="Next letter (Swipe up)">
+      <span class="puck-arrow">▼</span>
+    </button>
+  </div>
+
   <!-- SUPREME UI LAYER: Fixed Top Header Navigation Bar (Always in front of monkey branch and easel) -->
-  <header id="navBar" class="nav-bar-container">
-    <button class="home-nav-btn" id="homeBtn" title="Home" aria-label="Home">🏠</button>
+  <header id="navBar" class="nav-bar-container collapsed">
+    <button class="home-nav-btn" id="homeBtn" title="Home & Learning Hub" aria-label="Home & Learning Hub">🏠</button>
 
     <!-- Stepper Pills -->
     <div class="nav-steps-container">
@@ -782,6 +849,9 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
       <span id="bananaCount">0</span>
       <span class="tablet-pill-text">treats</span>
     </div>
+
+    <!-- Collapse Menu Button -->
+    <button class="nav-bar-close-btn" id="navCloseBtn" title="Collapse Menu" aria-label="Collapse Menu">✕</button>
   </header>
 
   <!-- Floating Language Selector Menu -->
@@ -906,6 +976,119 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
   </div>
 </div>
 
+
+<!-- LEARNING HUB MODAL (Settings, Practice Modes & Configs) -->
+<div class="modal" id="learningHubModal" aria-label="Learning Settings & Practice Hub">
+  <div class="dialog hub-modal-dialog">
+    <div class="hub-head">
+      <div class="hub-title-row">
+        <span class="hub-icon">⚙️</span>
+        <h2>Learning Hub</h2>
+      </div>
+      <button class="sticker-close" id="closeHubBtn" aria-label="Close">✕</button>
+    </div>
+
+    <div class="hub-body">
+      <!-- Section 1: Practice Mode (Learn vs Test) -->
+      <div class="hub-section">
+        <div class="hub-section-label">🎯 Practice Mode</div>
+        <div class="hub-toggle-row">
+          <button type="button" class="hub-choice-btn active" id="modeLearnBtn">
+            <span class="choice-icon">📖</span>
+            <div class="choice-meta">
+              <span class="choice-title">Learn Mode</span>
+              <span class="choice-desc">Guided watermark trace</span>
+            </div>
+          </button>
+          <button type="button" class="hub-choice-btn" id="modeTestBtn">
+            <span class="choice-icon">🎯</span>
+            <div class="choice-meta">
+              <span class="choice-title">Test Mode</span>
+              <span class="choice-desc">Freehand recall (3 passes)</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 2: Watermark Trace Fade Steps (for Learn Mode) -->
+      <div class="hub-section" id="hubFadeSection">
+        <div class="hub-section-label">✍️ Trace Watermark Fade</div>
+        <div class="hub-stepper-card">
+          <div class="hub-stepper-controls">
+            <button type="button" class="hub-step-arrow-btn" id="fadeStepMinusBtn" title="Decrease attempts">−</button>
+            <div class="hub-step-value-wrap">
+              <span class="hub-step-value" id="fadeStepsVal">3</span>
+              <span class="hub-step-unit">attempts</span>
+            </div>
+            <button type="button" class="hub-step-arrow-btn" id="fadeStepPlusBtn" title="Increase attempts">+</button>
+          </div>
+          <div class="hub-stepper-hint" id="fadeStepHint">
+            Standard: Dark trace ➔ Ghost watermark ➔ Freehand
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Practice Order (Curriculum vs Shuffle) -->
+      <div class="hub-section">
+        <div class="hub-section-label">🔀 Practice Order</div>
+        <div class="hub-toggle-row">
+          <button type="button" class="hub-choice-btn active" id="orderCurriculumBtn">
+            <span class="choice-icon">📚</span>
+            <div class="choice-meta">
+              <span class="choice-title">Curriculum</span>
+              <span class="choice-desc">Varnamala order</span>
+            </div>
+          </button>
+          <button type="button" class="hub-choice-btn" id="orderShuffleBtn">
+            <span class="choice-icon">🔀</span>
+            <div class="choice-meta">
+              <span class="choice-title">Shuffle</span>
+              <span class="choice-desc">Random unmastered</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 4: Language Selection -->
+      <div class="hub-section">
+        <div class="hub-section-label">🌐 Script &amp; Language</div>
+        <div class="hub-toggle-row">
+          <button type="button" class="hub-choice-btn active" id="hubLangHiBtn">
+            <span class="choice-icon">🇮🇳</span>
+            <div class="choice-meta">
+              <span class="choice-title">हिन्दी</span>
+              <span class="choice-desc">Hindi Varnamala</span>
+            </div>
+          </button>
+          <button type="button" class="hub-choice-btn" id="hubLangKnBtn">
+            <span class="choice-icon">🟡</span>
+            <div class="choice-meta">
+              <span class="choice-title">ಕನ್ನಡ</span>
+              <span class="choice-desc">Kannada Varnamale</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 5: Quick Actions -->
+      <div class="hub-section hub-actions-row">
+        <button type="button" class="hub-action-btn" id="hubResetBtn">
+          <span>🔄</span>
+          <span>Reset to Start</span>
+        </button>
+        <button type="button" class="hub-action-btn" id="hubStickersBtn">
+          <span>🏆</span>
+          <span>Sticker Book</span>
+        </button>
+      </div>
+
+      <!-- Close / Resume CTA -->
+      <button type="button" class="hub-resume-btn" id="hubResumeBtn">
+        ✍️ Continue Writing
+      </button>
+    </div>
+  </div>
+</div>
 
 <div class="modal" id="progressModal">
   <div class="dialog sticker-modal-dialog">
@@ -5535,6 +5718,13 @@ function renderClue(item, step) {
 // App State
 let idx = 0;
 let currentStep = 1; // 1 = Letter Recall, 2 = Matra Writing, 3 = Word Writing
+let practiceMode = localStorage.getItem('rasari_practice_mode') || 'learn'; // 'learn' | 'test'
+let learnAttemptsTarget = parseInt(localStorage.getItem('rasari_learn_attempts_target') || '3', 10);
+if (isNaN(learnAttemptsTarget) || learnAttemptsTarget < 1) learnAttemptsTarget = 3;
+if (learnAttemptsTarget > 10) learnAttemptsTarget = 10;
+let curAttemptInLearn = 0; // Current attempt on the active letter/item (0 to learnAttemptsTarget - 1)
+let testPasses = 0; // Successful test passes on current letter/item (0 to 3)
+let isNavBarExpanded = false;
 let userStrokes = [];
 let currentStroke = null;
 let drawing = false;
@@ -6089,23 +6279,19 @@ function drawPad() {
   let alpha = 0;
   if (hintActive) {
     alpha = 0.38;
+  } else if (practiceMode === 'test') {
+    alpha = 0; // Test mode: Freehand recall with NO watermark
   } else if (guideMode === 'on') {
     alpha = 0.34;
   } else if (guideMode === 'off') {
     alpha = 0;
   } else {
-    // guideMode === 'auto': 3-stage scaffold (Trace -> Ghost -> Freehand)
-    let tier = 0;
-    if (currentStep === 1) tier = m.letterTier || 0;
-    else if (currentStep === 2) tier = m.matraTier || 0;
-    else if (currentStep === 3) tier = m.wordTier || 0;
-
-    if (tier === 0) {
-      alpha = 0.38; // Tier 0: Trace guide (slightly darker, clear and visible)
-    } else if (tier === 1) {
-      alpha = 0.16; // Tier 1: Ghost faint watermark (distinctly visible faint guide)
+    // guideMode === 'auto': Dynamic scaffold fade based on curAttemptInLearn and learnAttemptsTarget
+    if (learnAttemptsTarget <= 1) {
+      alpha = (curAttemptInLearn === 0) ? 0.38 : 0;
     } else {
-      alpha = 0;    // Tier 2: Freehand recall
+      const progress = Math.min(1, curAttemptInLearn / (learnAttemptsTarget - 1));
+      alpha = Math.max(0, 0.38 * (1 - progress));
     }
   }
 
@@ -6158,6 +6344,9 @@ function isPalmContact(e) {
 }
 
 w.addEventListener('pointerdown', e => {
+  // Auto-collapse top bar to give maximum sketching space (Artist App Rule)
+  if (typeof collapseNavBar === 'function') collapseNavBar();
+
   // Auto-detect active stylus hardware (e.g. Apple Pencil, S-Pen, USI Pen)
   if (e.pointerType === 'pen') {
     isStylusOnlyMode = true;
@@ -8340,18 +8529,25 @@ function evaluateHandwriting(targetString, customStrokes = null, strokeOffset = 
   let activeTier = 0;
   if (forcedTier !== null && forcedTier !== undefined) {
     activeTier = forcedTier;
+  } else if (practiceMode === 'test') {
+    activeTier = 2; // Test mode: Freehand recall
   } else if (guideMode === 'off') {
     activeTier = 2;
   } else if (guideMode === 'on') {
     activeTier = 0;
   } else {
-    // guideMode === 'auto'
-    const item = (typeof getCurItem === 'function') ? getCurItem() : (lessons[idx] || lessons[0]);
-    const m = item ? getLetterMastery(item.c) : null;
-    if (m) {
-      if (currentStep === 1) activeTier = m.letterTier || 0;
-      else if (currentStep === 2) activeTier = m.matraTier || 0;
-      else if (currentStep === 3) activeTier = m.wordTier || 0;
+    // guideMode === 'auto': Scaffolding based on curAttemptInLearn and learnAttemptsTarget
+    if (learnAttemptsTarget <= 1) {
+      activeTier = (curAttemptInLearn === 0) ? 0 : 2;
+    } else {
+      const progress = Math.min(1, curAttemptInLearn / (learnAttemptsTarget - 1));
+      if (progress < 0.45) {
+        activeTier = 0;
+      } else if (progress < 0.90) {
+        activeTier = 1;
+      } else {
+        activeTier = 2;
+      }
     }
   }
 
@@ -8899,111 +9095,217 @@ $('done').onclick = e => {
   }
 
   if (currentStep === 1) {
-    if (m.letterTier < 2) {
-      m.letterTier++;
-      $('mt').textContent = '🌟 Great Tracing!';
-      $('mp').textContent = m.letterTier === 1
-        ? 'Now try writing ' + char + ' with a faint watermark! (+' + treatsEarned + ' 🍌)'
-        : 'Now write ' + char + ' freehand without any guide! (+' + treatsEarned + ' 🍌)';
-      $('next').textContent = m.letterTier === 1 ? 'Try Faint Guide ✍️' : 'Write Freehand ✍️';
-      $('next').onclick = () => {
-        $('modal').classList.remove('show');
-        render();
-      };
+    if (practiceMode === 'learn') {
+      if (curAttemptInLearn < learnAttemptsTarget - 1) {
+        curAttemptInLearn++;
+        const nextAttemptNum = curAttemptInLearn + 1;
+        $('mt').textContent = '🌟 Great Tracing!';
+        $('mp').textContent = 'Step ' + nextAttemptNum + ' of ' + learnAttemptsTarget + ': Watermark is now lighter! Keep practicing ' + char + '! (+' + treatsEarned + ' 🍌)';
+        $('next').textContent = (curAttemptInLearn >= learnAttemptsTarget - 1) ? 'Try Freehand ✍️' : 'Continue Practicing ✍️';
+        $('next').onclick = () => {
+          $('modal').classList.remove('show');
+          render();
+        };
+      } else {
+        m.letterTier = 2;
+        m.letterMastered = true;
+        updateLetterStar(char);
+        const targetStep = getAutoStepForLetter(item);
+        setStep(targetStep);
+        $('mt').textContent = '⭐ Letter Mastered!';
+        $('mp').textContent = 'Awesome! You mastered letter ' + char + '! (+' + treatsEarned + ' bananas 🍌)';
+        $('next').textContent = item.isSwar
+          ? 'Practice Words 📝'
+          : (currentLanguage === 'kn' ? 'Practice Kagunita (ಕಾ, ಕಿ...) 🌿' : 'Practice Matras (का, कि...) 🌿');
+        $('next').onclick = () => {
+          $('modal').classList.remove('show');
+          render();
+        };
+      }
     } else {
-      m.letterMastered = true;
-      updateLetterStar(char);
-      const targetStep = getAutoStepForLetter(item);
-      setStep(targetStep);
-      $('mt').textContent = '⭐ Letter Mastered!';
-      $('mp').textContent = 'Awesome! You mastered letter ' + char + '! (+' + treatsEarned + ' bananas 🍌)';
-      $('next').textContent = item.isSwar
-        ? 'Practice Words 📝'
-        : (currentLanguage === 'kn' ? 'Practice Kagunita (ಕಾ, ಕಿ...) 🌿' : 'Practice Matras (का, कि...) 🌿');
-      $('next').onclick = () => {
-        $('modal').classList.remove('show');
-      };
+      // Test Mode
+      testPasses++;
+      if (testPasses < 3) {
+        $('mt').textContent = '🎯 Pass ' + testPasses + ' of 3!';
+        $('mp').textContent = 'Awesome recall! Write ' + char + ' ' + (3 - testPasses) + ' more times freehand to prove mastery! (+' + treatsEarned + ' 🍌)';
+        $('next').textContent = 'Write Again ✍️';
+        $('next').onclick = () => {
+          $('modal').classList.remove('show');
+          render();
+        };
+      } else {
+        m.letterTier = 2;
+        m.letterMastered = true;
+        updateLetterStar(char);
+        testPasses = 0;
+        const targetStep = getAutoStepForLetter(item);
+        setStep(targetStep);
+        $('mt').textContent = '🏆 True Mastery Proven!';
+        $('mp').textContent = 'Sensational! You wrote ' + char + ' freehand 3 times in a row! (+' + treatsEarned + ' bananas 🍌)';
+        $('next').textContent = item.isSwar
+          ? 'Practice Words 📝'
+          : (currentLanguage === 'kn' ? 'Practice Kagunita (ಕಾ, ಕಿ...) 🌿' : 'Practice Matras (का, कि...) 🌿');
+        $('next').onclick = () => {
+          $('modal').classList.remove('show');
+          render();
+        };
+      }
     }
   } else if (currentStep === 2) {
     const curMatras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
     const curMatra = curMatras[m.matraIndex || 0] || curMatras[0];
     const curCombo = getMatraCombo(char, curMatra.sym);
 
-    if (m.matraTier < 2) {
-      m.matraTier++;
-      $('mt').textContent = currentLanguage === 'kn' ? '🌿 Good Kagunita Practice!' : '🌿 Good Matra Practice!';
-      $('mp').textContent = m.matraTier === 1
-        ? 'Now try ' + curCombo + ' with a faint guide! (+' + treatsEarned + ' 🍌)'
-        : 'Now write ' + curCombo + ' freehand! (+' + treatsEarned + ' 🍌)';
-      $('next').textContent = m.matraTier === 1 ? 'Try Faint Guide ✍️' : 'Write Freehand ✍️';
-      $('next').onclick = () => {
-        $('modal').classList.remove('show');
-        render();
-      };
-    } else {
-      if (!m.matrasCompleted.includes(curCombo)) {
-        m.matrasCompleted.push(curCombo);
-      }
-      if (m.matraIndex < curMatras.length - 1) {
-        m.matraIndex++;
-        m.matraTier = 0;
-        const nextMatra = curMatras[m.matraIndex];
-        const nextCombo = getMatraCombo(char, nextMatra.sym);
-        $('mt').textContent = currentLanguage === 'kn' ? '🌿 Kagunita Mastered!' : '🌿 Matra Mastered!';
-        $('mp').textContent = 'Superb! You wrote ' + curCombo + '! Next ' + (currentLanguage === 'kn' ? 'kagunita' : 'matra') + ': ' + nextCombo + ' (' + (m.matraIndex + 1) + '/' + curMatras.length + ')';
-        $('next').textContent = 'Practice ' + nextCombo + ' →';
+    if (practiceMode === 'learn') {
+      if (curAttemptInLearn < learnAttemptsTarget - 1) {
+        curAttemptInLearn++;
+        const nextAttemptNum = curAttemptInLearn + 1;
+        $('mt').textContent = currentLanguage === 'kn' ? '🌿 Good Kagunita Practice!' : '🌿 Good Matra Practice!';
+        $('mp').textContent = 'Step ' + nextAttemptNum + ' of ' + learnAttemptsTarget + ': Watermark is now lighter! Keep practicing ' + curCombo + '! (+' + treatsEarned + ' 🍌)';
+        $('next').textContent = (curAttemptInLearn >= learnAttemptsTarget - 1) ? 'Try Freehand ✍️' : 'Continue Practicing ✍️';
         $('next').onclick = () => {
           $('modal').classList.remove('show');
           render();
         };
       } else {
-        m.matraMastered = true;
-        updateLetterStar(char);
-        setStep(3);
-        $('mt').textContent = currentLanguage === 'kn' ? '⭐⭐ Kagunita Mastered!' : '⭐⭐ Barakhadi Mastered!';
-        $('mp').textContent = 'Incredible! You completed all ' + curMatras.length + ' forms for ' + char + '! (+' + treatsEarned + ' 🍌)';
-        $('next').textContent = 'Practice Words 📝';
+        curAttemptInLearn = 0;
+        if (!m.matrasCompleted.includes(curCombo)) {
+          m.matrasCompleted.push(curCombo);
+        }
+        if (m.matraIndex < curMatras.length - 1) {
+          m.matraIndex++;
+          const nextMatra = curMatras[m.matraIndex];
+          const nextCombo = getMatraCombo(char, nextMatra.sym);
+          $('mt').textContent = currentLanguage === 'kn' ? '🌿 Kagunita Mastered!' : '🌿 Matra Mastered!';
+          $('mp').textContent = 'Superb! You wrote ' + curCombo + '! Next ' + (currentLanguage === 'kn' ? 'kagunita' : 'matra') + ': ' + nextCombo + ' (' + (m.matraIndex + 1) + '/' + curMatras.length + ')';
+          $('next').textContent = 'Practice ' + nextCombo + ' →';
+          $('next').onclick = () => {
+            $('modal').classList.remove('show');
+            render();
+          };
+        } else {
+          m.matraMastered = true;
+          updateLetterStar(char);
+          setStep(3);
+          $('mt').textContent = currentLanguage === 'kn' ? '⭐⭐ Kagunita Mastered!' : '⭐⭐ Barakhadi Mastered!';
+          $('mp').textContent = 'Incredible! You completed all ' + curMatras.length + ' forms for ' + char + '! (+' + treatsEarned + ' 🍌)';
+          $('next').textContent = 'Practice Words 📝';
+          $('next').onclick = () => {
+            $('modal').classList.remove('show');
+          };
+        }
+      }
+    } else {
+      // Test Mode
+      testPasses++;
+      if (testPasses < 3) {
+        $('mt').textContent = '🎯 Pass ' + testPasses + ' of 3!';
+        $('mp').textContent = 'Great recall! Write ' + curCombo + ' ' + (3 - testPasses) + ' more times to prove mastery! (+' + treatsEarned + ' 🍌)';
+        $('next').textContent = 'Write Again ✍️';
         $('next').onclick = () => {
           $('modal').classList.remove('show');
+          render();
         };
+      } else {
+        testPasses = 0;
+        if (!m.matrasCompleted.includes(curCombo)) {
+          m.matrasCompleted.push(curCombo);
+        }
+        if (m.matraIndex < curMatras.length - 1) {
+          m.matraIndex++;
+          const nextMatra = curMatras[m.matraIndex];
+          const nextCombo = getMatraCombo(char, nextMatra.sym);
+          $('mt').textContent = currentLanguage === 'kn' ? '🌿 Kagunita Mastered!' : '🌿 Matra Mastered!';
+          $('mp').textContent = 'Superb! You wrote ' + curCombo + '! Next ' + (currentLanguage === 'kn' ? 'kagunita' : 'matra') + ': ' + nextCombo + ' (' + (m.matraIndex + 1) + '/' + curMatras.length + ')';
+          $('next').textContent = 'Practice ' + nextCombo + ' →';
+          $('next').onclick = () => {
+            $('modal').classList.remove('show');
+            render();
+          };
+        } else {
+          m.matraMastered = true;
+          updateLetterStar(char);
+          setStep(3);
+          $('mt').textContent = currentLanguage === 'kn' ? '⭐⭐ Kagunita Mastered!' : '⭐⭐ Barakhadi Mastered!';
+          $('mp').textContent = 'Incredible! You completed all ' + curMatras.length + ' forms for ' + char + '! (+' + treatsEarned + ' 🍌)';
+          $('next').textContent = 'Practice Words 📝';
+          $('next').onclick = () => {
+            $('modal').classList.remove('show');
+          };
+        }
       }
     }
   } else if (currentStep === 3) {
     const curWord = getWordForLetter(char, m.wordIndex || 0);
 
-    if (m.wordTier < 2) {
-      m.wordTier++;
-      $('mt').textContent = '📝 Great Word Practice!';
-      $('mp').textContent = m.wordTier === 1
-        ? 'Now try ' + curWord.word + ' with a faint guide! (+' + treatsEarned + ' 🍌)'
-        : 'Now write ' + curWord.word + ' freehand! (+' + treatsEarned + ' 🍌)';
-      $('next').textContent = m.wordTier === 1 ? 'Try Faint Guide ✍️' : 'Write Freehand ✍️';
-      $('next').onclick = () => {
-        $('modal').classList.remove('show');
-        render();
-      };
-    } else {
-      if (!m.wordsMastered.includes(curWord.word)) {
-        m.wordsMastered.push(curWord.word);
-      }
-      updateLetterStar(char);
-      m.wordIndex++;
-      m.wordTier = 0;
-      const nextWord = getWordForLetter(char, m.wordIndex);
-      const totalMastered = m.wordsMastered.length;
-
-      if (totalMastered === 10) {
-        $('mt').textContent = '⭐⭐⭐ 3 Stars! Word Mastery!';
-        $('mp').textContent = 'Brilliant! You mastered 10 words for ' + char + '! Keep practicing for infinite words!';
+    if (practiceMode === 'learn') {
+      if (curAttemptInLearn < learnAttemptsTarget - 1) {
+        curAttemptInLearn++;
+        const nextAttemptNum = curAttemptInLearn + 1;
+        $('mt').textContent = '📝 Great Word Practice!';
+        $('mp').textContent = 'Step ' + nextAttemptNum + ' of ' + learnAttemptsTarget + ': Watermark is now lighter! Keep practicing ' + curWord.word + '! (+' + treatsEarned + ' 🍌)';
+        $('next').textContent = (curAttemptInLearn >= learnAttemptsTarget - 1) ? 'Try Freehand ✍️' : 'Continue Practicing ✍️';
+        $('next').onclick = () => {
+          $('modal').classList.remove('show');
+          render();
+        };
       } else {
-        $('mt').textContent = '🎉 Word Mastered!';
-        $('mp').textContent = 'Brilliant! You wrote ' + curWord.word + '! (' + totalMastered + '/10 words for ' + char + ')';
+        curAttemptInLearn = 0;
+        if (!m.wordsMastered.includes(curWord.word)) {
+          m.wordsMastered.push(curWord.word);
+        }
+        updateLetterStar(char);
+        m.wordIndex++;
+        const nextWord = getWordForLetter(char, m.wordIndex);
+        const totalMastered = m.wordsMastered.length;
+
+        if (totalMastered === 10) {
+          $('mt').textContent = '⭐⭐⭐ 3 Stars! Word Mastery!';
+          $('mp').textContent = 'Brilliant! You mastered 10 words for ' + char + '! Keep practicing for infinite words!';
+        } else {
+          $('mt').textContent = '🎉 Word Mastered!';
+          $('mp').textContent = 'Brilliant! You wrote ' + curWord.word + '! (' + totalMastered + '/10 words for ' + char + ')';
+        }
+        $('next').textContent = 'Next Word (' + nextWord.word + ') →';
+        $('next').onclick = () => {
+          $('modal').classList.remove('show');
+          render();
+        };
       }
-      $('next').textContent = 'Next Word (' + nextWord.word + ') →';
-      $('next').onclick = () => {
-        $('modal').classList.remove('show');
-        render();
-      };
+    } else {
+      // Test Mode on Words
+      testPasses++;
+      if (testPasses < 3) {
+        $('mt').textContent = '🎯 Pass ' + testPasses + ' of 3!';
+        $('mp').textContent = 'Great freehand recall! Write ' + curWord.word + ' ' + (3 - testPasses) + ' more times to prove mastery! (+' + treatsEarned + ' 🍌)';
+        $('next').textContent = 'Write Again ✍️';
+        $('next').onclick = () => {
+          $('modal').classList.remove('show');
+          render();
+        };
+      } else {
+        testPasses = 0;
+        if (!m.wordsMastered.includes(curWord.word)) {
+          m.wordsMastered.push(curWord.word);
+        }
+        updateLetterStar(char);
+        m.wordIndex++;
+        const nextWord = getWordForLetter(char, m.wordIndex);
+        const totalMastered = m.wordsMastered.length;
+
+        if (totalMastered === 10) {
+          $('mt').textContent = '⭐⭐⭐ 3 Stars! Word Mastery!';
+          $('mp').textContent = 'Brilliant! You mastered 10 words for ' + char + '! Keep practicing for infinite words!';
+        } else {
+          $('mt').textContent = '🎉 Word Mastered!';
+          $('mp').textContent = 'Brilliant! You wrote ' + curWord.word + '! (' + totalMastered + '/10 words for ' + char + ')';
+        }
+        $('next').textContent = 'Next Word (' + nextWord.word + ') →';
+        $('next').onclick = () => {
+          $('modal').classList.remove('show');
+          render();
+        };
+      }
     }
   }
 
@@ -9251,6 +9553,7 @@ function goHome() {
   if ($('guidanceModal')) $('guidanceModal').classList.remove('show');
   if ($('progressModal')) $('progressModal').classList.remove('show');
   if ($('audioReviewModal')) $('audioReviewModal').classList.remove('show');
+  if ($('learningHubModal')) $('learningHubModal').classList.remove('show');
   letterHistory = [];
   setStep(1);
 
@@ -9273,7 +9576,285 @@ function goHome() {
 }
 
 if ($('home')) makeTouchResponsive($('home'), goHome);
-if ($('homeBtn')) makeTouchResponsive($('homeBtn'), goHome);
+if ($('homeBtn')) makeTouchResponsive($('homeBtn'), () => openLearningHub());
+
+function expandNavBar() {
+  const nav = $('navBar');
+  const puck = $('letterAvatarPuck');
+  if (nav) nav.classList.remove('collapsed');
+  if (puck) puck.classList.add('hidden');
+  isNavBarExpanded = true;
+}
+
+function collapseNavBar() {
+  const nav = $('navBar');
+  const puck = $('letterAvatarPuck');
+  if (nav) nav.classList.add('collapsed');
+  if (puck) puck.classList.remove('hidden');
+  isNavBarExpanded = false;
+}
+
+function toggleNavBar() {
+  if (isNavBarExpanded) {
+    collapseNavBar();
+  } else {
+    expandNavBar();
+  }
+}
+
+function navigateLetterVertical(delta) {
+  const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
+  if (delta > 0) {
+    letterHistory.push(idx);
+    if (letterHistory.length > 60) letterHistory.shift();
+    const nextIdx = getNextLetterIdx();
+    setLetter(nextIdx);
+  } else {
+    if (letterHistory.length > 0) {
+      const prevIdx = letterHistory.pop();
+      setLetter(prevIdx);
+    } else {
+      let prevIdx = (idx - 1 + curL.length) % curL.length;
+      if (currentStep === 2) {
+        while (curL[prevIdx].isSwar) {
+          prevIdx = (prevIdx - 1 + curL.length) % curL.length;
+        }
+      }
+      setLetter(prevIdx);
+    }
+  }
+
+  if ($('puckChar')) {
+    $('puckChar').style.transform = delta > 0 ? 'translateY(4px)' : 'translateY(-4px)';
+    setTimeout(() => {
+      if ($('puckChar')) $('puckChar').style.transform = 'translateY(0)';
+    }, 150);
+  }
+}
+
+function initLetterAvatarPuck() {
+  const puck = $('letterAvatarPuck');
+  if (!puck) return;
+
+  let startY = 0;
+  let startX = 0;
+  let hasSwiped = false;
+
+  puck.addEventListener('pointerdown', e => {
+    startY = e.clientY;
+    startX = e.clientX;
+    hasSwiped = false;
+  }, { passive: true });
+
+  puck.addEventListener('pointermove', e => {
+    if (startY === 0) return;
+    const dy = e.clientY - startY;
+    const dx = e.clientX - startX;
+    if (Math.abs(dy) > 18 && Math.abs(dy) > Math.abs(dx)) {
+      hasSwiped = true;
+      startY = 0;
+      if (dy < 0) {
+        navigateLetterVertical(1);
+      } else {
+        navigateLetterVertical(-1);
+      }
+    }
+  }, { passive: true });
+
+  puck.addEventListener('pointerup', () => {
+    startY = 0;
+  }, { passive: true });
+
+  puck.addEventListener('pointercancel', () => {
+    startY = 0;
+  }, { passive: true });
+
+  const prevBtn = $('puckPrevBtn');
+  if (prevBtn) {
+    prevBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      navigateLetterVertical(-1);
+    });
+  }
+
+  const nextBtn = $('puckNextBtn');
+  if (nextBtn) {
+    nextBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      navigateLetterVertical(1);
+    });
+  }
+
+  const medallion = $('puckMedallion');
+  if (medallion) {
+    medallion.addEventListener('click', e => {
+      if (hasSwiped) return;
+      toggleNavBar();
+    });
+  }
+
+  const closeBtn = $('navCloseBtn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      collapseNavBar();
+    });
+  }
+
+  document.addEventListener('pointerdown', e => {
+    if (isNavBarExpanded) {
+      const nav = $('navBar');
+      const hub = $('learningHubModal');
+      if (nav && !nav.contains(e.target) && puck && !puck.contains(e.target) && (!hub || !hub.contains(e.target))) {
+        collapseNavBar();
+      }
+    }
+  }, { passive: true });
+}
+
+function updateHubUI() {
+  if (!$('learningHubModal')) return;
+
+  // Practice Mode
+  if ($('modeLearnBtn')) $('modeLearnBtn').classList.toggle('active', practiceMode === 'learn');
+  if ($('modeTestBtn')) $('modeTestBtn').classList.toggle('active', practiceMode === 'test');
+
+  // Fade section is only relevant for Learn mode
+  if ($('hubFadeSection')) {
+    $('hubFadeSection').style.display = practiceMode === 'learn' ? 'flex' : 'none';
+  }
+  if ($('fadeStepsVal')) $('fadeStepsVal').textContent = learnAttemptsTarget;
+
+  if ($('fadeStepHint')) {
+    if (learnAttemptsTarget === 1) {
+      $('fadeStepHint').textContent = '1 attempt: Immediate freehand test after 1 trace';
+    } else if (learnAttemptsTarget <= 4) {
+      $('fadeStepHint').textContent = 'Standard: Dark trace ➔ Ghost watermark ➔ Freehand';
+    } else if (learnAttemptsTarget <= 7) {
+      $('fadeStepHint').textContent = 'Extended: Gradual fading for early beginners';
+    } else {
+      $('fadeStepHint').textContent = 'Toddler / Pre-K: Gentle gradual fade over ' + learnAttemptsTarget + ' attempts';
+    }
+  }
+
+  // Practice Order
+  if ($('orderCurriculumBtn')) $('orderCurriculumBtn').classList.toggle('active', !shuffleMode);
+  if ($('orderShuffleBtn')) $('orderShuffleBtn').classList.toggle('active', !!shuffleMode);
+
+  // Language
+  if ($('hubLangHiBtn')) $('hubLangHiBtn').classList.toggle('active', currentLanguage === 'hi');
+  if ($('hubLangKnBtn')) $('hubLangKnBtn').classList.toggle('active', currentLanguage === 'kn');
+}
+
+function openLearningHub() {
+  updateHubUI();
+  if ($('learningHubModal')) $('learningHubModal').classList.add('show');
+}
+
+function closeLearningHub() {
+  if ($('learningHubModal')) $('learningHubModal').classList.remove('show');
+}
+
+function initLearningHub() {
+  if ($('modeLearnBtn')) {
+    $('modeLearnBtn').addEventListener('click', () => {
+      practiceMode = 'learn';
+      localStorage.setItem('rasari_practice_mode', 'learn');
+      curAttemptInLearn = 0;
+      updateHubUI();
+      render();
+    });
+  }
+
+  if ($('modeTestBtn')) {
+    $('modeTestBtn').addEventListener('click', () => {
+      practiceMode = 'test';
+      localStorage.setItem('rasari_practice_mode', 'test');
+      testPasses = 0;
+      updateHubUI();
+      render();
+    });
+  }
+
+  if ($('fadeStepMinusBtn')) {
+    $('fadeStepMinusBtn').addEventListener('click', () => {
+      if (learnAttemptsTarget > 1) {
+        learnAttemptsTarget--;
+        localStorage.setItem('rasari_learn_attempts_target', learnAttemptsTarget);
+        curAttemptInLearn = Math.min(curAttemptInLearn, learnAttemptsTarget - 1);
+        updateHubUI();
+        render();
+      }
+    });
+  }
+
+  if ($('fadeStepPlusBtn')) {
+    $('fadeStepPlusBtn').addEventListener('click', () => {
+      if (learnAttemptsTarget < 10) {
+        learnAttemptsTarget++;
+        localStorage.setItem('rasari_learn_attempts_target', learnAttemptsTarget);
+        updateHubUI();
+        render();
+      }
+    });
+  }
+
+  if ($('orderCurriculumBtn')) {
+    $('orderCurriculumBtn').addEventListener('click', () => {
+      shuffleMode = false;
+      localStorage.setItem('rasari_shuffle_mode', 'off');
+      updateHubUI();
+    });
+  }
+
+  if ($('orderShuffleBtn')) {
+    $('orderShuffleBtn').addEventListener('click', () => {
+      shuffleMode = true;
+      localStorage.setItem('rasari_shuffle_mode', 'on');
+      updateHubUI();
+    });
+  }
+
+  if ($('hubLangHiBtn')) {
+    $('hubLangHiBtn').addEventListener('click', () => {
+      if (currentLanguage !== 'hi') {
+        setLanguage('hi');
+        updateHubUI();
+      }
+    });
+  }
+
+  if ($('hubLangKnBtn')) {
+    $('hubLangKnBtn').addEventListener('click', () => {
+      if (currentLanguage !== 'kn') {
+        setLanguage('kn');
+        updateHubUI();
+      }
+    });
+  }
+
+  if ($('hubResetBtn')) {
+    $('hubResetBtn').addEventListener('click', () => {
+      closeLearningHub();
+      goHome();
+    });
+  }
+
+  if ($('hubStickersBtn')) {
+    $('hubStickersBtn').addEventListener('click', () => {
+      closeLearningHub();
+      openProgressModal();
+    });
+  }
+
+  if ($('hubResumeBtn')) {
+    $('hubResumeBtn').addEventListener('click', closeLearningHub);
+  }
+
+  if ($('closeHubBtn')) {
+    $('closeHubBtn').addEventListener('click', closeLearningHub);
+  }
+}
 
 // ------------------------------------------------------------------
 // Full-Screen Aperture Writing Shield Mode & Akshara-by-Akshara Engine
@@ -9955,6 +10536,8 @@ function setLetter(newIdx) {
   if ($('guidanceModal')) $('guidanceModal').classList.remove('show');
   clearPad();
   idx = newIdx;
+  curAttemptInLearn = 0;
+  testPasses = 0;
   currentUnitIndex = 0;
   unitStrokesMap = [];
   const curL = (typeof getCurLessons === 'function') ? getCurLessons() : lessons;
@@ -9962,6 +10545,15 @@ function setLetter(newIdx) {
 
   const autoStep = getAutoStepForLetter(item);
   setStep(autoStep);
+
+  // Synchronize floating letter puck
+  if ($('puckChar')) $('puckChar').textContent = item.c;
+  if ($('puckStepBadge')) {
+    const stepLabel = currentStep === 1 ? 'Letter' : (currentStep === 2 ? 'Matra' : 'Word');
+    const modeIcon = practiceMode === 'test' ? '🎯' : '📖';
+    const attemptStr = practiceMode === 'test' ? `${testPasses}/3` : `${curAttemptInLearn + 1}/${learnAttemptsTarget}`;
+    $('puckStepBadge').textContent = `${modeIcon} ${stepLabel} ${attemptStr}`;
+  }
 
   const pack = (typeof getCurLanguagePack === 'function') ? getCurLanguagePack() : null;
   const prevTxt = pack?.ui?.previous || 'Prev';
@@ -9989,6 +10581,8 @@ function setStep(stepNum) {
     stepNum = 1;
   }
   currentStep = stepNum;
+  curAttemptInLearn = 0;
+  testPasses = 0;
 
   ['st1', 'st2', 'st3'].forEach((id, i) => {
     $(id).classList.toggle('active', i === stepNum - 1);
@@ -10018,6 +10612,15 @@ function render() {
   const badge = $('stageBadge');
   if (activeStepEl && badge && activeStepEl.nextElementSibling !== badge) {
     activeStepEl.after(badge);
+  }
+
+  // Synchronize floating letter puck
+  if ($('puckChar')) $('puckChar').textContent = item.c;
+  if ($('puckStepBadge')) {
+    const stepLabel = currentStep === 1 ? 'Letter' : (currentStep === 2 ? 'Matra' : 'Word');
+    const modeIcon = practiceMode === 'test' ? '🎯' : '📖';
+    const attemptStr = practiceMode === 'test' ? `${testPasses}/3` : `${curAttemptInLearn + 1}/${learnAttemptsTarget}`;
+    $('puckStepBadge').textContent = `${modeIcon} ${stepLabel} ${attemptStr}`;
   }
 
   // Left Callout: ONLY the action to be done and the focus letter!
@@ -10246,7 +10849,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.6.4';
+const CURRENT_APP_VERSION = '3.7.0';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
@@ -10278,6 +10881,8 @@ try {
     idx = savedIndices[currentLanguage];
   }
 } catch (_) {}
+initLetterAvatarPuck();
+initLearningHub();
 setLetter(idx || 0);
 
 </script>

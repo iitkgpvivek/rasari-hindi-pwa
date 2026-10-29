@@ -942,6 +942,73 @@ test('Mittu Speech Bubble Interactive Pronunciation & Unclipped Upper Matra Head
     '.speech-focus-word must have overflow: visible and padding-top: 4px headroom');
 });
 
+// ---------------------------------------------------------
+test('Artist-App Minimalist Floating Letter Puck, Vertical Swipe Navigation, and Dynamic Top Bar Expansion', () => {
+  // 1. Floating Puck Elements
+  assert(html.includes('id="letterAvatarPuck"'), 'Floating letter avatar puck must exist');
+  assert(html.includes('id="puckPrevBtn"'), 'Puck previous button must exist');
+  assert(html.includes('id="puckNextBtn"'), 'Puck next button must exist');
+  assert(html.includes('id="puckMedallion"'), 'Puck medallion must exist');
+  assert(html.includes('id="puckChar"'), 'Puck character display must exist');
+  assert(html.includes('id="puckStepBadge"'), 'Puck step badge must exist');
+  assert(html.includes('id="navCloseBtn"'), 'Nav close button must exist in top bar');
+
+  // 2. CSS Rules for minimalist collapsed HUD
+  assert(html.includes('.letter-avatar-puck{'), 'letter-avatar-puck style must exist');
+  assert(html.includes('.nav-bar-container.collapsed{'), 'nav-bar-container.collapsed style must exist');
+  assert(html.includes('transform:translateX(-50%) translateY(-155%) scale(0.92) !important'), 'Collapsed nav bar must tuck up cleanly');
+
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  // 3. Navigation and Expansion Functions
+  assert(scriptContent.includes('function expandNavBar()'), 'expandNavBar function must exist');
+  assert(scriptContent.includes('function collapseNavBar()'), 'collapseNavBar function must exist');
+  assert(scriptContent.includes('function toggleNavBar()'), 'toggleNavBar function must exist');
+  assert(scriptContent.includes('function navigateLetterVertical('), 'navigateLetterVertical function must exist');
+  assert(scriptContent.includes('function initLetterAvatarPuck()'), 'initLetterAvatarPuck function must exist');
+
+  // 4. Auto-collapse on canvas draw
+  assert(scriptContent.includes("collapseNavBar()"), 'Drawing on canvas must automatically collapse top bar for maximum sketching area');
+});
+
+test('Dual-Axis Progression Engine (Learn Mode vs Test Mode) & Unified Learning Hub Modal', () => {
+  // 1. Learning Hub Modal DOM Elements
+  assert(html.includes('id="learningHubModal"'), 'Learning hub modal must exist');
+  assert(html.includes('id="modeLearnBtn"'), 'Learn mode button must exist');
+  assert(html.includes('id="modeTestBtn"'), 'Test mode button must exist');
+  assert(html.includes('id="fadeStepsVal"'), 'Fade steps counter must exist');
+  assert(html.includes('id="fadeStepMinusBtn"'), 'Fade steps minus button must exist');
+  assert(html.includes('id="fadeStepPlusBtn"'), 'Fade steps plus button must exist');
+  assert(html.includes('id="orderCurriculumBtn"'), 'Curriculum order button must exist');
+  assert(html.includes('id="orderShuffleBtn"'), 'Shuffle order button must exist');
+  assert(html.includes('id="hubLangHiBtn"'), 'Hindi language button must exist in hub');
+  assert(html.includes('id="hubLangKnBtn"'), 'Kannada language button must exist in hub');
+  assert(html.includes('id="hubResetBtn"'), 'Reset to start button must exist in hub');
+  assert(html.includes('id="hubStickersBtn"'), 'Sticker book button must exist in hub');
+  assert(html.includes('id="hubResumeBtn"'), 'Resume writing button must exist in hub');
+
+  const scriptContent = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+
+  // 2. Hub Management Functions
+  assert(scriptContent.includes('function updateHubUI()'), 'updateHubUI function must exist');
+  assert(scriptContent.includes('function openLearningHub()'), 'openLearningHub function must exist');
+  assert(scriptContent.includes('function closeLearningHub()'), 'closeLearningHub function must exist');
+  assert(scriptContent.includes('function initLearningHub()'), 'initLearningHub function must exist');
+
+  // 3. Dynamic Watermark Fade in drawPad
+  assert(scriptContent.includes("practiceMode === 'test'"), 'drawPad must detect test mode for zero watermark');
+  assert(scriptContent.includes("curAttemptInLearn / (learnAttemptsTarget - 1)"), 'drawPad must dynamically compute watermark fade across parent-configured attempts');
+
+  // 4. Freehand OCR in Test Mode
+  const evalMatch = scriptContent.match(/function evaluateHandwriting\([\s\S]*?\n\}/)[0];
+  assert(evalMatch.includes("practiceMode === 'test'"), 'evaluateHandwriting must enforce freehand tier in test mode');
+
+  // 5. Done handler persistence
+  const doneMatch = scriptContent.match(/\$\('done'\)\.onclick\s*=\s*e\s*=>\s*\{([\s\S]*?)\n\};/)[0];
+  assert(doneMatch.includes("curAttemptInLearn < learnAttemptsTarget - 1"), 'Done handler must retain child on letter with lighter watermark in learn mode');
+  assert(doneMatch.includes("testPasses < 3"), 'Done handler must require 3 freehand recall passes in test mode');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');
