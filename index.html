@@ -58,6 +58,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 .speech-focus-char{font-family:'Noto Sans Kannada','Noto Sans Devanagari','Baloo 2',system-ui,sans-serif !important;font-size:clamp(38px,5.4vh,54px) !important;font-weight:900 !important;color:#1e293b !important;line-height:1.15 !important;text-align:center !important;flex:1 !important;min-height:0 !important;display:flex !important;align-items:center !important;justify-content:center !important;padding-top:2px !important;overflow:visible !important}
 .speech-focus-word{font-family:'Noto Sans Kannada','Noto Sans Devanagari','Baloo 2',system-ui,sans-serif !important;font-size:clamp(11px,1.55vh,13.5px) !important;font-weight:800 !important;color:#78350f !important;line-height:1.35 !important;text-align:center !important;white-space:nowrap !important;overflow:visible !important;max-width:100% !important;margin-top:auto !important;margin-bottom:1px !important;padding-top:4px !important;padding-bottom:1px !important}
 .speech-focus-char.speech-word-only,.speech-focus-word.speech-word-only{font-size:clamp(16px,2.3vh,22px) !important;color:#1e293b !important;font-weight:900 !important}
+.speech-focus-char.speech-test-mystery{font-size:clamp(32px,4.5vh,44px) !important;line-height:1 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;filter:drop-shadow(0 2px 4px rgba(245,158,11,0.25)) !important}
 .speech-focus-word.speech-matra-subtitle{font-size:clamp(9.5px,1.35vh,12px) !important;white-space:normal !important;line-height:1.3 !important;padding:4px 2px 1px 2px !important;text-overflow:clip !important;word-break:break-word !important;overflow:visible !important}
 
 /* LAYER 2B: Hanging Wooden Square Sign / Easel (Elevated to z-35 above paper slate z-30) */
@@ -10803,7 +10804,7 @@ function setLetter(newIdx) {
   setStep(targetStep);
 
   // Synchronize floating letter puck
-  if ($('puckChar')) $('puckChar').textContent = item.c;
+  if ($('puckChar')) $('puckChar').textContent = practiceMode === 'test' ? '❓' : item.c;
   if ($('puckStepBadge')) {
     const stepLabel = currentStep === 1 ? 'Letter' : (currentStep === 2 ? 'Matra' : 'Word');
     const modeIcon = practiceMode === 'test' ? '🎯' : '📖';
@@ -10866,7 +10867,7 @@ function render() {
   }
 
   // Synchronize floating letter puck
-  if ($('puckChar')) $('puckChar').textContent = item.c;
+  if ($('puckChar')) $('puckChar').textContent = practiceMode === 'test' ? '❓' : item.c;
   if ($('puckStepBadge')) {
     const stepLabel = currentStep === 1 ? 'Letter' : (currentStep === 2 ? 'Matra' : 'Word');
     const modeIcon = practiceMode === 'test' ? '🎯' : '📖';
@@ -10875,8 +10876,8 @@ function render() {
   }
 
   // Left Callout: ONLY the action to be done and the focus letter!
-  if ($('charGlyph')) $('charGlyph').textContent = item.c;
-  if ($('navLetter')) $('navLetter').textContent = item.c;
+  if ($('charGlyph')) $('charGlyph').textContent = practiceMode === 'test' ? '❓' : item.c;
+  if ($('navLetter')) $('navLetter').textContent = practiceMode === 'test' ? '❓' : item.c;
 
   // Bottom Nav Labels & Tooltips
   const stepNoun = currentStep === 1 ? 'letter' : (currentStep === 2 ? 'matra' : 'word');
@@ -10897,7 +10898,7 @@ function render() {
     // Stage 1: Letter Recall
     const tierName = m.letterTier === 0 ? 'Trace' : (m.letterTier === 1 ? 'Ghost' : 'Freehand');
     const tierRatio = (m.letterTier + 1) + '/3';
-    $('promptText').textContent = practiceMode === 'test' ? ("Write letter " + item.c + " freehand") : ("Write letter " + item.c);
+    $('promptText').textContent = practiceMode === 'test' ? "Listen & Write Freehand ✍️" : ("Write letter " + item.c);
     if (badge) {
       if (practiceMode === 'test') {
         if (m.letterTestPassed) {
@@ -10921,7 +10922,7 @@ function render() {
     const combo = getMatraCombo(item.c, matraObj.sym);
     const tierName = m.matraTier === 0 ? 'Trace' : (m.matraTier === 1 ? 'Ghost' : 'Freehand');
     const tierRatio = (m.matraTier + 1) + '/3';
-    $('promptText').textContent = practiceMode === 'test' ? ("Write " + combo + " freehand") : ("Write " + combo + " (" + matraObj.name + ")");
+    $('promptText').textContent = practiceMode === 'test' ? "Listen & Write Matra ✍️" : ("Write " + combo + " (" + matraObj.name + ")");
     if (badge) {
       if (practiceMode === 'test') {
         if (m.matraTestMastered) {
@@ -10942,7 +10943,7 @@ function render() {
   } else if (currentStep === 3) {
     // Stage 3: Word Recall
     const tierName = m.wordTier === 0 ? 'Trace' : (m.wordTier === 1 ? 'Ghost' : 'Freehand');
-    $('promptText').textContent = practiceMode === 'test' ? "Write the word freehand ✍️" : "Write the word ✍️";
+    $('promptText').textContent = practiceMode === 'test' ? "Listen & Write Word ✍️" : "Write the word ✍️";
     const count = (m.wordsMastered && m.wordsMastered.length) || 0;
     if (badge) {
       if (practiceMode === 'test') {
@@ -10968,29 +10969,37 @@ function render() {
   const glyph = $('charGlyph');
   const speechWord = $('monkeySpeechWord');
   const speechLabel = $('monkeySpeechLabel') || document.querySelector('.speech-label');
-  if (speechLabel) speechLabel.textContent = 'Write ✍️';
+  if (speechLabel) speechLabel.textContent = practiceMode === 'test' ? 'Listen 🎧' : 'Write ✍️';
+  if ($('monkeySpeechBubble')) $('monkeySpeechBubble').title = practiceMode === 'test' ? 'Tap to hear the sound!' : 'Tap to hear Mittu speak!';
 
-  if (currentStep === 1) {
-    if (glyph) glyph.textContent = item.c;
+  if (practiceMode === 'test') {
+    if (glyph) glyph.textContent = '❓';
     if (speechWord) {
-      const phrase = (currentLanguage === 'kn')
-        ? (item.word ? (item.word + ' - ' + item.c) : item.c)
-        : (item.word ? (item.word + ' वाला ' + item.c) : item.c);
-      speechWord.innerHTML = `<span class="speech-focus-char">${item.c}</span><span class="speech-focus-word">${phrase}</span>`;
+      speechWord.innerHTML = `<span class="speech-focus-char speech-test-mystery">❓</span><span class="speech-focus-word">Tap to Hear 🔊</span>`;
     }
-  } else if (currentStep === 2 && !item.isSwar) {
-    const matras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
-    const matraObj = matras[m.matraIndex || 0] || matras[0];
-    const phrase = getMatraPhrase(item.c, matraObj, false);
-    if (glyph) glyph.textContent = item.c;
-    if (speechWord) {
-      speechWord.innerHTML = `<span class="speech-focus-char">${item.c}</span><span class="speech-focus-word speech-matra-subtitle">${phrase}</span>`;
-    }
-  } else if (currentStep === 3) {
-    const wObj = getWordForLetter(item.c, m.wordIndex || 0);
-    if (glyph) glyph.textContent = item.c;
-    if (speechWord) {
-      speechWord.innerHTML = `<span class="speech-focus-char speech-word-only">${wObj.word || item.c}</span><span class="speech-focus-word">${item.c}</span>`;
+  } else {
+    if (currentStep === 1) {
+      if (glyph) glyph.textContent = item.c;
+      if (speechWord) {
+        const phrase = (currentLanguage === 'kn')
+          ? (item.word ? (item.word + ' - ' + item.c) : item.c)
+          : (item.word ? (item.word + ' वाला ' + item.c) : item.c);
+        speechWord.innerHTML = `<span class="speech-focus-char">${item.c}</span><span class="speech-focus-word">${phrase}</span>`;
+      }
+    } else if (currentStep === 2 && !item.isSwar) {
+      const matras = (typeof getCurMatras === 'function') ? getCurMatras() : BARAKHADI_MATRAS;
+      const matraObj = matras[m.matraIndex || 0] || matras[0];
+      const phrase = getMatraPhrase(item.c, matraObj, false);
+      if (glyph) glyph.textContent = item.c;
+      if (speechWord) {
+        speechWord.innerHTML = `<span class="speech-focus-char">${item.c}</span><span class="speech-focus-word speech-matra-subtitle">${phrase}</span>`;
+      }
+    } else if (currentStep === 3) {
+      const wObj = getWordForLetter(item.c, m.wordIndex || 0);
+      if (glyph) glyph.textContent = item.c;
+      if (speechWord) {
+        speechWord.innerHTML = `<span class="speech-focus-char speech-word-only">${wObj.word || item.c}</span><span class="speech-focus-word">${item.c}</span>`;
+      }
     }
   }
 
@@ -11166,7 +11175,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.7.0';
+const CURRENT_APP_VERSION = '3.9.1';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;

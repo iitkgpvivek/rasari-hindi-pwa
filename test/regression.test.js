@@ -1039,6 +1039,12 @@ test('Test Mode Eligibility, Highest-Stage Identification, Anti-Cheat Smiley Hin
   // 5. True Mastery Invariant
   assert(scriptContent.includes('m.trueMastery'), 'trueMastery state flag must exist');
   assert(scriptContent.includes('👑 True Mastery'), 'Letter Stars must display True Mastery crown card');
+
+  // 6. Anti-spoiler in Test Mode: speech bubble, puck, and prompt
+  assert(scriptContent.includes('speech-test-mystery'), 'Must render mystery icon in speech bubble during test mode');
+  assert(scriptContent.includes('Tap to Hear 🔊'), 'Must show Tap to Hear in speech bubble during test mode');
+  assert(scriptContent.includes("Listen & Write Freehand ✍️"), 'Must not leak target glyph in prompt text during test mode');
+  assert(scriptContent.includes("practiceMode === 'test' ? '❓' : item.c"), 'Puck must hide target glyph during test mode');
 });
 
 console.log('\n----------------------------------------------------');
