@@ -1,12 +1,12 @@
 {
-  "name": "Rasari Hindi Writing Gym",
-  "short_name": "Rasari Hindi",
-  "description": "A cheerful Hindi letter-writing practice app for children.",
+  "name": "Varnacular — Every Language is an Adventure",
+  "short_name": "Varnacular",
+  "description": "Every language is an adventure — playful writing gym for children.",
   "start_url": "./index.html",
   "display": "fullscreen",
   "display_override": ["fullscreen", "standalone"],
-  "background_color": "#bfeaff",
-  "theme_color": "#bfeaff",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "./icon-192.png",
@@ -19,6 +19,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "./icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

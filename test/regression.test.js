@@ -1047,6 +1047,54 @@ test('Test Mode Eligibility, Highest-Stage Identification, Anti-Cheat Smiley Hin
   assert(scriptContent.includes("practiceMode === 'test' ? '❓' : item.c"), 'Puck must hide target glyph during test mode');
 });
 
+// ---------------------------------------------------------
+// SUITE 50: Varnacular Rebrand, PWA App Icons & Immersive Splash Screen
+// ---------------------------------------------------------
+test('Varnacular Rebrand, PWA App Icons, Offline Brand Cache & Immersive Splash Screen', () => {
+  // 1. App Title & Branding
+  assert(html.includes('<title>Varnacular — Every Language is an Adventure</title>'), 'Title must be rebranded to Varnacular');
+  assert(html.includes('name="apple-mobile-web-app-title" content="Varnacular"'), 'Apple app title must be Varnacular');
+
+  // 2. Immersive PWA Splash Screen
+  assert(html.includes('id="pwaSplashScreen"'), 'PWA splash screen must exist in DOM');
+  assert(html.includes('images/brand/varnacular_splash.png'), 'Splash screen must render Varnacular master banner');
+  assert(html.includes('class="pwa-splash-screen"'), 'PWA splash screen CSS class must exist');
+  assert(html.includes('function dismissSplashScreen('), 'dismissSplashScreen function must exist');
+
+  // 3. Web App Manifest
+  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'manifest.webmanifest'), 'utf8'));
+  assert.strictEqual(manifest.name, 'Varnacular — Every Language is an Adventure');
+  assert.strictEqual(manifest.short_name, 'Varnacular');
+  assert(manifest.icons.some(i => i.purpose === 'maskable'), 'Manifest must provide a maskable icon');
+
+  // 4. App Icons on Disk
+  assert(fs.existsSync(path.join(__dirname, '..', 'icon-512.png')), 'icon-512.png must exist');
+  assert(fs.existsSync(path.join(__dirname, '..', 'icon-192.png')), 'icon-192.png must exist');
+  assert(fs.existsSync(path.join(__dirname, '..', 'icon-512-maskable.png')), 'icon-512-maskable.png must exist');
+  assert(fs.existsSync(path.join(__dirname, '..', 'apple-touch-icon.png')), 'apple-touch-icon.png must exist');
+  assert(fs.existsSync(path.join(__dirname, '..', 'favicon.png')), 'favicon.png must exist');
+
+  // 5. Cropped Brand Library Assets
+  const brandAssets = [
+    'logo_primary_with_mittu.png',
+    'varnacular_splash.png',
+    'logo_horizontal.png',
+    'logo_stacked.png',
+    'app_icon_squircle.png',
+    'app_icon_mark.png',
+    'wordmark.png',
+    'logo_mark.png',
+    'logo_monochrome.png'
+  ];
+  brandAssets.forEach(asset => {
+    assert(fs.existsSync(path.join(__dirname, '..', 'images', 'brand', asset)), `Brand asset ${asset} must exist`);
+  });
+
+  // 6. Service Worker Offline precache
+  assert(sw.includes('images/brand/varnacular_splash.png'), 'Service worker must cache splash screen');
+  assert(sw.includes('icon-512-maskable.png'), 'Service worker must cache maskable icon');
+});
+
 console.log('\n----------------------------------------------------');
 console.log(`  Tests: ${passedTests} passed, ${totalTests} total`);
 console.log('----------------------------------------------------\n');

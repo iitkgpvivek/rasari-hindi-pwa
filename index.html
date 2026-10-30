@@ -3,12 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#bfeaff">
-<meta name="description" content="A cheerful Hindi letter-writing practice app for children.">
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="Varnacular — Every language is an adventure. Playful writing gym for children.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Varnacular">
+<meta name="application-name" content="Varnacular">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./icon-192.png">
-<link rel="apple-touch-icon" href="./icon-192.png">
-<title>Rasari Hindi Writing Gym</title>
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png?v=4.0.0">
+<link rel="icon" type="image/png" sizes="16x16" href="./favicon-16.png?v=4.0.0">
+<link rel="icon" type="image/png" sizes="64x64" href="./favicon.png?v=4.0.0">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg?v=4.0.0">
+<link rel="shortcut icon" type="image/x-icon" href="./favicon.ico?v=4.0.0">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=4.0.0">
+<title>Varnacular — Every Language is an Adventure</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Noto+Sans+Kannada:wght@400;600;700;800;900&display=swap');
 :root{--navy:#123b6c;--teal:#0f7a66;--gold:#ffca4f;--pink:#ff7d9c;--green:#39b84a}
@@ -712,11 +720,111 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
+/* ========================================================
+   PWA SPLASH SCREEN (Varnacular Native Launcher)
+   ======================================================== */
+.pwa-splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 999999 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #ffffff;
+  background: radial-gradient(circle at 50% 45%, #ffffff 0%, #fbfdfc 60%, #f2faf5 100%);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s;
+  cursor: pointer;
+}
+.pwa-splash-screen.fade-out {
+  opacity: 0;
+  transform: scale(1.03);
+  visibility: hidden;
+  pointer-events: none;
+}
+.splash-content-card {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 92vw;
+  width: min(640px, 92vw);
+  padding: 20px;
+  animation: splashPop 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+@keyframes splashPop {
+  0% { transform: scale(0.90); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.splash-brand-logo {
+  width: 100%;
+  height: auto;
+  max-height: 44vh;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 25px rgba(10, 60, 35, 0.10));
+}
+.splash-loading-indicator {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  padding: 8px 22px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 14px rgba(22, 101, 52, 0.10);
+}
+.splash-leaf-spinner {
+  display: inline-block;
+  font-size: 18px;
+  animation: leafWiggle 1.4s ease-in-out infinite;
+}
+@keyframes leafWiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(18deg) scale(1.15); }
+}
+.splash-loading-text {
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  color: #166534;
+  letter-spacing: 0.02em;
+}
+.hub-brand-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+.hub-brand-subtitle {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #047857;
+  letter-spacing: 0.02em;
+  margin-top: -2px;
+}
+
 @media(max-width:680px){.nav{left:22%;right:4%;top:6%}.step{font-size:9px}.circ{width:31px;height:31px;font-size:17px;border-width:3px}.prompt{font-size:11px}.letter{font-size:42px}.toolbar-top{left:28%;gap:4px}.stage-badge,.ctrl-pill{font-size:9px;padding:2px 6px}.guideheading{font-size:10px}.sidebtn{font-size:10px}.praise{font-size:10px}.bottombtn{font-size:14px}}
 @media(max-aspect-ratio:1/1){.bg{object-fit:cover;object-position:center}}
 </style>
 </head>
 <body>
+<!-- PWA IMMERSIVE SPLASH SCREEN (Varnacular Native Launcher) -->
+<div id="pwaSplashScreen" class="pwa-splash-screen" role="dialog" aria-modal="true" aria-label="Varnacular Launch Screen">
+  <div class="splash-content-card">
+    <img src="images/brand/varnacular_splash.png" alt="Varnacular — Every language is an adventure" class="splash-brand-logo" />
+    <div class="splash-loading-indicator">
+      <span class="splash-leaf-spinner">🍃</span>
+      <span class="splash-loading-text">Loading adventure...</span>
+    </div>
+  </div>
+</div>
+
 <main class="app" id="app">
 
   <!-- LAYER 1: Fullscreen Scenic Jungle Background -->
@@ -981,7 +1089,7 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
     </div>
   </div>
 
-  <div id="appVersionBadge" class="app-version-badge" title="Rasari Version (Tap to check for updates)">v3.4.7</div>
+  <div id="appVersionBadge" class="app-version-badge" title="Varnacular (Tap to check for updates)">Varnacular v4.0.0</div>
 
 <div class="modal" id="modal">
   <div class="dialog">
@@ -1006,9 +1114,12 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <div class="modal" id="learningHubModal" aria-label="Parent's Hub">
   <div class="dialog hub-modal-dialog">
     <div class="hub-head">
-      <div class="hub-title-row">
-        <span class="hub-icon">⚙️</span>
-        <h2>Parent's Hub</h2>
+      <div class="hub-title-row" style="display:flex; align-items:center; gap:10px;">
+        <img src="images/brand/logo_mark.png" alt="Varnacular" class="hub-brand-icon" />
+        <div>
+          <h2 style="margin:0; line-height:1.15;">Parent's Hub</h2>
+          <span class="hub-brand-subtitle">Varnacular Learning Settings</span>
+        </div>
       </div>
       <button class="sticker-close" id="closeHubBtn" aria-label="Close">✕</button>
     </div>
@@ -1097,7 +1208,10 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
 <div class="modal" id="progressModal">
   <div class="dialog sticker-modal-dialog">
     <div class="sticker-head">
-      <h2>🏆 My Letter Stars ⭐</h2>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <img src="images/brand/logo_mark.png" alt="Varnacular" style="width:26px; height:26px; object-fit:contain;" />
+        <h2 style="margin:0;">🏆 My Letter Stars ⭐</h2>
+      </div>
       <button class="sticker-close" id="closeProgressBtn" aria-label="Close">✕</button>
     </div>
     <div class="sticker-stats">
@@ -1192,8 +1306,8 @@ button{font:inherit;border:0;cursor:pointer;touch-action:manipulation;-webkit-ta
       <div style="background:#fff9eb; border:1.5px solid #f6cf7c; border-radius:14px; padding:10px 12px;">
         <strong style="color:#80531a; display:flex; align-items:center; gap:6px;">🔒 3. Child Lock for Tablets (Zero Accidental Exits)</strong>
         <ul style="margin:4px 0 0 16px; padding:0; font-size:12px; color:#604018;">
-          <li><strong>iPad (Guided Access):</strong> Go to <em>Settings → Accessibility → Guided Access (Turn ON)</em>. Inside Rasari, triple-click the Top/Power button to lock! Completely disables Home bar, gestures &amp; Mission Control.</li>
-          <li><strong>Android (App Pinning):</strong> Go to <em>Settings → Security → App Pinning (Turn ON)</em>. Open Recents, tap the Rasari icon, and tap <em>Pin</em>. Locks the screen so Home &amp; Back buttons cannot exit.</li>
+          <li><strong>iPad (Guided Access):</strong> Go to <em>Settings → Accessibility → Guided Access (Turn ON)</em>. Inside Varnacular, triple-click the Top/Power button to lock! Completely disables Home bar, gestures &amp; Mission Control.</li>
+          <li><strong>Android (App Pinning):</strong> Go to <em>Settings → Security → App Pinning (Turn ON)</em>. Open Recents, tap the Varnacular icon, and tap <em>Pin</em>. Locks the screen so Home &amp; Back buttons cannot exit.</li>
         </ul>
       </div>
     </div>
@@ -10709,9 +10823,34 @@ if (window.screen && window.screen.orientation && window.screen.orientation.addE
     }, 100);
   });
 }
+function dismissSplashScreen() {
+  const splash = $('pwaSplashScreen');
+  if (splash && !splash.classList.contains('fade-out')) {
+    splash.classList.add('fade-out');
+    setTimeout(() => {
+      splash.style.display = 'none';
+    }, 550);
+  }
+}
+if ($('pwaSplashScreen')) {
+  $('pwaSplashScreen').addEventListener('pointerdown', dismissSplashScreen, { passive: true });
+}
+
 window.addEventListener('load', () => {
   releaseOrientationLock();
   setTimeout(anchorToBottom, 120);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                       window.matchMedia('(display-mode: fullscreen)').matches ||
+                       window.navigator.standalone === true;
+  setTimeout(dismissSplashScreen, isStandalone ? 150 : 950);
+  try {
+    const freshFavicon = document.createElement('link');
+    freshFavicon.rel = 'icon';
+    freshFavicon.type = 'image/png';
+    freshFavicon.sizes = '32x32';
+    freshFavicon.href = './favicon-32.png?v=' + Date.now();
+    document.head.appendChild(freshFavicon);
+  } catch(e) {}
 });
 
 // Step Navigation Handlers: Direct stage switching (Letters, Matras, Words); st4 opens Letter Stars modal
@@ -11175,10 +11314,10 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.9.2';
+const CURRENT_APP_VERSION = '4.0.0';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
-  verBadge.textContent = 'v' + CURRENT_APP_VERSION;
+  verBadge.textContent = 'Varnacular v' + CURRENT_APP_VERSION;
   makeTouchResponsive(verBadge, async () => {
     verBadge.textContent = 'Updating...';
     try {

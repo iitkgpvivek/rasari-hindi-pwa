@@ -1,4 +1,4 @@
-const APP_VERSION = '3.9.2';
+const APP_VERSION = '4.0.0';
 const CACHE = `rasari-hindi-v${APP_VERSION}`;
 const ASSETS = [
   './',
@@ -18,6 +18,12 @@ const ASSETS = [
   './images/hanging_sign.png',
   './images/rope_extension.png',
   './images/parchment_scroll.png',
+  './images/brand/logo_primary_with_mittu.png',
+  './images/brand/varnacular_splash.png',
+  './images/brand/logo_horizontal.png',
+  './images/brand/logo_stacked.png',
+  './images/brand/logo_mark.png',
+  './images/brand/wordmark.png',
   './audio_samples/anaar_wala_a.m4a',
   './audio_samples/anaar_wala_aa.m4a',
   './audio_samples/a_se_anaar.m4a',
@@ -31,6 +37,13 @@ const ASSETS = [
   './background.jpg',
   './icon-192.png',
   './icon-512.png',
+  './icon-512-maskable.png',
+  './apple-touch-icon.png',
+  './favicon.ico',
+  './favicon.svg',
+  './favicon.png',
+  './favicon-32.png',
+  './favicon-16.png',
   './audio/sw_a.mp3',
   './audio/sw_aa.mp3',
   './audio/sw_i.mp3',
