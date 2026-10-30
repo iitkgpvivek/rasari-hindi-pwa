@@ -1042,7 +1042,7 @@ test('Test Mode Eligibility, Highest-Stage Identification, Anti-Cheat Smiley Hin
 
   // 6. Anti-spoiler in Test Mode: speech bubble, puck, and prompt
   assert(scriptContent.includes('speech-test-mystery'), 'Must render mystery icon in speech bubble during test mode');
-  assert(scriptContent.includes('Tap to Hear 🔊'), 'Must show Tap to Hear in speech bubble during test mode');
+  assert(scriptContent.includes('Tap to hear'), 'Must show Tap to hear in speech bubble during test mode');
   assert(scriptContent.includes("Listen & Write Freehand ✍️"), 'Must not leak target glyph in prompt text during test mode');
   assert(scriptContent.includes("practiceMode === 'test' ? '❓' : item.c"), 'Puck must hide target glyph during test mode');
 });

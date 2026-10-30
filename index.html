@@ -10969,13 +10969,13 @@ function render() {
   const glyph = $('charGlyph');
   const speechWord = $('monkeySpeechWord');
   const speechLabel = $('monkeySpeechLabel') || document.querySelector('.speech-label');
-  if (speechLabel) speechLabel.textContent = practiceMode === 'test' ? 'Listen 🎧' : 'Write ✍️';
+  if (speechLabel) speechLabel.textContent = practiceMode === 'test' ? 'Listen' : 'Write ✍️';
   if ($('monkeySpeechBubble')) $('monkeySpeechBubble').title = practiceMode === 'test' ? 'Tap to hear the sound!' : 'Tap to hear Mittu speak!';
 
   if (practiceMode === 'test') {
     if (glyph) glyph.textContent = '❓';
     if (speechWord) {
-      speechWord.innerHTML = `<span class="speech-focus-char speech-test-mystery">❓</span><span class="speech-focus-word">Tap to Hear 🔊</span>`;
+      speechWord.innerHTML = `<span class="speech-focus-char speech-test-mystery">❓</span><span class="speech-focus-word">Tap to hear</span>`;
     }
   } else {
     if (currentStep === 1) {
@@ -11175,7 +11175,7 @@ function setupPWAUpdate() {
   });
 }
 
-const CURRENT_APP_VERSION = '3.9.1';
+const CURRENT_APP_VERSION = '3.9.2';
 const verBadge = $('appVersionBadge');
 if (verBadge) {
   verBadge.textContent = 'v' + CURRENT_APP_VERSION;
