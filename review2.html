@@ -364,7 +364,7 @@
         banner.innerHTML = `💻 <strong>Localhost Origin (${window.location.host})</strong>: Chromium treats localhost as secure.`;
       } else {
         banner.className = 'alert alert-warn';
-        banner.innerHTML = `⚠️ <strong>Insecure LAN HTTP (${window.location.host})</strong>: Android Chrome blocks Web Speech on non-localhost HTTP.<br />If speech fails, test over HTTPS on GitHub Pages: <a href="https://iitkgpvivek.github.io/rasari-hindi-pwa/review2.html" style="color:#38bdf8; font-weight:bold; text-decoration:underline;">Open HTTPS review2.html ↗</a>`;
+        banner.innerHTML = `⚠️ <strong>Insecure LAN HTTP (${window.location.host})</strong>: Android Chrome blocks Web Speech on non-localhost HTTP.<br />If speech fails, test over HTTPS on GitHub Pages: <a href="https://iitkgpvivek.github.io/varnacular/review2.html" style="color:#38bdf8; font-weight:bold; text-decoration:underline;">Open HTTPS review2.html ↗</a>`;
         log(`Warning: Accessing via non-localhost HTTP (${window.location.origin}). Chrome on Android often rejects SpeechSynthesis on insecure origins.`, 'warn');
       }
     }
